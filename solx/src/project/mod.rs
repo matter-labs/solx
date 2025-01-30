@@ -32,7 +32,7 @@ pub struct Project {
     /// The project language.
     pub language: solx_solc::StandardJsonInputLanguage,
     /// The `solc` compiler version.
-    pub solc_version: Option<solx_solc::Version>,
+    pub solc_version: solx_solc::Version,
     /// The project build results.
     pub contracts: BTreeMap<String, Contract>,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
@@ -47,7 +47,6 @@ impl Project {
     ///
     pub fn new(
         language: solx_solc::StandardJsonInputLanguage,
-        solc_version: Option<solx_solc::Version>,
         contracts: BTreeMap<String, Contract>,
         libraries: solx_solc::StandardJsonInputLibraries,
     ) -> Self {
@@ -58,7 +57,7 @@ impl Project {
 
         Self {
             language,
-            solc_version,
+            solc_version: solx_solc::Compiler::default().version,
             contracts,
             identifier_paths,
             libraries,
@@ -72,14 +71,11 @@ impl Project {
         libraries: solx_solc::StandardJsonInputLibraries,
         via_ir: bool,
         solc_output: &mut solx_solc::StandardJsonOutput,
-        solc_compiler: &solx_solc::Compiler,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
         if !via_ir {
             Assembly::preprocess_dependencies(&mut solc_output.contracts)?;
         }
-
-        let solc_version = solc_compiler.version.to_owned();
 
         let mut input_contracts = Vec::with_capacity(solc_output.contracts.len());
         for (path, file) in solc_output.contracts.iter() {
@@ -125,7 +121,6 @@ impl Project {
         }
         Ok(Project::new(
             solx_solc::StandardJsonInputLanguage::Solidity,
-            Some(solc_version),
             contracts,
             libraries,
         ))
@@ -138,7 +133,6 @@ impl Project {
         paths: &[PathBuf],
         libraries: solx_solc::StandardJsonInputLibraries,
         solc_output: Option<&mut solx_solc::StandardJsonOutput>,
-        solc_version: Option<&solx_solc::Version>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
         let sources = paths
@@ -148,7 +142,7 @@ impl Project {
                 (path.to_string_lossy().to_string(), source)
             })
             .collect::<BTreeMap<String, solx_solc::StandardJsonInputSource>>();
-        Self::try_from_yul_sources(sources, libraries, solc_output, solc_version, debug_config)
+        Self::try_from_yul_sources(sources, libraries, solc_output, debug_config)
     }
 
     ///
@@ -158,7 +152,6 @@ impl Project {
         sources: BTreeMap<String, solx_solc::StandardJsonInputSource>,
         libraries: solx_solc::StandardJsonInputLibraries,
         mut solc_output: Option<&mut solx_solc::StandardJsonOutput>,
-        solc_version: Option<&solx_solc::Version>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
         let results = sources
@@ -180,7 +173,7 @@ impl Project {
                 let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
                 let source_metadata = serde_json::json!({
                     "source_hash": source_hash.to_string(),
-                    "solc_version": solc_version,
+                    "solc_version": solx_solc::Compiler::default().version,
                 });
 
                 let name = era_compiler_common::ContractName::new(
@@ -207,7 +200,6 @@ impl Project {
         }
         Ok(Self::new(
             solx_solc::StandardJsonInputLanguage::Yul,
-            solc_version.cloned(),
             contracts,
             libraries,
         ))
@@ -275,7 +267,6 @@ impl Project {
         }
         Ok(Self::new(
             solx_solc::StandardJsonInputLanguage::LLVMIR,
-            None,
             contracts,
             libraries,
         ))
@@ -297,7 +288,6 @@ impl Project {
             let missing_libraries = contract.get_missing_libraries(&deployed_libraries);
             let input = EVMProcessInput::new(
                 contract,
-                self.solc_version.clone(),
                 self.identifier_paths.clone(),
                 missing_libraries,
                 metadata_hash_type,

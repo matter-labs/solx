@@ -10,7 +10,6 @@ fn bin() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -19,29 +18,14 @@ fn bin() -> anyhow::Result<()> {
         tmp_dir_solx.path().to_str().unwrap(),
         "--overwrite",
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--bin",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-        "--overwrite",
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
+    result
         .success()
-        .stderr(predicate::str::contains("Compiler run successful"))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+        .stderr(predicate::str::contains("Compiler run successful"));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }
@@ -51,7 +35,6 @@ fn bin_missing() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -59,30 +42,14 @@ fn bin_missing() -> anyhow::Result<()> {
         "--output-dir",
         tmp_dir_solx.path().to_str().unwrap(),
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--bin",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
-        .failure()
-        .stderr(predicate::str::contains(
-            "Error: Refusing to overwrite an existing file",
-        ))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+    result.failure().stderr(predicate::str::contains(
+        "Error: Refusing to overwrite an existing file",
+    ));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }
@@ -92,7 +59,6 @@ fn asm() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -101,29 +67,14 @@ fn asm() -> anyhow::Result<()> {
         tmp_dir_solx.path().to_str().unwrap(),
         "--overwrite",
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--asm",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-        "--overwrite",
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
+    result
         .success()
-        .stderr(predicate::str::contains("Compiler run successful"))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+        .stderr(predicate::str::contains("Compiler run successful"));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }
@@ -133,7 +84,6 @@ fn asm_missing() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -141,30 +91,14 @@ fn asm_missing() -> anyhow::Result<()> {
         "--output-dir",
         tmp_dir_solx.path().to_str().unwrap(),
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--asm",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
-        .failure()
-        .stderr(predicate::str::contains(
-            "Error: Refusing to overwrite an existing file",
-        ))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+    result.failure().stderr(predicate::str::contains(
+        "Error: Refusing to overwrite an existing file",
+    ));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }
@@ -174,7 +108,6 @@ fn metadata() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -183,29 +116,14 @@ fn metadata() -> anyhow::Result<()> {
         tmp_dir_solx.path().to_str().unwrap(),
         "--overwrite",
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--metadata",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-        "--overwrite",
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
+    result
         .success()
-        .stderr(predicate::str::contains("Compiler run successful"))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+        .stderr(predicate::str::contains("Compiler run successful"));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }
@@ -215,7 +133,6 @@ fn metadata_missing() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -223,30 +140,14 @@ fn metadata_missing() -> anyhow::Result<()> {
         "--output-dir",
         tmp_dir_solx.path().to_str().unwrap(),
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--metadata",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
-        .failure()
-        .stderr(predicate::str::contains(
-            "Error: Refusing to overwrite an existing file",
-        ))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+    result.failure().stderr(predicate::str::contains(
+        "Error: Refusing to overwrite an existing file",
+    ));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }
@@ -256,7 +157,6 @@ fn all() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -267,31 +167,14 @@ fn all() -> anyhow::Result<()> {
         tmp_dir_solx.path().to_str().unwrap(),
         "--overwrite",
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--bin",
-        "--asm",
-        "--metadata",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-        "--overwrite",
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
+    result
         .success()
-        .stderr(predicate::str::contains("Compiler run successful"))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+        .stderr(predicate::str::contains("Compiler run successful"));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }
@@ -301,7 +184,6 @@ fn all_missing() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
@@ -311,118 +193,14 @@ fn all_missing() -> anyhow::Result<()> {
         "--output-dir",
         tmp_dir_solx.path().to_str().unwrap(),
     ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--bin",
-        "--asm",
-        "--metadata",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-    ];
 
     let _ = crate::cli::execute_solx(args)?;
     let result = crate::cli::execute_solx(args)?;
-    let status = result
-        .failure()
-        .stderr(predicate::str::contains(
-            "Error: Refusing to overwrite an existing file",
-        ))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
+    result.failure().stderr(predicate::str::contains(
+        "Error: Refusing to overwrite an existing file",
+    ));
 
     assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
-
-    Ok(())
-}
-
-#[test]
-fn combined_json() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
-
-    let args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--combined-json",
-        "bin,asm,metadata",
-        "--output-dir",
-        tmp_dir_solx.path().to_str().unwrap(),
-        "--overwrite",
-    ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--combined-json",
-        "bin,asm,metadata",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-        "--overwrite",
-    ];
-
-    let _ = crate::cli::execute_solx(args)?;
-    let result = crate::cli::execute_solx(args)?;
-    let status = result
-        .success()
-        .stderr(predicate::str::contains("Compiler run successful"))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
-
-    assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
-
-    Ok(())
-}
-
-#[test]
-fn combined_json_missing() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-    let tmp_dir_solc = TempDir::with_prefix("solc_output")?;
-
-    let args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--combined-json",
-        "bin,asm,metadata",
-        "--output-dir",
-        tmp_dir_solx.path().to_str().unwrap(),
-    ];
-    let solc_args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--combined-json",
-        "bin,asm,metadata",
-        "--output-dir",
-        tmp_dir_solc.path().to_str().unwrap(),
-    ];
-
-    let _ = crate::cli::execute_solx(args)?;
-    let result = crate::cli::execute_solx(args)?;
-    let status = result
-        .failure()
-        .stderr(predicate::str::contains(
-            "Error: Refusing to overwrite an existing file",
-        ))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
-
-    assert!(tmp_dir_solx.path().exists());
-
-    let _ = crate::cli::execute_solc(solc_args)?;
-    let solc_result = crate::cli::execute_solc(solc_args)?;
-    solc_result.code(status);
 
     Ok(())
 }

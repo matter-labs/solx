@@ -63,13 +63,9 @@ pub struct Arguments {
 
     /// Pass arbitrary space-separated options to LLVM.
     /// The argument must be a single-quoted string following a `=` separator.
-    /// Example: `--llvm-options='-eravm-jump-table-density-threshold=10'`.
+    /// Example: `--llvm-options='-eravm-jump-table-density-threshold=10'`. TODO: update
     #[arg(long)]
     pub llvm_options: Option<String>,
-
-    /// Specify the path to a `solc` executable.
-    #[arg(long)]
-    pub solc: Option<String>,
 
     /// EVM version `solc` will produce Yul or EVM assembly for.
     /// The default is chosen by `solc`.
@@ -80,11 +76,6 @@ pub struct Arguments {
     /// Addresses are interpreted as hexadecimal strings prefixed with `0x`.
     #[arg(short, long, num_args = 1..)]
     pub libraries: Vec<String>,
-
-    /// Output a single JSON document containing the specified information.
-    /// Available arguments: `abi`, `hashes`, `metadata`, `devdoc`, `userdoc`, `storage-layout`, `ast`, `asm`, `bin`, `bin-runtime`.
-    #[arg(long)]
-    pub combined_json: Option<String>,
 
     /// Switch to standard JSON input/output mode. Read from stdin or specified file, write the result to stdout.
     /// This is the default used by the Hardhat plugin.
@@ -97,13 +88,13 @@ pub struct Arguments {
 
     /// Switch to Yul mode.
     /// Only one input Yul file is allowed.
-    /// Cannot be used with combined and standard JSON modes.
+    /// Cannot be used with standard JSON mode.
     #[arg(long)]
     pub yul: bool,
 
     /// Switch to LLVM IR mode.
     /// Only one input LLVM IR file is allowed.
-    /// Cannot be used with combined and standard JSON modes.
+    /// Cannot be used with standard JSON mode.
     /// Use this mode at your own risk, as LLVM IR input validation is not implemented.
     #[arg(long)]
     pub llvm_ir: bool,
@@ -189,7 +180,6 @@ impl Arguments {
             self.yul,
             self.llvm_ir,
             self.link,
-            self.combined_json.is_some(),
             self.standard_json.is_some(),
         ]
         .iter()
@@ -197,7 +187,7 @@ impl Arguments {
         .count();
         if modes_count > 1 + ((self.link && self.standard_json.is_some()) as usize) {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
-                "Only one mode is allowed at the same time: Yul, LLVM IR, combined JSON, standard JSON. Only linker can be used with `--standard-json`.", None, None));
+                "Only one mode is allowed at the same time: Yul, LLVM IR, standard JSON. Only linker can be used with `--standard-json`.", None, None));
         }
 
         if self.yul || self.llvm_ir || self.link {
@@ -240,14 +230,6 @@ impl Arguments {
             }
         }
 
-        if (self.llvm_ir || self.link) && self.solc.is_some() {
-            messages.push(solx_solc::StandardJsonOutputError::new_error(
-                "Using `solc` is only allowed in Solidity and Yul modes.",
-                None,
-                None,
-            ));
-        }
-
         if self.llvm_ir && !self.libraries.is_empty() {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
                 "Libraries are only supported in Solidity, Yul, and linker modes.",
@@ -265,16 +247,6 @@ impl Arguments {
         if self.link && std::env::args().count() > linker_default_arguments_count {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
                 "Error: No other options except bytecode files, `--libraries`, `--standard-json`, `--target` are allowed in linker mode.",
-                None,
-                None,
-            ));
-        }
-
-        if self.combined_json.is_some()
-            && (self.output_assembly || self.output_metadata || self.output_binary)
-        {
-            messages.push(solx_solc::StandardJsonOutputError::new_error(
-                "Cannot output data outside of JSON in combined JSON mode.",
                 None,
                 None,
             ));

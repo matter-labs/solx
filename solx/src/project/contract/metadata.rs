@@ -10,12 +10,11 @@
 #[derive(Debug, serde::Serialize)]
 pub struct Metadata<'a> {
     /// The source code metadata.
-    /// If `solc` is used in the compilation process, its metadata is included here.
     pub source_metadata: serde_json::Value,
-    /// The `solc` version if used.
-    pub solc_version: Option<semver::Version>,
+    /// The `solc` version.
+    pub solc_version: semver::Version,
     /// The ZKsync `solc` edition.
-    pub solc_zkvm_edition: Option<semver::Version>,
+    pub solc_zkvm_edition: semver::Version,
     /// The ZKsync compiler version.
     pub zk_version: semver::Version,
     /// The ZKsync compiler optimizer settings.
@@ -30,8 +29,8 @@ impl<'a> Metadata<'a> {
     ///
     pub fn new(
         source_metadata: serde_json::Value,
-        solc_version: Option<semver::Version>,
-        solc_zkvm_edition: Option<semver::Version>,
+        solc_version: semver::Version,
+        solc_zkvm_edition: semver::Version,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: &'a [String],
     ) -> Self {

@@ -12,7 +12,6 @@ mod allow_paths;
 mod asm;
 mod base_path;
 mod bin;
-mod combined_json;
 mod debug_output_dir;
 mod evm_version;
 mod fallback_oz;
@@ -29,7 +28,6 @@ mod output_dir;
 mod overwrite;
 mod recursive_process;
 mod remappings;
-mod solc;
 mod standard_json;
 mod threads;
 mod version;
@@ -48,16 +46,6 @@ pub fn execute_solx(args: &[&str]) -> anyhow::Result<assert_cmd::assert::Assert>
         )
         .args(args)
         .assert())
-}
-
-///
-/// Execute solc with the given arguments and return the result.
-///
-pub fn execute_solc(args: &[&str]) -> anyhow::Result<assert_cmd::assert::Assert> {
-    let solc_compiler =
-        crate::common::get_solc_compiler(&solx_solc::Compiler::LAST_SUPPORTED_VERSION)?.executable;
-    let mut cmd = Command::new(solc_compiler);
-    Ok(cmd.args(args).assert())
 }
 
 ///

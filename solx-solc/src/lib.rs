@@ -9,14 +9,10 @@
 #![allow(clippy::should_implement_trait)]
 #![allow(clippy::result_large_err)]
 
-pub mod combined_json;
 pub mod solc;
 pub mod standard_json;
 pub mod version;
 
-pub use self::combined_json::contract::Contract as CombinedJsonContract;
-pub use self::combined_json::selector::Selector as CombinedJsonSelector;
-pub use self::combined_json::CombinedJson;
 pub use self::solc::Compiler;
 pub use self::standard_json::input::language::Language as StandardJsonInputLanguage;
 pub use self::standard_json::input::settings::libraries::Libraries as StandardJsonInputLibraries;

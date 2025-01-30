@@ -64,7 +64,6 @@ impl Contract {
     ///
     pub fn compile_to_evm(
         self,
-        solc_version: Option<solx_solc::Version>,
         identifier_paths: BTreeMap<String, String>,
         missing_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::HashType,
@@ -74,18 +73,16 @@ impl Contract {
     ) -> anyhow::Result<EVMContractBuild> {
         use era_compiler_llvm_context::EVMWriteLLVM;
 
+        let solc_version = solx_solc::Compiler::default().version;
+
         let identifier = self.identifier().to_owned();
 
         let optimizer = era_compiler_llvm_context::Optimizer::new(optimizer_settings);
 
         let metadata = Metadata::new(
             self.source_metadata,
-            solc_version
-                .as_ref()
-                .map(|version| version.default.to_owned()),
-            solc_version
-                .as_ref()
-                .map(|version| version.l2_revision.to_owned()),
+            solc_version.default.to_owned(),
+            solc_version.l2_revision.to_owned(),
             optimizer.settings().to_owned(),
             llvm_options.as_slice(),
         );
@@ -175,9 +172,8 @@ impl Contract {
                 let mut runtime_code_assembly = deploy_code.assembly.runtime_code()?.to_owned();
                 runtime_code_assembly.set_full_path(deploy_code.assembly.full_path().to_owned());
 
-                let evmla_data = era_compiler_llvm_context::EVMContextEVMLAData::new(
-                    solc_version.expect("Always exists").default,
-                );
+                let evmla_data =
+                    era_compiler_llvm_context::EVMContextEVMLAData::new(solc_version.default);
 
                 let deploy_code_segment = era_compiler_common::CodeSegment::Deploy;
                 let runtime_code_segment = era_compiler_common::CodeSegment::Runtime;

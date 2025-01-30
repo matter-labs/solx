@@ -13,18 +13,10 @@ fn no_arguments() -> anyhow::Result<()> {
     let args: &[&str] = &[];
 
     let result = crate::cli::execute_solx(args)?;
-    let status_code = result
-        .failure()
-        .stderr(predicate::str::contains(
-            "Error: No input sources specified",
-        ))
-        .get_output()
-        .status
-        .code()
-        .expect("No exit code.");
 
-    let solc_result = crate::cli::execute_solc(args)?;
-    solc_result.code(status_code);
+    result.failure().stderr(predicate::str::contains(
+        "Error: No input sources specified",
+    ));
 
     Ok(())
 }

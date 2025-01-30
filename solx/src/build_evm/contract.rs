@@ -198,26 +198,4 @@ impl Contract {
 
         Ok(())
     }
-
-    ///
-    /// Writes the contract text assembly and bytecode to the combined JSON.
-    ///
-    pub fn write_to_combined_json(
-        self,
-        combined_json_contract: &mut solx_solc::CombinedJsonContract,
-    ) -> anyhow::Result<()> {
-        if let Some(metadata) = combined_json_contract.metadata.as_mut() {
-            *metadata = self.metadata_json.to_string();
-        }
-
-        combined_json_contract.bin = Some(hex::encode(self.deploy_build));
-        combined_json_contract.bin_runtime = Some(hex::encode(self.runtime_build));
-
-        combined_json_contract
-            .missing_libraries
-            .extend(self.missing_libraries);
-        combined_json_contract.object_format = Some(self.object_format);
-
-        Ok(())
-    }
 }

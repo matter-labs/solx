@@ -30,7 +30,6 @@ pub fn run() -> anyhow::Result<()> {
     let result = input
         .contract
         .compile_to_evm(
-            input.solc_version,
             input.identifier_paths,
             input.missing_libraries,
             input.metadata_hash_type,

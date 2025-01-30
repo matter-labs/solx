@@ -15,7 +15,6 @@ fn evmla() {
         solx_solc::StandardJsonInputLibraries::default(),
         era_compiler_common::HashType::Ipfs,
         BTreeSet::new(),
-        &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         false,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
     )
@@ -56,7 +55,6 @@ fn yul() {
         solx_solc::StandardJsonInputLibraries::default(),
         era_compiler_common::HashType::Ipfs,
         BTreeSet::new(),
-        &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         true,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
     )
@@ -100,7 +98,6 @@ fn yul_empty_solidity_interface() {
         solx_solc::StandardJsonInputLibraries::default(),
         era_compiler_common::HashType::Ipfs,
         BTreeSet::new(),
-        &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         true,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
     )

@@ -139,7 +139,6 @@ fn main_inner(
         solx::yul_to_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
-            arguments.solc,
             messages,
             metadata_hash_type,
             optimizer_settings,
@@ -159,12 +158,7 @@ fn main_inner(
     } else if arguments.link {
         anyhow::bail!("The EVM target does not support linking yet.");
     } else if let Some(standard_json) = arguments.standard_json {
-        let solc_compiler = match arguments.solc.as_deref() {
-            Some(executable) => Some(solx_solc::Compiler::try_from_path(executable)?),
-            None => None,
-        };
         return solx::standard_json_evm(
-            solc_compiler,
             arguments.via_ir,
             standard_json.map(PathBuf::from),
             messages,
@@ -173,44 +167,10 @@ fn main_inner(
             arguments.allow_paths,
             debug_config,
         );
-    } else if let Some(format) = arguments.combined_json {
-        let solc_compiler = solx_solc::Compiler::try_from_path(
-            arguments
-                .solc
-                .as_deref()
-                .unwrap_or(solx_solc::Compiler::DEFAULT_EXECUTABLE_NAME),
-        )?;
-        return solx::combined_json_evm(
-            format,
-            input_files.as_slice(),
-            arguments.libraries.as_slice(),
-            &solc_compiler,
-            messages,
-            arguments.evm_version,
-            arguments.via_ir,
-            metadata_hash_type,
-            arguments.metadata_literal,
-            arguments.base_path,
-            arguments.include_path,
-            arguments.allow_paths,
-            remappings,
-            arguments.output_dir,
-            arguments.overwrite,
-            optimizer_settings,
-            llvm_options,
-            debug_config,
-        );
     } else {
-        let solc = solx_solc::Compiler::try_from_path(
-            arguments
-                .solc
-                .as_deref()
-                .unwrap_or(solx_solc::Compiler::DEFAULT_EXECUTABLE_NAME),
-        )?;
         solx::standard_output_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
-            &solc,
             messages,
             arguments.evm_version,
             arguments.via_ir,

@@ -16,8 +16,6 @@ use crate::project::contract::Contract;
 pub struct Input {
     /// The input contract.
     pub contract: Contract,
-    /// The `solc` compiler version.
-    pub solc_version: Option<solx_solc::Version>,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
     /// Missing unlinked libraries.
@@ -38,7 +36,6 @@ impl Input {
     ///
     pub fn new(
         contract: Contract,
-        solc_version: Option<solx_solc::Version>,
         identifier_paths: BTreeMap<String, String>,
         missing_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::HashType,
@@ -48,7 +45,6 @@ impl Input {
     ) -> Self {
         Self {
             contract,
-            solc_version,
             identifier_paths,
             missing_libraries,
             metadata_hash_type,

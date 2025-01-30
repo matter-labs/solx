@@ -100,25 +100,6 @@ fn missing_file() -> anyhow::Result<()> {
 // }
 
 #[test]
-fn excess_mode_combined_json() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let args = &[
-        crate::common::TEST_LLVM_IR_CONTRACT_PATH,
-        "--llvm-ir",
-        "--combined-json",
-        "anyarg",
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result.failure().stderr(predicate::str::contains(
-        "Only one mode is allowed at the same time",
-    ));
-
-    Ok(())
-}
-
-#[test]
 fn excess_mode_standard_json() -> anyhow::Result<()> {
     crate::common::setup()?;
 
@@ -165,28 +146,6 @@ fn standard_json_missing_file() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains(
         "Error: File \\\"tests/data/contracts/llvm_ir/Missing.ll\\\" reading:",
-    ));
-
-    Ok(())
-}
-
-#[test]
-fn standard_json_excess_solc() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let solc_compiler =
-        crate::common::get_solc_compiler(&solx_solc::Compiler::LAST_SUPPORTED_VERSION)?.executable;
-
-    let args = &[
-        "--solc",
-        solc_compiler.as_str(),
-        "--standard-json",
-        crate::common::TEST_LLVM_IR_STANDARD_JSON_PATH,
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result.success().stdout(predicate::str::contains(
-        "LLVM IR projects cannot be compiled with `solc`.",
     ));
 
     Ok(())

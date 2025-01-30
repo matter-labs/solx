@@ -6,7 +6,7 @@
   },
   "settings": {
     "optimizer": {
-        "mode": "3",
+      "mode": "3",
       "details": null,
       "fallbackToOptimizingForSize": false
     },

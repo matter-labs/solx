@@ -32,8 +32,6 @@ pub use self::project::Project;
 pub use self::r#const::*;
 
 use std::collections::BTreeSet;
-use std::collections::HashSet;
-use std::io::Write;
 use std::path::PathBuf;
 
 use solx_solc::CollectableError;
@@ -47,7 +45,6 @@ pub type Result<T> = std::result::Result<T, solx_solc::StandardJsonOutputError>;
 pub fn yul_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
-    solc_path: Option<String>,
     messages: &mut Vec<solx_solc::StandardJsonOutputError>,
     metadata_hash_type: era_compiler_common::HashType,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -57,22 +54,10 @@ pub fn yul_to_evm(
     let libraries = solx_solc::StandardJsonInputLibraries::try_from(libraries)?;
     let linker_symbols = libraries.as_linker_symbols()?;
 
-    let solc_version = match solc_path {
-        Some(solc_path) => {
-            let solc_compiler = solx_solc::Compiler::try_from_path(solc_path.as_str())?;
-            solc_compiler.validate_yul_paths(paths, libraries.clone(), messages)?;
-            Some(solc_compiler.version)
-        }
-        None => None,
-    };
+    let solc_compiler = solx_solc::Compiler::default();
+    solc_compiler.validate_yul_paths(paths, libraries.clone(), messages)?;
 
-    let project = Project::try_from_yul_paths(
-        paths,
-        libraries,
-        None,
-        solc_version.as_ref(),
-        debug_config.as_ref(),
-    )?;
+    let project = Project::try_from_yul_paths(paths, libraries, None, debug_config.as_ref())?;
 
     let mut build = project.compile_to_evm(
         messages,
@@ -129,7 +114,6 @@ pub fn llvm_ir_to_evm(
 pub fn standard_output_evm(
     paths: &[PathBuf],
     libraries: &[String],
-    solc_compiler: &solx_solc::Compiler,
     messages: &mut Vec<solx_solc::StandardJsonOutputError>,
     evm_version: Option<era_compiler_common::EVMVersion>,
     via_ir: bool,
@@ -155,7 +139,7 @@ pub fn standard_output_evm(
         llvm_options.clone(),
     )?;
 
-    let mut solc_output = solc_compiler.standard_json(
+    let mut solc_output = solx_solc::Compiler::default().standard_json(
         &mut solc_input,
         messages,
         base_path,
@@ -171,7 +155,6 @@ pub fn standard_output_evm(
         solc_input.settings.libraries,
         via_ir,
         &mut solc_output,
-        solc_compiler,
         debug_config.as_ref(),
     )?;
     solc_output.take_and_write_warnings();
@@ -197,7 +180,6 @@ pub fn standard_output_evm(
 /// Runs the standard JSON mode for the EVM target.
 ///
 pub fn standard_json_evm(
-    solc_compiler: Option<solx_solc::Compiler>,
     via_ir: bool,
     json_path: Option<PathBuf>,
     messages: &mut Vec<solx_solc::StandardJsonOutputError>,
@@ -206,6 +188,8 @@ pub fn standard_json_evm(
     allow_paths: Option<String>,
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<()> {
+    let solc_compiler = solx_solc::Compiler::default();
+
     let mut solc_input = solx_solc::StandardJsonInput::try_from(json_path.as_deref())?;
     let language = solc_input.language;
     let prune_output = solc_input.settings.selection_to_prune();
@@ -225,13 +209,8 @@ pub fn standard_json_evm(
 
     let metadata_hash_type = solc_input.settings.metadata.hash_type;
 
-    let (mut solc_output, solc_version, project) = match (language, solc_compiler) {
-        (solx_solc::StandardJsonInputLanguage::Solidity, solc_compiler) => {
-            let solc_compiler = match solc_compiler {
-                Some(solc_compiler) => solc_compiler,
-                None => solx_solc::Compiler::try_from_default()?,
-            };
-
+    let (mut solc_output, project) = match language {
+        solx_solc::StandardJsonInputLanguage::Solidity => {
             solc_input
                 .extend_selection(solx_solc::StandardJsonInputSelection::new_required(via_ir));
 
@@ -250,16 +229,15 @@ pub fn standard_json_evm(
                 solc_input.settings.libraries,
                 via_ir,
                 &mut solc_output,
-                &solc_compiler,
                 debug_config.as_ref(),
             )?;
             if solc_output.has_errors() {
                 solc_output.write_and_exit(prune_output);
             }
 
-            (solc_output, Some(solc_compiler.version), project)
+            (solc_output, project)
         }
-        (solx_solc::StandardJsonInputLanguage::Yul, Some(solc_compiler)) => {
+        solx_solc::StandardJsonInputLanguage::Yul => {
             let mut solc_output =
                 solc_compiler.validate_yul_standard_json(&mut solc_input, messages)?;
             if solc_output.has_errors() {
@@ -270,35 +248,15 @@ pub fn standard_json_evm(
                 solc_input.sources,
                 solc_input.settings.libraries,
                 Some(&mut solc_output),
-                Some(&solc_compiler.version),
                 debug_config.as_ref(),
             )?;
             if solc_output.has_errors() {
                 solc_output.write_and_exit(prune_output);
             }
 
-            (solc_output, Some(solc_compiler.version), project)
+            (solc_output, project)
         }
-        (solx_solc::StandardJsonInputLanguage::Yul, None) => {
-            let mut solc_output = solx_solc::StandardJsonOutput::new(&solc_input.sources, messages);
-
-            let project = Project::try_from_yul_sources(
-                solc_input.sources,
-                solc_input.settings.libraries,
-                Some(&mut solc_output),
-                None,
-                debug_config.as_ref(),
-            )?;
-            if solc_output.has_errors() {
-                solc_output.write_and_exit(prune_output);
-            }
-
-            (solc_output, None, project)
-        }
-        (solx_solc::StandardJsonInputLanguage::LLVMIR, Some(_)) => {
-            anyhow::bail!("LLVM IR projects cannot be compiled with `solc`.")
-        }
-        (solx_solc::StandardJsonInputLanguage::LLVMIR, None) => {
+        solx_solc::StandardJsonInputLanguage::LLVMIR => {
             let mut solc_output = solx_solc::StandardJsonOutput::new(&solc_input.sources, messages);
 
             let project = Project::try_from_llvm_ir_sources(
@@ -310,7 +268,7 @@ pub fn standard_json_evm(
                 solc_output.write_and_exit(prune_output);
             }
 
-            (solc_output, None, project)
+            (solc_output, project)
         }
     };
 
@@ -322,100 +280,11 @@ pub fn standard_json_evm(
         debug_config,
     )?;
     if build.has_errors() {
-        build.write_to_standard_json(&mut solc_output, solc_version.as_ref())?;
+        build.write_to_standard_json(&mut solc_output, solc_compiler.version)?;
         solc_output.write_and_exit(prune_output);
     }
 
     let build = build.link(linker_symbols);
-    build.write_to_standard_json(&mut solc_output, solc_version.as_ref())?;
+    build.write_to_standard_json(&mut solc_output, solc_compiler.version)?;
     solc_output.write_and_exit(prune_output);
-}
-
-///
-/// Runs the combined JSON mode for the EVM target.
-///
-pub fn combined_json_evm(
-    format: String,
-    paths: &[PathBuf],
-    libraries: &[String],
-    solc_compiler: &solx_solc::Compiler,
-    messages: &mut Vec<solx_solc::StandardJsonOutputError>,
-    evm_version: Option<era_compiler_common::EVMVersion>,
-    via_ir: bool,
-    metadata_hash_type: era_compiler_common::HashType,
-    use_literal_content: bool,
-    base_path: Option<String>,
-    include_paths: Vec<String>,
-    allow_paths: Option<String>,
-    remappings: BTreeSet<String>,
-    output_directory: Option<PathBuf>,
-    overwrite: bool,
-    optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
-    llvm_options: Vec<String>,
-    debug_config: Option<era_compiler_llvm_context::DebugConfig>,
-) -> anyhow::Result<()> {
-    let selector_results = solx_solc::CombinedJsonSelector::from_cli(format.as_str());
-    let mut selectors = HashSet::with_capacity(selector_results.len());
-    for result in selector_results.into_iter() {
-        match result {
-            Ok(selector) => {
-                selectors.insert(selector);
-            }
-            Err(selector) => {
-                messages.push(solx_solc::StandardJsonOutputError::new_warning(
-                    format!("The selector `{selector}` is not supported, and therefore ignored."),
-                    None,
-                    None,
-                ));
-            }
-        }
-    }
-    if selectors.contains(&solx_solc::CombinedJsonSelector::Assembly) {
-        messages.push(solx_solc::StandardJsonOutputError::new_warning(
-            format!(
-                "The `{}` selector is not supported for the {} target yet, and therefore ignored.",
-                solx_solc::CombinedJsonSelector::Assembly,
-                era_compiler_common::Target::EVM
-            ),
-            None,
-            None,
-        ));
-    }
-
-    let mut combined_json = solc_compiler.combined_json(paths, selectors)?;
-
-    let build = standard_output_evm(
-        paths,
-        libraries,
-        solc_compiler,
-        messages,
-        evm_version,
-        via_ir,
-        metadata_hash_type,
-        use_literal_content,
-        base_path,
-        include_paths,
-        allow_paths,
-        remappings,
-        optimizer_settings,
-        llvm_options,
-        debug_config,
-    )?;
-    build.write_to_combined_json(&mut combined_json)?;
-
-    match output_directory {
-        Some(output_directory) => {
-            std::fs::create_dir_all(output_directory.as_path())?;
-            combined_json.write_to_directory(output_directory.as_path(), overwrite)?;
-
-            writeln!(
-                std::io::stderr(),
-                "Compiler run successful. Artifact(s) can be found in directory {output_directory:?}."
-            )?;
-        }
-        None => {
-            serde_json::to_writer(std::io::stdout(), &combined_json)?;
-        }
-    }
-    std::process::exit(era_compiler_common::EXIT_CODE_SUCCESS);
 }
