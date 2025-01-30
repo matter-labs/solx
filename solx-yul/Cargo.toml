@@ -1,0 +1,16 @@
+[package]
+name = "solx-yul"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+version.workspace = true
+description = "Yul lexer and parser for solx"
+
+[lib]
+doctest = false
+
+[dependencies]
+thiserror = "=1.0.64"
+anyhow = "=1.0.89"
+
+serde = { version = "=1.0.210", "features" = [ "derive" ] }

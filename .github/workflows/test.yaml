@@ -1,0 +1,111 @@
+name: Tests
+
+# Execute workflow for each PR and with each merge to the trunk
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# Cancel the workflow if any new changes pushed to a feature branch or the trunk
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # Check for cargo issues
+  cargo-checks:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build LLVM
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          target-env: 'gnu'
+          build-type: 'Release'
+          enable-assertions: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}-gnu', runner.os, runner.arch) }}
+          save-ccache: 'false'
+
+      - name: Cargo checks
+        uses: matter-labs/era-compiler-ci/.github/actions/cargo-check@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build and run regression tests
+  build-and-test:
+    strategy:
+      fail-fast: false # finalize testing of all targets even if one failed
+      matrix:
+        include:
+          - name: "MacOS x86"
+            runner: macos-12-large
+          - name: "MacOS arm64"
+            runner: [self-hosted, macOS, ARM64]
+          - name: "Linux x86 gnu"
+            runner: matterlabs-ci-runner-high-performance
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "x86_64-unknown-linux-gnu"
+            enable-coverage: 'true' # enable coverage on Linux GNU
+          - name: "Linux ARM64 gnu"
+            runner: matterlabs-ci-runner-arm
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "aarch64-unknown-linux-gnu"
+          - name: "Linux x86 musl"
+            runner: matterlabs-ci-runner-high-performance
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "x86_64-unknown-linux-musl"
+          - name: "Linux ARM64 musl"
+            runner: matterlabs-ci-runner-arm
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "aarch64-unknown-linux-musl"
+          - name: "Windows"
+            runner: windows-2022-github-hosted-16core
+            target: "x86_64-pc-windows-gnu"
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: ${{ matrix.image || '' }} # Special workaround to allow matrix builds with optional container
+    name: ${{ matrix.name }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Prepare Windows env
+        if: runner.os == 'Windows'
+        uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+
+      - name: Build LLVM
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          target-env: ${{ contains(matrix.target, 'musl') && 'musl' || 'gnu' }}
+          enable-assertions: 'true'
+          build-type: RelWithDebInfo
+          ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
+          save-ccache: 'false'
+
+      - name: Run tests
+        uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
+        with:
+          target: ${{ matrix.target || '' }}
+          enable-coverage: ${{ matrix.enable-coverage || 'false' }}
+          coverage-token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Special job that allows some of the jobs to be skipped or failed
+  # requiring others to be successful
+  pr-checks:
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - cargo-checks
+      - build-and-test
+    steps:
+      - name: Decide on PR checks
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}

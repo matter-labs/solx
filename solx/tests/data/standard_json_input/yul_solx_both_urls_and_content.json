@@ -1,0 +1,33 @@
+{
+  "language": "Yul",
+  "sources": {
+    "A": {
+      "urls": [
+        "tests/data/contracts/yul/Test.yul"
+      ],
+      "content": "object \"Test\" { code { { return(0, 0) } } object \"Test_deployed\" { code { { return(0, 0) } } } }"
+    }
+  },
+  "settings": {
+    "optimizer": {
+        "mode": "3",
+      "details": null,
+      "fallbackToOptimizingForSize": false
+    },
+    "outputSelection": {
+      "*": {
+        "": [
+          "metadata"
+        ],
+        "*": [
+          "abi",
+          "evm.methodIdentifiers"
+        ]
+      }
+    },
+    "metadata": {
+      "hashType": "keccak256"
+    },
+    "libraries": {}
+  }
+}

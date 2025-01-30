@@ -1,0 +1,35 @@
+[build]
+rustflags = [
+    "-W", "missing_docs",
+]
+incremental = true
+
+[target.x86_64-apple-darwin]
+rustflags = [
+    "-W", "missing_docs",
+    "-C", "link-arg=-mmacosx-version-min=11.0",
+]
+
+[target.aarch64-apple-darwin]
+rustflags = [
+    "-W", "missing_docs",
+    "-C", "link-arg=-mmacosx-version-min=11.0",
+]
+
+[target.aarch64-unknown-linux-musl]
+linker = "rust-lld"
+
+[target.aarch64-unknown-linux-musl.compiler-rt-solx]
+rustc-link-search = ["./target-llvm/target-host/lib/clang/17/lib/aarch64-unknown-linux-musl"]
+rustc-link-lib = ["clang_rt.builtins"]
+
+[profile.release]
+strip = true
+
+[env]
+LLVM_SYS_170_PREFIX = { value = "./target-llvm/target-final/", relative = true, force = false }
+
+[tools.clippy]
+warn = [
+    "missing_docs_in_private_items",
+]

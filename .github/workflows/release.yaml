@@ -1,0 +1,221 @@
+name: Build and release binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git REF to use for manual pre-release. Keep it empty to use the workflow branch."
+        required: false
+        type: string
+      prerelease_suffix:
+        description: "Suffix which has been used for manual pre-release name"
+        required: false
+        type: string
+        default: "notag"
+      release_macos_amd64:
+        description: "Release for MacOS amd64?"
+        required: false
+        type: boolean
+        default: true
+      release_macos_arm64:
+        description: "Release for MacOS arm64?"
+        required: false
+        type: boolean
+        default: true
+      release_linux_amd64_musl:
+        description: "Release for Linux amd64 musl?"
+        required: false
+        type: boolean
+        default: true
+      release_linux_arm64_musl:
+        description: "Release for Linux arm64 musl?"
+        required: false
+        type: boolean
+        default: true
+      release_linux_amd64_gnu:
+        description: "Release for Linux amd64 gnu?"
+        required: false
+        type: boolean
+        default: true
+      release_linux_arm64_gnu:
+        description: "Release for Linux arm64 gnu?"
+        required: false
+        type: boolean
+        default: true
+      release_windows_amd64:
+        description: "Release for Windows amd64?"
+        required: false
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "*.*.*"
+
+
+jobs:
+
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.prepare-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
+
+      - name: Check LLVM version
+        if: github.ref_type == 'tag'
+        shell: 'bash -ex {0}'
+        run: |
+          LLVM_BRANCH=$(grep "^branch" LLVM.lock | awk -F ' = ' '{print $2}' | tr -d '"')
+          [[ "${LLVM_BRANCH}" =~ ^v[0-9]+(\.[0-9]+)+(\.[0-9]+).*$ ]] || \
+             { echo "LLVM branch is not semver: '${LLVM_BRANCH}'. Please, update LLVM.lock file."; exit 1; }
+
+      - name: Prepare matrix
+        id: prepare-matrix
+        run: |
+          # Define general matrix parameters
+          WINDOWS='{"name":"Windows","runner":"windows-2022-github-hosted-64core","release-suffix":"windows-amd64-gnu"}'
+          MACOS_AMD64='{"name":"MacOS-x86","runner":"macos-12-large","release-suffix":"macosx-amd64"}'
+          MACOS_ARM64='{"name":"MacOS-arm64","runner":["self-hosted","macOS","ARM64"],"release-suffix":"macosx-arm64"}'
+          LINUX_AMD64_GNU='{"name":"Linux-AMD64-gnu","runner":"matterlabs-ci-runner-high-performance","image":"ghcr.io/matter-labs/zksync-llvm-runner:latest","target":"x86_64-unknown-linux-gnu","release-suffix":"linux-amd64-gnu"}'
+          LINUX_ARM64_GNU='{"name":"Linux-ARM64-gnu","runner":"matterlabs-ci-runner-arm","image":"ghcr.io/matter-labs/zksync-llvm-runner:latest","target":"aarch64-unknown-linux-gnu","release-suffix":"linux-arm64-gnu"}'
+          LINUX_AMD64_MUSL='{"name":"Linux-AMD64-musl","runner":"matterlabs-ci-runner-high-performance","image":"ghcr.io/matter-labs/zksync-llvm-runner:latest","target":"x86_64-unknown-linux-musl","release-suffix":"linux-amd64-musl"}'
+          LINUX_ARM64_MUSL='{"name":"Linux-ARM64-musl","runner":"matterlabs-ci-runner-arm","image":"ghcr.io/matter-labs/zksync-llvm-runner:latest","target":"aarch64-unknown-linux-musl","release-suffix":"linux-arm64-musl"}'
+          # Disable platforms for non-tag builds if user requested
+          if [ ${GITHUB_REF_TYPE} != tag ]; then
+            [ ${{ github.event.inputs.release_windows_amd64 }} != true ] && WINDOWS=
+            [ ${{ github.event.inputs.release_macos_amd64 }} != true ] && MACOS_AMD64=
+            [ ${{ github.event.inputs.release_macos_arm64 }} != true ] && MACOS_ARM64=
+            [ ${{ github.event.inputs.release_linux_amd64_gnu }} != true ] && LINUX_AMD64_GNU=
+            [ ${{ github.event.inputs.release_linux_arm64_gnu }} != true ] && LINUX_ARM64_GNU=
+            [ ${{ github.event.inputs.release_linux_amd64_musl }} != true ] && LINUX_AMD64_MUSL=
+            [ ${{ github.event.inputs.release_linux_arm64_musl }} != true ] && LINUX_ARM64_MUSL=
+          fi
+          PLATFORMS=(${WINDOWS} ${MACOS_AMD64} ${MACOS_ARM64} ${LINUX_AMD64_GNU} ${LINUX_ARM64_GNU} ${LINUX_AMD64_MUSL} ${LINUX_ARM64_MUSL})
+          echo "matrix={ \"include\": [ $(IFS=, ; echo "${PLATFORMS[*]}") ] }" | tee -a "${GITHUB_OUTPUT}"
+
+  build:
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: ${{ matrix.image || '' }} # Special workaround to allow matrix builds with optional container
+    name: ${{ matrix.name }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
+
+      - name: Prepare Windows env
+        if: runner.os == 'Windows'
+        uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+
+      - name: Build LLVM
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          target-env: ${{ contains(matrix.target, 'musl') && 'musl' || 'gnu' }}
+          enable-assertions: 'false'
+          build-type: Release
+          ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
+          save-ccache: 'false'
+
+      - name: Build solx
+        uses: ./.github/actions/build
+        with:
+          target: ${{ matrix.target }}
+          release-suffix: ${{ format('{0}-{1}', matrix.release-suffix, inputs.prerelease_suffix || format('v{0}', github.ref_name)) }}
+
+  prepare-release:
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+    name: Prepare release
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    needs: build
+    steps:
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
+
+      - name: Get changelog
+        if: github.ref_type == 'tag'
+        id: changelog_reader
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          validation_level: warn
+          path: ./CHANGELOG.md
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release*
+          path: releases
+
+      - name: Identify release name
+        id: release
+        run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          if [ '${{ github.event_name }}' = 'workflow_dispatch' ]; then
+            VERSION_OR_SHA=$(git rev-parse --short HEAD)
+            echo "version_or_sha=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
+            echo "full_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+            echo "release_title=prerelease-${VERSION_OR_SHA}-${{ github.event.inputs.prerelease_suffix }}" >> $GITHUB_OUTPUT
+          else
+            VERSION_OR_SHA="${GITHUB_REF#refs/tags/}"
+            echo "version_or_sha=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
+            echo "release_title=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check release version
+        if: github.ref_type == 'tag'
+        run: |
+          TAG="${{ steps.release.outputs.version_or_sha }}"
+          CARGO_PACKAGE_VERSION="$(cargo pkgid --manifest-path solx/Cargo.toml | cut -d "#" -f2)"
+          CHANGELOG_VERSION="${{ steps.changelog_reader.outputs.version }}"
+          # All versions must be equal
+          if [ "${CARGO_PACKAGE_VERSION}" != "${TAG}" ] || [ "${CARGO_PACKAGE_VERSION}" != "${CHANGELOG_VERSION}" ]; then
+            echo "Version mismatch: TAG=${TAG}, CARGO_PACKAGE_VERSION=${CARGO_PACKAGE_VERSION}, CHANGELOG_VERSION=${CHANGELOG_VERSION}"
+            echo "Please update the version in Cargo.toml, CHANGELOG.md and tag the commit with the same version."
+            exit 1
+          fi
+
+      - name: Prepare universal macos binary
+        if: github.ref_type == 'tag' || (inputs.release_macos_amd64 && inputs.release_macos_arm64)
+        env:
+          MACOSX_UNIVERSAL_SUFFIX: "macosx"
+          RELEASE_SUFFIX: ${{ inputs.prerelease_suffix || format('v{0}', github.ref_name) }}
+        run: |
+          OUTDIR="./releases/release-${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}/${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}"
+          mkdir -p "${OUTDIR}"
+          OUTPUT="${OUTDIR}/solx-${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}"
+          llvm-lipo -create -output "${OUTPUT}" \
+            ./releases/release-macosx-amd64-${RELEASE_SUFFIX}/macosx-amd64-${RELEASE_SUFFIX}/solx-macosx-amd64-${RELEASE_SUFFIX} \
+            ./releases/release-macosx-arm64-${RELEASE_SUFFIX}/macosx-arm64-${RELEASE_SUFFIX}/solx-macosx-arm64-${RELEASE_SUFFIX}
+
+      - name: Binaries attestation
+        uses: actions/attest-build-provenance@v2
+        if: github.ref_type == 'tag'
+        with:
+          subject-path: 'releases/**/**'
+
+      - name: Prepare release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.release.outputs.release_title }}
+          body: ${{ steps.changelog_reader.outputs.changes }}
+          generate_release_notes: false
+          tag_name: ${{ steps.release.outputs.version_or_sha }}
+          target_commitish: ${{ steps.release.outputs.full_sha }}
+          make_latest: true
+          files: releases/**/**

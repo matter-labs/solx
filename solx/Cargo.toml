@@ -1,0 +1,50 @@
+[package]
+name = "solx"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+version.workspace = true
+description = "LLVM-based Solidity compiler"
+links = "compiler-rt-solx"
+
+[[bin]]
+name = "solx"
+path = "src/solx/main.rs"
+
+[lib]
+doctest = false
+
+[dependencies]
+clap = { version = "=4.5.21", features = ["derive"] }
+thiserror = "=1.0.64"
+anyhow = "=1.0.89"
+path-slash = "=0.2.1"
+normpath = "=1.3.0"
+rayon = "=1.10.0"
+
+serde = { version = "=1.0.210", "features" = [ "derive" ] }
+serde_json = { version = "=1.0.128", features = [ "arbitrary_precision" ] }
+semver = { version = "=1.0.23", features = [ "serde" ] }
+hex = "=0.4.3"
+num = "=0.4.3"
+
+zkevm_opcode_defs = "=0.150.6"
+
+era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
+solx-solc = { path = "../solx-solc" }
+solx-yul = { path = "../solx-yul" }
+
+[dev-dependencies]
+assert_cmd = "=2.0.16"
+predicates = "=3.1.2"
+tempfile = "=3.12.0"
+test-case = "=3.3.1"
+reqwest = { version = "=0.11.27", features = ["blocking", "json"] }
+era-compiler-downloader = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
+
+[dependencies.inkwell]
+git = "https://github.com/matter-labs-forks/inkwell"
+branch = "llvm-17"
+default-features = false
+features = ["llvm17-0", "no-libffi-linking", "target-evm"]

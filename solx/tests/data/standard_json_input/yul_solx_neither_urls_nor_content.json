@@ -1,0 +1,29 @@
+{
+  "language": "Yul",
+  "sources":
+  {
+    "A": {}
+  },
+  "settings": {
+    "optimizer": {
+        "mode": "3",
+      "details": null,
+      "fallbackToOptimizingForSize": false
+    },
+    "outputSelection": {
+      "*": {
+        "": [
+          "metadata"
+        ],
+        "*": [
+          "abi",
+          "evm.methodIdentifiers"
+        ]
+      }
+    },
+    "metadata": {
+      "hashType": "keccak256"
+    },
+    "libraries": {}
+  }
+}

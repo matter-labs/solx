@@ -1,0 +1,96 @@
+name: Ccache regen
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 20 * * *' # each day at 8 PM GMT
+
+# Cancel the workflow if any new changes pushed to a feature branch or the trunk
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  cleanup-ccache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Clean up cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh cache list
+          gh cache delete --all || true
+
+  regen-ccache:
+    needs: cleanup-ccache
+    strategy:
+      fail-fast: false # finalize testing of all targets even if one failed
+      matrix:
+        include:
+          - name: "MacOS x86"
+            runner: macos-12-large
+          - name: "MacOS arm64"
+            runner: [self-hosted, macOS, ARM64]
+          - name: "Linux x86 gnu"
+            runner: matterlabs-ci-runner-high-performance
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "x86_64-unknown-linux-gnu"
+          - name: "Linux ARM64 gnu"
+            runner: matterlabs-ci-runner-arm
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "aarch64-unknown-linux-gnu"
+          - name: "Linux x86 musl"
+            runner: matterlabs-ci-runner-high-performance
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "x86_64-unknown-linux-musl"
+          - name: "Linux ARM64 musl"
+            runner: matterlabs-ci-runner-arm
+            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+            target: "aarch64-unknown-linux-musl"
+          - name: "Windows"
+            runner: windows-2022-github-hosted-16core
+            target: "x86_64-pc-windows-gnu"
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: ${{ matrix.image || '' }} # Special workaround to allow matrix builds with optional container
+    name: ${{ matrix.name }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Prepare Windows env
+        if: runner.os == 'Windows'
+        uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+
+      - name: Build LLVM for tests
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          target-env: ${{ contains(matrix.target, 'musl') && 'musl' || 'gnu' }}
+          enable-assertions: 'true'
+          build-type: RelWithDebInfo
+          save-ccache: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
+
+      - name: Delete libstdc++a
+        if: runner.os == 'Windows'
+        shell: 'msys2 {0}'
+        run: rm -f target-llvm/target-final/lib/libstdc++.a
+
+      - name: Build LLVM for releases
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          target-env: ${{ contains(matrix.target, 'musl') && 'musl' || 'gnu' }}
+          enable-assertions: 'false'
+          build-type: Release
+          save-ccache: 'true'
+          clone-llvm: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
+
+      - name: Run tests
+        uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
+        with:
+          target: ${{ matrix.target || '' }}

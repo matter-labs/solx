@@ -1,0 +1,69 @@
+name: 'Build'
+description: 'Builds solx executable.'
+inputs:
+  target:
+    description: 'Specific build target triplet.'
+    required: false
+    default: ''
+  sanitizer:
+    description: 'Sanitizer to use for build.'
+    required: false
+    default: ''
+  release-suffix:
+    description: 'Suffix to use for release name.'
+    required: false
+    default: ''
+  build-type:
+    description: 'Type of build: release or debug.'
+    required: false
+    default: 'release'
+  enable-coverage:
+    description: 'Enable code coverage.'
+    required: false
+    default: 'false'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Define build target
+      id: build-target
+      if: inputs.target != ''
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: |
+        rustup target add ${{ inputs.target }}
+        echo "target=--target ${{ inputs.target }}" >> $GITHUB_OUTPUT
+
+    - name: Build solx
+      env:
+        RUSTC_BOOTSTRAP: 1
+        RUSTFLAGS: '-C target-feature=+crt-static'
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash -ex {0}' }}
+      run: |
+        if [ '${{ inputs.sanitizer }}' != '' ]; then
+          rustup component add rust-src --toolchain "$(rustc --version | cut -d ' ' -f2)-${TARGET}"
+          export RUSTFLAGS="-Z sanitizer=${{ inputs.sanitizer }}"
+          BUILD_STD_LIB='-Zbuild-std'
+        fi
+        [ ${{ inputs.build-type }} = 'release' ] && RELEASE="--release"
+        if [ '${{ inputs.enable-coverage }}' = 'true' ]; then
+          export RUSTFLAGS="${RUSTFLAGS} -C instrument-coverage"
+        fi
+        cargo ${BUILD_STD_LIB} build ${RELEASE} ${{ steps.build-target.outputs.target }}
+        echo "${PWD}/target/${{ inputs.target }}/${{ inputs.build-type }}" >> "${GITHUB_PATH}"
+
+    - name: Prepare binary
+      if: inputs.release-suffix != ''
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: |
+        mkdir -p ./releases/${{ inputs.release-suffix }}
+        [ "$RUNNER_OS" = "Windows" ] && WIN_SUFFIX=".exe"
+        strip "./target/${{ matrix.target }}/${{ inputs.build-type }}/solx${WIN_SUFFIX}"
+        mv "./target/${{ matrix.target }}/${{ inputs.build-type }}/solx${WIN_SUFFIX}" \
+          "./releases/${{ inputs.release-suffix }}/solx-${{ inputs.release-suffix }}${WIN_SUFFIX}"
+
+    - name: Upload binary
+      if: inputs.release-suffix != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-${{ inputs.release-suffix }}
+        path: releases

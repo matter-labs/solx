@@ -1,0 +1,23 @@
+[package]
+name = "solx-solc"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+version.workspace = true
+description = "solc client for solx"
+
+[lib]
+doctest = false
+
+[dependencies]
+anyhow = "=1.0.89"
+which = "=6.0.3"
+rayon = "=1.10.0"
+
+serde = { version = "=1.0.210", "features" = [ "derive" ] }
+serde_json = { version = "=1.0.128", features = [ "arbitrary_precision" ] }
+semver = { version = "=1.0.23", features = [ "serde" ] }
+hex = "=0.4.3"
+num = "=0.4.3"
+
+era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }

@@ -1,0 +1,33 @@
+{
+  "language": "Solidity",
+  "sources":
+  {
+    "A":
+    {
+      "urls": [
+        "tests/data/contracts/solidity/Recursion.sol"
+      ]
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "mode": "3",
+      "fallbackToOptimizingForSize": true
+    },
+    "outputSelection": {
+      "*": {
+        "": [
+          "metadata"
+        ],
+        "*": [
+          "abi",
+          "evm.methodIdentifiers"
+        ]
+      }
+    },
+    "metadata": {
+      "hashType": "ipfs"
+    },
+    "libraries": {}
+  }
+}

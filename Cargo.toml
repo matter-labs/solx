@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "solx",
+    "solx-yul",
+    "solx-solc",
+]
+resolver = "2"
+
+[workspace.package]
+authors = [
+    "Oleksandr Zarudnyi <a.zarudnyy@matterlabs.dev>",
+]
+license = "MIT OR Apache-2.0"
+edition = "2021"
+version = "1.0.0"
