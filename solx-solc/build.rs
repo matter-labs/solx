@@ -3,34 +3,37 @@
 //!
 
 ///
-/// Links `libsolc` statically.
+/// Links solc and Boost libraries statically.
 ///
 fn main() {
-    // Tell Cargo where to find static libraries.
-    println!("cargo:rustc-link-search=native=/Users/hedgarmac/src/era-solidity/build/libsolc/");
-    println!("cargo:rustc-link-search=native=/Users/hedgarmac/src/era-solidity/build/libsolidity/");
-    println!("cargo:rustc-link-search=native=/Users/hedgarmac/src/era-solidity/build/libsolutil/");
-    println!("cargo:rustc-link-search=native=/Users/hedgarmac/src/era-solidity/build/liblangutil/");
-    println!("cargo:rustc-link-search=native=/Users/hedgarmac/src/era-solidity/build/libevmasm/");
-    println!("cargo:rustc-link-search=native=/Users/hedgarmac/src/era-solidity/build/libyul/");
-    println!("cargo:rustc-link-search=native=/Users/hedgarmac/src/era-solidity/build/libsmtutil/");
-    println!("cargo:rustc-link-search=native=/opt/homebrew/lib/");
+    // Where to find Boost libraries.
+    println!("cargo:rustc-link-search=native={}", env!("BOOST_PREFIX"));
+
+    // Where to find solc libraries.
+    for directory in [
+        "libsolc",
+        "libsolidity",
+        "libsolutil",
+        "liblangutil",
+        "libevmasm",
+        "libyul",
+        "libsmtutil",
+    ] {
+        println!(
+            "cargo:rustc-link-search=native={}/{directory}",
+            env!("SOLC_PREFIX"),
+        );
+    }
 
     // Link against the static libraries.
-    println!("cargo:rustc-link-lib=static=solc");
-    println!("cargo:rustc-link-lib=static=solidity");
-    println!("cargo:rustc-link-lib=static=solutil");
-    println!("cargo:rustc-link-lib=static=langutil");
-    println!("cargo:rustc-link-lib=static=evmasm");
-    println!("cargo:rustc-link-lib=static=yul");
-    println!("cargo:rustc-link-lib=static=smtutil");
+    for library in [
+        "solc", "solidity", "solutil", "langutil", "evmasm", "yul", "smtutil",
+    ] {
+        println!("cargo:rustc-link-lib=static={library}");
+    }
 
     // Link the Boost libraries.
-    println!("cargo:rustc-link-lib=static=boost_filesystem");
-    println!("cargo:rustc-link-lib=static=boost_system");
-    println!("cargo:rustc-link-lib=static=boost_program_options");
-
-    // Link the C++ standard library.
-    // TODO: On MacOS + Clang, it is typically `c++`. On Linux with GCC, might be "stdc++".
-    println!("cargo:rustc-link-lib=c++");
+    for library in ["boost_filesystem", "boost_system", "boost_program_options"] {
+        println!("cargo:rustc-link-lib=static={library}");
+    }
 }

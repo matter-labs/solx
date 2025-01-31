@@ -2,7 +2,6 @@
 //! The CLI/e2e tests entry module.
 //!
 
-use std::path::PathBuf;
 use std::process::Command;
 
 use assert_cmd::assert::OutputAssertExt;
@@ -35,17 +34,11 @@ mod via_ir;
 mod yul;
 
 ///
-/// Execute solx with the given arguments and return the result.
+/// Execute `solx` with the given arguments and assert the result.
 ///
 pub fn execute_solx(args: &[&str]) -> anyhow::Result<assert_cmd::assert::Assert> {
     let mut cmd = Command::cargo_bin(solx::DEFAULT_EXECUTABLE_NAME)?;
-    Ok(cmd
-        .env(
-            "PATH",
-            std::fs::canonicalize(PathBuf::from(crate::common::SOLC_DOWNLOAD_DIRECTORY))?,
-        )
-        .args(args)
-        .assert())
+    Ok(cmd.args(args).assert())
 }
 
 ///

@@ -2,22 +2,6 @@
 //! Unit test constants.
 //!
 
-macro_rules! test_script_path {
-    ($name:ident, $base:expr) => {
-        /// Shell script test constants.
-        #[cfg(target_os = "windows")]
-        pub const $name: &str = concat!($base, ".bat");
-        #[cfg(not(target_os = "windows"))]
-        pub const $name: &str = concat!($base, ".sh");
-    };
-}
-
-/// Download directory for `solc` executables.
-pub const SOLC_DOWNLOAD_DIRECTORY: &str = "solc-bin";
-
-/// Path to the `solc` executable configuration file.
-pub const SOLC_BIN_CONFIG_PATH: &str = "tests/solc-bin.json";
-
 /// A test input file.
 pub const TEST_CONTRACTS_PATH: &str = "tests/data/contracts/";
 
@@ -141,25 +125,10 @@ pub const TEST_LLVM_IR_STANDARD_JSON_MISSING_FILE_PATH: &str =
     "tests/data/standard_json_input/llvm_ir_urls_missing_file.json";
 
 /// A test input file.
-pub const TEST_JSON_CONTRACT_PATH_SUPPRESSED_ERRORS_AND_WARNINGS: &str =
-    "tests/data/standard_json_input/suppressed_errors_and_warnings.json";
+pub const TEST_LINKER_BYTECODE_PATH: &str = "tests/data/bytecodes/linker.bin";
 
 /// A test input file.
-pub const TEST_JSON_CONTRACT_PATH_SUPPRESSED_ERRORS_INVALID: &str =
-    "tests/data/standard_json_input/suppressed_errors_invalid.json";
-
-/// A test input file.
-pub const TEST_JSON_CONTRACT_PATH_SUPPRESSED_WARNINGS_INVALID: &str =
-    "tests/data/standard_json_input/suppressed_warnings_invalid.json";
-
-/// A test input file.
-pub const TEST_DISASSEMBLER_BYTECODE_PATH: &str = "tests/data/bytecodes/disassembler.zbin";
-
-/// A test input file.
-pub const TEST_LINKER_BYTECODE_PATH: &str = "tests/data/bytecodes/linker.zbin";
-
-/// A test input file.
-pub const TEST_LINKER_ERROR_BYTECODE_PATH: &str = "tests/data/bytecodes/linker_error.zbin";
+pub const TEST_LINKER_ERROR_BYTECODE_PATH: &str = "tests/data/bytecodes/linker_error.bin";
 
 /// The temporary directory for data created by tests.
 pub const TEST_TEMP_DIRECTORY: &str = "tests/data/temp";
@@ -167,7 +136,7 @@ pub const TEST_TEMP_DIRECTORY: &str = "tests/data/temp";
 /// A test input file.
 /// The linker hexadecimal string bytecode sample path.
 /// This file must be copied from `TEST_LINKER_BYTECODE_PATH` before linking and removed afterwards.
-pub const TEST_LINKER_BYTECODE_COPY_PATH: &str = "tests/data/temp/linker_copy.zbin";
+pub const TEST_LINKER_BYTECODE_COPY_PATH: &str = "tests/data/temp/linker_copy.bin";
 
 /// A test input file.
 pub const TEST_LINKER_STANDARD_JSON_INPUT_WITH_LIBRARIES_PATH: &str =
@@ -190,51 +159,6 @@ pub const TEST_BROKEN_INPUT_PATH: &str = "tests/data/broken.bad";
 
 /// A non-existent path.
 pub const TEST_NON_EXISTENT_PATH: &str = "tests/data/non_existent";
-
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_OUTPUT_ERROR_PATH,
-    "tests/scripts/solc_version_output_error"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_TOO_OLD_PATH,
-    "tests/scripts/solc_version_too_old"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_TOO_NEW_PATH,
-    "tests/scripts/solc_version_too_new"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_NOT_ENOUGH_LINES_PATH,
-    "tests/scripts/solc_version_not_enough_lines"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_NOT_ENOUGH_WORDS_IN_2ND_LINE_PATH,
-    "tests/scripts/solc_version_not_enough_words_in_2nd_line"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_PARSING_ERROR_PATH,
-    "tests/scripts/solc_version_parsing_error"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_ZKSYNC_REVISION_MISSING_VERSION,
-    "tests/scripts/solc_version_zksync_revision_missing_version"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_ZKSYNC_REVISION_MISSING_REVISION,
-    "tests/scripts/solc_version_zksync_revision_missing_revision"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_VERSION_ZKSYNC_REVISION_PARSING_REVISION_ERROR,
-    "tests/scripts/solc_version_zksync_revision_parsing_revision_error"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_EXIT_CODE_FAILED,
-    "tests/scripts/solc_exit_code_failed"
-);
-test_script_path!(
-    TEST_SCRIPT_SOLC_INVALID_OUTPUT_JSON,
-    "tests/scripts/solc_invalid_output_json"
-);
 
 /// A test constant.
 pub const LIBRARY_DEFAULT: &str = "tests/data/contracts/solidity/MiniMath.sol:MiniMath=0xF9702469Dfb84A9aC171E284F71615bd3D3f1EdC";
