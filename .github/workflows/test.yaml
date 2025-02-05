@@ -82,7 +82,6 @@ jobs:
           repository: 'matter-labs/era-solidity'
           submodules: recursive
           path: 'era-solidity'
-          ref: for-az
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
