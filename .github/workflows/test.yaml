@@ -82,6 +82,7 @@ jobs:
           repository: 'matter-labs/era-solidity'
           submodules: recursive
           path: 'era-solidity'
+          ref: for-az
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
@@ -110,7 +111,7 @@ jobs:
           enable-assertions: 'true'
           build-type: RelWithDebInfo
           ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
-          save-ccache: 'true'
+          save-ccache: 'false'
 
       - name: Run tests
         uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
