@@ -44,41 +44,64 @@ jobs:
       fail-fast: false # finalize testing of all targets even if one failed
       matrix:
         include:
-          - name: "MacOS x86"
-            runner: macos-12-large
-          - name: "MacOS arm64"
-            runner: [self-hosted, macOS, ARM64]
+#          - name: "MacOS x86"
+#            runner: macos-12-large
+#          - name: "MacOS arm64"
+#            runner: [self-hosted, macOS, ARM64]
           - name: "Linux x86 gnu"
-            runner: matterlabs-ci-runner-high-performance
+            runner: [ci-runner-compiler, Linux]
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "x86_64-unknown-linux-gnu"
             enable-coverage: 'true' # enable coverage on Linux GNU
-          - name: "Linux ARM64 gnu"
-            runner: matterlabs-ci-runner-arm
-            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-            target: "aarch64-unknown-linux-gnu"
-          - name: "Linux x86 musl"
-            runner: matterlabs-ci-runner-high-performance
-            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-            target: "x86_64-unknown-linux-musl"
-          - name: "Linux ARM64 musl"
-            runner: matterlabs-ci-runner-arm
-            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-            target: "aarch64-unknown-linux-musl"
-          - name: "Windows"
-            runner: windows-2022-github-hosted-16core
-            target: "x86_64-pc-windows-gnu"
+#          - name: "Linux ARM64 gnu"
+#            runner: matterlabs-ci-runner-arm
+#            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#            target: "aarch64-unknown-linux-gnu"
+#          - name: "Linux x86 musl"
+#            runner: matterlabs-ci-runner-high-performance
+#            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#            target: "x86_64-unknown-linux-musl"
+#          - name: "Linux ARM64 musl"
+#            runner: matterlabs-ci-runner-arm
+#            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#            target: "aarch64-unknown-linux-musl"
+#          - name: "Windows"
+#            runner: windows-2022-github-hosted-16core
+#            target: "x86_64-pc-windows-gnu"
     runs-on: ${{ matrix.runner }}
     container:
       image: ${{ matrix.image || '' }} # Special workaround to allow matrix builds with optional container
     name: ${{ matrix.name }}
     steps:
-      - name: Checkout source
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Checkout solc
+        uses: actions/checkout@v4
+        with:
+          repository: 'matter-labs/era-solidity'
+          submodules: recursive
+          path: 'era-solidity'
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
         uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+
+      - name: Define project version
+        id: project_version
+        shell: 'bash -ex {0}'
+        working-directory: 'era-solidity'
+        run: |
+          SOLC_VERSION=$(grep 'PROJECT_VERSION' CMakeLists.txt | grep -oP '(\d+\.\d+\.\d+)')
+          echo "solc-version=${SOLC_VERSION}" | tee -a "${GITHUB_OUTPUT}"
+
+      - name: Building solc
+        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@aba-solc-build-update
+        with:
+          zksync-version: '1.0.1'
+          solc-version: '${{ steps.project_version.outputs.solc-version }}'
+          boost-version: 1.83.0
+          working-dir: 'era-solidity'
 
       - name: Build LLVM
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
@@ -87,10 +110,13 @@ jobs:
           enable-assertions: 'true'
           build-type: RelWithDebInfo
           ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
-          save-ccache: 'false'
+          save-ccache: 'true'
 
       - name: Run tests
         uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
+        env:
+          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
         with:
           target: ${{ matrix.target || '' }}
           enable-coverage: ${{ matrix.enable-coverage || 'false' }}
