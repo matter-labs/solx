@@ -101,18 +101,6 @@ pub const TEST_YUL_STANDARD_JSON_SOLC_INVALID_PATH: &str =
     "tests/data/standard_json_input/yul_solc_urls_invalid.json";
 
 /// A test input file.
-pub const TEST_YUL_STANDARD_JSON_SOLX_INVALID_PATH: &str =
-    "tests/data/standard_json_input/yul_solx_urls_invalid.json";
-
-/// A test input file.
-pub const TEST_YUL_STANDARD_JSON_SOLX_BOTH_URLS_AND_CONTENT_PATH: &str =
-    "tests/data/standard_json_input/yul_solx_both_urls_and_content.json";
-
-/// A test input file.
-pub const TEST_YUL_STANDARD_JSON_SOLX_NEITHER_URLS_NOR_CONTENT_PATH: &str =
-    "tests/data/standard_json_input/yul_solx_neither_urls_nor_content.json";
-
-/// A test input file.
 pub const TEST_LLVM_IR_STANDARD_JSON_PATH: &str =
     "tests/data/standard_json_input/llvm_ir_urls.json";
 

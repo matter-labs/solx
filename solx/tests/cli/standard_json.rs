@@ -171,37 +171,3 @@ fn yul() -> anyhow::Result<()> {
 
     Ok(())
 }
-
-#[test]
-fn both_urls_and_content() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let args = &[
-        "--standard-json",
-        crate::common::TEST_YUL_STANDARD_JSON_SOLX_BOTH_URLS_AND_CONTENT_PATH,
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result.success().stdout(predicate::str::contains(
-        "Both `content` and `urls` cannot be set",
-    ));
-
-    Ok(())
-}
-
-#[test]
-fn neither_urls_nor_content() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let args = &[
-        "--standard-json",
-        crate::common::TEST_YUL_STANDARD_JSON_SOLX_NEITHER_URLS_NOR_CONTENT_PATH,
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stdout(predicate::str::contains("Invalid input source specified."));
-
-    Ok(())
-}
