@@ -49,7 +49,7 @@ jobs:
           - name: "MacOS arm64"
             runner: [self-hosted, macOS, ARM64]
           - name: "Linux x86 gnu"
-            runner: matterlabs-ci-runner-high-performance
+            runner: [ci-runner-compiler, Linux]
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "x86_64-unknown-linux-gnu"
             enable-coverage: 'true' # enable coverage on Linux GNU
@@ -57,14 +57,6 @@ jobs:
             runner: matterlabs-ci-runner-arm
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "aarch64-unknown-linux-gnu"
-          - name: "Linux x86 musl"
-            runner: matterlabs-ci-runner-high-performance
-            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-            target: "x86_64-unknown-linux-musl"
-          - name: "Linux ARM64 musl"
-            runner: matterlabs-ci-runner-arm
-            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-            target: "aarch64-unknown-linux-musl"
           - name: "Windows"
             runner: windows-2022-github-hosted-16core
             target: "x86_64-pc-windows-gnu"
@@ -73,12 +65,36 @@ jobs:
       image: ${{ matrix.image || '' }} # Special workaround to allow matrix builds with optional container
     name: ${{ matrix.name }}
     steps:
-      - name: Checkout source
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Checkout solc
+        uses: actions/checkout@v4
+        with:
+          repository: 'matter-labs/era-solidity'
+          submodules: recursive
+          path: 'era-solidity'
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
         uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+
+      - name: Building solc
+        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        with:
+          zksync-version: '1.0.1'
+          solc-version: '0.8.28'
+          boost-version: 1.83.0
+          working-dir: 'era-solidity'
+          cmake-build-type: RelWithDebInfo
+
+      - name: Update Windows boost
+        if: runner.os == 'Windows'
+        shell: 'msys2 {0}'
+        run: |
+          for LIB in libboost_system libboost_program_options libboost_filesystem; do
+            mv ./era-solidity/boost/lib/${LIB}-mgw14-mt-s-x64-1_83.a ./era-solidity/boost/lib/${LIB}.a
+          done
 
       - name: Build LLVM
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
@@ -91,10 +107,12 @@ jobs:
 
       - name: Run tests
         uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
+        env:
+          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
         with:
           target: ${{ matrix.target || '' }}
           enable-coverage: ${{ matrix.enable-coverage || 'false' }}
-          coverage-token: ${{ secrets.CODECOV_TOKEN }}
 
   # Special job that allows some of the jobs to be skipped or failed
   # requiring others to be successful
