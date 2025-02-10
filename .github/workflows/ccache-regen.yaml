@@ -32,7 +32,7 @@ jobs:
       matrix:
         include:
           - name: "MacOS x86"
-            runner: macos-12-large
+            runner: macos-13-large
           - name: "MacOS arm64"
             runner: [self-hosted, macOS, ARM64]
           - name: "Linux x86 gnu"
@@ -43,14 +43,6 @@ jobs:
             runner: matterlabs-ci-runner-arm
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "aarch64-unknown-linux-gnu"
-          - name: "Linux x86 musl"
-            runner: matterlabs-ci-runner-high-performance
-            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-            target: "x86_64-unknown-linux-musl"
-          - name: "Linux ARM64 musl"
-            runner: matterlabs-ci-runner-arm
-            image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-            target: "aarch64-unknown-linux-musl"
           - name: "Windows"
             runner: windows-2022-github-hosted-16core
             target: "x86_64-pc-windows-gnu"
@@ -69,28 +61,15 @@ jobs:
       - name: Build LLVM for tests
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
-          target-env: ${{ contains(matrix.target, 'musl') && 'musl' || 'gnu' }}
-          enable-assertions: 'true'
           build-type: RelWithDebInfo
-          save-ccache: 'false'
-          ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
-
-      - name: Delete libstdc++a
-        if: runner.os == 'Windows'
-        shell: 'msys2 {0}'
-        run: rm -f target-llvm/target-final/lib/libstdc++.a
+          enable-assertions: 'true'
+          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
 
       - name: Build LLVM for releases
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
-          target-env: ${{ contains(matrix.target, 'musl') && 'musl' || 'gnu' }}
           enable-assertions: 'false'
           build-type: Release
-          save-ccache: 'true'
           clone-llvm: 'false'
-          ccache-key: ${{ format('llvm-{0}-{1}-{2}', runner.os, runner.arch, contains(matrix.target, 'musl') && 'musl' || 'gnu') }}
-
-      - name: Run tests
-        uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
-        with:
-          target: ${{ matrix.target || '' }}
+          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+          save-ccache: 'true'

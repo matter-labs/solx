@@ -19,17 +19,13 @@ rustflags = [
 [target.aarch64-unknown-linux-musl]
 linker = "rust-lld"
 
-[target.aarch64-unknown-linux-musl.compiler-rt-solx]
-rustc-link-search = ["./target-llvm/target-host/lib/clang/17/lib/aarch64-unknown-linux-musl"]
-rustc-link-lib = ["clang_rt.builtins"]
-
 [profile.release]
 strip = true
 
 [env]
 LLVM_SYS_170_PREFIX = { value = "./target-llvm/target-final/", relative = true, force = false }
 BOOST_PREFIX = { value = "/opt/homebrew/lib/", relative = false, force = false }
-SOLC_PREFIX = { value = "/Users/hedgarmac/src/era-solidity/build/", relative = false, force = false }
+SOLC_PREFIX = { value = "./era-solidity/build/", relative = false, force = false }
 
 [tools.clippy]
 warn = [

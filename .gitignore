@@ -21,3 +21,6 @@
 
 # Test solc versions
 **/solc-bin/
+
+# solc sources
+era-solidity/

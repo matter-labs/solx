@@ -22,7 +22,7 @@ on:
 
 jobs:
   run-with-sanitizers:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: [ci-runner-compiler, Linux]
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
       options: -m 110g
@@ -33,18 +33,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout solc
+        uses: actions/checkout@v4
+        with:
+          repository: 'matter-labs/era-solidity'
+          submodules: recursive
+          path: 'era-solidity'
+
+      - name: Prepare Windows env
+        if: runner.os == 'Windows'
+        uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+
+      - name: Building solc
+        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        with:
+          cmake-build-type: RelWithDebInfo
+          working-dir: 'era-solidity'
+
       - name: Build LLVM
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
-          target-env: 'gnu'
           enable-assertions: 'true'
           build-type: RelWithDebInfo
           sanitizer: ${{ inputs.llvm-sanitizer || 'Address' }}
-          ccache-key: ${{ format('llvm-{0}-{1}-gnu', runner.os, runner.arch) }}
-          save-ccache: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
 
       - name: Run tests
         uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
+        env:
+          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
         with:
           target: ${{ env.TARGET }}
           sanitizer: ${{ inputs.rust-sanitizer || 'address' }}
