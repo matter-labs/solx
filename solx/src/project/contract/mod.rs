@@ -132,6 +132,8 @@ impl Contract {
                     })?;
                 let runtime_buffer = runtime_context.build(self.name.path.as_str())?;
 
+                let immutables_map = runtime_buffer.get_immutables_evm();
+
                 let deploy_code_segment = era_compiler_common::CodeSegment::Deploy;
                 let deploy_llvm = inkwell::context::Context::create();
                 let deploy_module = deploy_llvm.create_module(
@@ -144,6 +146,9 @@ impl Contract {
                     deploy_code_segment,
                     optimizer.clone(),
                     debug_config.clone(),
+                );
+                deploy_context.set_solidity_data(
+                    era_compiler_llvm_context::EVMContextSolidityData::new(immutables_map),
                 );
                 deploy_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths,
@@ -204,6 +209,8 @@ impl Contract {
                     })?;
                 let runtime_buffer = runtime_context.build(self.name.path.as_str())?;
 
+                let immutables_map = runtime_buffer.get_immutables_evm();
+
                 let deploy_llvm = inkwell::context::Context::create();
                 let deploy_module = deploy_llvm.create_module(
                     format!("{}.{deploy_code_segment}", self.name.full_path).as_str(),
@@ -215,6 +222,9 @@ impl Contract {
                     deploy_code_segment,
                     optimizer.clone(),
                     debug_config.clone(),
+                );
+                deploy_context.set_solidity_data(
+                    era_compiler_llvm_context::EVMContextSolidityData::new(immutables_map),
                 );
                 deploy_context.set_evmla_data(evmla_data);
                 deploy_code.declare(&mut deploy_context)?;

@@ -753,12 +753,29 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 anyhow::bail!("The `TSTORE` instruction is not supported");
             }
             InstructionName::PUSHIMMUTABLE => {
-                // TODO
-                Ok(Some(context.field_const(0).as_basic_value_enum()))
+                let id = self
+                    .instruction
+                    .value
+                    .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?;
+                era_compiler_llvm_context::evm_immutable::load(context, id.as_str()).map(Some)
             }
             InstructionName::ASSIGNIMMUTABLE => {
-                // TODO
-                Ok(None)
+                let arguments = self.pop_arguments_llvm(context)?;
+
+                let id = self
+                    .instruction
+                    .value
+                    .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?;
+
+                let base_offset = arguments[0].into_int_value();
+                let value = arguments[1].into_int_value();
+                era_compiler_llvm_context::evm_immutable::store(
+                    context,
+                    id.as_str(),
+                    base_offset,
+                    value,
+                )
+                .map(|_| None)
             }
 
             InstructionName::CALLDATALOAD => {
