@@ -372,6 +372,23 @@ impl FunctionCall {
                 )
                 .map(|_| None)
             }
+            Name::TLoad => {
+                let arguments = self.pop_arguments_llvm::<1>(context)?;
+                era_compiler_llvm_context::evm_storage::transient_load(
+                    context,
+                    arguments[0].into_int_value(),
+                )
+                .map(Some)
+            }
+            Name::TStore => {
+                let arguments = self.pop_arguments_llvm::<2>(context)?;
+                era_compiler_llvm_context::evm_storage::transient_store(
+                    context,
+                    arguments[0].into_int_value(),
+                    arguments[1].into_int_value(),
+                )
+                .map(|_| None)
+            }
             Name::LoadImmutable => {
                 let mut arguments = self.pop_arguments::<1>(context)?;
                 let id = arguments[0].original.take().ok_or_else(|| {
