@@ -805,23 +805,12 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             InstructionName::CODECOPY => {
                 let arguments = self.pop_arguments_llvm(context)?;
 
-                let parent = context.module().get_name().to_str().expect("Always valid");
-                let source = &self.stack_input.elements[1];
-                let destination = &self.stack_input.elements[2];
-
-                match (source, destination) {
-                    (StackElement::Data(data), _) => {
+                match &self.stack_input.elements[1] {
+                    StackElement::Data(data) => {
                         crate::evmla::assembly::instruction::codecopy::static_data(
                             context,
                             arguments[0].into_int_value(),
                             data.as_str(),
-                        )
-                    }
-                    (StackElement::Path(source), _) if source != parent => {
-                        crate::evmla::assembly::instruction::codecopy::dependency(
-                            context,
-                            arguments[0].into_int_value(),
-                            arguments[1].into_int_value(),
                         )
                     }
                     _ => era_compiler_llvm_context::evm_code::copy(
