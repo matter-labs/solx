@@ -2,7 +2,6 @@
 //! The Solidity compiler.
 //!
 
-use std::borrow::Cow;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::PathBuf;
@@ -70,25 +69,19 @@ impl Compiler {
         allow_paths: Option<String>,
     ) -> anyhow::Result<StandardJsonOutput> {
         let input_string = serde_json::to_string(input_json).expect("Always valid");
-        let input_string = Self::to_null_terminated_owned(input_string.as_str());
-        let input_c_string = Self::to_c_str(input_string.as_str());
+        let input_c_string = CString::new(input_string).expect("Always valid");
 
-        let base_path = base_path.as_deref().map(Self::to_null_terminated_owned);
         let base_path = base_path
             .as_ref()
-            .map(|base_path| Self::to_c_str(base_path.as_str()));
+            .map(|base_path| CString::new(base_path.as_str()).expect("Always valid"));
         let base_path = match base_path {
             Some(base_path) => base_path.as_ptr(),
             None => std::ptr::null(),
         };
 
-        let include_paths: Vec<String> = include_paths
+        let include_paths: Vec<CString> = include_paths
             .iter()
-            .map(|path| Self::to_null_terminated_owned(path))
-            .collect();
-        let include_paths: Vec<Cow<CStr>> = include_paths
-            .iter()
-            .map(|path| Self::to_c_str(path.as_str()))
+            .map(|path| CString::new(path.as_str()).expect("Always valid"))
             .collect();
         let include_paths: Vec<*const ::libc::c_char> =
             include_paths.iter().map(|path| path.as_ptr()).collect();
@@ -103,14 +96,10 @@ impl Compiler {
             .map(|allow_paths| {
                 allow_paths
                     .split(',')
-                    .map(Self::to_null_terminated_owned)
-                    .collect::<Vec<String>>()
+                    .map(|path| CString::new(path).expect("Always valid"))
+                    .collect::<Vec<CString>>()
             })
             .unwrap_or_default();
-        let allow_paths: Vec<Cow<CStr>> = allow_paths
-            .iter()
-            .map(|path| Self::to_c_str(path.as_str()))
-            .collect();
         let allow_paths: Vec<*const ::libc::c_char> =
             allow_paths.iter().map(|path| path.as_ptr()).collect();
         let allow_paths_ptr = if allow_paths.is_empty() {
@@ -207,25 +196,5 @@ impl Compiler {
             .expect("Always valid");
 
         Version::new(output, default, Self::LAST_ZKSYNC_REVISION)
-    }
-
-    fn to_c_str(mut s: &str) -> Cow<CStr> {
-        if s.is_empty() {
-            s = "\0";
-        }
-
-        if !s.chars().rev().any(|ch| ch == '\0') {
-            return Cow::from(CString::new(s).expect("unreachable since null bytes are checked"));
-        }
-
-        unsafe { Cow::from(CStr::from_ptr(s.as_ptr() as *const _)) }
-    }
-
-    fn to_null_terminated_owned(s: &str) -> String {
-        if let Some(p) = s.rfind('\0') {
-            s[..=p].to_string()
-        } else {
-            format!("{s}\0")
-        }
     }
 }
