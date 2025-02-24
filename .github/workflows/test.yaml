@@ -23,10 +23,13 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
       - name: Build LLVM
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
+          clone-llvm: 'false'
           target-env: 'gnu'
           build-type: 'Release'
           enable-assertions: 'false'
@@ -67,13 +70,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Checkout solc
-        uses: actions/checkout@v4
         with:
-          repository: 'matter-labs/era-solidity'
-          submodules: recursive
-          path: 'era-solidity'
+          submodules: 'recursive'
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
@@ -88,6 +86,7 @@ jobs:
       - name: Build LLVM
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
+          clone-llvm: 'false'
           build-type: RelWithDebInfo
           enable-assertions: 'true'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}

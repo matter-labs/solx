@@ -53,6 +53,8 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
@@ -61,6 +63,7 @@ jobs:
       - name: Build LLVM for tests
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
+          clone-llvm: 'false'
           build-type: RelWithDebInfo
           enable-assertions: 'true'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}

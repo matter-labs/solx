@@ -52,13 +52,15 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
 
       - name: Check LLVM version
         if: github.ref_type == 'tag'
         shell: 'bash -ex {0}'
         run: |
-          LLVM_BRANCH=$(grep "^branch" LLVM.lock | awk -F ' = ' '{print $2}' | tr -d '"')
+          # Extracts submodule branch from the submodule status output. Works in case of shallow clone.
+          LLVM_BRANCH=$(git submodule status llvm | awk -F '[()/]' '{print $3}')
           [[ "${LLVM_BRANCH}" =~ ^v[0-9]+(\.[0-9]+)+(\.[0-9]+).*$ ]] || \
              { echo "LLVM branch is not semver: '${LLVM_BRANCH}'. Please, update LLVM.lock file."; exit 1; }
 
@@ -95,14 +97,8 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
+          submodules: 'recursive'
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
-
-      - name: Checkout solc
-        uses: actions/checkout@v4
-        with:
-          repository: 'matter-labs/era-solidity'
-          path: 'era-solidity'
-          submodules: recursive
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
@@ -117,6 +113,7 @@ jobs:
       - name: Build LLVM
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
+          clone-llvm: 'false'
           build-type: Release
           enable-assertions: 'false'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}

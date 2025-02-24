@@ -32,13 +32,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Checkout solc
-        uses: actions/checkout@v4
         with:
-          repository: 'matter-labs/era-solidity'
-          submodules: recursive
-          path: 'era-solidity'
+          submodules: 'recursive'
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
@@ -53,6 +48,7 @@ jobs:
       - name: Build LLVM
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
         with:
+          clone-llvm: 'false'
           enable-assertions: 'true'
           build-type: RelWithDebInfo
           sanitizer: ${{ inputs.llvm-sanitizer || 'Address' }}
