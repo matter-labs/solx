@@ -68,20 +68,16 @@ impl Compiler {
         let input_string = serde_json::to_string(input_json).expect("Always valid");
         let input_c_string = CString::new(input_string).expect("Always valid");
 
-        let base_path = base_path
-            .as_ref()
-            .map(|base_path| CString::new(base_path.as_str()).expect("Always valid"));
-        dbg!(&base_path);
-        let base_path = match base_path {
+        let base_path = base_path.map(|base_path| CString::new(base_path).expect("Always valid"));
+        let base_path = match base_path.as_ref() {
             Some(base_path) => base_path.as_ptr(),
             None => std::ptr::null(),
         };
 
         let include_paths: Vec<CString> = include_paths
-            .iter()
-            .map(|path| CString::new(path.as_str()).expect("Always valid"))
+            .into_iter()
+            .map(|path| CString::new(path).expect("Always valid"))
             .collect();
-        dbg!(&include_paths);
         let include_paths: Vec<*const ::libc::c_char> =
             include_paths.iter().map(|path| path.as_ptr()).collect();
         let include_paths_ptr = if include_paths.is_empty() {
@@ -91,15 +87,13 @@ impl Compiler {
         };
 
         let allow_paths = allow_paths
-            .as_deref()
             .map(|allow_paths| {
                 allow_paths
                     .split(',')
-                    .map(|path| CString::new(path).expect("Always valid"))
+                    .map(|path| CString::new(path.to_owned()).expect("Always valid"))
                     .collect::<Vec<CString>>()
             })
             .unwrap_or_default();
-        dbg!(&allow_paths);
         let allow_paths: Vec<*const ::libc::c_char> =
             allow_paths.iter().map(|path| path.as_ptr()).collect();
         let allow_paths_ptr = if allow_paths.is_empty() {
@@ -131,9 +125,8 @@ impl Compiler {
             }
         };
 
-        solc_output.errors.append(messages);
-
         input_json.resolve_sources();
+        solc_output.errors.append(messages);
         solc_output.preprocess_ast(&input_json.sources, &self.version)?;
         solc_output.remove_evm_artifacts();
 
