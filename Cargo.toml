@@ -10,6 +10,6 @@ resolver = "2"
 authors = [
     "Oleksandr Zarudnyi <a.zarudnyy@matterlabs.dev>",
 ]
-license = "MIT OR Apache-2.0"
+license = "GPL-3.0"
 edition = "2021"
 version = "1.0.0"
