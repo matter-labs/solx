@@ -23,9 +23,9 @@ linker = "rust-lld"
 strip = true
 
 [env]
-LLVM_SYS_170_PREFIX = { value = "./target-llvm/target-final/", relative = true, force = false }
 BOOST_PREFIX = { value = "/opt/homebrew/lib/", relative = false, force = false }
-SOLC_PREFIX = { value = "./era-solidity/build/", relative = false, force = false }
+LLVM_SYS_170_PREFIX = { value = "./target-llvm/target-final/", relative = true, force = false }
+SOLC_PREFIX = { value = "./era-solidity/build/", relative = true, force = false }
 
 [tools.clippy]
 warn = [
