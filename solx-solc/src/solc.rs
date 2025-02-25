@@ -71,6 +71,7 @@ impl Compiler {
         let base_path = base_path
             .as_ref()
             .map(|base_path| CString::new(base_path.as_str()).expect("Always valid"));
+        dbg!(&base_path);
         let base_path = match base_path {
             Some(base_path) => base_path.as_ptr(),
             None => std::ptr::null(),
@@ -80,6 +81,7 @@ impl Compiler {
             .iter()
             .map(|path| CString::new(path.as_str()).expect("Always valid"))
             .collect();
+        dbg!(&include_paths);
         let include_paths: Vec<*const ::libc::c_char> =
             include_paths.iter().map(|path| path.as_ptr()).collect();
         let include_paths_ptr = if include_paths.is_empty() {
@@ -97,6 +99,7 @@ impl Compiler {
                     .collect::<Vec<CString>>()
             })
             .unwrap_or_default();
+        dbg!(&allow_paths);
         let allow_paths: Vec<*const ::libc::c_char> =
             allow_paths.iter().map(|path| path.as_ptr()).collect();
         let allow_paths_ptr = if allow_paths.is_empty() {
@@ -128,12 +131,6 @@ impl Compiler {
             }
         };
 
-        solc_output
-            .errors
-            .retain(|error| match error.error_code.as_deref() {
-                Some(code) => !StandardJsonOutputError::IGNORED_WARNING_CODES.contains(&code),
-                None => true,
-            });
         solc_output.errors.append(messages);
 
         input_json.resolve_sources();
