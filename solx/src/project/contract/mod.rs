@@ -82,7 +82,7 @@ impl Contract {
         let metadata = Metadata::new(
             self.source_metadata,
             solc_version.default.to_owned(),
-            solc_version.l2_revision.to_owned(),
+            solc_version.llvm_revision.to_owned(),
             optimizer.settings().to_owned(),
             llvm_options.as_slice(),
         );
