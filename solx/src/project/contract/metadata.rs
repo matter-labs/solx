@@ -13,11 +13,11 @@ pub struct Metadata<'a> {
     pub source_metadata: serde_json::Value,
     /// The `solc` version.
     pub solc_version: semver::Version,
-    /// The ZKsync `solc` edition.
-    pub solc_zkvm_edition: semver::Version,
-    /// The ZKsync compiler version.
-    pub zk_version: semver::Version,
-    /// The ZKsync compiler optimizer settings.
+    /// The LLVM `solc` edition.
+    pub solc_llvm_edition: semver::Version,
+    /// The LLVM compiler version.
+    pub version: semver::Version,
+    /// The LLVM compiler optimizer settings.
     pub optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
     /// The LLVM extra arguments.
     pub llvm_options: &'a [String],
@@ -30,7 +30,7 @@ impl<'a> Metadata<'a> {
     pub fn new(
         source_metadata: serde_json::Value,
         solc_version: semver::Version,
-        solc_zkvm_edition: semver::Version,
+        solc_llvm_edition: semver::Version,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: &'a [String],
     ) -> Self {
@@ -44,8 +44,8 @@ impl<'a> Metadata<'a> {
         Self {
             source_metadata,
             solc_version,
-            solc_zkvm_edition,
-            zk_version: crate::version().parse().expect("Always valid"),
+            solc_llvm_edition,
+            version: crate::version().parse().expect("Always valid"),
             optimizer_settings,
             llvm_options,
         }

@@ -31,7 +31,7 @@ extern "C" {
 
     fn solidity_compile(input: *const std::os::raw::c_char) -> *const std::os::raw::c_char;
 
-    fn solidity_version() -> *const std::os::raw::c_char;
+    fn solidity_version_extended() -> *const std::os::raw::c_char;
 }
 
 impl Default for Compiler {
@@ -43,9 +43,6 @@ impl Default for Compiler {
 }
 
 impl Compiler {
-    /// The last ZKsync revision of `solc`.
-    pub const LAST_ZKSYNC_REVISION: semver::Version = semver::Version::new(0, 1, 0);
-
     ///
     /// The Solidity `--standard-json` mirror.
     ///
@@ -126,19 +123,38 @@ impl Compiler {
     ///
     fn parse_version() -> Version {
         let output = unsafe {
-            let output_pointer = solidity_version();
+            let output_pointer = solidity_version_extended();
             CStr::from_ptr(output_pointer)
                 .to_string_lossy()
                 .into_owned()
         };
 
-        let default: semver::Version = output
+        let lines = output.lines().collect::<Vec<&str>>();
+
+        let default: semver::Version = lines
+            .get(1)
+            .unwrap_or_else(|| panic!("solc version parsing: missing line 1."))
+            .split(' ')
+            .nth(1)
+            .expect("solc version parsing: missing version.")
             .split('+')
             .next()
-            .expect("Always exists")
-            .parse()
-            .expect("Always valid");
+            .expect("solc version parsing: missing semver.")
+            .parse::<semver::Version>()
+            .unwrap_or_else(|error| panic!("solc version parsing: {error}."));
 
-        Version::new(output, default, Self::LAST_ZKSYNC_REVISION)
+        let llvm_revision: semver::Version = lines
+            .get(2)
+            .expect("LLVM revision parsing: missing line 2.")
+            .split(' ')
+            .nth(1)
+            .expect("LLVM revision parsing: missing version.")
+            .split('-')
+            .nth(1)
+            .expect("LLVM revision parsing: missing revision.")
+            .parse::<semver::Version>()
+            .unwrap_or_else(|error| panic!("LLVM revision parsing: {error}."));
+
+        Version::new(output, default, llvm_revision)
     }
 }
