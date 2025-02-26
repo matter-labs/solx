@@ -6,7 +6,7 @@ ignore = [
 
 [licenses]
 allow = [
-    #"Apache-2.0 WITH LLVM-exception",
+    "GPL-3.0",
     "MIT",
     "Apache-2.0",
     "ISC",
