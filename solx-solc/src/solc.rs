@@ -102,7 +102,6 @@ impl Compiler {
             allow_paths.as_ptr()
         };
 
-        dbg!(1);
         let output_ffi = unsafe {
             let output_pointer = solidity_compile_default_callback(
                 input_c_string.as_ptr(),
@@ -116,7 +115,6 @@ impl Compiler {
                 .to_string_lossy()
                 .into_owned()
         };
-        dbg!(2);
 
         let mut solc_output = match era_compiler_common::deserialize_from_str::<StandardJsonOutput>(
             output_ffi.as_str(),
