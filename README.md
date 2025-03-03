@@ -17,7 +17,7 @@ The environment variable `LLVM_SYS_170_PREFIX` sets the path to the directory wi
 For example:
 
 ```shell
-export LLVM_SYS_170_PREFIX=~/repositories/era-llvm/target-llvm/build-final 
+export LLVM_SYS_170_PREFIX="${HOME}/src/solx/target-llvm/build-final"
 ```
 
 If you suspect that the compiler is not using the correct LLVM build, check by running `set | grep LLVM`, and reset all LLVM-related environment variables.
@@ -26,7 +26,7 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 
 ## License
 
-TODO: To be added upon publishing.
+**solx** is licensed under [GNU General Public License v3.0](LICENSE.txt).
 
 ## Resources
 
