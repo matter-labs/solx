@@ -37,6 +37,7 @@ extern "C" {
         include_paths: *const *const ::libc::c_char,
         allow_paths_size: u64,
         allow_paths: *const *const ::libc::c_char,
+        error_pointer: *mut *mut ::libc::c_char,
     ) -> *const std::os::raw::c_char;
 
     ///
@@ -102,6 +103,8 @@ impl Compiler {
             allow_paths.as_ptr()
         };
 
+        let mut error_message = std::ptr::null_mut();
+        let error_pointer = &mut error_message;
         let output_ffi = unsafe {
             let output_pointer = solidity_compile_default_callback(
                 input_c_string.as_ptr(),
@@ -110,7 +113,12 @@ impl Compiler {
                 include_paths_ptr,
                 allow_paths.len() as u64,
                 allow_paths_ptr,
+                error_pointer,
             );
+            if !error_message.is_null() {
+                let error_message = CStr::from_ptr(error_message).to_string_lossy().into_owned();
+                anyhow::bail!("solc standard JSON I/O: {error_message}");
+            }
             CStr::from_ptr(output_pointer)
                 .to_string_lossy()
                 .into_owned()
