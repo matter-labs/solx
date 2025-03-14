@@ -52,23 +52,22 @@ fn invalid_input_solc_error() -> anyhow::Result<()> {
     Ok(())
 }
 
-// TODO: fix when recursion works with a static library
-// #[test]
-// fn recursion() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn recursion() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let args = &[
-//         "--standard-json",
-//         crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLX_RECURSION_PATH,
-//     ];
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLX_RECURSION_PATH,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result
-//         .success()
-//         .stdout(predicate::str::contains("bytecode"));
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"));
 
-//     Ok(())
-// }
+    Ok(())
+}
 
 #[test]
 fn invalid_path() -> anyhow::Result<()> {

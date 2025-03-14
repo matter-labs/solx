@@ -5,9 +5,9 @@
 use predicates::prelude::*;
 use test_case::test_case;
 
-// TODO: #[test_case('0')]
-// TODO: #[test_case('1')]
-// TODO: #[test_case('2')]
+// TODO: #[test_case('0')] when -O0 is supported
+#[test_case('1')]
+#[test_case('2')]
 #[test_case('3')]
 #[test_case('s')]
 #[test_case('z')]

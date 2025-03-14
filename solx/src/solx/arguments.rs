@@ -63,7 +63,7 @@ pub struct Arguments {
 
     /// Pass arbitrary space-separated options to LLVM.
     /// The argument must be a single-quoted string following a `=` separator.
-    /// Example: `--llvm-options='-eravm-jump-table-density-threshold=10'`. TODO: update
+    /// Example: `--llvm-options='arg1 arg2 arg3 ... argN'`.
     #[arg(long)]
     pub llvm_options: Option<String>,
 
@@ -119,10 +119,6 @@ pub struct Arguments {
     /// If enabled, the metadata will contain the literal content of the source files.
     #[arg(long)]
     pub metadata_literal: bool,
-
-    /// Output assembly of the compiled contracts.
-    #[arg(long = "asm")]
-    pub output_assembly: bool,
 
     /// Output metadata of the compiled project.
     #[arg(long = "metadata")]
@@ -253,7 +249,7 @@ impl Arguments {
         }
 
         if self.standard_json.is_some() {
-            if self.output_assembly || self.output_metadata || self.output_binary {
+            if self.output_metadata || self.output_binary {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
                     "Cannot output data outside of JSON in standard JSON mode.",
                     None,

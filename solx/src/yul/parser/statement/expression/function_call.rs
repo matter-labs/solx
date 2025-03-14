@@ -256,7 +256,6 @@ impl FunctionCall {
             }
             Name::Pop => {
                 let _arguments = self.pop_arguments_llvm::<1>(context)?;
-                // TODO
                 Ok(None)
             }
 

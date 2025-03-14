@@ -17,7 +17,6 @@ fn default(via_ir: bool) {
         solx_solc::StandardJsonInputLibraries::default(),
         era_compiler_common::HashType::Keccak256,
         BTreeSet::new(),
-        &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::none(),
     )
@@ -27,7 +26,6 @@ fn default(via_ir: bool) {
         solx_solc::StandardJsonInputLibraries::default(),
         era_compiler_common::HashType::Keccak256,
         BTreeSet::new(),
-        &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
     )
@@ -37,7 +35,6 @@ fn default(via_ir: bool) {
         solx_solc::StandardJsonInputLibraries::default(),
         era_compiler_common::HashType::Keccak256,
         BTreeSet::new(),
-        &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::size(),
     )

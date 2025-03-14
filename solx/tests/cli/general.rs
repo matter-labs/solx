@@ -21,21 +21,14 @@ fn no_arguments() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[test_case(
-    crate::common::SOLIDITY_BIN_OUTPUT_NAME,
-    crate::common::SOLIDITY_ASM_OUTPUT_NAME
-)]
-fn multiple_output_options(
-    bin_output_file_name: &str,
-    asm_output_file_name: &str,
-) -> anyhow::Result<()> {
+#[test_case(crate::common::SOLIDITY_BIN_OUTPUT_NAME)]
+fn multiple_output_options(bin_output_file_name: &str) -> anyhow::Result<()> {
     crate::common::setup()?;
     let tmp_dir = TempDir::new()?;
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "-O3",
         "--bin",
-        "--asm",
         "--output-dir",
         tmp_dir.path().to_str().unwrap(),
     ];
@@ -51,18 +44,10 @@ fn multiple_output_options(
         .path()
         .join(crate::common::TEST_SOLIDITY_CONTRACT_NAME)
         .join(bin_output_file_name);
-    let asm_output_file = tmp_dir
-        .path()
-        .join(crate::common::TEST_SOLIDITY_CONTRACT_NAME)
-        .join(asm_output_file_name);
 
     assert!(bin_output_file.exists());
-    assert!(asm_output_file.exists());
     assert!(!crate::cli::is_file_empty(
         bin_output_file.to_str().unwrap()
-    )?);
-    assert!(!crate::cli::is_file_empty(
-        asm_output_file.to_str().unwrap()
     )?);
 
     Ok(())

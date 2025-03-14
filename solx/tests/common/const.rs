@@ -46,9 +46,6 @@ pub const TEST_SOLIDITY_CONTRACT_INTERFACE_EMPTY_YUL_PATH: &str =
 pub const SOLIDITY_BIN_OUTPUT_NAME: &str = "Test.bin";
 
 /// A test input file.
-pub const SOLIDITY_ASM_OUTPUT_NAME: &str = "Test.asm";
-
-/// A test input file.
 pub const TEST_YUL_CONTRACT_PATH: &str = "tests/data/contracts/yul/Test.yul";
 
 /// A test input file.

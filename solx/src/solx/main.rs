@@ -202,16 +202,11 @@ fn main_inner(
         build.write_to_directory(
             &output_directory,
             arguments.output_metadata,
-            arguments.output_assembly,
             arguments.output_binary,
             arguments.overwrite,
         )?;
     } else {
-        build.write_to_terminal(
-            arguments.output_metadata,
-            arguments.output_assembly,
-            arguments.output_binary,
-        )?;
+        build.write_to_terminal(arguments.output_metadata, arguments.output_binary)?;
     }
 
     Ok(())

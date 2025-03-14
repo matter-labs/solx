@@ -23,7 +23,7 @@ for guidance how to work with PRs created from a fork.
 
 ## Licenses
 
-If you contribute to this project, your contributions will be made to the project under TODO: license.
+If you contribute to this project, your contributions will be made to the project under the GPL-3.0 license.
 
 ## Code of Conduct
 

@@ -55,55 +55,6 @@ fn bin_missing() -> anyhow::Result<()> {
 }
 
 #[test]
-fn asm() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-
-    let args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--asm",
-        "--output-dir",
-        tmp_dir_solx.path().to_str().unwrap(),
-        "--overwrite",
-    ];
-
-    let _ = crate::cli::execute_solx(args)?;
-    let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stderr(predicate::str::contains("Compiler run successful"));
-
-    assert!(tmp_dir_solx.path().exists());
-
-    Ok(())
-}
-
-#[test]
-fn asm_missing() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let tmp_dir_solx = TempDir::with_prefix("solx_output")?;
-
-    let args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--asm",
-        "--output-dir",
-        tmp_dir_solx.path().to_str().unwrap(),
-    ];
-
-    let _ = crate::cli::execute_solx(args)?;
-    let result = crate::cli::execute_solx(args)?;
-    result.failure().stderr(predicate::str::contains(
-        "Error: Refusing to overwrite an existing file",
-    ));
-
-    assert!(tmp_dir_solx.path().exists());
-
-    Ok(())
-}
-
-#[test]
 fn metadata() -> anyhow::Result<()> {
     crate::common::setup()?;
 
@@ -161,7 +112,6 @@ fn all() -> anyhow::Result<()> {
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--bin",
-        "--asm",
         "--metadata",
         "--output-dir",
         tmp_dir_solx.path().to_str().unwrap(),
@@ -188,7 +138,6 @@ fn all_missing() -> anyhow::Result<()> {
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--bin",
-        "--asm",
         "--metadata",
         "--output-dir",
         tmp_dir_solx.path().to_str().unwrap(),

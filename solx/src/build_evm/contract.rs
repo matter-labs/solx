@@ -67,13 +67,9 @@ impl Contract {
         self,
         path: String,
         output_metadata: bool,
-        output_assembly: bool,
         output_binary: bool,
     ) -> anyhow::Result<()> {
         writeln!(std::io::stdout(), "\n======= {path} =======")?;
-        if output_assembly {
-            writeln!(std::io::stdout(), "Assembly:\nTODO")?;
-        }
         if output_metadata {
             writeln!(std::io::stdout(), "Metadata:\n{}", self.metadata_json)?;
         }
@@ -96,7 +92,6 @@ impl Contract {
         self,
         output_path: &Path,
         output_metadata: bool,
-        output_assembly: bool,
         output_binary: bool,
         overwrite: bool,
     ) -> anyhow::Result<()> {
@@ -130,25 +125,6 @@ impl Contract {
                     self.metadata_json.to_string().as_bytes(),
                 )
                 .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
-            }
-        }
-
-        if output_assembly {
-            let output_name = format!(
-                "{}.{}",
-                self.name.name.as_deref().unwrap_or(file_name),
-                "asm"
-            );
-            let mut output_path = output_path.clone();
-            output_path.push(output_name.as_str());
-
-            if output_path.exists() && !overwrite {
-                anyhow::bail!(
-                    "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
-                );
-            } else {
-                std::fs::write(output_path.as_path(), "TODO".as_bytes())
-                    .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
         }
 
