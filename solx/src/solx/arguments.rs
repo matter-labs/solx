@@ -49,7 +49,7 @@ pub struct Arguments {
     pub output_dir: Option<PathBuf>,
 
     /// Overwrite existing files (used together with -o).
-    #[arg(long = "overwrite")]
+    #[arg(long)]
     pub overwrite: bool,
 
     /// Set the optimization parameter -O[0 | 1 | 2 | 3 | s | z].
@@ -58,8 +58,8 @@ pub struct Arguments {
     pub optimization: Option<char>,
 
     /// Try to recompile with -Oz if the bytecode is too large.
-    #[arg(long = "fallback-Oz")]
-    pub fallback_to_optimizing_for_size: bool,
+    #[arg(long = "optimization-size-fallback")]
+    pub size_fallback: bool,
 
     /// Pass arbitrary space-separated options to LLVM.
     /// The argument must be a single-quoted string following a `=` separator.
@@ -308,7 +308,7 @@ impl Arguments {
                     None,
                 ));
             }
-            if self.fallback_to_optimizing_for_size {
+            if self.size_fallback {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
                     "Falling back to -Oz must be specified in standard JSON input settings.",
                     None,

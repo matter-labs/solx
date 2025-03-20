@@ -12,7 +12,7 @@
   "settings": {
     "optimizer": {
       "mode": "3",
-      "fallbackToOptimizingForSize": true
+      "sizeFallback": true
     },
     "outputSelection": {
       "*": {

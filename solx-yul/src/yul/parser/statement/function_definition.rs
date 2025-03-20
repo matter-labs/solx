@@ -7,6 +7,7 @@ use std::collections::BTreeSet;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::yul::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::symbol::Symbol;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -157,6 +158,13 @@ where
     ///
     pub fn get_missing_libraries(&self) -> BTreeSet<String> {
         self.body.get_missing_libraries()
+    }
+
+    ///
+    /// Get the list of EVM dependencies.
+    ///
+    pub fn accumulate_evm_dependencies(&self, dependencies: &mut Dependencies) {
+        self.body.accumulate_evm_dependencies(dependencies);
     }
 }
 

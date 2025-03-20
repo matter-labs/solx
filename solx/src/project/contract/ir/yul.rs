@@ -33,7 +33,7 @@ impl Yul {
         };
 
         if let Some(debug_config) = debug_config {
-            debug_config.dump_yul(path, None, source_code)?;
+            debug_config.dump_yul(path, source_code)?;
         }
 
         let mut lexer = Lexer::new(source_code.to_owned());
@@ -57,6 +57,16 @@ impl Yul {
     ///
     pub fn get_missing_libraries(&self) -> BTreeSet<String> {
         self.object.0.get_missing_libraries()
+    }
+
+    ///
+    /// Get the list of EVM dependencies.
+    ///
+    pub fn get_evm_dependencies(
+        &self,
+        runtime_code: Option<&solx_yul::yul::parser::statement::object::Object<EraDialect>>,
+    ) -> solx_yul::Dependencies {
+        self.object.0.get_evm_dependencies(runtime_code)
     }
 }
 

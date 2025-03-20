@@ -37,6 +37,13 @@ impl EVMLA {
     pub fn get_missing_libraries(&self) -> BTreeSet<String> {
         self.assembly.get_missing_libraries()
     }
+
+    ///
+    /// Get the list of EVM dependencies.
+    ///
+    pub fn accumulate_evm_dependencies(&self, dependencies: &mut solx_yul::Dependencies) {
+        self.assembly.accumulate_evm_dependencies(dependencies);
+    }
 }
 
 impl era_compiler_llvm_context::EVMWriteLLVM for EVMLA {

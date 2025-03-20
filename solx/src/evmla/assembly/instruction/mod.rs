@@ -377,10 +377,10 @@ impl std::fmt::Display for Instruction {
         let name = self.name.to_string();
         match self.name {
             Name::Tag => write!(f, "{:4}", name),
-            _ => write!(f, "{:15}", name),
+            _ => write!(f, "{:20}", name),
         }?;
         match self.value {
-            Some(ref value) if value.len() <= 64 => write!(f, "{}", value)?,
+            Some(ref value) if value.len() <= 64 => write!(f, "{value}")?,
             Some(ref value) => write!(f, "... {}", &value[value.len() - 60..])?,
             None => {}
         }

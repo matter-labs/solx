@@ -682,7 +682,16 @@ impl FunctionCall {
                 era_compiler_llvm_context::evm_code::data_size(context, object_name.as_str())
                     .map(Some)
             }
-            Name::DataCopy => Ok(None),
+            Name::DataCopy => {
+                let arguments = self.pop_arguments_llvm::<3>(context)?;
+                era_compiler_llvm_context::evm_code::copy(
+                    context,
+                    arguments[0].into_int_value(),
+                    arguments[1].into_int_value(),
+                    arguments[2].into_int_value(),
+                )?;
+                Ok(None)
+            }
 
             Name::LinkerSymbol => {
                 let mut arguments = self.pop_arguments::<1>(context)?;

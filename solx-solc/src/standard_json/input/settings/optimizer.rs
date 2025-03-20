@@ -13,7 +13,7 @@ pub struct Optimizer {
     pub mode: char,
     /// Whether to try to recompile with -Oz if the bytecode is too large.
     #[serde(default, skip_serializing)]
-    pub fallback_to_optimizing_for_size: bool,
+    pub size_fallback: bool,
 
     /// Enable the solc optimizer.
     /// Always `true` in order to allow library inlining.
@@ -31,10 +31,10 @@ impl Optimizer {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(mode: char, fallback_to_optimizing_for_size: bool) -> Self {
+    pub fn new(mode: char, size_fallback: bool) -> Self {
         Self {
             mode,
-            fallback_to_optimizing_for_size,
+            size_fallback,
 
             enabled: Self::default_enabled(),
         }

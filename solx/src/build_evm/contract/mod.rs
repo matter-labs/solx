@@ -2,10 +2,14 @@
 //! The Solidity contract build.
 //!
 
+pub mod object;
+
 use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
+
+use self::object::Object;
 
 ///
 /// The Solidity contract build.
@@ -14,14 +18,10 @@ use std::path::PathBuf;
 pub struct Contract {
     /// The contract name.
     pub name: era_compiler_common::ContractName,
-    /// The deploy bytecode identifier.
-    pub deploy_identifier: String,
-    /// The deploy bytecode.
-    pub deploy_build: Vec<u8>,
-    /// The runtime bytecode identifier.
-    pub runtime_identifier: String,
-    /// The runtime bytecode.
-    pub runtime_build: Vec<u8>,
+    /// The deploy code object.
+    pub deploy_object: Object,
+    /// The runtime code object.
+    pub runtime_object: Object,
     /// The metadata hash.
     pub metadata_hash: Option<era_compiler_common::Hash>,
     /// The metadata JSON.
@@ -38,10 +38,8 @@ impl Contract {
     ///
     pub fn new(
         name: era_compiler_common::ContractName,
-        deploy_identifier: String,
-        deploy_build: Vec<u8>,
-        runtime_identifier: String,
-        runtime_build: Vec<u8>,
+        deploy_object: Object,
+        runtime_object: Object,
         metadata_hash: Option<era_compiler_common::Hash>,
         metadata_json: serde_json::Value,
         missing_libraries: BTreeSet<String>,
@@ -49,10 +47,8 @@ impl Contract {
     ) -> Self {
         Self {
             name,
-            deploy_identifier,
-            deploy_build,
-            runtime_identifier,
-            runtime_build,
+            deploy_object,
+            runtime_object,
             metadata_hash,
             metadata_json,
             missing_libraries,
@@ -77,8 +73,8 @@ impl Contract {
             writeln!(
                 std::io::stdout(),
                 "Binary:\n{}{}",
-                hex::encode(self.deploy_build),
-                hex::encode(self.runtime_build),
+                hex::encode(self.deploy_object.bytecode),
+                hex::encode(self.runtime_object.bytecode),
             )?;
         }
 
@@ -142,8 +138,8 @@ impl Contract {
                     "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
                 );
             } else {
-                let mut bytecode_hexadecimal = hex::encode(self.deploy_build.as_slice());
-                bytecode_hexadecimal.push_str(hex::encode(self.runtime_build.as_slice()).as_str());
+                let mut bytecode_hexadecimal = hex::encode(self.deploy_object.bytecode);
+                bytecode_hexadecimal.push_str(hex::encode(self.runtime_object.bytecode).as_str());
                 std::fs::write(output_path.as_path(), bytecode_hexadecimal.as_bytes())
                     .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
@@ -159,14 +155,11 @@ impl Contract {
         self,
         standard_json_contract: &mut solx_solc::StandardJsonOutputContract,
     ) -> anyhow::Result<()> {
-        let deploy_bytecode = hex::encode(self.deploy_build.as_slice());
-        let runtime_bytecode = hex::encode(self.runtime_build.as_slice());
-
         standard_json_contract.metadata = self.metadata_json;
         standard_json_contract
             .evm
             .get_or_insert_with(solx_solc::StandardJsonOutputContractEVM::default)
-            .modify_evm(deploy_bytecode, runtime_bytecode);
+            .modify_evm(hex::encode(self.deploy_object.bytecode));
         standard_json_contract
             .missing_libraries
             .extend(self.missing_libraries);

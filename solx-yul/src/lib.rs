@@ -11,3 +11,5 @@
 
 pub mod util;
 pub mod yul;
+
+pub use crate::yul::dependencies::Dependencies;

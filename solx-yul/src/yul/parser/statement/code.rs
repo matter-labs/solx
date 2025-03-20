@@ -4,6 +4,7 @@
 
 use std::collections::BTreeSet;
 
+use crate::yul::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::keyword::Keyword;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -65,6 +66,13 @@ where
     ///
     pub fn get_missing_libraries(&self) -> BTreeSet<String> {
         self.block.get_missing_libraries()
+    }
+
+    ///
+    /// Get the list of EVM dependencies.
+    ///
+    pub fn accumulate_evm_dependencies(&self, dependencies: &mut Dependencies) {
+        self.block.accumulate_evm_dependencies(dependencies);
     }
 }
 

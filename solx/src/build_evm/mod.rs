@@ -10,6 +10,7 @@ use std::path::Path;
 
 use solx_solc::CollectableError;
 
+use self::contract::object::Object as ContractObject;
 use self::contract::Contract;
 
 ///
@@ -44,48 +45,139 @@ impl Build {
         mut self,
         linker_symbols: BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> Self {
-        for contract in self.results.values_mut().filter_map(|result| {
-            let contract = result.as_mut().expect("Cannot link a project with errors");
-            match contract.object_format {
-                era_compiler_common::ObjectFormat::ELF => Some(contract),
-                _ => None,
-            }
-        }) {
-            let deploy_memory_buffer =
-                inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-                    contract.deploy_build.as_slice(),
-                    contract.deploy_identifier.as_str(),
-                    false,
-                );
-            let runtime_memory_buffer =
-                inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-                    contract.runtime_build.as_slice(),
-                    contract.runtime_identifier.as_str(),
-                    false,
-                );
+        let mut contracts: BTreeMap<String, Contract> = self
+            .results
+            .into_iter()
+            .map(|(path, result)| (path, result.expect("Cannot link a project with errors")))
+            .collect();
 
-            let (deploy_buffer_linked, runtime_buffer_linked, object_format) =
-                match era_compiler_llvm_context::evm_link(
-                    (contract.deploy_identifier.as_str(), deploy_memory_buffer),
-                    (contract.runtime_identifier.as_str(), runtime_memory_buffer),
-                    &linker_symbols,
-                ) {
-                    Ok(result) => result,
-                    Err(error) => {
-                        self.messages
-                            .push(solx_solc::StandardJsonOutputError::new_error(
-                                error, None, None,
-                            ));
-                        continue;
-                    }
+        loop {
+            let assembled_objects_data = {
+                let all_objects = contracts
+                    .iter()
+                    .flat_map(|(_path, contract)| {
+                        vec![&contract.deploy_object, &contract.runtime_object]
+                    })
+                    .collect::<Vec<&ContractObject>>();
+                let assembleable_objects = all_objects
+                    .iter()
+                    .filter(|object| {
+                        object.requires_assembling()
+                            && object.dependencies.inner.iter().all(|dependency| {
+                                all_objects
+                                    .iter()
+                                    .find(|object| object.matches_dependency(dependency.as_str()))
+                                    .map(|object| !object.requires_assembling())
+                                    .unwrap_or_default()
+                            })
+                    })
+                    .copied()
+                    .collect::<Vec<_>>();
+                if assembleable_objects.is_empty() {
+                    break;
+                }
+
+                let mut assembled_objects_data = Vec::with_capacity(assembleable_objects.len());
+                for object in assembleable_objects.into_iter() {
+                    let memory_buffer =
+                        inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
+                            object.bytecode.as_slice(),
+                            object.identifier.as_str(),
+                            false,
+                        );
+                    let mut memory_buffers =
+                        Vec::with_capacity(1 + object.dependencies.inner.len());
+                    memory_buffers.push((object.identifier.to_owned(), memory_buffer));
+
+                    memory_buffers.extend(object.dependencies.inner.iter().map(|dependency| {
+                        let original_dependency_identifier = dependency.to_owned();
+                        let dependency = all_objects
+                            .iter()
+                            .find(|object| object.matches_dependency(dependency.as_str()))
+                            .expect("Dependency not found");
+                        let memory_buffer =
+                            inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
+                                dependency.bytecode.as_slice(),
+                                dependency.identifier.as_str(),
+                                false,
+                            );
+                        (original_dependency_identifier, memory_buffer)
+                    }));
+
+                    let bytecode_buffers = memory_buffers
+                        .iter()
+                        .map(|(_identifier, memory_buffer)| memory_buffer)
+                        .collect::<Vec<&inkwell::memory_buffer::MemoryBuffer>>();
+                    let bytecode_ids = memory_buffers
+                        .iter()
+                        .map(|(identifier, _memory_buffer)| identifier.as_str())
+                        .collect::<Vec<&str>>();
+                    let assembled_object = match era_compiler_llvm_context::evm_assemble(
+                        bytecode_buffers.as_slice(),
+                        bytecode_ids.as_slice(),
+                        object.code_segment,
+                    ) {
+                        Ok(assembled_object) => assembled_object,
+                        Err(error) => {
+                            self.messages
+                                .push(solx_solc::StandardJsonOutputError::new_error(
+                                    error, None, None,
+                                ));
+                            continue;
+                        }
+                    };
+                    assembled_objects_data.push((
+                        object.contract_name.full_path.to_owned(),
+                        object.code_segment,
+                        assembled_object,
+                    ));
+                }
+                assembled_objects_data
+            };
+
+            for (full_path, code_segment, assembled_object) in assembled_objects_data.into_iter() {
+                let contract = contracts
+                    .get_mut(full_path.as_str())
+                    .expect("Always exists");
+                let object = match code_segment {
+                    era_compiler_common::CodeSegment::Deploy => &mut contract.deploy_object,
+                    era_compiler_common::CodeSegment::Runtime => &mut contract.runtime_object,
                 };
-
-            contract.deploy_build = deploy_buffer_linked.as_slice().to_vec();
-            contract.runtime_build = runtime_buffer_linked.as_slice().to_vec();
-            contract.object_format = object_format;
+                object.bytecode = assembled_object.as_slice().to_owned();
+                object.is_assembled = true;
+            }
         }
 
-        self
+        for contract in contracts.values_mut() {
+            for object in [&mut contract.deploy_object, &mut contract.runtime_object].into_iter() {
+                let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
+                    object.bytecode.as_slice(),
+                    object.identifier.as_str(),
+                    false,
+                );
+                let (linked_object, object_format) =
+                    match era_compiler_llvm_context::evm_link(memory_buffer, &linker_symbols) {
+                        Ok((linked_object, object_format)) => (linked_object, object_format),
+                        Err(error) => {
+                            self.messages
+                                .push(solx_solc::StandardJsonOutputError::new_error(
+                                    error, None, None,
+                                ));
+                            continue;
+                        }
+                    };
+                object.bytecode = linked_object.as_slice().to_owned();
+                object.object_format = object_format;
+            }
+        }
+
+        Self::new(
+            contracts
+                .into_iter()
+                .map(|(path, contract)| (path, Ok(contract)))
+                .collect(),
+            &mut self.messages,
+        )
     }
 
     ///

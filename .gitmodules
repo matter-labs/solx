@@ -1,10 +1,8 @@
 [submodule "llvm"]
 	path = llvm
 	url = https://github.com/matter-labs/era-compiler-llvm
-	branch = main
-	shallow = true
+	branch = evm-pushdeployaddress-new
 [submodule "era-solidity"]
 	path = era-solidity
 	url = https://github.com/matter-labs/era-solidity
-	branch = app-libsolc
-	shallow = true
+	branch = 0.8.29

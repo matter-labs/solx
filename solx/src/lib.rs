@@ -198,11 +198,7 @@ pub fn standard_json_evm(
     let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
         solc_input.settings.optimizer.mode,
     )?;
-    if solc_input
-        .settings
-        .optimizer
-        .fallback_to_optimizing_for_size
-    {
+    if solc_input.settings.optimizer.size_fallback {
         optimizer_settings.enable_fallback_to_size();
     }
     let llvm_options = solc_input.settings.llvm_options.clone();

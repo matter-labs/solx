@@ -128,42 +128,18 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             )
             .map(Some),
             InstructionName::PUSH_ContractHash => {
-                let mut object_name = self
+                let object_name = self
                     .instruction
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Data offset identifier is missing"))?;
-
-                let current_code_segment = context.code_segment().expect("Always exists");
-                let object_code_segment = if format!("{object_name}.{current_code_segment}")
-                    .as_str()
-                    == context.module().get_name().to_str().expect("Always valid")
-                {
-                    era_compiler_common::CodeSegment::Runtime
-                } else {
-                    era_compiler_common::CodeSegment::Deploy
-                };
-                object_name.push_str(format!(".{object_code_segment}").as_str());
-
                 era_compiler_llvm_context::evm_code::data_offset(context, object_name.as_str())
                     .map(Some)
             }
             InstructionName::PUSH_ContractHashSize => {
-                let mut object_name = self
+                let object_name = self
                     .instruction
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Data size identifier is missing"))?;
-
-                let current_code_segment = context.code_segment().expect("Always exists");
-                let object_code_segment = if format!("{object_name}.{current_code_segment}")
-                    .as_str()
-                    == context.module().get_name().to_str().expect("Always valid")
-                {
-                    era_compiler_common::CodeSegment::Runtime
-                } else {
-                    era_compiler_common::CodeSegment::Deploy
-                };
-                object_name.push_str(format!(".{object_code_segment}").as_str());
-
                 era_compiler_llvm_context::evm_code::data_size(context, object_name.as_str())
                     .map(Some)
             }
@@ -175,10 +151,23 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
                 era_compiler_llvm_context::evm_call::linker_symbol(context, path.as_str()).map(Some)
             }
-            InstructionName::PUSH_Data => Ok(Some(context.field_const(0).as_basic_value_enum())),
-            InstructionName::PUSHDEPLOYADDRESS => {
-                Ok(Some(context.field_const(0).as_basic_value_enum()))
+            InstructionName::PUSH_Data => {
+                let value = self
+                    .instruction
+                    .value
+                    .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?;
+
+                if value.len() > era_compiler_common::BYTE_LENGTH_FIELD * 2 {
+                    Ok(Some(context.field_const(0).as_basic_value_enum()))
+                } else {
+                    crate::evmla::assembly::instruction::stack::push(context, value).map(Some)
+                }
             }
+            InstructionName::PUSHDEPLOYADDRESS => context.build_call(
+                context.intrinsics().pushdeployaddress,
+                &[],
+                "library_deploy_address",
+            ),
 
             InstructionName::DUP1 => crate::evmla::assembly::instruction::stack::dup(
                 context,
@@ -857,7 +846,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 )
                 .map(Some)
             }
-            InstructionName::EXTCODEHASH => {
+            InstructionName::EXTCODECOPY => {
                 let arguments = self.pop_arguments_llvm(context)?;
                 era_compiler_llvm_context::evm_code::ext_copy(
                     context,
@@ -867,6 +856,14 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     arguments[3].into_int_value(),
                 )
                 .map(|_| None)
+            }
+            InstructionName::EXTCODEHASH => {
+                let arguments = self.pop_arguments_llvm(context)?;
+                era_compiler_llvm_context::evm_code::ext_hash(
+                    context,
+                    arguments[0].into_int_value(),
+                )
+                .map(Some)
             }
 
             InstructionName::RETURN => {
@@ -1127,10 +1124,6 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::PC => {
                 anyhow::bail!("The `PC` instruction is not supported");
-            }
-            InstructionName::EXTCODECOPY => {
-                let _arguments = self.pop_arguments_llvm(context)?;
-                anyhow::bail!("The `EXTCODECOPY` instruction is not supported");
             }
             InstructionName::SELFDESTRUCT => {
                 let _arguments = self.pop_arguments_llvm(context)?;

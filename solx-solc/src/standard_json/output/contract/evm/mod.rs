@@ -35,9 +35,7 @@ impl EVM {
     ///
     /// Sets the EVM and deploy and runtime bytecode.
     ///
-    pub fn modify_evm(&mut self, deploy_bytecode: String, runtime_bytecode: String) {
-        let mut bytecode = deploy_bytecode;
-        bytecode.push_str(runtime_bytecode.as_str());
+    pub fn modify_evm(&mut self, bytecode: String) {
         self.bytecode = Some(Bytecode::new(bytecode));
     }
 

@@ -15,6 +15,7 @@ pub mod variable_declaration;
 
 use std::collections::BTreeSet;
 
+use crate::yul::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::keyword::Keyword;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -169,6 +170,27 @@ where
             Self::Continue(_) => BTreeSet::new(),
             Self::Break(_) => BTreeSet::new(),
             Self::Leave(_) => BTreeSet::new(),
+        }
+    }
+
+    ///
+    /// Get the list of EVM dependencies.
+    ///
+    pub fn accumulate_evm_dependencies(&self, dependencies: &mut Dependencies) {
+        match self {
+            Self::Object(_) => {}
+            Self::Code(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::Block(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::Expression(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::FunctionDefinition(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::VariableDeclaration(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::Assignment(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::IfConditional(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::Switch(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::ForLoop(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::Continue(_) => {}
+            Self::Break(_) => {}
+            Self::Leave(_) => {}
         }
     }
 

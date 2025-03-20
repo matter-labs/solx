@@ -4,6 +4,7 @@
 
 use std::collections::BTreeSet;
 
+use crate::yul::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::location::Location;
 use crate::yul::lexer::token::Token;
@@ -70,5 +71,15 @@ where
         libraries.extend(self.finalizer.get_missing_libraries());
         libraries.extend(self.body.get_missing_libraries());
         libraries
+    }
+
+    ///
+    /// Get the list of EVM dependencies.
+    ///
+    pub fn accumulate_evm_dependencies(&self, dependencies: &mut Dependencies) {
+        self.initializer.accumulate_evm_dependencies(dependencies);
+        self.condition.accumulate_evm_dependencies(dependencies);
+        self.finalizer.accumulate_evm_dependencies(dependencies);
+        self.body.accumulate_evm_dependencies(dependencies);
     }
 }

@@ -7,6 +7,7 @@ pub mod literal;
 
 use std::collections::BTreeSet;
 
+use crate::yul::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::symbol::Symbol;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -86,6 +87,17 @@ impl Expression {
             Self::FunctionCall(inner) => inner.get_missing_libraries(),
             Self::Identifier(_) => BTreeSet::new(),
             Self::Literal(_) => BTreeSet::new(),
+        }
+    }
+
+    ///
+    /// Get the list of EVM dependencies.
+    ///
+    pub fn accumulate_evm_dependencies(&self, dependencies: &mut Dependencies) {
+        match self {
+            Self::FunctionCall(inner) => inner.accumulate_evm_dependencies(dependencies),
+            Self::Identifier(_) => {}
+            Self::Literal(_) => {}
         }
     }
 
