@@ -11,19 +11,14 @@ pub struct Metadata {
     /// Whether to use literal content.
     #[serde(default)]
     pub use_literal_content: bool,
-
     /// The metadata hash type.
-    #[serde(
-        alias = "bytecodeHash",
-        default = "Metadata::default_hash_type",
-        skip_serializing
-    )]
-    pub hash_type: era_compiler_common::HashType,
+    #[serde(default = "Metadata::default_bytecode_hash", skip_serializing)]
+    pub bytecode_hash: era_compiler_common::HashType,
 }
 
 impl Default for Metadata {
     fn default() -> Self {
-        Self::new(false, Self::default_hash_type())
+        Self::new(false, Self::default_bytecode_hash())
     }
 }
 
@@ -33,7 +28,7 @@ impl Metadata {
     ///
     pub fn new(use_literal_content: bool, hash_type: era_compiler_common::HashType) -> Self {
         Self {
-            hash_type,
+            bytecode_hash: hash_type,
             use_literal_content,
         }
     }
@@ -41,7 +36,7 @@ impl Metadata {
     ///
     /// The default metadata hash type.
     ///
-    fn default_hash_type() -> era_compiler_common::HashType {
-        era_compiler_common::HashType::Keccak256
+    fn default_bytecode_hash() -> era_compiler_common::HashType {
+        era_compiler_common::HashType::Ipfs
     }
 }

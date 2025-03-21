@@ -203,7 +203,7 @@ pub fn standard_json_evm(
     }
     let llvm_options = solc_input.settings.llvm_options.clone();
 
-    let metadata_hash_type = solc_input.settings.metadata.hash_type;
+    let metadata_hash_type = solc_input.settings.metadata.bytecode_hash;
 
     let (mut solc_output, project) = match language {
         solx_solc::StandardJsonInputLanguage::Solidity => {

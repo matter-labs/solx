@@ -105,7 +105,7 @@ impl Compiler {
 
         let mut error_message = std::ptr::null_mut();
         let error_pointer = &mut error_message;
-        let output_ffi = unsafe {
+        let output_string = unsafe {
             let output_pointer = solidity_compile_default_callback(
                 input_c_string.as_ptr(),
                 base_path,
@@ -125,7 +125,7 @@ impl Compiler {
         };
 
         let mut solc_output = match era_compiler_common::deserialize_from_str::<StandardJsonOutput>(
-            output_ffi.as_str(),
+            output_string.as_str(),
         ) {
             Ok(solc_output) => solc_output,
             Err(error) => {

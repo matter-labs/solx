@@ -137,8 +137,8 @@ impl Instruction {
             Name::PUSH => 1,
             Name::PUSH_Data => 1,
             Name::PUSH_Tag => 1,
-            Name::PUSH_ContractHash => 1,
-            Name::PUSH_ContractHashSize => 1,
+            Name::PUSH_DataOffset => 1,
+            Name::PUSH_DataSize => 1,
             Name::PUSHLIB => 1,
             Name::PUSHDEPLOYADDRESS => 1,
 
@@ -286,7 +286,7 @@ impl Instruction {
         for instruction in instructions.iter_mut() {
             match instruction {
                 Instruction {
-                    name: Name::PUSH_ContractHash | Name::PUSH_ContractHashSize,
+                    name: Name::PUSH_DataOffset | Name::PUSH_DataSize,
                     value: Some(value),
                     ..
                 } => {

@@ -96,31 +96,19 @@ impl Output {
     /// Prunes the output JSON and prints it to stdout.
     ///
     pub fn write_and_exit(mut self, selection_to_prune: Selection) -> ! {
-        let sources = self.sources.values_mut().collect::<Vec<&mut Source>>();
-        for source in sources.into_iter() {
-            if selection_to_prune.contains(&Selector::AST) {
-                source.ast = None;
-            }
-        }
-
         let contracts = self
             .contracts
             .values_mut()
             .flat_map(|contracts| contracts.values_mut())
             .collect::<Vec<&mut Contract>>();
         for contract in contracts.into_iter() {
-            if selection_to_prune.contains(&Selector::Metadata) {
-                contract.metadata = serde_json::Value::Null;
-            }
+            contract.metadata = String::new(); // TODO: fix metadata
             if selection_to_prune.contains(&Selector::Yul) {
                 contract.ir_optimized = String::new();
             }
             if let Some(ref mut evm) = contract.evm {
                 if selection_to_prune.contains(&Selector::EVMLA) {
                     evm.legacy_assembly = serde_json::Value::Null;
-                }
-                if selection_to_prune.contains(&Selector::MethodIdentifiers) {
-                    evm.method_identifiers.clear();
                 }
             }
         }

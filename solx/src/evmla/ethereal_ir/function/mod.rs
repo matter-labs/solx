@@ -608,8 +608,8 @@ impl Function {
             ),
             Instruction {
                 name:
-                    InstructionName::PUSH_ContractHash
-                    | InstructionName::PUSH_ContractHashSize
+                    InstructionName::PUSH_DataOffset
+                    | InstructionName::PUSH_DataSize
                     | InstructionName::PUSHLIB,
                 value: Some(ref path),
                 ..

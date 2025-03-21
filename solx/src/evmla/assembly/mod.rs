@@ -135,7 +135,7 @@ impl Assembly {
         if let Some(code) = self.code.as_ref() {
             for instruction in code.iter() {
                 match instruction.name {
-                    InstructionName::PUSH_ContractHash | InstructionName::PUSH_ContractHashSize => {
+                    InstructionName::PUSH_DataOffset | InstructionName::PUSH_DataSize => {
                         let dependency = instruction.value.to_owned().expect("Always exists");
                         let is_runtime_code = dependencies.identifier
                             == dependency

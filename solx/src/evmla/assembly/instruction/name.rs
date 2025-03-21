@@ -15,12 +15,12 @@ pub enum Name {
     /// Pushes an unknown `data` value.
     #[serde(rename = "PUSH data")]
     PUSH_Data,
-    /// Pushes a contract hash size.
+    /// Pushes a data size.
     #[serde(rename = "PUSH #[$]")]
-    PUSH_ContractHashSize,
-    /// Pushes a contract hash.
+    PUSH_DataSize,
+    /// Pushes a data offset.
     #[serde(rename = "PUSH [$]")]
-    PUSH_ContractHash,
+    PUSH_DataOffset,
 
     /// The eponymous EVM instruction.
     PUSH1,

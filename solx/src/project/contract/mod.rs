@@ -26,19 +26,15 @@ pub struct Contract {
     pub name: era_compiler_common::ContractName,
     /// The IR source code data.
     pub ir: IR,
-    /// The metadata JSON.
-    pub source_metadata: serde_json::Value,
+    /// The origin `solc` metadata.
+    pub source_metadata: String,
 }
 
 impl Contract {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(
-        name: era_compiler_common::ContractName,
-        ir: IR,
-        source_metadata: serde_json::Value,
-    ) -> Self {
+    pub fn new(name: era_compiler_common::ContractName, ir: IR, source_metadata: String) -> Self {
         Self {
             name,
             ir,
@@ -90,15 +86,14 @@ impl Contract {
             optimizer.settings().to_owned(),
             llvm_options.as_slice(),
         );
-        let metadata_json = serde_json::to_value(&metadata).expect("Always valid");
-        let metadata_bytes = serde_json::to_vec(&metadata_json).expect("Always valid");
+        let metadata_string = serde_json::to_string(&metadata).expect("Always valid");
         let metadata_hash = match metadata_hash_type {
             era_compiler_common::HashType::None => None,
             era_compiler_common::HashType::Keccak256 => Some(era_compiler_common::Hash::keccak256(
-                metadata_bytes.as_slice(),
+                metadata_string.as_bytes(),
             )),
             era_compiler_common::HashType::Ipfs => {
-                Some(era_compiler_common::Hash::ipfs(metadata_bytes.as_slice()))
+                Some(era_compiler_common::Hash::ipfs(metadata_string.as_bytes()))
             }
         };
 
@@ -189,7 +184,7 @@ impl Contract {
                     deploy_build,
                     runtime_build,
                     metadata_hash,
-                    metadata_json,
+                    metadata_string,
                     missing_libraries,
                     era_compiler_common::ObjectFormat::ELF,
                 ))
@@ -279,7 +274,7 @@ impl Contract {
                     deploy_build,
                     runtime_build,
                     metadata_hash,
-                    metadata_json,
+                    metadata_string,
                     missing_libraries,
                     era_compiler_common::ObjectFormat::ELF,
                 ))

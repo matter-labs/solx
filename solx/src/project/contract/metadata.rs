@@ -9,8 +9,8 @@
 ///
 #[derive(Debug, serde::Serialize)]
 pub struct Metadata<'a> {
-    /// The source code metadata.
-    pub source_metadata: serde_json::Value,
+    /// The original `solc` metadata.
+    pub source_metadata: String,
     /// The `solc` version.
     pub solc_version: semver::Version,
     /// The LLVM `solc` edition.
@@ -28,19 +28,12 @@ impl<'a> Metadata<'a> {
     /// A shortcut constructor.
     ///
     pub fn new(
-        source_metadata: serde_json::Value,
+        source_metadata: String,
         solc_version: semver::Version,
         solc_llvm_edition: semver::Version,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: &'a [String],
     ) -> Self {
-        let source_metadata = match source_metadata {
-            serde_json::Value::String(inner) => {
-                let value = serde_json::from_str(inner.as_str()).expect("Always valid");
-                serde_json::Value::Object(value)
-            }
-            value => value,
-        };
         Self {
             source_metadata,
             solc_version,

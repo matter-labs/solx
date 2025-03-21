@@ -58,13 +58,8 @@ impl File {
     /// Afterwards, the flags are used to prune JSON output before returning it.
     ///
     pub fn selection_to_prune(&self) -> Self {
-        let required_per_file = vec![Selector::AST];
-        let required_per_contract = vec![
-            Selector::MethodIdentifiers,
-            Selector::Metadata,
-            Selector::Yul,
-            Selector::EVMLA,
-        ];
+        let required_per_file = vec![];
+        let required_per_contract = vec![Selector::Yul, Selector::EVMLA];
 
         let mut unset_per_file = HashSet::with_capacity(required_per_file.len());
         let mut unset_per_contract = HashSet::with_capacity(required_per_contract.len());

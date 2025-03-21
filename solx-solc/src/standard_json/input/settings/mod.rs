@@ -50,7 +50,7 @@ pub struct Settings {
     pub metadata: Metadata,
 
     /// The extra LLVM options.
-    #[serde(default, rename = "LLVMOptions", skip_serializing)]
+    #[serde(default, skip_serializing)]
     pub llvm_options: Vec<String>,
 }
 

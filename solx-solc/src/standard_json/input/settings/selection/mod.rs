@@ -32,12 +32,7 @@ impl Selection {
     /// Creates the selection required by EraVM compilation process.
     ///
     pub fn new_required(via_ir: bool) -> Self {
-        Self::new(vec![
-            Selector::AST,
-            Selector::MethodIdentifiers,
-            Selector::Metadata,
-            via_ir.into(),
-        ])
+        Self::new(vec![via_ir.into(), Selector::ABI]) // TODO: investigate why ABI is required
     }
 
     ///

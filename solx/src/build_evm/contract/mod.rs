@@ -24,8 +24,8 @@ pub struct Contract {
     pub runtime_object: Object,
     /// The metadata hash.
     pub metadata_hash: Option<era_compiler_common::Hash>,
-    /// The metadata JSON.
-    pub metadata_json: serde_json::Value,
+    /// The metadata string.
+    pub metadata_string: String,
     /// The unlinked missing libraries.
     pub missing_libraries: BTreeSet<String>,
     /// The binary object format.
@@ -41,7 +41,7 @@ impl Contract {
         deploy_object: Object,
         runtime_object: Object,
         metadata_hash: Option<era_compiler_common::Hash>,
-        metadata_json: serde_json::Value,
+        metadata_string: String,
         missing_libraries: BTreeSet<String>,
         object_format: era_compiler_common::ObjectFormat,
     ) -> Self {
@@ -50,7 +50,7 @@ impl Contract {
             deploy_object,
             runtime_object,
             metadata_hash,
-            metadata_json,
+            metadata_string,
             missing_libraries,
             object_format,
         }
@@ -67,7 +67,7 @@ impl Contract {
     ) -> anyhow::Result<()> {
         writeln!(std::io::stdout(), "\n======= {path} =======")?;
         if output_metadata {
-            writeln!(std::io::stdout(), "Metadata:\n{}", self.metadata_json)?;
+            writeln!(std::io::stdout(), "Metadata:\n{}", self.metadata_string)?;
         }
         if output_binary {
             writeln!(
@@ -118,7 +118,7 @@ impl Contract {
             } else {
                 std::fs::write(
                     output_path.as_path(),
-                    self.metadata_json.to_string().as_bytes(),
+                    self.metadata_string.to_string().as_bytes(),
                 )
                 .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
@@ -155,7 +155,7 @@ impl Contract {
         self,
         standard_json_contract: &mut solx_solc::StandardJsonOutputContract,
     ) -> anyhow::Result<()> {
-        standard_json_contract.metadata = self.metadata_json;
+        standard_json_contract.metadata = self.metadata_string;
         standard_json_contract
             .evm
             .get_or_insert_with(solx_solc::StandardJsonOutputContractEVM::default)

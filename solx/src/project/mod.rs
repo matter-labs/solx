@@ -171,10 +171,12 @@ impl Project {
                 };
 
                 let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
-                let source_metadata = serde_json::json!({
+                let source_metadata_json = serde_json::json!({
                     "source_hash": source_hash.to_string(),
                     "solc_version": solx_solc::Compiler::default().version,
                 });
+                let source_metadata =
+                    serde_json::to_string(&source_metadata_json).expect("Always valid");
 
                 let name = era_compiler_common::ContractName::new(
                     path.clone(),
@@ -240,13 +242,16 @@ impl Project {
                 };
 
                 let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
+                let source_metadata_json = serde_json::json!({
+                    "source_hash": source_hash.to_string(),
+                });
+                let source_metadata =
+                    serde_json::to_string(&source_metadata_json).expect("Always valid");
 
                 let contract = Contract::new(
                     era_compiler_common::ContractName::new(path.clone(), None),
                     ContractLLVMIR::new(path.clone(), source_code).into(),
-                    serde_json::json!({
-                        "source_hash": source_hash.to_string(),
-                    }),
+                    source_metadata,
                 );
 
                 (path, Ok(contract))

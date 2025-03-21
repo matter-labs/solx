@@ -127,7 +127,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?,
             )
             .map(Some),
-            InstructionName::PUSH_ContractHash => {
+            InstructionName::PUSH_DataOffset => {
                 let object_name = self
                     .instruction
                     .value
@@ -135,7 +135,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 era_compiler_llvm_context::evm_code::data_offset(context, object_name.as_str())
                     .map(Some)
             }
-            InstructionName::PUSH_ContractHashSize => {
+            InstructionName::PUSH_DataSize => {
                 let object_name = self
                     .instruction
                     .value
