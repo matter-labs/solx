@@ -24,7 +24,7 @@ use solx_solc::CollectableError;
 ///
 pub fn setup() -> anyhow::Result<()> {
     // Set the `solx` binary path
-    let solx_bin = Command::cargo_bin(solx::DEFAULT_EXECUTABLE_NAME)?;
+    let solx_bin = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
     let _ = solx::process::EXECUTABLE.set(PathBuf::from(solx_bin.get_program()));
 
     // Enable LLVM pretty stack trace
@@ -76,7 +76,7 @@ pub fn build_solidity_standard_json(
         solx_solc::StandardJsonInputOptimizer::default(),
         None,
         via_ir,
-        solx_solc::StandardJsonInputSelection::default(),
+        solx_solc::StandardJsonInputSelection::new(via_ir),
         solx_solc::StandardJsonInputMetadata::default(),
         vec![],
     )?;

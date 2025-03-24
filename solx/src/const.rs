@@ -2,9 +2,6 @@
 //! Solidity compiler constants.
 //!
 
-/// The default executable name.
-pub static DEFAULT_EXECUTABLE_NAME: &str = "solx";
-
 /// The `keccak256` scratch space offset.
 pub const OFFSET_SCRATCH_SPACE: usize = 0;
 

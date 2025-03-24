@@ -66,6 +66,10 @@ impl Compiler {
         allow_paths: Option<String>,
     ) -> anyhow::Result<StandardJsonOutput> {
         input_json.settings.output_selection.retain_solc();
+        input_json
+            .settings
+            .output_selection
+            .extend(input_json.settings.via_ir);
 
         let input_string = serde_json::to_string(input_json).expect("Always valid");
         let input_c_string = CString::new(input_string).expect("Always valid");

@@ -67,11 +67,13 @@ impl Settings {
         evm_version: Option<era_compiler_common::EVMVersion>,
         via_ir: bool,
 
-        output_selection: Selection,
+        mut output_selection: Selection,
         metadata: Metadata,
 
         llvm_options: Vec<String>,
     ) -> Self {
+        output_selection.extend(via_ir);
+
         Self {
             optimizer,
 

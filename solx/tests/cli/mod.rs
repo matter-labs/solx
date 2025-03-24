@@ -36,7 +36,7 @@ mod yul;
 /// Execute `solx` with the given arguments and assert the result.
 ///
 pub fn execute_solx(args: &[&str]) -> anyhow::Result<assert_cmd::assert::Assert> {
-    let mut cmd = Command::cargo_bin(solx::DEFAULT_EXECUTABLE_NAME)?;
+    let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
     Ok(cmd.args(args).assert())
 }
 

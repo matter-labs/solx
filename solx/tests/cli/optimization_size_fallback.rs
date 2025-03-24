@@ -34,7 +34,7 @@ fn standard_json() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains(
-        "Falling back to -Oz must be specified in standard JSON input settings.",
+        "Size optimization fallback must be specified in standard JSON input settings.",
     ));
 
     Ok(())

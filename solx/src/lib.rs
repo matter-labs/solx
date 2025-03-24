@@ -133,7 +133,7 @@ pub fn standard_output_evm(
         solx_solc::StandardJsonInputOptimizer::default(),
         evm_version,
         via_ir,
-        solx_solc::StandardJsonInputSelection::default(),
+        solx_solc::StandardJsonInputSelection::new(via_ir),
         solx_solc::StandardJsonInputMetadata::new(use_literal_content, metadata_hash_type),
         llvm_options.clone(),
     )?;
@@ -206,8 +206,6 @@ pub fn standard_json_evm(
 
     let (mut solc_output, project) = match language {
         solx_solc::StandardJsonInputLanguage::Solidity => {
-            solc_input.settings.output_selection.extend(via_ir);
-
             let mut solc_output = solc_compiler.standard_json(
                 &mut solc_input,
                 messages,

@@ -21,6 +21,19 @@ pub struct Selection {
 
 impl Selection {
     ///
+    /// A shortcut constructor.
+    ///
+    pub fn new(via_ir: bool) -> Self {
+        let mut root = BTreeMap::new();
+        let mut inner = BTreeMap::new();
+        let mut set = BTreeSet::new();
+        set.insert(via_ir.into());
+        inner.insert("*".to_owned(), set);
+        root.insert("*".to_owned(), inner);
+        Self { inner: root }
+    }
+
+    ///
     /// Extends the output selection with the IR required for compilation.
     ///
     pub fn extend(&mut self, via_ir: bool) {
