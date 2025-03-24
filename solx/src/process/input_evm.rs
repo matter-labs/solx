@@ -18,8 +18,8 @@ pub struct Input {
     pub contract: Contract,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
-    /// Missing unlinked libraries.
-    pub missing_libraries: BTreeSet<String>,
+    /// Already deployed libraries.
+    pub deployed_libraries: BTreeSet<String>,
     /// The metadata hash type.
     pub metadata_hash_type: era_compiler_common::HashType,
     /// The optimizer settings.
@@ -37,7 +37,7 @@ impl Input {
     pub fn new(
         contract: Contract,
         identifier_paths: BTreeMap<String, String>,
-        missing_libraries: BTreeSet<String>,
+        deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::HashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
@@ -46,7 +46,7 @@ impl Input {
         Self {
             contract,
             identifier_paths,
-            missing_libraries,
+            deployed_libraries,
             metadata_hash_type,
             optimizer_settings,
             llvm_options,

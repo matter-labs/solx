@@ -29,7 +29,7 @@ fn not_specified(via_ir: bool) {
             .expect("Always exists")
             .get("SimpleContract")
             .expect("Always exists")
-            .missing_libraries
+            .unlinked_libraries
             .contains(
                 format!(
                     "{}:SimpleLibrary",
@@ -71,8 +71,8 @@ fn specified(via_ir: bool) {
             .expect("Always exists")
             .get("SimpleContract")
             .expect("Always exists")
-            .missing_libraries
+            .unlinked_libraries
             .is_empty(),
-        "The list of missing libraries must be empty"
+        "The list of unlinked libraries must be empty"
     );
 }

@@ -53,10 +53,10 @@ impl Yul {
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
-        self.object.0.get_missing_libraries()
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
+        self.object.0.get_unlinked_libraries()
     }
 
     ///

@@ -4,7 +4,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::yul::dependencies::Dependencies;
+use crate::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::symbol::Symbol;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -84,13 +84,13 @@ impl VariableDeclaration {
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
         self.expression
             .as_ref()
             .map_or_else(BTreeSet::new, |expression| {
-                expression.get_missing_libraries()
+                expression.get_unlinked_libraries()
             })
     }
 

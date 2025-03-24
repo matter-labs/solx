@@ -167,7 +167,7 @@ impl Build {
                         }
                     };
                 object.bytecode = linked_object.as_slice().to_owned();
-                object.object_format = object_format;
+                object.format = object_format;
             }
         }
 

@@ -36,16 +36,6 @@ pub struct Output {
     /// The compilation errors and warnings.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<JsonOutputError>,
-
-    /// The `solc` compiler version.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
-    /// The `solc` compiler long version.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub long_version: Option<String>,
-    /// The `solx` compiler version.
-    #[serde(default = "crate::version")]
-    pub zk_version: String,
 }
 
 impl Output {
@@ -68,10 +58,6 @@ impl Output {
             contracts: BTreeMap::new(),
             sources,
             errors: std::mem::take(messages),
-
-            version: None,
-            long_version: None,
-            zk_version: crate::version(),
         }
     }
 
@@ -85,10 +71,6 @@ impl Output {
             contracts: BTreeMap::new(),
             sources: BTreeMap::new(),
             errors: messages,
-
-            version: None,
-            long_version: None,
-            zk_version: crate::version(),
         }
     }
 
@@ -140,6 +122,7 @@ impl Output {
             for (_, contract) in file.iter_mut() {
                 if let Some(evm) = contract.evm.as_mut() {
                     evm.bytecode = None;
+                    evm.deployed_bytecode = None;
                 }
             }
         }

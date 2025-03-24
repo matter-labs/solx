@@ -499,7 +499,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "era-compiler-common"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-common?branch=main#bd45b0ca590810480dfae9f8b49aec4af571ccf5"
+source = "git+https://github.com/matter-labs/era-compiler-common?branch=main#9fb4fb47268c9f0b83e02b607d1eca3987d1a3ee"
 dependencies = [
  "anyhow",
  "base58",
@@ -515,7 +515,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#fdf50bb1a4c08f4774a0c15b3efea22c671bb9ae"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#2639dd42c92fb1be1cd05cf13a9113a1972cd469"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -730,7 +730,7 @@ dependencies = [
 [[package]]
 name = "inkwell"
 version = "0.4.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-17#49b96062340ea89a2ac45c3ba037e339592bb783"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-17#b2b81c254e25ffbf42c41e40de0748a81f750f94"
 dependencies = [
  "either",
  "inkwell_internals",
@@ -745,7 +745,7 @@ dependencies = [
 [[package]]
 name = "inkwell_internals"
 version = "0.9.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-17#49b96062340ea89a2ac45c3ba037e339592bb783"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-17#b2b81c254e25ffbf42c41e40de0748a81f750f94"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -851,7 +851,7 @@ checksum = "d26c52dbd32dccf2d10cac7725f8eae5296885fb5703b261f7d0a0739ec807ab"
 [[package]]
 name = "llvm-sys"
 version = "170.0.1"
-source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-17.0#686fdddec1389b48a3a44c32e8725a2817ab5089"
+source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-17.0#94f9489e149d6bf99444dc049f6c2fecd1172922"
 dependencies = [
  "anyhow",
  "cc",
@@ -1874,18 +1874,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.23"
+version = "0.8.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd97444d05a4328b90e75e503a34bad781f14e28a823ad3557f0750df1ebcbc6"
+checksum = "2586fea28e186957ef732a5f8b3be2da217d65c5969d4b1e17f973ebbe876879"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.23"
+version = "0.8.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6352c01d0edd5db859a63e2605f4ea3183ddbd15e2c4a9e7d32184df75e4f154"
+checksum = "a996a8f63c5c4448cd959ac1bab0aaa3306ccfd060472f85943ee0750f0169be"
 dependencies = [
  "proc-macro2",
  "quote",

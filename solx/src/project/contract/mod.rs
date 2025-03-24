@@ -65,7 +65,7 @@ impl Contract {
     pub fn compile_to_evm(
         self,
         identifier_paths: BTreeMap<String, String>,
-        missing_libraries: BTreeSet<String>,
+        deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::HashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
@@ -97,6 +97,11 @@ impl Contract {
                 let runtime_code = deploy_code.take_runtime_code().ok_or_else(|| {
                     anyhow::anyhow!("Contract `{identifier}` has no runtime code")
                 })?;
+
+                let mut deploy_code_libraries = deploy_code.get_unlinked_libraries();
+                deploy_code_libraries.retain(|library| !deployed_libraries.contains(library));
+                let mut runtime_code_libraries = runtime_code.get_unlinked_libraries();
+                runtime_code_libraries.retain(|library| !deployed_libraries.contains(library));
 
                 let deploy_code_dependecies = deploy_code.get_evm_dependencies(Some(&runtime_code));
                 let runtime_code_dependecies = runtime_code.get_evm_dependencies(None);
@@ -135,6 +140,7 @@ impl Contract {
                     true,
                     runtime_code_segment,
                     runtime_code_dependecies,
+                    runtime_code_libraries,
                 );
 
                 let immutables_map = runtime_buffer.get_immutables_evm();
@@ -172,6 +178,7 @@ impl Contract {
                     true,
                     deploy_code_segment,
                     deploy_code_dependecies,
+                    deploy_code_libraries,
                 );
 
                 Ok(EVMContractBuild::new(
@@ -180,8 +187,6 @@ impl Contract {
                     runtime_build,
                     metadata_hash,
                     metadata_string,
-                    missing_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
                 ))
             }
             IR::EVMLA(mut deploy_code) => {
@@ -194,6 +199,11 @@ impl Contract {
                 let deploy_code_identifier = self.name.full_path.to_owned();
                 let runtime_code_identifier =
                     format!("{}.{runtime_code_segment}", self.name.full_path);
+
+                let mut deploy_code_libraries = deploy_code.get_unlinked_libraries();
+                deploy_code_libraries.retain(|library| !deployed_libraries.contains(library));
+                let mut runtime_code_libraries = runtime_code_assembly.get_unlinked_libraries();
+                runtime_code_libraries.retain(|library| !deployed_libraries.contains(library));
 
                 let mut deploy_code_dependecies =
                     solx_yul::Dependencies::new(deploy_code_identifier.as_str());
@@ -230,6 +240,7 @@ impl Contract {
                     false,
                     runtime_code_segment,
                     runtime_code_dependecies,
+                    runtime_code_libraries,
                 );
 
                 let immutables_map = runtime_buffer.get_immutables_evm();
@@ -262,6 +273,7 @@ impl Contract {
                     false,
                     deploy_code_segment,
                     deploy_code_dependecies,
+                    deploy_code_libraries,
                 );
 
                 Ok(EVMContractBuild::new(
@@ -270,8 +282,6 @@ impl Contract {
                     runtime_build,
                     metadata_hash,
                     metadata_string,
-                    missing_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
                 ))
             }
             IR::LLVMIR(_llvm_ir) => anyhow::bail!("LLVM IR is not supported yet."),
@@ -279,11 +289,14 @@ impl Contract {
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self, deployed_libraries: &BTreeSet<String>) -> BTreeSet<String> {
+    pub fn get_unlinked_libraries(
+        &self,
+        deployed_libraries: &BTreeSet<String>,
+    ) -> BTreeSet<String> {
         self.ir
-            .get_missing_libraries()
+            .get_unlinked_libraries()
             .into_iter()
             .filter(|library| !deployed_libraries.contains(library))
             .collect::<BTreeSet<String>>()

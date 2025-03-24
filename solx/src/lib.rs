@@ -13,7 +13,6 @@ pub mod build_evm;
 pub mod r#const;
 pub mod evmla;
 pub mod linker;
-pub mod missing_libraries;
 pub mod process;
 pub mod project;
 pub mod yul;

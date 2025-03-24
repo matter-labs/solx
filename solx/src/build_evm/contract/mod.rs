@@ -4,7 +4,6 @@
 
 pub mod object;
 
-use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
@@ -26,10 +25,6 @@ pub struct Contract {
     pub metadata_hash: Option<era_compiler_common::Hash>,
     /// The metadata string.
     pub metadata_string: String,
-    /// The unlinked missing libraries.
-    pub missing_libraries: BTreeSet<String>,
-    /// The binary object format.
-    pub object_format: era_compiler_common::ObjectFormat,
 }
 
 impl Contract {
@@ -42,8 +37,6 @@ impl Contract {
         runtime_object: Object,
         metadata_hash: Option<era_compiler_common::Hash>,
         metadata_string: String,
-        missing_libraries: BTreeSet<String>,
-        object_format: era_compiler_common::ObjectFormat,
     ) -> Self {
         Self {
             name,
@@ -51,8 +44,6 @@ impl Contract {
             runtime_object,
             metadata_hash,
             metadata_string,
-            missing_libraries,
-            object_format,
         }
     }
 
@@ -159,15 +150,14 @@ impl Contract {
         standard_json_contract
             .evm
             .get_or_insert_with(solx_solc::StandardJsonOutputContractEVM::default)
-            .modify_evm(
+            .modify(
                 hex::encode(self.deploy_object.bytecode),
+                self.deploy_object.format,
+                self.deploy_object.unlinked_libraries,
                 hex::encode(self.runtime_object.bytecode),
+                self.runtime_object.format,
+                self.runtime_object.unlinked_libraries,
             );
-        standard_json_contract
-            .missing_libraries
-            .extend(self.missing_libraries);
-        standard_json_contract.object_format = Some(self.object_format);
-
         Ok(())
     }
 }

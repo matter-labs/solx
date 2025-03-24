@@ -4,9 +4,6 @@
 
 pub mod evm;
 
-use std::collections::BTreeMap;
-use std::collections::BTreeSet;
-
 use self::evm::EVM;
 
 ///
@@ -39,31 +36,6 @@ pub struct Contract {
     /// The EVM data of the contract.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub evm: Option<EVM>,
-
-    /// Unlinked factory dependencies.
-    #[serde(
-        default,
-        skip_serializing_if = "BTreeSet::is_empty",
-        skip_deserializing
-    )]
-    pub factory_dependencies_unlinked: BTreeSet<String>,
-    /// Linked factory dependencies.
-    #[serde(
-        default,
-        skip_serializing_if = "BTreeMap::is_empty",
-        skip_deserializing
-    )]
-    pub factory_dependencies: BTreeMap<String, String>,
-    /// Missing linkable libraries.
-    #[serde(
-        default,
-        skip_serializing_if = "BTreeSet::is_empty",
-        skip_deserializing
-    )]
-    pub missing_libraries: BTreeSet<String>,
-    /// Binary object format.
-    #[serde(default, skip_serializing_if = "Option::is_none", skip_deserializing)]
-    pub object_format: Option<era_compiler_common::ObjectFormat>,
 }
 
 impl Contract {
@@ -79,8 +51,5 @@ impl Contract {
             && self.userdoc.is_null()
             && self.ir_optimized.is_empty()
             && self.evm.is_none()
-            && self.factory_dependencies_unlinked.is_empty()
-            && self.factory_dependencies.is_empty()
-            && self.missing_libraries.is_empty()
     }
 }

@@ -38,12 +38,12 @@ impl IR {
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
         match self {
-            Self::Yul(inner) => inner.get_missing_libraries(),
-            Self::EVMLA(inner) => inner.get_missing_libraries(),
+            Self::Yul(inner) => inner.get_unlinked_libraries(),
+            Self::EVMLA(inner) => inner.get_unlinked_libraries(),
             Self::LLVMIR(_inner) => BTreeSet::new(),
         }
     }

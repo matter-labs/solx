@@ -4,6 +4,11 @@ rustflags = [
 ]
 incremental = true
 
+[tools.clippy]
+warn = [
+    "missing_docs_in_private_items",
+]
+
 [target.x86_64-apple-darwin]
 rustflags = [
     "-W", "missing_docs",
@@ -26,8 +31,3 @@ strip = true
 BOOST_PREFIX = { value = "/opt/homebrew/lib/", relative = false, force = false }
 LLVM_SYS_170_PREFIX = { value = "./target-llvm/target-final/", relative = true, force = false }
 SOLC_PREFIX = { value = "./era-solidity/build/", relative = true, force = false }
-
-[tools.clippy]
-warn = [
-    "missing_docs_in_private_items",
-]

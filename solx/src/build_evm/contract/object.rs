@@ -2,6 +2,8 @@
 //! Bytecode object.
 //!
 
+use std::collections::BTreeSet;
+
 ///
 /// Bytecode object.
 ///
@@ -21,10 +23,12 @@ pub struct Object {
     pub code_segment: era_compiler_common::CodeSegment,
     /// Dependencies.
     pub dependencies: solx_yul::Dependencies,
+    /// The unlinked unlinked libraries.
+    pub unlinked_libraries: BTreeSet<String>,
     /// Whether the object is already assembled.
     pub is_assembled: bool,
-    /// The binary object format.
-    pub object_format: era_compiler_common::ObjectFormat,
+    /// Binary object format.
+    pub format: era_compiler_common::ObjectFormat,
 }
 
 impl Object {
@@ -38,6 +42,7 @@ impl Object {
         via_ir: bool,
         code_segment: era_compiler_common::CodeSegment,
         dependencies: solx_yul::Dependencies,
+        unlinked_libraries: BTreeSet<String>,
     ) -> Self {
         Self {
             identifier,
@@ -46,8 +51,9 @@ impl Object {
             via_ir,
             code_segment,
             dependencies,
+            unlinked_libraries,
             is_assembled: false,
-            object_format: era_compiler_common::ObjectFormat::ELF,
+            format: era_compiler_common::ObjectFormat::ELF,
         }
     }
 

@@ -4,7 +4,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::yul::dependencies::Dependencies;
+use crate::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::keyword::Keyword;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -62,10 +62,10 @@ where
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
-        self.block.get_missing_libraries()
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
+        self.block.get_unlinked_libraries()
     }
 
     ///

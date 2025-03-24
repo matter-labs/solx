@@ -6,7 +6,7 @@ pub mod case;
 
 use std::collections::BTreeSet;
 
-use crate::yul::dependencies::Dependencies;
+use crate::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::keyword::Keyword;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -120,15 +120,15 @@ where
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
         let mut libraries = BTreeSet::new();
         for case in self.cases.iter() {
-            libraries.extend(case.get_missing_libraries());
+            libraries.extend(case.get_unlinked_libraries());
         }
         if let Some(default) = &self.default {
-            libraries.extend(default.get_missing_libraries());
+            libraries.extend(default.get_unlinked_libraries());
         }
         libraries
     }

@@ -43,11 +43,11 @@ impl Data {
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
         match self {
-            Self::Assembly(assembly) => assembly.get_missing_libraries(),
+            Self::Assembly(assembly) => assembly.get_unlinked_libraries(),
             Self::Hash(_) => BTreeSet::new(),
             Self::Path(_) => BTreeSet::new(),
         }

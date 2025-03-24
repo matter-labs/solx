@@ -5,7 +5,7 @@
 use std::collections::BTreeSet;
 use std::collections::HashSet;
 
-use crate::yul::dependencies::Dependencies;
+use crate::dependencies::Dependencies;
 use crate::yul::error::Error;
 use crate::yul::lexer::token::lexeme::keyword::Keyword;
 use crate::yul::lexer::token::lexeme::literal::Literal;
@@ -179,14 +179,14 @@ where
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
-        let mut missing_libraries = self.code.get_missing_libraries();
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
+        let mut unlinked_libraries = self.code.get_unlinked_libraries();
         if let Some(inner_object) = &self.inner_object {
-            missing_libraries.extend(inner_object.get_missing_libraries());
+            unlinked_libraries.extend(inner_object.get_unlinked_libraries());
         }
-        missing_libraries
+        unlinked_libraries
     }
 
     ///

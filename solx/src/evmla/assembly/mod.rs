@@ -108,24 +108,24 @@ impl Assembly {
     }
 
     ///
-    /// Get the list of missing deployable libraries.
+    /// Get the list of unlinked deployable libraries.
     ///
-    pub fn get_missing_libraries(&self) -> BTreeSet<String> {
-        let mut missing_libraries = BTreeSet::new();
+    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
+        let mut unlinked_libraries = BTreeSet::new();
         if let Some(code) = self.code.as_ref() {
             for instruction in code.iter() {
                 if let InstructionName::PUSHLIB = instruction.name {
                     let library_path = instruction.value.to_owned().expect("Always exists");
-                    missing_libraries.insert(library_path);
+                    unlinked_libraries.insert(library_path);
                 }
             }
         }
         if let Some(data) = self.data.as_ref() {
             for (_, data) in data.iter() {
-                missing_libraries.extend(data.get_missing_libraries());
+                unlinked_libraries.extend(data.get_unlinked_libraries());
             }
         }
-        missing_libraries
+        unlinked_libraries
     }
 
     ///
