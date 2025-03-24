@@ -242,6 +242,7 @@ impl Project {
                 let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
                 let source_metadata_json = serde_json::json!({
                     "source_hash": source_hash.to_string(),
+                    "llvm_version": era_compiler_llvm_context::LLVM_VERSION,
                 });
                 let source_metadata =
                     serde_json::to_string(&source_metadata_json).expect("Always valid");

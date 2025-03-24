@@ -22,7 +22,6 @@ fn default(via_ir: bool) {
         solx_solc::StandardJsonInputLibraries::default(),
         era_compiler_common::HashType::Keccak256,
         remappings,
-        &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
     )

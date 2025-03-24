@@ -3,21 +3,21 @@
 //!
 
 use predicates::prelude::*;
-// use test_case::test_case;
+use test_case::test_case;
 
-/// TODO: when LLVM IR is replaced
-// #[test_case(crate::common::TEST_LLVM_IR_CONTRACT_PATH)]
-// fn default(path: &str) -> anyhow::Result<()> {
-//     crate::common::setup()?;
-//     let args = &[path, "--llvm-ir"];
+#[test_case(crate::common::TEST_LLVM_IR_CONTRACT_PATH)]
+fn default(path: &str) -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result.success().stderr(predicate::str::contains(
-//         "Compiler run successful. No output requested.",
-//     ));
+    let args = &[path, "--llvm-ir"];
 
-//     Ok(())
-// }
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .failure()
+        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
+
+    Ok(())
+}
 
 #[test]
 fn invalid_input_text() -> anyhow::Result<()> {
@@ -28,7 +28,7 @@ fn invalid_input_text() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result
         .failure()
-        .stderr(predicate::str::contains("error: expected top-level entity"));
+        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
 
     Ok(())
 }
@@ -45,7 +45,7 @@ fn invalid_input_solidity() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result
         .failure()
-        .stderr(predicate::str::contains("expected top-level entity"));
+        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
 
     Ok(())
 }
@@ -60,9 +60,9 @@ fn invalid_input_llvm_ir() -> anyhow::Result<()> {
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result.failure().stderr(predicate::str::contains(
-        "error: use of undefined value \'%runtime\'",
-    ));
+    result
+        .failure()
+        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
 
     Ok(())
 }
@@ -81,23 +81,22 @@ fn missing_file() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// TODO: when linker is implemented
-// #[test]
-// fn linker_error() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn linker_error() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let args = &[
-//         "--llvm-ir",
-//         crate::common::TEST_LLVM_IR_CONTRACT_LINKER_ERROR_PATH,
-//     ];
+    let args = &[
+        "--llvm-ir",
+        crate::common::TEST_LLVM_IR_CONTRACT_LINKER_ERROR_PATH,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result.failure().stderr(predicate::str::contains(
-//         "ld.lld: error: undefined symbol: foo",
-//     ));
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .failure()
+        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
 
-//     Ok(())
-// }
+    Ok(())
+}
 
 #[test]
 fn excess_mode_standard_json() -> anyhow::Result<()> {
@@ -129,7 +128,7 @@ fn standard_json_invalid() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result
         .success()
-        .stdout(predicate::str::contains("error: use of undefined value"));
+        .stdout(predicate::str::contains("LLVM IR is not supported yet."));
 
     Ok(())
 }

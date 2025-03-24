@@ -103,6 +103,7 @@ fn standard_json_yul_solc_urls_validated() {
 }
 
 #[test]
+#[should_panic]
 fn standard_json_llvm_ir_urls() {
     let solc_input = solx_solc::StandardJsonInput::try_from(Some(
         PathBuf::from("tests/data/standard_json_input/llvm_ir_urls.json").as_path(),

@@ -41,25 +41,24 @@ fn yul() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// TODO: when LLVM IR is replaced
-// #[test]
-// fn llvm_ir() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn llvm_ir() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let args = &[
-//         "--llvm-ir",
-//         "--via-ir",
-//         "--bin",
-//         crate::common::TEST_LLVM_IR_CONTRACT_PATH,
-//     ];
+    let args = &[
+        "--llvm-ir",
+        "--via-ir",
+        "--bin",
+        crate::common::TEST_LLVM_IR_CONTRACT_PATH,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result.failure().stderr(predicate::str::contains(
-//         "Error: IR codegen settings are only available in Solidity mode.",
-//     ));
+    let result = crate::cli::execute_solx(args)?;
+    result.failure().stderr(predicate::str::contains(
+        "Error: IR codegen settings are only available in Solidity mode.",
+    ));
 
-//     Ok(())
-// }
+    Ok(())
+}
 
 #[test]
 fn standard_json() -> anyhow::Result<()> {

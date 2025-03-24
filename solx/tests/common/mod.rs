@@ -19,6 +19,9 @@ use assert_cmd::Command;
 use solx::project::Project;
 use solx_solc::CollectableError;
 
+/// Shared lock for unit tests, as `solc` libraries are not thread-safe.
+pub static UNIT_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 ///
 /// Setup required test dependencies.
 ///
@@ -81,8 +84,10 @@ pub fn build_solidity_standard_json(
         vec![],
     )?;
 
-    let mut solc_output =
-        solc_compiler.standard_json(&mut solc_input, &mut vec![], None, vec![], None)?;
+    let mut solc_output = {
+        let _lock = UNIT_TEST_LOCK.lock();
+        solc_compiler.standard_json(&mut solc_input, &mut vec![], None, vec![], None)
+    }?;
     solc_output.check_errors()?;
 
     let linker_symbols = libraries.as_linker_symbols()?;
@@ -167,7 +172,10 @@ pub fn build_yul_standard_json(
         solc_input.settings.optimizer.mode,
     )?;
 
-    let mut solc_output = solc_compiler.validate_yul_standard_json(&mut solc_input, &mut vec![])?;
+    let mut solc_output = {
+        let _lock = UNIT_TEST_LOCK.lock();
+        solc_compiler.validate_yul_standard_json(&mut solc_input, &mut vec![])
+    }?;
 
     let project = Project::try_from_yul_sources(
         solc_input.sources,

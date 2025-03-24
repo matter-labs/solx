@@ -7,8 +7,6 @@ use era_compiler_llvm_context::IContext;
 ///
 /// Translates the contract hash copying.
 ///
-/// TODO: support with dependencies
-///
 pub fn dependency<'ctx>(
     context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
     offset: inkwell::values::IntValue<'ctx>,

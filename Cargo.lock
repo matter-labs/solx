@@ -515,7 +515,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-error-code-runtime-code-size#36925fb6a9c6e0469cbfaa045c9eaaad52ed00ee"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#6ae504dcf115c25bae561e04f3612e9da15f6cbe"
 dependencies = [
  "anyhow",
  "era-compiler-common",
