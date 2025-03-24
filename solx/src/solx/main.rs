@@ -73,25 +73,17 @@ fn main_inner(
     messages: &mut Vec<solx_solc::StandardJsonOutputError>,
 ) -> anyhow::Result<()> {
     if arguments.version {
-        writeln!(
-            std::io::stdout(),
-            "{} v{}, {} statically linked with:",
-            env!("CARGO_PKG_NAME"),
-            env!("CARGO_PKG_VERSION"),
-            env!("CARGO_PKG_DESCRIPTION"),
-        )?;
-        writeln!(
-            std::io::stdout(),
-            "    LLVM build {}",
-            inkwell::support::get_commit_id().to_string(),
-        )?;
         let solc = solx_solc::Compiler::default();
         writeln!(
             std::io::stdout(),
-            "    solc v{}, LLVM revision v{}",
-            solc.version.default,
+            "{}, {} v{}, LLVM revision: v{}, LLVM build: {}",
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_DESCRIPTION"),
+            env!("CARGO_PKG_VERSION"),
             solc.version.llvm_revision,
+            inkwell::support::get_commit_id().to_string(),
         )?;
+        writeln!(std::io::stdout(), "Version: {}", solc.version.long)?;
         return Ok(());
     }
 

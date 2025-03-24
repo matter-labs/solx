@@ -192,18 +192,19 @@ impl Compiler {
 
         let lines = output.lines().collect::<Vec<&str>>();
 
-        let default: semver::Version = lines
+        let long = lines
             .get(1)
             .unwrap_or_else(|| panic!("solc version parsing: missing line 1."))
             .split(' ')
             .nth(1)
             .expect("solc version parsing: missing version.")
+            .to_owned();
+        let default: semver::Version = long
             .split('+')
             .next()
             .expect("solc version parsing: missing semver.")
             .parse::<semver::Version>()
             .unwrap_or_else(|error| panic!("solc version parsing: {error}."));
-
         let llvm_revision: semver::Version = lines
             .get(2)
             .expect("LLVM revision parsing: missing line 2.")
@@ -216,6 +217,6 @@ impl Compiler {
             .parse::<semver::Version>()
             .unwrap_or_else(|error| panic!("LLVM revision parsing: {error}."));
 
-        Version::new(output, default, llvm_revision)
+        Version::new(long, default, llvm_revision)
     }
 }
