@@ -18,7 +18,6 @@ pub use self::standard_json::input::language::Language as StandardJsonInputLangu
 pub use self::standard_json::input::settings::libraries::Libraries as StandardJsonInputLibraries;
 pub use self::standard_json::input::settings::metadata::Metadata as StandardJsonInputMetadata;
 pub use self::standard_json::input::settings::optimizer::Optimizer as StandardJsonInputOptimizer;
-pub use self::standard_json::input::settings::selection::file::File as StandardJsonInputSelectionFile;
 pub use self::standard_json::input::settings::selection::selector::Selector as StandardJsonInputSelector;
 pub use self::standard_json::input::settings::selection::Selection as StandardJsonInputSelection;
 pub use self::standard_json::input::settings::Settings as StandardJsonInputSettings;

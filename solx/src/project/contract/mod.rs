@@ -79,14 +79,9 @@ impl Contract {
 
         let optimizer = era_compiler_llvm_context::Optimizer::new(optimizer_settings);
 
-        let metadata = Metadata::new(
-            self.source_metadata,
-            solc_version.default.to_owned(),
-            solc_version.llvm_revision.to_owned(),
-            optimizer.settings().to_owned(),
-            llvm_options.as_slice(),
-        );
-        let metadata_string = serde_json::to_string(&metadata).expect("Always valid");
+        let metadata_string =
+            Metadata::new(optimizer.settings().to_owned(), llvm_options.as_slice())
+                .insert_into(self.source_metadata);
         let metadata_hash = match metadata_hash_type {
             era_compiler_common::HashType::None => None,
             era_compiler_common::HashType::Keccak256 => Some(era_compiler_common::Hash::keccak256(

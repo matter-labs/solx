@@ -7,12 +7,12 @@ pub mod error;
 pub mod source;
 
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 
-use crate::standard_json::input::settings::selection::selector::Selector;
-use crate::standard_json::input::settings::selection::Selection;
+use crate::standard_json::input::settings::selection::selector::Selector as StandardJSONInputSettingsSelector;
 use crate::standard_json::input::source::Source as StandardJSONInputSource;
 use crate::version::Version;
 
@@ -95,21 +95,31 @@ impl Output {
     ///
     /// Prunes the output JSON and prints it to stdout.
     ///
-    pub fn write_and_exit(mut self, selection_to_prune: Selection) -> ! {
+    pub fn write_and_exit(
+        mut self,
+        selection_to_prune: BTreeSet<StandardJSONInputSettingsSelector>,
+    ) -> ! {
         let contracts = self
             .contracts
             .values_mut()
             .flat_map(|contracts| contracts.values_mut())
             .collect::<Vec<&mut Contract>>();
         for contract in contracts.into_iter() {
-            contract.metadata = String::new(); // TODO: fix metadata
-            if selection_to_prune.contains(&Selector::Yul) {
+            if selection_to_prune.contains(&StandardJSONInputSettingsSelector::Yul) {
                 contract.ir_optimized = String::new();
             }
             if let Some(ref mut evm) = contract.evm {
-                if selection_to_prune.contains(&Selector::EVMLA) {
+                if selection_to_prune.contains(&StandardJSONInputSettingsSelector::EVMLA) {
                     evm.legacy_assembly = serde_json::Value::Null;
                 }
+            }
+            if contract
+                .evm
+                .as_mut()
+                .map(|evm| evm.is_empty())
+                .unwrap_or_default()
+            {
+                contract.evm = None;
             }
         }
 

@@ -134,7 +134,7 @@ pub fn standard_output_evm(
         solx_solc::StandardJsonInputOptimizer::default(),
         evm_version,
         via_ir,
-        solx_solc::StandardJsonInputSelection::new_required(via_ir),
+        solx_solc::StandardJsonInputSelection::default(),
         solx_solc::StandardJsonInputMetadata::new(use_literal_content, metadata_hash_type),
         llvm_options.clone(),
     )?;
@@ -192,7 +192,7 @@ pub fn standard_json_evm(
 
     let mut solc_input = solx_solc::StandardJsonInput::try_from(json_path.as_deref())?;
     let language = solc_input.language;
-    let prune_output = solc_input.settings.selection_to_prune();
+    let prune_output = solc_input.settings.output_selection.to_prune(via_ir);
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
@@ -207,8 +207,7 @@ pub fn standard_json_evm(
 
     let (mut solc_output, project) = match language {
         solx_solc::StandardJsonInputLanguage::Solidity => {
-            solc_input
-                .extend_selection(solx_solc::StandardJsonInputSelection::new_required(via_ir));
+            solc_input.settings.output_selection.extend(via_ir);
 
             let mut solc_output = solc_compiler.standard_json(
                 &mut solc_input,
@@ -276,11 +275,11 @@ pub fn standard_json_evm(
         debug_config,
     )?;
     if build.has_errors() {
-        build.write_to_standard_json(&mut solc_output, solc_compiler.version)?;
+        build.write_to_standard_json(&mut solc_output)?;
         solc_output.write_and_exit(prune_output);
     }
 
     let build = build.link(linker_symbols);
-    build.write_to_standard_json(&mut solc_output, solc_compiler.version)?;
+    build.write_to_standard_json(&mut solc_output)?;
     solc_output.write_and_exit(prune_output);
 }

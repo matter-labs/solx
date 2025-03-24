@@ -1,53 +1,45 @@
 //!
-//! The `solc --standard-json` output selection.
+//! The `solc --standard-json` expected output selection.
 //!
 
-pub mod file;
 pub mod selector;
 
-use self::file::File as FileSelection;
+use std::collections::BTreeMap;
+use std::collections::BTreeSet;
+
 use self::selector::Selector;
 
 ///
-/// The `solc --standard-json` output selection.
+/// The `solc --standard-json` expected output selection.
 ///
-#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Selection {
-    /// Only the 'all' wildcard is available for robustness reasons.
-    #[serde(default, rename = "*", skip_serializing_if = "FileSelection::is_empty")]
-    pub all: FileSelection,
+    /// The inner selection map.
+    #[serde(flatten)]
+    inner: BTreeMap<String, BTreeMap<String, BTreeSet<Selector>>>,
 }
 
 impl Selection {
     ///
-    /// Creates the selection with arbitrary flags.
+    /// Extends the output selection with the IR required for compilation.
     ///
-    pub fn new(flags: Vec<Selector>) -> Self {
-        Self {
-            all: FileSelection::new(flags),
+    pub fn extend(&mut self, via_ir: bool) {
+        for file in self.inner.values_mut() {
+            for contract in file.values_mut() {
+                contract.insert(via_ir.into());
+            }
         }
     }
 
     ///
-    /// Creates the selection required by EraVM compilation process.
+    /// Retains only the selectors that request data from `solc`.
     ///
-    pub fn new_required(via_ir: bool) -> Self {
-        Self::new(vec![via_ir.into(), Selector::ABI]) // TODO: investigate why ABI is required
-    }
-
-    ///
-    /// Creates the selection required by Yul validation process.
-    ///
-    pub fn new_yul_validation() -> Self {
-        Self::new(vec![Selector::EVM])
-    }
-
-    ///
-    /// Extends the output selection with another one.
-    ///
-    pub fn extend(&mut self, other: Self) -> &mut Self {
-        self.all.extend(other.all);
-        self
+    pub fn retain_solc(&mut self) {
+        for file in self.inner.values_mut() {
+            for contract in file.values_mut() {
+                contract.retain(Selector::is_received_from_solc);
+            }
+        }
     }
 
     ///
@@ -56,16 +48,16 @@ impl Selection {
     ///
     /// Afterwards, the flags are used to prune JSON output before returning it.
     ///
-    pub fn selection_to_prune(&self) -> Self {
-        Self {
-            all: self.all.selection_to_prune(),
-        }
+    pub fn to_prune(&self, via_ir: bool) -> BTreeSet<Selector> {
+        let mut selection = BTreeSet::new();
+        selection.insert(via_ir.into());
+        selection
     }
 
     ///
-    /// Whether the flag is requested.
+    /// Whether the selection is empty.
     ///
-    pub fn contains(&self, flag: &Selector) -> bool {
-        self.all.contains(flag)
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
     }
 }

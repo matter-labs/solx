@@ -43,7 +43,7 @@ pub struct Settings {
     pub via_ir: bool,
 
     /// The output selection filters.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Selection::is_empty")]
     pub output_selection: Selection,
     /// The metadata settings.
     #[serde(default)]
@@ -69,6 +69,7 @@ impl Settings {
 
         output_selection: Selection,
         metadata: Metadata,
+
         llvm_options: Vec<String>,
     ) -> Self {
         Self {
@@ -84,23 +85,6 @@ impl Settings {
             metadata,
             llvm_options,
         }
-    }
-
-    ///
-    /// Extends the output selection with another one.
-    ///
-    pub fn extend_selection(&mut self, selection: Selection) {
-        self.output_selection.extend(selection);
-    }
-
-    ///
-    /// Returns flags that are going to be automatically added by the compiler,
-    /// but were not explicitly requested by the user.
-    ///
-    /// Afterwards, the flags are used to prune JSON output before returning it.
-    ///
-    pub fn selection_to_prune(&self) -> Selection {
-        self.output_selection.selection_to_prune()
     }
 
     ///

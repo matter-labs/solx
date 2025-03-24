@@ -4,6 +4,7 @@
 
 pub mod arguments;
 
+use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -43,7 +44,7 @@ fn main() -> anyhow::Result<()> {
 
     if is_standard_json {
         let output = solx_solc::StandardJsonOutput::new_with_messages(messages);
-        output.write_and_exit(solx_solc::StandardJsonInputSelection::default());
+        output.write_and_exit(BTreeSet::new());
     }
 
     let exit_code = if messages.iter().any(|error| error.severity == "error") {

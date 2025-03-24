@@ -245,7 +245,6 @@ impl Build {
     pub fn write_to_standard_json(
         self,
         standard_json: &mut solx_solc::StandardJsonOutput,
-        solc_version: solx_solc::Version,
     ) -> anyhow::Result<()> {
         let mut errors = Vec::with_capacity(self.results.len());
         for result in self.results.into_values() {
@@ -280,9 +279,6 @@ impl Build {
         }
 
         standard_json.errors.extend(errors);
-        standard_json.version = Some(solc_version.default.to_string());
-        standard_json.long_version = Some(solc_version.long.to_owned());
-
         Ok(())
     }
 }

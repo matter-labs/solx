@@ -5,7 +5,9 @@
 ///
 /// The `solc --standard-json` expected output selector.
 ///
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+)]
 pub enum Selector {
     /// The ABI JSON.
     #[serde(rename = "abi")]
@@ -37,6 +39,29 @@ pub enum Selector {
     /// The function signature hashes JSON.
     #[serde(rename = "evm.methodIdentifiers")]
     MethodIdentifiers,
+
+    /// The deploy bytecode.
+    #[serde(rename = "evm.bytecode.object")]
+    BytecodeObject,
+    /// The runtime bytecode.
+    #[serde(rename = "evm.deployedBytecode.object")]
+    RuntimeBytecodeObject,
+
+    /// The catch-all variant.
+    #[serde(other, skip_serializing)]
+    Other,
+}
+
+impl Selector {
+    ///
+    /// Whether the data source is `solc`.
+    ///
+    pub fn is_received_from_solc(&self) -> bool {
+        !matches!(
+            self,
+            Self::BytecodeObject | Self::RuntimeBytecodeObject | Self::Other
+        )
+    }
 }
 
 impl From<bool> for Selector {

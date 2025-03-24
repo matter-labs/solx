@@ -135,8 +135,6 @@ impl Input {
         optimizer: StandardJsonInputSettingsOptimizer,
         llvm_options: Vec<String>,
     ) -> Self {
-        let output_selection = StandardJsonInputSettingsSelection::new_yul_validation();
-
         Self {
             language: Language::Yul,
             sources,
@@ -146,7 +144,7 @@ impl Input {
                 BTreeSet::new(),
                 None,
                 false,
-                output_selection,
+                StandardJsonInputSettingsSelection::default(),
                 StandardJsonInputSettingsMetadata::default(),
                 llvm_options,
             ),
@@ -172,13 +170,6 @@ impl Input {
             })
             .collect();
         Self::from_yul_sources(sources, libraries, optimizer, llvm_options)
-    }
-
-    ///
-    /// Extends the output selection with another one.
-    ///
-    pub fn extend_selection(&mut self, selection: StandardJsonInputSettingsSelection) {
-        self.settings.extend_selection(selection);
     }
 
     ///

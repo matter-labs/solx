@@ -16,9 +16,12 @@ use self::extra_metadata::ExtraMetadata;
 #[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EVM {
-    /// The contract bytecode.
+    /// The contract deploy bytecode.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bytecode: Option<Bytecode>,
+    /// The contract runtime bytecode.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub deployed_bytecode: Option<Bytecode>,
     /// The contract EVM legacy assembly code.
     #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
     pub legacy_assembly: serde_json::Value,
@@ -35,8 +38,9 @@ impl EVM {
     ///
     /// Sets the EVM and deploy and runtime bytecode.
     ///
-    pub fn modify_evm(&mut self, bytecode: String) {
-        self.bytecode = Some(Bytecode::new(bytecode));
+    pub fn modify_evm(&mut self, deploy_bytecode: String, runtime_bytecode: String) {
+        self.bytecode = Some(Bytecode::new(deploy_bytecode));
+        self.deployed_bytecode = Some(Bytecode::new(runtime_bytecode));
     }
 
     ///
@@ -44,6 +48,7 @@ impl EVM {
     ///
     pub fn is_empty(&self) -> bool {
         self.bytecode.is_none()
+            && self.deployed_bytecode.is_none()
             && self.legacy_assembly.is_null()
             && self.method_identifiers.is_empty()
             && self.extra_metadata.is_none()

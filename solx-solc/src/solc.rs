@@ -8,7 +8,6 @@ use std::path::PathBuf;
 
 use crate::standard_json::input::settings::libraries::Libraries as StandardJsonInputSettingsLibraries;
 use crate::standard_json::input::settings::optimizer::Optimizer as StandardJsonInputSettingsOptimizer;
-use crate::standard_json::input::settings::selection::Selection as StandardJsonInputSettingsSelection;
 use crate::standard_json::input::Input as StandardJsonInput;
 use crate::standard_json::output::error::Error as StandardJsonOutputError;
 use crate::standard_json::output::Output as StandardJsonOutput;
@@ -66,6 +65,8 @@ impl Compiler {
         include_paths: Vec<String>,
         allow_paths: Option<String>,
     ) -> anyhow::Result<StandardJsonOutput> {
+        input_json.settings.output_selection.retain_solc();
+
         let input_string = serde_json::to_string(input_json).expect("Always valid");
         let input_c_string = CString::new(input_string).expect("Always valid");
 
@@ -132,6 +133,7 @@ impl Compiler {
                 anyhow::bail!("solc standard JSON output parsing: {error:?}");
             }
         };
+        eprintln!("{}", serde_json::to_string_pretty(&solc_output).unwrap());
 
         input_json.resolve_sources();
         solc_output.errors.append(messages);
@@ -167,7 +169,7 @@ impl Compiler {
         solc_input: &mut StandardJsonInput,
         messages: &mut Vec<StandardJsonOutputError>,
     ) -> anyhow::Result<StandardJsonOutput> {
-        solc_input.extend_selection(StandardJsonInputSettingsSelection::new_yul_validation());
+        solc_input.settings.output_selection.extend(true);
         let solc_output = self.standard_json(solc_input, messages, None, vec![], None)?;
         Ok(solc_output)
     }

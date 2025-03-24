@@ -76,7 +76,7 @@ pub fn build_solidity_standard_json(
         solx_solc::StandardJsonInputOptimizer::default(),
         None,
         via_ir,
-        solx_solc::StandardJsonInputSelection::new_required(via_ir),
+        solx_solc::StandardJsonInputSelection::default(),
         solx_solc::StandardJsonInputMetadata::default(),
         vec![],
     )?;
@@ -102,7 +102,7 @@ pub fn build_solidity_standard_json(
     let build = build.link(linker_symbols);
     build.check_errors()?;
 
-    build.write_to_standard_json(&mut solc_output, solc_compiler.version)?;
+    build.write_to_standard_json(&mut solc_output)?;
     solc_output.check_errors()?;
     Ok(solc_output)
 }
@@ -114,8 +114,6 @@ pub fn build_yul(
     sources: BTreeMap<String, String>,
 ) -> anyhow::Result<solx_solc::StandardJsonOutput> {
     self::setup()?;
-
-    let solc_compiler = solx_solc::Compiler::default();
 
     era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
 
@@ -146,7 +144,7 @@ pub fn build_yul(
     let build = build.link(BTreeMap::new());
     build.check_errors()?;
 
-    build.write_to_standard_json(&mut solc_output, solc_compiler.version)?;
+    build.write_to_standard_json(&mut solc_output)?;
     solc_output.check_errors()?;
     Ok(solc_output)
 }
@@ -189,7 +187,7 @@ pub fn build_yul_standard_json(
     let build = build.link(BTreeMap::new());
     build.check_errors()?;
 
-    build.write_to_standard_json(&mut solc_output, solc_compiler.version)?;
+    build.write_to_standard_json(&mut solc_output)?;
     solc_output.check_errors()?;
     Ok(solc_output)
 }
@@ -201,8 +199,6 @@ pub fn build_llvm_ir_standard_json(
     input: solx_solc::StandardJsonInput,
 ) -> anyhow::Result<solx_solc::StandardJsonOutput> {
     self::setup()?;
-
-    let solc_compiler = solx_solc::Compiler::default();
 
     era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
 
@@ -228,7 +224,7 @@ pub fn build_llvm_ir_standard_json(
     let build = build.link(BTreeMap::new());
     build.check_errors()?;
 
-    build.write_to_standard_json(&mut output, solc_compiler.version)?;
+    build.write_to_standard_json(&mut output)?;
     output.check_errors()?;
     Ok(output)
 }

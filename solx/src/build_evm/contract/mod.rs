@@ -159,7 +159,10 @@ impl Contract {
         standard_json_contract
             .evm
             .get_or_insert_with(solx_solc::StandardJsonOutputContractEVM::default)
-            .modify_evm(hex::encode(self.deploy_object.bytecode));
+            .modify_evm(
+                hex::encode(self.deploy_object.bytecode),
+                hex::encode(self.runtime_object.bytecode),
+            );
         standard_json_contract
             .missing_libraries
             .extend(self.missing_libraries);
