@@ -121,7 +121,7 @@ impl Build {
                         Err(error) => {
                             self.messages
                                 .push(solx_solc::StandardJsonOutputError::new_error(
-                                    error, None, None,
+                                    None, error, None, None,
                                 ));
                             continue;
                         }
@@ -161,7 +161,7 @@ impl Build {
                         Err(error) => {
                             self.messages
                                 .push(solx_solc::StandardJsonOutputError::new_error(
-                                    error, None, None,
+                                    None, error, None, None,
                                 ));
                             continue;
                         }
@@ -249,7 +249,23 @@ impl Build {
         let mut errors = Vec::with_capacity(self.results.len());
         for result in self.results.into_values() {
             let build = match result {
-                Ok(build) => build,
+                Ok(build) => {
+                    errors.extend(
+                        build
+                            .deploy_object
+                            .errors
+                            .iter()
+                            .map(|error| (build.name.full_path.as_str(), error).into()),
+                    );
+                    errors.extend(
+                        build
+                            .runtime_object
+                            .errors
+                            .iter()
+                            .map(|error| (build.name.full_path.as_str(), error).into()),
+                    );
+                    build
+                }
                 Err(error) => {
                     errors.push(error);
                     continue;

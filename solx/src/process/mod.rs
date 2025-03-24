@@ -39,7 +39,7 @@ pub fn run() -> anyhow::Result<()> {
         )
         .map(EVMOutput::new)
         .map_err(|error| {
-            solx_solc::StandardJsonOutputError::new_error(error, Some(source_location), None)
+            solx_solc::StandardJsonOutputError::new_error(None, error, Some(source_location), None)
         });
     serde_json::to_writer(std::io::stdout(), &result)
         .map_err(|error| anyhow::anyhow!("Stdout writing error: {error}"))?;
@@ -63,7 +63,7 @@ where
     let mut command = Command::new(executable.as_path());
     command.stdin(std::process::Stdio::piped());
     command.stdout(std::process::Stdio::piped());
-    // command.stderr(std::process::Stdio::piped());
+    command.stderr(std::process::Stdio::piped());
     command.arg("--recursive-process");
 
     let mut process = command
@@ -91,6 +91,7 @@ where
             String::from_utf8_lossy(result.stderr.as_slice()),
         );
         return Err(solx_solc::StandardJsonOutputError::new_error(
+            None,
             message,
             Some(solx_solc::StandardJsonOutputErrorSourceLocation::new(
                 path.to_owned(),

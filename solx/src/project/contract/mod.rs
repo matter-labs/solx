@@ -132,8 +132,8 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let runtime_buffer = runtime_context.build()?;
-                let runtime_build = EVMContractObject::new(
+                let (runtime_buffer, runtime_code_errors) = runtime_context.build()?;
+                let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
                     runtime_buffer.as_slice().to_owned(),
@@ -141,6 +141,7 @@ impl Contract {
                     runtime_code_segment,
                     runtime_code_dependecies,
                     runtime_code_libraries,
+                    runtime_code_errors,
                 );
 
                 let immutables_map = runtime_buffer.get_immutables_evm();
@@ -170,8 +171,8 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let deploy_buffer = deploy_context.build()?;
-                let deploy_build = EVMContractObject::new(
+                let (deploy_buffer, deploy_code_errors) = deploy_context.build()?;
+                let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
                     deploy_buffer.as_slice().to_owned(),
@@ -179,12 +180,13 @@ impl Contract {
                     deploy_code_segment,
                     deploy_code_dependecies,
                     deploy_code_libraries,
+                    deploy_code_errors,
                 );
 
                 Ok(EVMContractBuild::new(
                     self.name,
-                    deploy_build,
-                    runtime_build,
+                    deploy_object,
+                    runtime_object,
                     metadata_hash,
                     metadata_string,
                 ))
@@ -232,8 +234,8 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let runtime_buffer = runtime_context.build()?;
-                let runtime_build = EVMContractObject::new(
+                let (runtime_buffer, runtime_code_errors) = runtime_context.build()?;
+                let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
                     runtime_buffer.as_slice().to_owned(),
@@ -241,6 +243,7 @@ impl Contract {
                     runtime_code_segment,
                     runtime_code_dependecies,
                     runtime_code_libraries,
+                    runtime_code_errors,
                 );
 
                 let immutables_map = runtime_buffer.get_immutables_evm();
@@ -265,8 +268,8 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let deploy_buffer = deploy_context.build()?;
-                let deploy_build = EVMContractObject::new(
+                let (deploy_buffer, deploy_code_errors) = deploy_context.build()?;
+                let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
                     deploy_buffer.as_slice().to_owned(),
@@ -274,12 +277,13 @@ impl Contract {
                     deploy_code_segment,
                     deploy_code_dependecies,
                     deploy_code_libraries,
+                    deploy_code_errors,
                 );
 
                 Ok(EVMContractBuild::new(
                     self.name,
-                    deploy_build,
-                    runtime_build,
+                    deploy_object,
+                    runtime_object,
                     metadata_hash,
                     metadata_string,
                 ))

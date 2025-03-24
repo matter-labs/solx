@@ -135,6 +135,7 @@ impl Output {
     ///
     pub fn push_error(&mut self, path: Option<String>, error: anyhow::Error) {
         self.errors.push(JsonOutputError::new_error(
+            None,
             error,
             path.map(JsonOutputErrorSourceLocation::new),
             None,

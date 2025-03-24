@@ -158,6 +158,7 @@ impl Arguments {
 
         if self.version && std::env::args().count() > 2 {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
+                None,
                 "No other options are allowed while getting the compiler version.",
                 None,
                 None,
@@ -166,6 +167,7 @@ impl Arguments {
 
         if self.recursive_process && std::env::args().count() > 2 {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
+                None,
                 "No other options are allowed in recursive mode.",
                 None,
                 None,
@@ -183,12 +185,13 @@ impl Arguments {
         .count();
         if modes_count > 1 + ((self.link && self.standard_json.is_some()) as usize) {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
-                "Only one mode is allowed at the same time: Yul, LLVM IR, standard JSON. Only linker can be used with `--standard-json`.", None, None));
+                None, "Only one mode is allowed at the same time: Yul, LLVM IR, standard JSON. Only linker can be used with `--standard-json`.", None, None));
         }
 
         if self.yul || self.llvm_ir || self.link {
             if self.base_path.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "`base-path` is only allowed in Solidity mode.",
                     None,
                     None,
@@ -196,6 +199,7 @@ impl Arguments {
             }
             if !self.include_path.is_empty() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "`include-path` is only allowed in Solidity mode.",
                     None,
                     None,
@@ -203,6 +207,7 @@ impl Arguments {
             }
             if self.allow_paths.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "`allow-paths` is only allowed in Solidity mode.",
                     None,
                     None,
@@ -211,6 +216,7 @@ impl Arguments {
 
             if self.evm_version.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "EVM version is only allowed in Solidity mode.",
                     None,
                     None,
@@ -219,6 +225,7 @@ impl Arguments {
 
             if self.via_ir {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "IR codegen settings are only available in Solidity mode.",
                     None,
                     None,
@@ -228,6 +235,7 @@ impl Arguments {
 
         if self.llvm_ir && !self.libraries.is_empty() {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
+                None,
                 "Libraries are only supported in Solidity, Yul, and linker modes.",
                 None,
                 None,
@@ -242,6 +250,7 @@ impl Arguments {
         };
         if self.link && std::env::args().count() > linker_default_arguments_count {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
+                None,
                 "Error: No other options except bytecode files, `--libraries`, `--standard-json`, `--target` are allowed in linker mode.",
                 None,
                 None,
@@ -251,6 +260,7 @@ impl Arguments {
         if self.standard_json.is_some() {
             if self.output_metadata || self.output_binary {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "Cannot output data outside of JSON in standard JSON mode.",
                     None,
                     None,
@@ -259,6 +269,7 @@ impl Arguments {
 
             if !self.inputs.is_empty() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "Input files must be passed via standard JSON input.",
                     None,
                     None,
@@ -266,6 +277,7 @@ impl Arguments {
             }
             if !self.libraries.is_empty() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "Libraries must be passed via standard JSON input.",
                     None,
                     None,
@@ -274,6 +286,7 @@ impl Arguments {
 
             if self.via_ir {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "IR codegen must be passed via standard JSON input.",
                     None,
                     None,
@@ -281,6 +294,7 @@ impl Arguments {
             }
             if self.evm_version.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "EVM version must be passed via standard JSON input.",
                     None,
                     None,
@@ -289,6 +303,7 @@ impl Arguments {
 
             if self.output_dir.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "Output directory cannot be used in standard JSON mode.",
                     None,
                     None,
@@ -296,6 +311,7 @@ impl Arguments {
             }
             if self.overwrite {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "Overwriting flag cannot be used in standard JSON mode.",
                     None,
                     None,
@@ -303,6 +319,7 @@ impl Arguments {
             }
             if self.optimization.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "LLVM optimizations must be specified in standard JSON input settings.",
                     None,
                     None,
@@ -310,13 +327,15 @@ impl Arguments {
             }
             if self.size_fallback {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
-                    "Falling back to -Oz must be specified in standard JSON input settings.",
+                    None,
+                    "Size optimization fallback must be specified in standard JSON input settings.",
                     None,
                     None,
                 ));
             }
             if self.llvm_options.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "LLVM options must be specified in standard JSON input settings.",
                     None,
                     None,
@@ -324,6 +343,7 @@ impl Arguments {
             }
             if self.metadata_hash.is_some() {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "Metadata hash mode must be specified in standard JSON input settings.",
                     None,
                     None,
@@ -331,6 +351,7 @@ impl Arguments {
             }
             if self.metadata_literal {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
+                    None,
                     "Metadata literal content flag must be specified in standard JSON input settings.",
                     None,
                     None,

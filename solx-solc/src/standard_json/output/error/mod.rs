@@ -46,6 +46,7 @@ impl Error {
     ///
     pub fn new<S>(
         r#type: &str,
+        error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
         sources: Option<&BTreeMap<String, StandardJsonInputSource>>,
@@ -59,7 +60,7 @@ impl Error {
         let mut formatted_message = if message_trimmed.starts_with(r#type) {
             message_trimmed.to_owned()
         } else {
-            format!("{}: {}", r#type, message_trimmed)
+            format!("{type}: {message_trimmed}")
         };
         formatted_message.push('\n');
         if let Some(ref source_location) = source_location {
@@ -76,7 +77,7 @@ impl Error {
 
         Self {
             component: "general".to_owned(),
-            error_code: None,
+            error_code: error_code.map(|code| code.to_string()),
             formatted_message,
             message,
             severity: r#type.to_lowercase(),
@@ -89,6 +90,7 @@ impl Error {
     /// A shortcut constructor.
     ///
     pub fn new_error<S>(
+        error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
         sources: Option<&BTreeMap<String, StandardJsonInputSource>>,
@@ -96,13 +98,14 @@ impl Error {
     where
         S: std::fmt::Display,
     {
-        Self::new("Error", message, source_location, sources)
+        Self::new("Error", error_code, message, source_location, sources)
     }
 
     ///
     /// A shortcut constructor.
     ///
     pub fn new_warning<S>(
+        error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
         sources: Option<&BTreeMap<String, StandardJsonInputSource>>,
@@ -110,7 +113,14 @@ impl Error {
     where
         S: std::fmt::Display,
     {
-        Self::new("Warning", message, source_location, sources)
+        Self::new("Warning", error_code, message, source_location, sources)
+    }
+}
+
+impl From<(&str, &era_compiler_llvm_context::EVMWarning)> for Error {
+    fn from((path, warning): (&str, &era_compiler_llvm_context::EVMWarning)) -> Self {
+        let location = SourceLocation::new(path.to_owned());
+        Self::new_warning(warning.code(), warning.to_string(), Some(location), None)
     }
 }
 

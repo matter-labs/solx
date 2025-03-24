@@ -37,7 +37,7 @@ fn main() -> anyhow::Result<()> {
         }
         if let Err(error) = main_inner(arguments, &mut messages) {
             messages.push(solx_solc::StandardJsonOutputError::new_error(
-                error, None, None,
+                None, error, None, None,
             ));
         }
     }

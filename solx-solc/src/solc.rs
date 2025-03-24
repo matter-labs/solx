@@ -133,9 +133,14 @@ impl Compiler {
                 anyhow::bail!("solc standard JSON output parsing: {error:?}");
             }
         };
-        eprintln!("{}", serde_json::to_string_pretty(&solc_output).unwrap());
 
         input_json.resolve_sources();
+        solc_output
+            .errors
+            .retain(|error| match error.error_code.as_deref() {
+                Some(code) => !StandardJsonOutputError::IGNORED_WARNING_CODES.contains(&code),
+                None => true,
+            });
         solc_output.errors.append(messages);
         solc_output.preprocess_ast(&input_json.sources, &self.version)?;
         solc_output.remove_evm_artifacts();

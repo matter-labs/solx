@@ -499,7 +499,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "era-compiler-common"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-common?branch=main#9fb4fb47268c9f0b83e02b607d1eca3987d1a3ee"
+source = "git+https://github.com/matter-labs/era-compiler-common?branch=main#77b91f04ea028e0f94511b24ea4f43bdc335a58e"
 dependencies = [
  "anyhow",
  "base58",
@@ -515,7 +515,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#2639dd42c92fb1be1cd05cf13a9113a1972cd469"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-error-code-runtime-code-size#36925fb6a9c6e0469cbfaa045c9eaaad52ed00ee"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -524,6 +524,7 @@ dependencies = [
  "num",
  "semver",
  "serde",
+ "thiserror 1.0.64",
  "zkevm_opcode_defs",
 ]
 
@@ -1524,6 +1525,7 @@ version = "1.0.0"
 dependencies = [
  "anyhow",
  "era-compiler-common",
+ "era-compiler-llvm-context",
  "hex",
  "libc",
  "num",

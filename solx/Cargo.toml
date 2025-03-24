@@ -29,8 +29,8 @@ num = "=0.4.3"
 
 zkevm_opcode_defs = "=0.150.6"
 
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "az-error-code-runtime-code-size" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
 solx-solc = { path = "../solx-solc" }
 solx-yul = { path = "../solx-yul" }
 
