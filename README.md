@@ -28,6 +28,10 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 
 **solx** is licensed under [GNU General Public License v3.0](LICENSE.txt).
 
+## Acknowledgements
+
+**solx** is statically linked with a fork of [`solc`, the Solidity compiler](https://github.com/ethereum/solidity).
+
 ## Resources
 
 - [Solidity documentation](https://docs.soliditylang.org/en/latest/)
