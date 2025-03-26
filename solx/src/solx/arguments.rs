@@ -165,15 +165,6 @@ impl Arguments {
             ));
         }
 
-        if self.recursive_process && std::env::args().count() > 2 {
-            messages.push(solx_solc::StandardJsonOutputError::new_error(
-                None,
-                "No other options are allowed in recursive mode.",
-                None,
-                None,
-            ));
-        }
-
         let modes_count = [
             self.yul,
             self.llvm_ir,

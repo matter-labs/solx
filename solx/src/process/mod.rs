@@ -65,6 +65,7 @@ where
     command.stdout(std::process::Stdio::piped());
     command.stderr(std::process::Stdio::piped());
     command.arg("--recursive-process");
+    command.arg(path);
 
     let mut process = command
         .spawn()
