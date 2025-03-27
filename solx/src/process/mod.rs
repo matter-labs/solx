@@ -9,6 +9,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 use std::sync::OnceLock;
+use std::thread::Builder;
 
 use self::input::Input as EVMInput;
 use self::output::Output as EVMOutput;
@@ -27,21 +28,35 @@ pub fn run() -> anyhow::Result<()> {
 
     let source_location =
         solx_solc::StandardJsonOutputErrorSourceLocation::new(input.contract.name.path.clone());
-    let result = input
-        .contract
-        .compile_to_evm(
-            input.identifier_paths,
-            input.output_bytecode,
-            input.deployed_libraries,
-            input.metadata_hash_type,
-            input.optimizer_settings,
-            input.llvm_options,
-            input.debug_config,
-        )
-        .map(EVMOutput::new)
-        .map_err(|error| {
-            solx_solc::StandardJsonOutputError::new_error(None, error, Some(source_location), None)
-        });
+
+    let result = Builder::new()
+        .stack_size(crate::WORKER_THREAD_STACK_SIZE)
+        .spawn(move || {
+            input
+                .contract
+                .compile_to_evm(
+                    input.identifier_paths,
+                    input.output_bytecode,
+                    input.deployed_libraries,
+                    input.metadata_hash_type,
+                    input.optimizer_settings,
+                    input.llvm_options,
+                    input.debug_config,
+                )
+                .map(EVMOutput::new)
+                .map_err(|error| {
+                    solx_solc::StandardJsonOutputError::new_error(
+                        None,
+                        error,
+                        Some(source_location),
+                        None,
+                    )
+                })
+        })
+        .expect("Threading error")
+        .join()
+        .expect("Threading error");
+
     serde_json::to_writer(std::io::stdout(), &result)
         .map_err(|error| anyhow::anyhow!("Stdout writing error: {error}"))?;
     unsafe { inkwell::support::shutdown_llvm() };
