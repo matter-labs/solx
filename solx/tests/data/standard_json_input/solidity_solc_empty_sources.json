@@ -9,11 +9,13 @@
     "outputSelection": {
       "*": {
         "": [
-          "metadata"
+          "ast"
         ],
         "*": [
           "abi",
-          "evm.methodIdentifiers"
+          "evm.methodIdentifiers",
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object"
         ]
       }
     },

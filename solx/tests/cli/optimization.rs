@@ -17,12 +17,11 @@ fn all(level: char) -> anyhow::Result<()> {
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         &format!("-O{level}"),
+        "--bin",
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stderr(predicate::str::contains("Compiler run successful"));
+    result.success().stdout(predicate::str::contains("Binary"));
 
     Ok(())
 }

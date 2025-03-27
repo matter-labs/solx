@@ -65,11 +65,13 @@ impl Compiler {
         include_paths: Vec<String>,
         allow_paths: Option<String>,
     ) -> anyhow::Result<StandardJsonOutput> {
+        let original_output_selection = input_json.settings.output_selection.to_owned();
+
         input_json.settings.output_selection.retain_solc();
         input_json
             .settings
             .output_selection
-            .extend(input_json.settings.via_ir);
+            .set_ir(input_json.settings.via_ir);
 
         let input_string = serde_json::to_string(input_json).expect("Always valid");
         let input_c_string = CString::new(input_string).expect("Always valid");
@@ -138,7 +140,7 @@ impl Compiler {
             }
         };
 
-        input_json.resolve_sources();
+        input_json.settings.output_selection = original_output_selection;
         solc_output
             .errors
             .retain(|error| match error.error_code.as_deref() {
@@ -146,8 +148,6 @@ impl Compiler {
                 None => true,
             });
         solc_output.errors.append(messages);
-        solc_output.preprocess_ast(&input_json.sources, &self.version)?;
-        solc_output.remove_evm_artifacts();
 
         Ok(solc_output)
     }
@@ -178,7 +178,7 @@ impl Compiler {
         solc_input: &mut StandardJsonInput,
         messages: &mut Vec<StandardJsonOutputError>,
     ) -> anyhow::Result<StandardJsonOutput> {
-        solc_input.settings.output_selection.extend(true);
+        solc_input.settings.output_selection.set_ir(true);
         let solc_output = self.standard_json(solc_input, messages, None, vec![], None)?;
         Ok(solc_output)
     }

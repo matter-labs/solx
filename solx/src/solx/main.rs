@@ -144,6 +144,8 @@ fn main_inner(
         solx::yul_to_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
+            arguments.output_bytecode,
+            arguments.output_metadata,
             messages,
             metadata_hash_type,
             optimizer_settings,
@@ -154,6 +156,8 @@ fn main_inner(
         solx::llvm_ir_to_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
+            arguments.output_bytecode,
+            arguments.output_metadata,
             messages,
             metadata_hash_type,
             optimizer_settings,
@@ -164,7 +168,6 @@ fn main_inner(
         anyhow::bail!("The EVM target does not support linking yet.");
     } else if let Some(standard_json) = arguments.standard_json {
         return solx::standard_json_evm(
-            arguments.via_ir,
             standard_json.map(PathBuf::from),
             messages,
             arguments.base_path,
@@ -172,10 +175,12 @@ fn main_inner(
             arguments.allow_paths,
             debug_config,
         );
-    } else {
+    } else if arguments.output_bytecode || arguments.output_metadata {
         solx::standard_output_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
+            arguments.output_bytecode,
+            arguments.output_metadata,
             messages,
             arguments.evm_version,
             arguments.via_ir,
@@ -189,17 +194,18 @@ fn main_inner(
             llvm_options,
             debug_config,
         )
+    } else {
+        writeln!(
+            std::io::stdout(),
+            "Compiler run successful. No output generated."
+        )?;
+        return Ok(());
     }?;
 
     if let Some(output_directory) = arguments.output_dir {
-        build.write_to_directory(
-            &output_directory,
-            arguments.output_metadata,
-            arguments.output_binary,
-            arguments.overwrite,
-        )?;
+        build.write_to_directory(&output_directory, arguments.overwrite)?;
     } else {
-        build.write_to_terminal(arguments.output_metadata, arguments.output_binary)?;
+        build.write_to_terminal()?;
     }
 
     Ok(())

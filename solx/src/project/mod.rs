@@ -10,11 +10,11 @@ use std::path::PathBuf;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 
-use crate::build_evm::contract::Contract as EVMContractBuild;
-use crate::build_evm::Build as EVMBuild;
+use crate::build::contract::Contract as EVMContractBuild;
+use crate::build::Build as EVMBuild;
 use crate::evmla::assembly::Assembly;
-use crate::process::input_evm::Input as EVMProcessInput;
-use crate::process::output_evm::Output as EVMOutput;
+use crate::process::input::Input as EVMProcessInput;
+use crate::process::output::Output as EVMOutput;
 
 use self::contract::ir::evmla::EVMLA as ContractEVMLA;
 use self::contract::ir::llvm_ir::LLVMIR as ContractLLVMIR;
@@ -130,6 +130,7 @@ impl Project {
     pub fn try_from_yul_paths(
         paths: &[PathBuf],
         libraries: solx_solc::StandardJsonInputLibraries,
+        output_selection: solx_solc::StandardJsonInputSelection,
         solc_output: Option<&mut solx_solc::StandardJsonOutput>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
@@ -140,7 +141,13 @@ impl Project {
                 (path.to_string_lossy().to_string(), source)
             })
             .collect::<BTreeMap<String, solx_solc::StandardJsonInputSource>>();
-        Self::try_from_yul_sources(sources, libraries, solc_output, debug_config)
+        Self::try_from_yul_sources(
+            sources,
+            libraries,
+            output_selection,
+            solc_output,
+            debug_config,
+        )
     }
 
     ///
@@ -149,6 +156,7 @@ impl Project {
     pub fn try_from_yul_sources(
         sources: BTreeMap<String, solx_solc::StandardJsonInputSource>,
         libraries: solx_solc::StandardJsonInputLibraries,
+        output_selection: solx_solc::StandardJsonInputSelection,
         mut solc_output: Option<&mut solx_solc::StandardJsonOutput>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
@@ -168,20 +176,27 @@ impl Project {
                     Err(error) => return Some((path, Err(error))),
                 };
 
-                let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
-                let source_metadata_json = serde_json::json!({
-                    "source_hash": source_hash.to_string(),
-                    "solc_version": solx_solc::Compiler::default().version,
-                });
-                let source_metadata =
-                    serde_json::to_string(&source_metadata_json).expect("Always valid");
+                let metadata = if output_selection.check_selection(
+                    path.as_str(),
+                    None,
+                    solx_solc::StandardJsonInputSelector::Metadata,
+                ) {
+                    let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
+                    let metadata_json = serde_json::json!({
+                        "source_hash": source_hash.to_string(),
+                        "solc_version": solx_solc::Compiler::default().version,
+                    });
+                    Some(serde_json::to_string(&metadata_json).expect("Always valid"))
+                } else {
+                    None
+                };
 
                 let name = era_compiler_common::ContractName::new(
                     path.clone(),
                     Some(ir.object.0.identifier.clone()),
                 );
                 let full_path = name.full_path.clone();
-                let contract = Contract::new(name, ir.into(), source_metadata);
+                let contract = Contract::new(name, ir.into(), metadata);
                 Some((full_path, Ok(contract)))
             })
             .collect::<BTreeMap<String, anyhow::Result<Contract>>>();
@@ -211,6 +226,7 @@ impl Project {
     pub fn try_from_llvm_ir_paths(
         paths: &[PathBuf],
         libraries: solx_solc::StandardJsonInputLibraries,
+        output_selection: solx_solc::StandardJsonInputSelection,
         solc_output: Option<&mut solx_solc::StandardJsonOutput>,
     ) -> anyhow::Result<Self> {
         let sources = paths
@@ -220,7 +236,7 @@ impl Project {
                 (path.to_string_lossy().to_string(), source)
             })
             .collect::<BTreeMap<String, solx_solc::StandardJsonInputSource>>();
-        Self::try_from_llvm_ir_sources(sources, libraries, solc_output)
+        Self::try_from_llvm_ir_sources(sources, libraries, output_selection, solc_output)
     }
 
     ///
@@ -229,6 +245,7 @@ impl Project {
     pub fn try_from_llvm_ir_sources(
         sources: BTreeMap<String, solx_solc::StandardJsonInputSource>,
         libraries: solx_solc::StandardJsonInputLibraries,
+        output_selection: solx_solc::StandardJsonInputSelection,
         mut solc_output: Option<&mut solx_solc::StandardJsonOutput>,
     ) -> anyhow::Result<Self> {
         let results = sources
@@ -239,18 +256,25 @@ impl Project {
                     Err(error) => return (path, Err(error)),
                 };
 
-                let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
-                let source_metadata_json = serde_json::json!({
-                    "source_hash": source_hash.to_string(),
-                    "llvm_version": era_compiler_llvm_context::LLVM_VERSION,
-                });
-                let source_metadata =
-                    serde_json::to_string(&source_metadata_json).expect("Always valid");
+                let metadata = if output_selection.check_selection(
+                    path.as_str(),
+                    None,
+                    solx_solc::StandardJsonInputSelector::Metadata,
+                ) {
+                    let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
+                    let metadata_json = serde_json::json!({
+                        "source_hash": source_hash.to_string(),
+                        "llvm_version": era_compiler_llvm_context::LLVM_VERSION,
+                    });
+                    Some(serde_json::to_string(&metadata_json).expect("Always valid"))
+                } else {
+                    None
+                };
 
                 let contract = Contract::new(
                     era_compiler_common::ContractName::new(path.clone(), None),
                     ContractLLVMIR::new(path.clone(), source_code).into(),
-                    source_metadata,
+                    metadata,
                 );
 
                 (path, Ok(contract))

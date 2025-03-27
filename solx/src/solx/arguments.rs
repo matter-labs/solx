@@ -18,7 +18,7 @@ use path_slash::PathExt;
 /// Example: solx ERC20.sol -O3 --bin --output-dir "./build/"
 ///
 #[derive(Debug, Parser)]
-#[command(about, long_about = None)]
+#[command(about, long_about = None, arg_required_else_help = true)]
 pub struct Arguments {
     /// Print the version and exit.
     #[arg(long)]
@@ -126,7 +126,7 @@ pub struct Arguments {
 
     /// Output bytecode of the compiled contracts.
     #[arg(long = "bin")]
-    pub output_binary: bool,
+    pub output_bytecode: bool,
 
     /// Dump all IRs to files in the specified directory.
     /// Only for testing and debugging.
@@ -249,7 +249,7 @@ impl Arguments {
         }
 
         if self.standard_json.is_some() {
-            if self.output_metadata || self.output_binary {
+            if self.output_metadata || self.output_bytecode {
                 messages.push(solx_solc::StandardJsonOutputError::new_error(
                     None,
                     "Cannot output data outside of JSON in standard JSON mode.",

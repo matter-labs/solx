@@ -16,7 +16,7 @@ use self::contract::Contract;
 ///
 /// The Solidity project build.
 ///
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Build {
     /// The contract data,
     pub results: BTreeMap<String, Result<Contract, solx_solc::StandardJsonOutputError>>,
@@ -55,9 +55,13 @@ impl Build {
             let assembled_objects_data = {
                 let all_objects = contracts
                     .iter()
-                    .flat_map(|(_path, contract)| {
-                        vec![&contract.deploy_object, &contract.runtime_object]
+                    .filter_map(|(_path, contract)| {
+                        Some(vec![
+                            contract.deploy_object.as_ref()?,
+                            contract.runtime_object.as_ref()?,
+                        ])
                     })
+                    .flatten()
                     .collect::<Vec<&ContractObject>>();
                 let assembleable_objects = all_objects
                     .iter()
@@ -143,13 +147,19 @@ impl Build {
                     era_compiler_common::CodeSegment::Deploy => &mut contract.deploy_object,
                     era_compiler_common::CodeSegment::Runtime => &mut contract.runtime_object,
                 };
-                object.bytecode = assembled_object.as_slice().to_owned();
-                object.is_assembled = true;
+                if let Some(object) = object {
+                    object.bytecode = assembled_object.as_slice().to_owned();
+                    object.is_assembled = true;
+                }
             }
         }
 
         for contract in contracts.values_mut() {
             for object in [&mut contract.deploy_object, &mut contract.runtime_object].into_iter() {
+                let object = match object {
+                    Some(object) => object,
+                    None => continue,
+                };
                 let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
                     object.bytecode.as_slice(),
                     object.identifier.as_str(),
@@ -183,26 +193,12 @@ impl Build {
     ///
     /// Writes all contracts to the terminal.
     ///
-    pub fn write_to_terminal(
-        mut self,
-        output_metadata: bool,
-        output_binary: bool,
-    ) -> anyhow::Result<()> {
+    pub fn write_to_terminal(mut self) -> anyhow::Result<()> {
         self.take_and_write_warnings();
         self.exit_on_error();
 
-        if !output_metadata && !output_binary {
-            writeln!(
-                std::io::stderr(),
-                "Compiler run successful. No output requested. Use flags `--bin` and `--metadata`."
-            )?;
-            return Ok(());
-        }
-
         for (path, build) in self.results.into_iter() {
-            build
-                .expect("Always valid")
-                .write_to_terminal(path, output_metadata, output_binary)?;
+            build.expect("Always valid").write_to_terminal(path)?;
         }
 
         Ok(())
@@ -214,8 +210,6 @@ impl Build {
     pub fn write_to_directory(
         mut self,
         output_directory: &Path,
-        output_metadata: bool,
-        output_binary: bool,
         overwrite: bool,
     ) -> anyhow::Result<()> {
         self.take_and_write_warnings();
@@ -224,12 +218,9 @@ impl Build {
         std::fs::create_dir_all(output_directory)?;
 
         for build in self.results.into_values() {
-            build.expect("Always valid").write_to_directory(
-                output_directory,
-                output_metadata,
-                output_binary,
-                overwrite,
-            )?;
+            build
+                .expect("Always valid")
+                .write_to_directory(output_directory, overwrite)?;
         }
 
         writeln!(
@@ -253,16 +244,28 @@ impl Build {
                     errors.extend(
                         build
                             .deploy_object
-                            .errors
-                            .iter()
-                            .map(|error| (build.name.full_path.as_str(), error).into()),
+                            .as_ref()
+                            .map(|object| {
+                                object
+                                    .errors
+                                    .iter()
+                                    .map(|error| (build.name.full_path.as_str(), error).into())
+                                    .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                            })
+                            .unwrap_or_default(),
                     );
                     errors.extend(
                         build
                             .runtime_object
-                            .errors
-                            .iter()
-                            .map(|error| (build.name.full_path.as_str(), error).into()),
+                            .as_ref()
+                            .map(|object| {
+                                object
+                                    .errors
+                                    .iter()
+                                    .map(|error| (build.name.full_path.as_str(), error).into())
+                                    .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                            })
+                            .unwrap_or_default(),
                     );
                     build
                 }

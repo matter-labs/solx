@@ -23,20 +23,50 @@ impl Selection {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(via_ir: bool) -> Self {
+    pub fn new(bytecode: bool, metadata: bool, via_ir: Option<bool>) -> Self {
         let mut root = BTreeMap::new();
         let mut inner = BTreeMap::new();
+
         let mut set = BTreeSet::new();
-        set.insert(via_ir.into());
+        if bytecode {
+            set.insert(Selector::BytecodeObject);
+            set.insert(Selector::RuntimeBytecodeObject);
+        }
+        if metadata {
+            set.insert(Selector::Metadata);
+        }
+        if let Some(via_ir) = via_ir {
+            set.insert(via_ir.into());
+        }
+
         inner.insert("*".to_owned(), set);
         root.insert("*".to_owned(), inner);
         Self { inner: root }
     }
 
     ///
+    /// Checks if the output element of the specified contract is selected.
+    ///
+    pub fn check_selection(&self, path: &str, name: Option<&str>, selector: Selector) -> bool {
+        if let Some(file) = self.inner.get("*").or(self.inner.get(path)) {
+            if let (Some(any), selector @ Selector::AST) = (file.get(""), selector) {
+                return any.contains(&selector);
+            }
+            if let Some(name) = name {
+                if let Some(contract) = file.get("*").or(file.get(name)) {
+                    return contract.contains(&selector);
+                }
+            } else {
+                return true;
+            }
+        }
+        false
+    }
+
+    ///
     /// Extends the output selection with the IR required for compilation.
     ///
-    pub fn extend(&mut self, via_ir: bool) {
+    pub fn set_ir(&mut self, via_ir: bool) {
         for file in self.inner.values_mut() {
             for contract in file.values_mut() {
                 contract.insert(via_ir.into());
@@ -53,6 +83,22 @@ impl Selection {
                 contract.retain(Selector::is_received_from_solc);
             }
         }
+    }
+
+    ///
+    /// Checks if bytecode is requested for at least one contract.
+    ///
+    pub fn is_bytecode_requested(&self) -> bool {
+        for file in self.inner.values() {
+            for contract in file.values() {
+                if contract.contains(&Selector::BytecodeObject)
+                    || contract.contains(&Selector::RuntimeBytecodeObject)
+                {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     ///

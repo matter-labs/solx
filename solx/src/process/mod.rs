@@ -2,16 +2,16 @@
 //! Process for compiling a single compilation unit.
 //!
 
-pub mod input_evm;
-pub mod output_evm;
+pub mod input;
+pub mod output;
 
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 use std::sync::OnceLock;
 
-use self::input_evm::Input as EVMInput;
-use self::output_evm::Output as EVMOutput;
+use self::input::Input as EVMInput;
+use self::output::Output as EVMOutput;
 
 /// The overridden executable name used when the compiler is run as a library.
 pub static EXECUTABLE: OnceLock<PathBuf> = OnceLock::new();

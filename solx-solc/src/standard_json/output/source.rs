@@ -2,12 +2,6 @@
 //! The `solc --standard-json` output source.
 //!
 
-use std::collections::BTreeMap;
-
-use crate::standard_json::input::source::Source as StandardJSONInputSource;
-use crate::standard_json::output::error::Error as StandardJsonOutputError;
-use crate::version::Version;
-
 ///
 /// The `solc --standard-json` output source.
 ///
@@ -29,44 +23,6 @@ impl Source {
     ///
     pub fn new(id: usize) -> Self {
         Self { id, ast: None }
-    }
-
-    ///
-    /// Returns the list of messages for some specific parts of the AST.
-    ///
-    pub fn get_messages(
-        ast: &serde_json::Value,
-        _id_paths: &BTreeMap<usize, &String>,
-        _sources: &BTreeMap<String, StandardJSONInputSource>,
-        _solc_version: &Version,
-    ) -> Vec<StandardJsonOutputError> {
-        let mut messages = Vec::new();
-
-        match ast {
-            serde_json::Value::Array(array) => {
-                for element in array.iter() {
-                    messages.extend(Self::get_messages(
-                        element,
-                        _id_paths,
-                        _sources,
-                        _solc_version,
-                    ));
-                }
-            }
-            serde_json::Value::Object(object) => {
-                for (_key, value) in object.iter() {
-                    messages.extend(Self::get_messages(
-                        value,
-                        _id_paths,
-                        _sources,
-                        _solc_version,
-                    ));
-                }
-            }
-            _ => {}
-        }
-
-        messages
     }
 
     ///

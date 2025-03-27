@@ -72,7 +72,7 @@ impl Settings {
 
         llvm_options: Vec<String>,
     ) -> Self {
-        output_selection.extend(via_ir);
+        output_selection.set_ir(via_ir);
 
         Self {
             optimizer,

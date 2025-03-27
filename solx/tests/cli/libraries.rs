@@ -11,12 +11,11 @@ fn default() -> anyhow::Result<()> {
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--libraries",
         crate::common::LIBRARY_DEFAULT,
+        "--bin",
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stderr(predicate::str::contains("Compiler run successful"));
+    result.success().stdout(predicate::str::contains("Binary"));
 
     Ok(())
 }

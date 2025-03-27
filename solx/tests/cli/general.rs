@@ -14,9 +14,9 @@ fn no_arguments() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx(args)?;
 
-    result.failure().stderr(predicate::str::contains(
-        "Error: No input sources specified",
-    ));
+    result
+        .failure()
+        .stderr(predicate::str::contains("Usage: solx"));
 
     Ok(())
 }

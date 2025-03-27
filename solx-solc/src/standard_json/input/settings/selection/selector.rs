@@ -48,7 +48,7 @@ pub enum Selector {
     RuntimeBytecodeObject,
 
     /// The catch-all variant.
-    #[serde(other, skip_serializing)]
+    #[serde(other)]
     Other,
 }
 

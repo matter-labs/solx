@@ -79,7 +79,7 @@ pub fn build_solidity_standard_json(
         solx_solc::StandardJsonInputOptimizer::default(),
         None,
         via_ir,
-        solx_solc::StandardJsonInputSelection::new(via_ir),
+        solx_solc::StandardJsonInputSelection::new(true, true, Some(via_ir)),
         solx_solc::StandardJsonInputMetadata::default(),
         vec![],
     )?;
@@ -113,48 +113,6 @@ pub fn build_solidity_standard_json(
 }
 
 ///
-/// Builds the Yul `sources` and returns the standard JSON output.
-///
-pub fn build_yul(
-    sources: BTreeMap<String, String>,
-) -> anyhow::Result<solx_solc::StandardJsonOutput> {
-    self::setup()?;
-
-    era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
-
-    let optimizer_settings = era_compiler_llvm_context::OptimizerSettings::none();
-
-    let sources = sources
-        .into_iter()
-        .map(|(path, source)| (path, solx_solc::StandardJsonInputSource::from(source)))
-        .collect();
-
-    let mut solc_output = solx_solc::StandardJsonOutput::new(&sources, &mut vec![]);
-
-    let project = Project::try_from_yul_sources(
-        sources,
-        solx_solc::StandardJsonInputLibraries::default(),
-        Some(&mut solc_output),
-        None,
-    )?;
-    let build = project.compile_to_evm(
-        &mut vec![],
-        era_compiler_common::HashType::Ipfs,
-        optimizer_settings,
-        vec![],
-        None,
-    )?;
-    build.check_errors()?;
-
-    let build = build.link(BTreeMap::new());
-    build.check_errors()?;
-
-    build.write_to_standard_json(&mut solc_output)?;
-    solc_output.check_errors()?;
-    Ok(solc_output)
-}
-
-///
 /// Builds the Yul standard JSON and returns the standard JSON output.
 ///
 /// If `solc_compiler` is set, the standard JSON is validated with `solc`.
@@ -180,6 +138,7 @@ pub fn build_yul_standard_json(
     let project = Project::try_from_yul_sources(
         solc_input.sources,
         solx_solc::StandardJsonInputLibraries::default(),
+        solc_input.settings.output_selection,
         Some(&mut solc_output),
         None,
     )?;
@@ -217,7 +176,8 @@ pub fn build_llvm_ir_standard_json(
 
     let project = Project::try_from_llvm_ir_sources(
         input.sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        input.settings.libraries,
+        input.settings.output_selection,
         Some(&mut output),
     )?;
     let build = project.compile_to_evm(

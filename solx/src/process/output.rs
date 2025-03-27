@@ -4,7 +4,7 @@
 //! The EVM output data.
 //!
 
-use crate::build_evm::contract::Contract as EVMContractBuild;
+use crate::build::contract::Contract as EVMContractBuild;
 
 ///
 /// The EVM output data.

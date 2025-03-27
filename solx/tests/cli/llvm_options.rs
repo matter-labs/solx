@@ -11,12 +11,11 @@ fn default() -> anyhow::Result<()> {
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--llvm-options='-eravm-disable-system-request-memoization 10'",
+        "--bin",
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result.success().stderr(predicate::str::contains(
-        "Compiler run successful. No output requested.",
-    ));
+    result.success().stdout(predicate::str::contains("Binary"));
 
     Ok(())
 }

@@ -8,12 +8,10 @@ use predicates::prelude::*;
 fn default() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul"];
+    let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul", "--bin"];
 
     let result = crate::cli::execute_solx(args)?;
-    result.success().stderr(predicate::str::contains(
-        "Compiler run successful. No output requested",
-    ));
+    result.success().stdout(predicate::str::contains("Binary"));
 
     Ok(())
 }
@@ -22,12 +20,10 @@ fn default() -> anyhow::Result<()> {
 fn solc() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul"];
+    let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul", "--bin"];
 
     let result = crate::cli::execute_solx(args)?;
-    result.success().stderr(predicate::str::contains(
-        "Compiler run successful. No output requested",
-    ));
+    result.success().stdout(predicate::str::contains("Binary"));
 
     Ok(())
 }

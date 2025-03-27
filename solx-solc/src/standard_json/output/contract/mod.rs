@@ -22,8 +22,8 @@ pub struct Contract {
     #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
     pub transient_storage_layout: serde_json::Value,
     /// The contract metadata.
-    #[serde(default, skip_serializing_if = "String::is_empty")]
-    pub metadata: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<String>,
     /// The contract developer documentation.
     #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
     pub devdoc: serde_json::Value,
@@ -46,7 +46,7 @@ impl Contract {
         self.abi.is_null()
             && self.storage_layout.is_null()
             && self.transient_storage_layout.is_null()
-            && self.metadata.is_empty()
+            && self.metadata.is_none()
             && self.devdoc.is_null()
             && self.userdoc.is_null()
             && self.ir_optimized.is_empty()

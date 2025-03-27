@@ -5,4 +5,4 @@
 [submodule "era-solidity"]
 	path = era-solidity
 	url = https://github.com/matter-labs/era-solidity
-	branch = 0.8.29
+	branch = app-timelock

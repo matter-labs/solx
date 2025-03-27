@@ -9,12 +9,8 @@ pub mod source;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
-
 use crate::standard_json::input::settings::selection::selector::Selector as StandardJSONInputSettingsSelector;
 use crate::standard_json::input::source::Source as StandardJSONInputSource;
-use crate::version::Version;
 
 use self::contract::Contract;
 use self::error::collectable::Collectable as CollectableError;
@@ -115,20 +111,6 @@ impl Output {
     }
 
     ///
-    /// Removes EVM artifacts to prevent their accidental usage.
-    ///
-    pub fn remove_evm_artifacts(&mut self) {
-        for (_, file) in self.contracts.iter_mut() {
-            for (_, contract) in file.iter_mut() {
-                if let Some(evm) = contract.evm.as_mut() {
-                    evm.bytecode = None;
-                    evm.deployed_bytecode = None;
-                }
-            }
-        }
-    }
-
-    ///
     /// Pushes an arbitrary error with path.
     ///
     /// Please do not push project-general errors without paths here.
@@ -140,37 +122,6 @@ impl Output {
             path.map(JsonOutputErrorSourceLocation::new),
             None,
         ));
-    }
-
-    ///
-    /// Traverses the AST and returns the list of additional errors and warnings.
-    ///
-    pub fn preprocess_ast(
-        &mut self,
-        sources: &BTreeMap<String, StandardJSONInputSource>,
-        version: &Version,
-    ) -> anyhow::Result<()> {
-        let id_paths: BTreeMap<usize, &String> = self
-            .sources
-            .iter()
-            .map(|(path, source)| (source.id, path))
-            .collect();
-
-        let messages: Vec<JsonOutputError> = self
-            .sources
-            .par_iter()
-            .map(|(_path, source)| {
-                source
-                    .ast
-                    .as_ref()
-                    .map(|ast| Source::get_messages(ast, &id_paths, sources, version))
-                    .unwrap_or_default()
-            })
-            .flatten()
-            .collect();
-        self.errors.extend(messages);
-
-        Ok(())
     }
 }
 
