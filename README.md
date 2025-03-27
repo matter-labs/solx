@@ -1,6 +1,52 @@
-# LLVM-based Solidity Compiler Toolchain
+<div align="center">
+  <img src=".github/assets/logo.png" alt="solx logo" />
+</div>
 
-This repository contains an LLVM-based Compiler Toolchain for Solidity and Yul.
+### `solx` is an optimizing compiler for Solidity
+
+The project aims to bring state-of-the-art optimizing compilers to Ethereum by:
+- Reducing gas consumption of EVM code.
+- Eliminating the need for inline assembly.
+- Providing industry-grade tools like an interactive debugger.
+
+## Installation
+
+You can get existing pre-releases from the [Releases](https://github.com/matter-labs/solx/releases) GitHub page.
+Or, you can take a build used in [solx_demo](https://github.com/popzxc/solx_demo):
+
+- [Linux/AMD64](https://github.com/matter-labs/solx/releases/download/eb46690/solx-linux-amd64-gnu-test-build-06)
+- [Linux/Arm64](https://github.com/matter-labs/solx/releases/download/eb46690/solx-linux-arm64-gnu-test-build-06)
+- [MacOS](https://github.com/matter-labs/solx/releases/download/eb46690/solx-macosx-test-build-06)
+
+## Usage
+
+We recommend using `solx` via [foundry](https://github.com/foundry-rs/foundry). It behaves the same way as
+`solc-0.8.29`, so you can download the binary and specify:
+
+```toml
+[profile.solx]
+solc_version = "/path/to/solx"
+```
+
+It might work with `hardhat` as well, but this has not been tested yet.
+
+Otherwise, the interface is _mostly_ compatible with `solc`, so you can use it via CLI or standard JSON.
+
+## Demo
+
+Check [this repository](https://github.com/popzxc/solx_demo) to see a demo of the current state of the compiler.
+
+## Architecture
+
+`solx` consists of three main parts:
+
+- `solx` executable, present in this repository. This repository also contains a part of the compiler front-end (Yul and EVMLA lowering).
+- [`era-solidity`](https://github.com/matter-labs/era-solidity/), a fork of the [solidity compiler](https://github.com/ethereum/solidity),
+  which contains the compiler front-end. Despite the repository name, it is not directly related to either ZKsync or ZKsync Era.
+- [`era-compiler-llvm`](https://github.com/matter-labs/era-compiler-llvm), a fork of [`llvm-project`](https://github.com/llvm/llvm-project)
+  with added EVM target.
+
+The most important part of the project is EVM target in LLVM, you can find its sources [here](https://github.com/matter-labs/era-compiler-llvm/tree/main/llvm/lib/Target/EVM).
 
 ## Testing
 
@@ -28,9 +74,8 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 
 **solx** is licensed under [GNU General Public License v3.0](LICENSE.txt).
 
-## Acknowledgements
-
-**solx** is statically linked with a fork of [`solc`, the Solidity compiler](https://github.com/ethereum/solidity).
+- [`era-compiler-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.28/LICENSE.txt).
+- [`era-compiler-llvm`](https://github.com/matter-labs/era-compiler-llvm) is licensed under the terms of Apache License, Version 2.0 with LLVM Exceptions, ([LICENSE](https://github.com/matter-labs/era-compiler-llvm/blob/main/LICENSE) or https://llvm.org/LICENSE.txt)
 
 ## Resources
 
