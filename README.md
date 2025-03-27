@@ -2,11 +2,12 @@
   <img src=".github/assets/logo.png" alt="solx logo" />
 </div>
 
-`solx` is an optimizing compiler for Solidity
+# `solx` is an optimizing Solidity compiler.
 
 It passes [our test suite](https://github.com/matter-labs/era-compiler-tests), which includes tests from the `solc` project and real-world projects such as UniswapV2 and Mooniswap. All `solc` tests are updated with each new `solc` release. Arbitrary contracts are expected to compile correctly, except for stack-too-deep issues. Benchmarks indicate that `solx` generates larger code than `solc` but reduces gas consumption on average.
 
-### Our mid-term goals:
+Our mid-term goals:
+
 - Support EOF.
 - Further reduce gas consumption of EVM code as well as code size.
 - Eliminate the need for inline assembly for efficiency.
