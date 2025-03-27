@@ -61,6 +61,7 @@ impl Contract {
     pub fn compile_to_evm(
         self,
         identifier_paths: BTreeMap<String, String>,
+        output_bytecode: bool,
         deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::HashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -90,6 +91,16 @@ impl Contract {
                     Some(era_compiler_common::Hash::ipfs(metadata.as_bytes()))
                 }
             });
+
+        if !output_bytecode {
+            return Ok(EVMContractBuild::new(
+                self.name,
+                None,
+                None,
+                metadata_hash,
+                metadata,
+            ));
+        }
 
         match self.ir {
             IR::Yul(mut deploy_code) => {

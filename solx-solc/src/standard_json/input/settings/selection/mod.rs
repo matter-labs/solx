@@ -86,14 +86,12 @@ impl Selection {
     }
 
     ///
-    /// Checks if bytecode is requested for at least one contract.
+    /// Checks if the output element is requested for at least one contract.
     ///
-    pub fn is_bytecode_requested(&self) -> bool {
+    pub fn is_set_for_any(&self, selector: Selector) -> bool {
         for file in self.inner.values() {
             for contract in file.values() {
-                if contract.contains(&Selector::BytecodeObject)
-                    || contract.contains(&Selector::RuntimeBytecodeObject)
-                {
+                if contract.contains(&selector) {
                     return true;
                 }
             }

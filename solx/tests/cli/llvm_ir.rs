@@ -9,7 +9,7 @@ use test_case::test_case;
 fn default(path: &str) -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &[path, "--llvm-ir"];
+    let args = &[path, "--llvm-ir", "--bin"];
 
     let result = crate::cli::execute_solx(args)?;
     result
@@ -23,7 +23,7 @@ fn default(path: &str) -> anyhow::Result<()> {
 fn invalid_input_text() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &["--llvm-ir", crate::common::TEST_BROKEN_INPUT_PATH];
+    let args = &["--llvm-ir", "--bin", crate::common::TEST_BROKEN_INPUT_PATH];
 
     let result = crate::cli::execute_solx(args)?;
     result
@@ -56,6 +56,7 @@ fn invalid_input_llvm_ir() -> anyhow::Result<()> {
 
     let args = &[
         "--llvm-ir",
+        "--bin",
         crate::common::TEST_LLVM_IR_CONTRACT_INVALID_PATH,
     ];
 
@@ -87,6 +88,7 @@ fn linker_error() -> anyhow::Result<()> {
 
     let args = &[
         "--llvm-ir",
+        "--bin",
         crate::common::TEST_LLVM_IR_CONTRACT_LINKER_ERROR_PATH,
     ];
 

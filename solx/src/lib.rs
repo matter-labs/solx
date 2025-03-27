@@ -70,6 +70,7 @@ pub fn yul_to_evm(
 
     let mut build = project.compile_to_evm(
         messages,
+        output_bytecode,
         metadata_hash_type,
         optimizer_settings,
         llvm_options,
@@ -107,6 +108,7 @@ pub fn llvm_ir_to_evm(
 
     let mut build = project.compile_to_evm(
         messages,
+        output_bytecode,
         metadata_hash_type,
         optimizer_settings,
         llvm_options,
@@ -177,6 +179,7 @@ pub fn standard_output_evm(
 
     let mut build = project.compile_to_evm(
         messages,
+        output_bytecode,
         metadata_hash_type,
         optimizer_settings,
         llvm_options,
@@ -208,7 +211,14 @@ pub fn standard_json_evm(
     let language = solc_input.language;
     let via_ir = solc_input.settings.via_ir;
     let prune_output = solc_input.settings.output_selection.to_prune(via_ir);
-    let is_bytecode_requested = solc_input.settings.output_selection.is_bytecode_requested();
+    let output_bytecode = solc_input
+        .settings
+        .output_selection
+        .is_set_for_any(solx_solc::StandardJsonInputSelector::BytecodeObject)
+        || solc_input
+            .settings
+            .output_selection
+            .is_set_for_any(solx_solc::StandardJsonInputSelector::RuntimeBytecodeObject);
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
@@ -283,21 +293,20 @@ pub fn standard_json_evm(
         }
     };
 
-    if is_bytecode_requested {
-        let build = project.compile_to_evm(
-            messages,
-            metadata_hash_type,
-            optimizer_settings,
-            llvm_options,
-            debug_config,
-        )?;
-        if build.has_errors() {
-            build.write_to_standard_json(&mut solc_output)?;
-            solc_output.write_and_exit(prune_output);
-        }
-
-        let build = build.link(linker_symbols);
+    let build = project.compile_to_evm(
+        messages,
+        output_bytecode,
+        metadata_hash_type,
+        optimizer_settings,
+        llvm_options,
+        debug_config,
+    )?;
+    if build.has_errors() {
         build.write_to_standard_json(&mut solc_output)?;
+        solc_output.write_and_exit(prune_output);
     }
+
+    let build = build.link(linker_symbols);
+    build.write_to_standard_json(&mut solc_output)?;
     solc_output.write_and_exit(prune_output);
 }

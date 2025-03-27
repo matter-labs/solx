@@ -53,10 +53,6 @@ impl Contract {
     pub fn write_to_terminal(self, path: String) -> anyhow::Result<()> {
         writeln!(std::io::stdout(), "\n======= {path} =======")?;
 
-        if let Some(metadata) = self.metadata {
-            writeln!(std::io::stdout(), "Metadata:\n{}", metadata)?;
-        }
-
         if self.deploy_object.is_some() || self.runtime_object.is_some() {
             let deploy_bytecode = self.deploy_object.map(|object| object.bytecode);
             let runtime_bytecode = self.runtime_object.map(|object| object.bytecode);
@@ -66,6 +62,10 @@ impl Contract {
                 hex::encode(deploy_bytecode.unwrap_or_default()),
                 hex::encode(runtime_bytecode.unwrap_or_default()),
             )?;
+        }
+
+        if let Some(metadata) = self.metadata {
+            writeln!(std::io::stdout(), "Metadata:\n{}", metadata)?;
         }
 
         Ok(())
@@ -85,25 +85,6 @@ impl Contract {
         let mut output_path = output_path.to_owned();
         output_path.push(file_name);
         std::fs::create_dir_all(output_path.as_path())?;
-
-        if let Some(metadata) = self.metadata {
-            let output_name = format!(
-                "{}_meta.{}",
-                self.name.name.as_deref().unwrap_or(file_name),
-                era_compiler_common::EXTENSION_JSON,
-            );
-            let mut output_path = output_path.clone();
-            output_path.push(output_name.as_str());
-
-            if output_path.exists() && !overwrite {
-                anyhow::bail!(
-                    "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
-                );
-            } else {
-                std::fs::write(output_path.as_path(), metadata)
-                    .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
-            }
-        }
 
         if self.deploy_object.is_some() || self.runtime_object.is_some() {
             let output_name = format!(
@@ -127,6 +108,25 @@ impl Contract {
                     hex::encode(runtime_bytecode.unwrap_or_default()),
                 );
                 std::fs::write(output_path.as_path(), bytecode)
+                    .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
+            }
+        }
+
+        if let Some(metadata) = self.metadata {
+            let output_name = format!(
+                "{}_meta.{}",
+                self.name.name.as_deref().unwrap_or(file_name),
+                era_compiler_common::EXTENSION_JSON,
+            );
+            let mut output_path = output_path.clone();
+            output_path.push(output_name.as_str());
+
+            if output_path.exists() && !overwrite {
+                anyhow::bail!(
+                    "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
+                );
+            } else {
+                std::fs::write(output_path.as_path(), metadata)
                     .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
         }
