@@ -1,8 +1,0 @@
-{
-    "bytecodes": {
-      "tests/data/bytecodes/linker.zbin": "Invalid hexadecimal string"
-    },
-    "libraries": [
-      "Greeter.sol:GreeterHelper=0x1234567890abcdef1234567890abcdef12345678"
-    ]
-  }

@@ -1,8 +1,0 @@
-[submodule "llvm"]
-	path = llvm
-	url = https://github.com/matter-labs/era-compiler-llvm
-	branch = main
-[submodule "era-solidity"]
-	path = era-solidity
-	url = https://github.com/matter-labs/era-solidity
-	branch = app-timelock
