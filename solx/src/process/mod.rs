@@ -102,8 +102,11 @@ where
 
     if result.status.code() != Some(era_compiler_common::EXIT_CODE_SUCCESS) {
         let message = format!(
-            "{executable:?} subprocess failed with exit code {:?}:\n{}\n{}",
-            result.status.code(),
+            "{executable:?} subprocess failed {}:\n{}\n{}",
+            match result.status.code() {
+                Some(code) => format!("with exit code {code:?}"),
+                None => "without exit code".to_owned(),
+            },
             String::from_utf8_lossy(result.stdout.as_slice()),
             String::from_utf8_lossy(result.stderr.as_slice()),
         );
