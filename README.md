@@ -19,9 +19,9 @@ Our mid-term goals:
 You can get existing pre-releases from the [Releases](https://github.com/matter-labs/solx/releases) GitHub page.
 Or, you can take a build used in [solx_demo](https://github.com/popzxc/solx_demo):
 
-- [Linux/AMD64](https://github.com/matter-labs/solx/releases/download/d5a98e5/solx-linux-amd64-gnu-test-build-07)
-- [Linux/Arm64](https://github.com/matter-labs/solx/releases/download/d5a98e5/solx-linux-arm64-gnu-test-build-07)
-- [MacOS](https://github.com/matter-labs/solx/releases/download/d5a98e5/solx-macosx-test-build-07)
+- [Linux/AMD64](https://github.com/matter-labs/solx/releases/download/d5a98e5/solx-linux-amd64-gnu)
+- [Linux/Arm64](https://github.com/matter-labs/solx/releases/download/d5a98e5/solx-linux-arm64-gnu)
+- [MacOS](https://github.com/matter-labs/solx/releases/download/d5a98e5/solx-macosx)
 
 ## Usage
 
