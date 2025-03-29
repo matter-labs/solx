@@ -102,6 +102,9 @@ impl Contract {
             ));
         }
 
+        let deploy_code_segment = era_compiler_common::CodeSegment::Deploy;
+        let runtime_code_segment = era_compiler_common::CodeSegment::Runtime;
+
         match self.ir {
             IR::Yul(mut deploy_code) => {
                 let runtime_code = deploy_code.take_runtime_code().ok_or_else(|| {
@@ -120,7 +123,6 @@ impl Contract {
                 let deploy_code_identifier = deploy_code.object.0.identifier.clone();
                 let runtime_code_identifier = runtime_code.0.identifier.clone();
 
-                let runtime_code_segment = era_compiler_common::CodeSegment::Runtime;
                 let runtime_llvm = inkwell::context::Context::create();
                 let runtime_module = runtime_llvm.create_module(
                     format!("{}.{runtime_code_segment}", self.name.full_path).as_str(),
@@ -156,7 +158,6 @@ impl Contract {
 
                 let immutables_map = runtime_buffer.get_immutables_evm();
 
-                let deploy_code_segment = era_compiler_common::CodeSegment::Deploy;
                 let deploy_llvm = inkwell::context::Context::create();
                 let deploy_module = deploy_llvm.create_module(
                     format!("{}.{deploy_code_segment}", self.name.full_path).as_str(),
@@ -204,9 +205,6 @@ impl Contract {
             IR::EVMLA(mut deploy_code) => {
                 let mut runtime_code_assembly = deploy_code.assembly.runtime_code()?.to_owned();
                 runtime_code_assembly.set_full_path(deploy_code.assembly.full_path().to_owned());
-
-                let deploy_code_segment = era_compiler_common::CodeSegment::Deploy;
-                let runtime_code_segment = era_compiler_common::CodeSegment::Runtime;
 
                 let deploy_code_identifier = self.name.full_path.to_owned();
                 let runtime_code_identifier =
@@ -298,7 +296,68 @@ impl Contract {
                     metadata,
                 ))
             }
-            IR::LLVMIR(_llvm_ir) => anyhow::bail!("LLVM IR is not supported yet."),
+            IR::LLVMIR(mut llvm_ir) => {
+                let deploy_code_identifier = self.name.full_path.to_owned();
+                let runtime_code_identifier =
+                    format!("{}.{runtime_code_segment}", self.name.full_path);
+
+                let llvm = inkwell::context::Context::create();
+                llvm_ir.source.push(char::from(0));
+                let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
+                    &llvm_ir.source.as_bytes()[..llvm_ir.source.len() - 1],
+                    self.name.full_path.as_str(),
+                    true,
+                );
+
+                let deploy_code_dependencies =
+                    solx_yul::Dependencies::new(deploy_code_identifier.as_str());
+                let runtime_code_dependencies =
+                    solx_yul::Dependencies::new(runtime_code_identifier.as_str());
+
+                let module = llvm
+                    .create_module_from_ir(memory_buffer)
+                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
+                let context = era_compiler_llvm_context::EVMContext::new(
+                    &llvm,
+                    module,
+                    llvm_options,
+                    runtime_code_segment,
+                    optimizer,
+                    debug_config,
+                );
+                let (runtime_buffer, runtime_code_warnings) = context.build()?;
+                let runtime_object = EVMContractObject::new(
+                    self.name.full_path.clone(),
+                    self.name.clone(),
+                    runtime_buffer.as_slice().to_owned(),
+                    false,
+                    runtime_code_segment,
+                    runtime_code_dependencies,
+                    BTreeSet::new(),
+                    runtime_code_warnings,
+                );
+
+                let deploy_object = EVMContractObject::new(
+                    self.name.full_path.clone(),
+                    self.name.clone(),
+                    era_compiler_llvm_context::evm_minimal_deploy_code(
+                        runtime_object.bytecode.len(),
+                    ),
+                    false,
+                    deploy_code_segment,
+                    deploy_code_dependencies,
+                    BTreeSet::new(),
+                    vec![],
+                );
+
+                Ok(EVMContractBuild::new(
+                    self.name,
+                    Some(deploy_object),
+                    Some(runtime_object),
+                    metadata_hash,
+                    metadata,
+                ))
+            }
         }
     }
 

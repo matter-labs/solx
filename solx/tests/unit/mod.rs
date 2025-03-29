@@ -4,7 +4,7 @@
 
 mod ir_artifacts;
 mod libraries;
-// mod linker; TODO: Fix the linker
-// mod optimizer; TODO: Fix stack-too-deep
+// mod linker; TODO: Fix the deploy-time linker
+mod optimizer;
 mod remappings;
 mod standard_json;

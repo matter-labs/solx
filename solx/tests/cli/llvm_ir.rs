@@ -12,9 +12,7 @@ fn default(path: &str) -> anyhow::Result<()> {
     let args = &[path, "--llvm-ir", "--bin"];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .failure()
-        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
+    result.success().stdout(predicate::str::contains("Binary"));
 
     Ok(())
 }
@@ -28,7 +26,7 @@ fn invalid_input_text() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result
         .failure()
-        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
+        .stderr(predicate::str::contains("error: expected top-level entity"));
 
     Ok(())
 }
@@ -45,7 +43,7 @@ fn invalid_input_solidity() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result
         .failure()
-        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
+        .stderr(predicate::str::contains("error: expected top-level entity"));
 
     Ok(())
 }
@@ -61,9 +59,9 @@ fn invalid_input_llvm_ir() -> anyhow::Result<()> {
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .failure()
-        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
+    result.failure().stderr(predicate::str::contains(
+        "error: use of undefined value \'%runtime\'",
+    ));
 
     Ok(())
 }
@@ -93,9 +91,9 @@ fn linker_error() -> anyhow::Result<()> {
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .failure()
-        .stderr(predicate::str::contains("LLVM IR is not supported yet."));
+    result.failure().stderr(predicate::str::contains(
+        "unable to evaluate offset to undefined symbol 'foo'",
+    ));
 
     Ok(())
 }
@@ -128,9 +126,9 @@ fn standard_json_invalid() -> anyhow::Result<()> {
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stdout(predicate::str::contains("LLVM IR is not supported yet."));
+    result.success().stdout(predicate::str::contains(
+        "error: use of undefined value '%runtime'",
+    ));
 
     Ok(())
 }

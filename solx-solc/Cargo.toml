@@ -20,5 +20,5 @@ libc = "=0.2.171"
 hex = "=0.4.3"
 num = "=0.4.3"
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "evm-llvmit-tests" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }

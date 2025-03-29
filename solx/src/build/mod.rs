@@ -247,7 +247,7 @@ impl Build {
                             .as_ref()
                             .map(|object| {
                                 object
-                                    .errors
+                                    .warnings
                                     .iter()
                                     .map(|error| (build.name.full_path.as_str(), error).into())
                                     .collect::<Vec<solx_solc::StandardJsonOutputError>>()
@@ -260,7 +260,7 @@ impl Build {
                             .as_ref()
                             .map(|object| {
                                 object
-                                    .errors
+                                    .warnings
                                     .iter()
                                     .map(|error| (build.name.full_path.as_str(), error).into())
                                     .collect::<Vec<solx_solc::StandardJsonOutputError>>()
@@ -318,12 +318,40 @@ impl solx_solc::CollectableError for Build {
     }
 
     fn take_warnings(&mut self) -> Vec<solx_solc::StandardJsonOutputError> {
-        let warnings = self
+        let mut warnings: Vec<solx_solc::StandardJsonOutputError> = self
             .messages
             .iter()
             .filter(|message| message.severity == "warning")
             .cloned()
             .collect();
+        for contract in self.results.values_mut().flatten() {
+            warnings.extend(
+                contract
+                    .deploy_object
+                    .as_ref()
+                    .map(|object| {
+                        object
+                            .warnings
+                            .iter()
+                            .map(|error| (contract.name.full_path.as_str(), error).into())
+                            .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                    })
+                    .unwrap_or_default(),
+            );
+            warnings.extend(
+                contract
+                    .runtime_object
+                    .as_ref()
+                    .map(|object| {
+                        object
+                            .warnings
+                            .iter()
+                            .map(|error| (contract.name.full_path.as_str(), error).into())
+                            .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                    })
+                    .unwrap_or_default(),
+            );
+        }
         self.messages
             .retain(|message| message.severity != "warning");
         warnings
