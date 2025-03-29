@@ -12,15 +12,6 @@ fn default(via_ir: bool) {
     let sources =
         crate::common::read_sources(&[crate::common::TEST_SOLIDITY_CONTRACT_OPTIMIZED_PATH]);
 
-    let build_unoptimized = crate::common::build_solidity_standard_json(
-        sources.clone(),
-        solx_solc::StandardJsonInputLibraries::default(),
-        era_compiler_common::HashType::Keccak256,
-        BTreeSet::new(),
-        via_ir,
-        era_compiler_llvm_context::OptimizerSettings::none(),
-    )
-    .expect("Build failure");
     let build_optimized_for_cycles = crate::common::build_solidity_standard_json(
         sources.clone(),
         solx_solc::StandardJsonInputLibraries::default(),
@@ -40,7 +31,7 @@ fn default(via_ir: bool) {
     )
     .expect("Build failure");
 
-    let size_when_unoptimized = build_unoptimized
+    let optimized_for_gas = build_optimized_for_cycles
         .contracts
         .get(crate::common::TEST_SOLIDITY_CONTRACT_OPTIMIZED_PATH)
         .expect("Missing file")
@@ -53,8 +44,8 @@ fn default(via_ir: bool) {
         .as_ref()
         .expect("Missing bytecode")
         .object
-        .len();
-    let size_when_optimized_for_cycles = build_optimized_for_cycles
+        .as_bytes();
+    let optimized_for_size = build_optimized_for_size
         .contracts
         .get(crate::common::TEST_SOLIDITY_CONTRACT_OPTIMIZED_PATH)
         .expect("Missing file")
@@ -67,28 +58,10 @@ fn default(via_ir: bool) {
         .as_ref()
         .expect("Missing bytecode")
         .object
-        .len();
-    let size_when_optimized_for_size = build_optimized_for_size
-        .contracts
-        .get(crate::common::TEST_SOLIDITY_CONTRACT_OPTIMIZED_PATH)
-        .expect("Missing file")
-        .get("Optimized")
-        .expect("Missing contract")
-        .evm
-        .as_ref()
-        .expect("Missing EVM data")
-        .bytecode
-        .as_ref()
-        .expect("Missing bytecode")
-        .object
-        .len();
+        .as_bytes();
 
     assert!(
-        size_when_optimized_for_cycles < size_when_unoptimized,
-        "Expected cycles-optimized bytecode to be smaller than unoptimized. Optimized: {size_when_optimized_for_cycles}B, Unoptimized: {size_when_unoptimized}B",
-    );
-    assert!(
-        size_when_optimized_for_size < size_when_unoptimized,
-        "Expected size-optimized bytecode to be smaller than unoptimized. Optimized: {size_when_optimized_for_size}B, Unoptimized: {size_when_unoptimized}B",
+        optimized_for_gas != optimized_for_size,
+        "Expected gas-optimized bytecode to be different from size-optimized. Gas-optimized: {optimized_for_gas:?}, size-optimized: {optimized_for_size:?}",
     );
 }

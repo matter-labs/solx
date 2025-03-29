@@ -29,8 +29,8 @@ pub struct Object {
     pub is_assembled: bool,
     /// Binary object format.
     pub format: era_compiler_common::ObjectFormat,
-    /// Compilation errors.
-    pub errors: Vec<era_compiler_llvm_context::EVMWarning>,
+    /// Compilation warnings.
+    pub warnings: Vec<era_compiler_llvm_context::EVMWarning>,
 }
 
 impl Object {
@@ -45,7 +45,7 @@ impl Object {
         code_segment: era_compiler_common::CodeSegment,
         dependencies: solx_yul::Dependencies,
         unlinked_libraries: BTreeSet<String>,
-        errors: Vec<era_compiler_llvm_context::EVMWarning>,
+        warnings: Vec<era_compiler_llvm_context::EVMWarning>,
     ) -> Self {
         Self {
             identifier,
@@ -57,7 +57,7 @@ impl Object {
             unlinked_libraries,
             is_assembled: false,
             format: era_compiler_common::ObjectFormat::ELF,
-            errors,
+            warnings,
         }
     }
 
