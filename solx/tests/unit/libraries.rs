@@ -14,7 +14,7 @@ fn not_specified(via_ir: bool) {
 
     let output = crate::common::build_solidity_standard_json(
         sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        era_compiler_common::Libraries::default(),
         era_compiler_common::HashType::Ipfs,
         BTreeSet::new(),
         via_ir,
@@ -53,7 +53,7 @@ fn specified(via_ir: bool) {
     let sources =
         crate::common::read_sources(&[crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH]);
 
-    let mut libraries = solx_solc::StandardJsonInputLibraries::default();
+    let mut libraries = era_compiler_common::Libraries::default();
     libraries
         .as_inner_mut()
         .entry(crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH.to_string())

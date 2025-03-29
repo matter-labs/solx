@@ -52,7 +52,7 @@ pub fn yul_to_evm(
     llvm_options: Vec<String>,
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
-    let libraries = solx_solc::StandardJsonInputLibraries::try_from(libraries)?;
+    let libraries = era_compiler_common::Libraries::try_from(libraries)?;
     let output_selection =
         solx_solc::StandardJsonInputSelection::new(output_bytecode, output_metadata, Some(true));
     let linker_symbols = libraries.as_linker_symbols()?;
@@ -99,7 +99,7 @@ pub fn llvm_ir_to_evm(
     llvm_options: Vec<String>,
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
-    let libraries = solx_solc::StandardJsonInputLibraries::try_from(libraries)?;
+    let libraries = era_compiler_common::Libraries::try_from(libraries)?;
     let output_selection =
         solx_solc::StandardJsonInputSelection::new(output_bytecode, output_metadata, None);
     let linker_symbols = libraries.as_linker_symbols()?;

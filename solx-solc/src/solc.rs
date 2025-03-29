@@ -6,7 +6,6 @@ use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::PathBuf;
 
-use crate::standard_json::input::settings::libraries::Libraries as StandardJsonInputSettingsLibraries;
 use crate::standard_json::input::settings::optimizer::Optimizer as StandardJsonInputSettingsOptimizer;
 use crate::standard_json::input::Input as StandardJsonInput;
 use crate::standard_json::output::error::Error as StandardJsonOutputError;
@@ -158,7 +157,7 @@ impl Compiler {
     pub fn validate_yul_paths(
         &self,
         paths: &[PathBuf],
-        libraries: StandardJsonInputSettingsLibraries,
+        libraries: era_compiler_common::Libraries,
         messages: &mut Vec<StandardJsonOutputError>,
     ) -> anyhow::Result<StandardJsonOutput> {
         let mut solc_input = StandardJsonInput::from_yul_paths(

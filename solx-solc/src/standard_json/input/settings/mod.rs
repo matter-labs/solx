@@ -2,14 +2,12 @@
 //! The `solc --standard-json` input settings.
 //!
 
-pub mod libraries;
 pub mod metadata;
 pub mod optimizer;
 pub mod selection;
 
 use std::collections::BTreeSet;
 
-use self::libraries::Libraries;
 use self::metadata::Metadata;
 use self::optimizer::Optimizer;
 use self::selection::Selection;
@@ -25,8 +23,11 @@ pub struct Settings {
     pub optimizer: Optimizer,
 
     /// The linker library addresses.
-    #[serde(default, skip_serializing_if = "Libraries::is_empty")]
-    pub libraries: Libraries,
+    #[serde(
+        default,
+        skip_serializing_if = "era_compiler_common::Libraries::is_empty"
+    )]
+    pub libraries: era_compiler_common::Libraries,
     /// The sorted list of remappings.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub remappings: BTreeSet<String>,
@@ -61,7 +62,7 @@ impl Settings {
     pub fn new(
         optimizer: Optimizer,
 
-        libraries: Libraries,
+        libraries: era_compiler_common::Libraries,
         remappings: BTreeSet<String>,
 
         evm_version: Option<era_compiler_common::EVMVersion>,

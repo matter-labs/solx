@@ -12,7 +12,7 @@ fn evmla() {
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        era_compiler_common::Libraries::default(),
         era_compiler_common::HashType::Ipfs,
         BTreeSet::new(),
         false,
@@ -52,7 +52,7 @@ fn yul() {
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        era_compiler_common::Libraries::default(),
         era_compiler_common::HashType::Ipfs,
         BTreeSet::new(),
         true,
@@ -95,7 +95,7 @@ fn yul_empty_solidity_interface() {
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        era_compiler_common::Libraries::default(),
         era_compiler_common::HashType::Ipfs,
         BTreeSet::new(),
         true,

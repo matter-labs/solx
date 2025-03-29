@@ -499,7 +499,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "era-compiler-common"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-common?branch=main#77b91f04ea028e0f94511b24ea4f43bdc335a58e"
+source = "git+https://github.com/matter-labs/era-compiler-common?branch=evm-llvmit-tests#698050e8a46040151b1b1d874044bcff616b8502"
 dependencies = [
  "anyhow",
  "base58",
@@ -515,7 +515,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=evm-llvmit-tests#10a22f2fa643eb603a34d6625c49188cc1c4b916"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=evm-llvmit-tests#e90f10a15f8dec74a9a38122029182db02e77250"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -985,9 +985,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.2"
+version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2806eaa3524762875e21c3dcd057bc4b7bfa01ce4da8d46be1cd43649e1cc6b"
+checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "opaque-debug"

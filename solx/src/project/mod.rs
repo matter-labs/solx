@@ -36,7 +36,7 @@ pub struct Project {
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
     /// The library addresses.
-    pub libraries: solx_solc::StandardJsonInputLibraries,
+    pub libraries: era_compiler_common::Libraries,
 }
 
 impl Project {
@@ -46,7 +46,7 @@ impl Project {
     pub fn new(
         language: solx_solc::StandardJsonInputLanguage,
         contracts: BTreeMap<String, Contract>,
-        libraries: solx_solc::StandardJsonInputLibraries,
+        libraries: era_compiler_common::Libraries,
     ) -> Self {
         let mut identifier_paths = BTreeMap::new();
         for (path, contract) in contracts.iter() {
@@ -66,7 +66,7 @@ impl Project {
     /// Parses the Solidity `sources` and returns a Solidity project.
     ///
     pub fn try_from_solc_output(
-        libraries: solx_solc::StandardJsonInputLibraries,
+        libraries: era_compiler_common::Libraries,
         via_ir: bool,
         solc_output: &mut solx_solc::StandardJsonOutput,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
@@ -129,7 +129,7 @@ impl Project {
     ///
     pub fn try_from_yul_paths(
         paths: &[PathBuf],
-        libraries: solx_solc::StandardJsonInputLibraries,
+        libraries: era_compiler_common::Libraries,
         output_selection: solx_solc::StandardJsonInputSelection,
         solc_output: Option<&mut solx_solc::StandardJsonOutput>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
@@ -155,7 +155,7 @@ impl Project {
     ///
     pub fn try_from_yul_sources(
         sources: BTreeMap<String, solx_solc::StandardJsonInputSource>,
-        libraries: solx_solc::StandardJsonInputLibraries,
+        libraries: era_compiler_common::Libraries,
         output_selection: solx_solc::StandardJsonInputSelection,
         mut solc_output: Option<&mut solx_solc::StandardJsonOutput>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
@@ -225,7 +225,7 @@ impl Project {
     ///
     pub fn try_from_llvm_ir_paths(
         paths: &[PathBuf],
-        libraries: solx_solc::StandardJsonInputLibraries,
+        libraries: era_compiler_common::Libraries,
         output_selection: solx_solc::StandardJsonInputSelection,
         solc_output: Option<&mut solx_solc::StandardJsonOutput>,
     ) -> anyhow::Result<Self> {
@@ -244,7 +244,7 @@ impl Project {
     ///
     pub fn try_from_llvm_ir_sources(
         sources: BTreeMap<String, solx_solc::StandardJsonInputSource>,
-        libraries: solx_solc::StandardJsonInputLibraries,
+        libraries: era_compiler_common::Libraries,
         output_selection: solx_solc::StandardJsonInputSelection,
         mut solc_output: Option<&mut solx_solc::StandardJsonOutput>,
     ) -> anyhow::Result<Self> {

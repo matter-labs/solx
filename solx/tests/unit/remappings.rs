@@ -19,7 +19,7 @@ fn default(via_ir: bool) {
 
     crate::common::build_solidity_standard_json(
         sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        era_compiler_common::Libraries::default(),
         era_compiler_common::HashType::Keccak256,
         remappings,
         via_ir,

@@ -55,7 +55,7 @@ pub fn read_sources(paths: &[&str]) -> BTreeMap<String, String> {
 ///
 pub fn build_solidity_standard_json(
     sources: BTreeMap<String, String>,
-    libraries: solx_solc::StandardJsonInputLibraries,
+    libraries: era_compiler_common::Libraries,
     metadata_hash_type: era_compiler_common::HashType,
     remappings: BTreeSet<String>,
     via_ir: bool,
@@ -138,7 +138,7 @@ pub fn build_yul_standard_json(
 
     let project = Project::try_from_yul_sources(
         solc_input.sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        era_compiler_common::Libraries::default(),
         solc_input.settings.output_selection,
         Some(&mut solc_output),
         None,
