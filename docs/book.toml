@@ -1,0 +1,12 @@
+[book]
+authors = [
+    "Oleksandr Zarudnyi",
+]
+language = "en"
+multilingual = false
+src = "src"
+title = "SolX Compiler Documentation"
+
+[output.html]
+additional-js = ["js/version-box.js"]
+additional-css = ["css/version-box.css"]
