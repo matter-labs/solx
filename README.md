@@ -7,7 +7,7 @@
 **solx** is a new optimizing compiler for EVM developed by [Matter Labs](https://matter-labs.io/).
 
 > [!WARNING]  
-> **solx** is in pre-alpha state and not suitable for production use.
+> The project is in pre-alpha state and not suitable for production use.
 
 **solx** passes [our test suite](https://github.com/matter-labs/era-compiler-tester), which includes:
 
