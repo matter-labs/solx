@@ -71,8 +71,8 @@ To build the book, follow the [instructions](./docs/README.md).
 
 See also:
 
-[Solidity Documentation](https://docs.soliditylang.org/en/latest/)
-[LLVM Documentation](https://llvm.org/docs/)
+- [Solidity Documentation](https://docs.soliditylang.org/en/latest/)
+- [LLVM Documentation](https://llvm.org/docs/)
 
 ## Testing
 
