@@ -1,7 +1,7 @@
 ; ModuleID = 'Test'
 source_filename = "Test"
-target datalayout = "E-p:256:256-i256:256:256-S32-a:256:256"
-target triple = "eravm"
+target datalayout = "E-p:256:256-i256:256:256-S256-a:256:256"
+target triple = "evm"
 
 @calldatasize = private unnamed_addr global i256 0
 @ptr_calldata = private unnamed_addr global i8 addrspace(3)* null
