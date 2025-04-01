@@ -139,22 +139,22 @@ impl Contract {
     ///
     pub fn write_to_standard_json(
         self,
-        standard_json_contract: &mut solx_solc::StandardJsonOutputContract,
+        standard_json_contract: &mut solx_standard_json::OutputContract,
     ) -> anyhow::Result<()> {
         standard_json_contract.metadata = self.metadata;
 
         let evm = standard_json_contract
             .evm
-            .get_or_insert_with(solx_solc::StandardJsonOutputContractEVM::default);
+            .get_or_insert_with(solx_standard_json::OutputContractEVM::default);
         evm.bytecode = self.deploy_object.map(|object| {
-            solx_solc::StandardJsonOutputContractEVMBytecode::new(
+            solx_standard_json::OutputContractEVMBytecode::new(
                 hex::encode(object.bytecode),
                 object.unlinked_libraries,
                 object.format,
             )
         });
         evm.deployed_bytecode = self.runtime_object.map(|object| {
-            solx_solc::StandardJsonOutputContractEVMBytecode::new(
+            solx_standard_json::OutputContractEVMBytecode::new(
                 hex::encode(object.bytecode),
                 object.unlinked_libraries,
                 object.format,

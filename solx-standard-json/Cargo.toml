@@ -1,0 +1,20 @@
+[package]
+name = "solx-standard-json"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+version.workspace = true
+description = "Standard JSON protocol for solx"
+
+[lib]
+doctest = false
+
+[dependencies]
+anyhow = "=1.0.89"
+rayon = "=1.10.0"
+serde = { version = "=1.0.210", "features" = [ "derive" ] }
+serde_json = { version = "=1.0.128", features = [ "arbitrary_precision" ] }
+num = "=0.4.3"
+
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "evm-llvmit-tests" }
+era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "evm-llvmit-tests" }

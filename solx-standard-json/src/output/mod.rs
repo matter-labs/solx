@@ -9,8 +9,8 @@ pub mod source;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
-use crate::standard_json::input::settings::selection::selector::Selector as StandardJSONInputSettingsSelector;
-use crate::standard_json::input::source::Source as StandardJSONInputSource;
+use crate::input::settings::selection::selector::Selector as InputSettingsSelector;
+use crate::input::source::Source as InputSource;
 
 use self::contract::Contract;
 use self::error::collectable::Collectable as CollectableError;
@@ -41,7 +41,7 @@ impl Output {
     /// Is used for projects compiled without `solc`.
     ///
     pub fn new(
-        sources: &BTreeMap<String, StandardJSONInputSource>,
+        sources: &BTreeMap<String, InputSource>,
         messages: &mut Vec<JsonOutputError>,
     ) -> Self {
         let sources = sources
@@ -73,21 +73,18 @@ impl Output {
     ///
     /// Prunes the output JSON and prints it to stdout.
     ///
-    pub fn write_and_exit(
-        mut self,
-        selection_to_prune: BTreeSet<StandardJSONInputSettingsSelector>,
-    ) -> ! {
+    pub fn write_and_exit(mut self, selection_to_prune: BTreeSet<InputSettingsSelector>) -> ! {
         let contracts = self
             .contracts
             .values_mut()
             .flat_map(|contracts| contracts.values_mut())
             .collect::<Vec<&mut Contract>>();
         for contract in contracts.into_iter() {
-            if selection_to_prune.contains(&StandardJSONInputSettingsSelector::Yul) {
+            if selection_to_prune.contains(&InputSettingsSelector::Yul) {
                 contract.ir_optimized = String::new();
             }
             if let Some(ref mut evm) = contract.evm {
-                if selection_to_prune.contains(&StandardJSONInputSettingsSelector::EVMLA) {
+                if selection_to_prune.contains(&InputSettingsSelector::EVMLA) {
                     evm.legacy_assembly = serde_json::Value::Null;
                 }
             }

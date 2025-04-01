@@ -92,7 +92,7 @@ impl Function {
         &mut self,
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_solc::StandardJsonOutputContractEVMExtraMetadata,
+        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
     ) -> anyhow::Result<()> {
         let mut visited_blocks = BTreeSet::new();
@@ -163,7 +163,7 @@ impl Function {
         &mut self,
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_solc::StandardJsonOutputContractEVMExtraMetadata,
+        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         visited_blocks: &mut BTreeSet<VisitedElement>,
         mut queue_element: QueueElement,
@@ -241,7 +241,7 @@ impl Function {
     fn handle_instruction(
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_solc::StandardJsonOutputContractEVMExtraMetadata,
+        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         code_segment: era_compiler_common::CodeSegment,
         instance: usize,
@@ -1029,10 +1029,10 @@ impl Function {
     /// Handles the recursive function call.
     ///
     fn handle_recursive_function_call(
-        recursive_function: &solx_solc::StandardJsonOutputContractEVMExtraMetadataRecursiveFunction,
+        recursive_function: &solx_standard_json::OutputContractEVMExtraMetadataRecursiveFunction,
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_solc::StandardJsonOutputContractEVMExtraMetadata,
+        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         block_key: era_compiler_llvm_context::BlockKey,
         block_stack: &mut Stack,

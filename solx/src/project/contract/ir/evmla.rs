@@ -19,7 +19,7 @@ impl EVMLA {
     ///
     /// Transforms the `solc` standard JSON output contract into an EVM legacy assembly object.
     ///
-    pub fn try_from_contract(contract: &solx_solc::StandardJsonOutputContract) -> Option<Self> {
+    pub fn try_from_contract(contract: &solx_standard_json::OutputContract) -> Option<Self> {
         let evm = contract.evm.as_ref()?;
 
         let mut assembly: Assembly = serde_json::from_value(evm.legacy_assembly.to_owned()).ok()?;

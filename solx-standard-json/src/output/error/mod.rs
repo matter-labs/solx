@@ -8,7 +8,7 @@ pub mod source_location;
 
 use std::collections::BTreeMap;
 
-use crate::standard_json::input::source::Source as StandardJsonInputSource;
+use crate::input::source::Source as InputSource;
 
 use self::mapped_location::MappedLocation;
 use self::source_location::SourceLocation;
@@ -49,7 +49,7 @@ impl Error {
         error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
-        sources: Option<&BTreeMap<String, StandardJsonInputSource>>,
+        sources: Option<&BTreeMap<String, InputSource>>,
     ) -> Self
     where
         S: std::fmt::Display,
@@ -93,7 +93,7 @@ impl Error {
         error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
-        sources: Option<&BTreeMap<String, StandardJsonInputSource>>,
+        sources: Option<&BTreeMap<String, InputSource>>,
     ) -> Self
     where
         S: std::fmt::Display,
@@ -108,7 +108,7 @@ impl Error {
         error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
-        sources: Option<&BTreeMap<String, StandardJsonInputSource>>,
+        sources: Option<&BTreeMap<String, InputSource>>,
     ) -> Self
     where
         S: std::fmt::Display,

@@ -2,6 +2,7 @@
 members = [
     "solx",
     "solx-yul",
+    "solx-standard-json",
     "solx-solc",
 ]
 resolver = "2"
@@ -12,4 +13,4 @@ authors = [
 ]
 license = "GPL-3.0"
 edition = "2021"
-version = "1.0.0"
+version = "0.1.0-alpha.1"

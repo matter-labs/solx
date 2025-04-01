@@ -15,9 +15,9 @@ use rayon::iter::IntoParallelIterator;
 use rayon::iter::IntoParallelRefMutIterator;
 use rayon::iter::ParallelIterator;
 
-use crate::standard_json::input::settings::metadata::Metadata as StandardJsonInputSettingsMetadata;
-use crate::standard_json::input::settings::optimizer::Optimizer as StandardJsonInputSettingsOptimizer;
-use crate::standard_json::input::settings::selection::Selection as StandardJsonInputSettingsSelection;
+use crate::input::settings::metadata::Metadata as InputSettingsMetadata;
+use crate::input::settings::optimizer::Optimizer as InputSettingsOptimizer;
+use crate::input::settings::selection::Selection as InputSettingsSelection;
 
 use self::language::Language;
 use self::settings::Settings;
@@ -61,11 +61,11 @@ impl Input {
         paths: &[PathBuf],
         libraries: &[String],
         remappings: BTreeSet<String>,
-        optimizer: StandardJsonInputSettingsOptimizer,
+        optimizer: InputSettingsOptimizer,
         evm_version: Option<era_compiler_common::EVMVersion>,
         via_ir: bool,
-        output_selection: StandardJsonInputSettingsSelection,
-        metadata: StandardJsonInputSettingsMetadata,
+        output_selection: InputSettingsSelection,
+        metadata: InputSettingsMetadata,
         llvm_options: Vec<String>,
     ) -> anyhow::Result<Self> {
         let mut paths: BTreeSet<PathBuf> = paths.iter().cloned().collect();
@@ -102,11 +102,11 @@ impl Input {
         sources: BTreeMap<String, Source>,
         libraries: era_compiler_common::Libraries,
         remappings: BTreeSet<String>,
-        optimizer: StandardJsonInputSettingsOptimizer,
+        optimizer: InputSettingsOptimizer,
         evm_version: Option<era_compiler_common::EVMVersion>,
         via_ir: bool,
-        output_selection: StandardJsonInputSettingsSelection,
-        metadata: StandardJsonInputSettingsMetadata,
+        output_selection: InputSettingsSelection,
+        metadata: InputSettingsMetadata,
         llvm_options: Vec<String>,
     ) -> anyhow::Result<Self> {
         Ok(Self {
@@ -131,7 +131,7 @@ impl Input {
     pub fn from_yul_sources(
         sources: BTreeMap<String, Source>,
         libraries: era_compiler_common::Libraries,
-        optimizer: StandardJsonInputSettingsOptimizer,
+        optimizer: InputSettingsOptimizer,
         llvm_options: Vec<String>,
     ) -> Self {
         Self {
@@ -143,8 +143,8 @@ impl Input {
                 BTreeSet::new(),
                 None,
                 false,
-                StandardJsonInputSettingsSelection::default(),
-                StandardJsonInputSettingsMetadata::default(),
+                InputSettingsSelection::default(),
+                InputSettingsMetadata::default(),
                 llvm_options,
             ),
         }
@@ -156,7 +156,7 @@ impl Input {
     pub fn from_yul_paths(
         paths: &[PathBuf],
         libraries: era_compiler_common::Libraries,
-        optimizer: StandardJsonInputSettingsOptimizer,
+        optimizer: InputSettingsOptimizer,
         llvm_options: Vec<String>,
     ) -> Self {
         let sources = paths

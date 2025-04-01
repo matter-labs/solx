@@ -49,7 +49,7 @@ impl EtherealIR {
     ///
     pub fn new(
         solc_version: semver::Version,
-        extra_metadata: solx_solc::StandardJsonOutputContractEVMExtraMetadata,
+        extra_metadata: solx_standard_json::OutputContractEVMExtraMetadata,
         code_segment: Option<era_compiler_common::CodeSegment>,
         blocks: HashMap<era_compiler_llvm_context::BlockKey, Block>,
     ) -> anyhow::Result<Self> {

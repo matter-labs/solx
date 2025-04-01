@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use std::io::Write;
 use std::path::Path;
 
-use solx_solc::CollectableError;
+use solx_standard_json::CollectableError;
 
 use self::contract::object::Object as ContractObject;
 use self::contract::Contract;
@@ -19,9 +19,9 @@ use self::contract::Contract;
 #[derive(Debug, Default)]
 pub struct Build {
     /// The contract data,
-    pub results: BTreeMap<String, Result<Contract, solx_solc::StandardJsonOutputError>>,
+    pub results: BTreeMap<String, Result<Contract, solx_standard_json::OutputError>>,
     /// The additional message to output.
-    pub messages: Vec<solx_solc::StandardJsonOutputError>,
+    pub messages: Vec<solx_standard_json::OutputError>,
 }
 
 impl Build {
@@ -29,8 +29,8 @@ impl Build {
     /// A shortcut constructor.
     ///
     pub fn new(
-        results: BTreeMap<String, Result<Contract, solx_solc::StandardJsonOutputError>>,
-        messages: &mut Vec<solx_solc::StandardJsonOutputError>,
+        results: BTreeMap<String, Result<Contract, solx_standard_json::OutputError>>,
+        messages: &mut Vec<solx_standard_json::OutputError>,
     ) -> Self {
         Self {
             results,
@@ -124,7 +124,7 @@ impl Build {
                         Ok(assembled_object) => assembled_object,
                         Err(error) => {
                             self.messages
-                                .push(solx_solc::StandardJsonOutputError::new_error(
+                                .push(solx_standard_json::OutputError::new_error(
                                     None, error, None, None,
                                 ));
                             continue;
@@ -170,7 +170,7 @@ impl Build {
                         Ok((linked_object, object_format)) => (linked_object, object_format),
                         Err(error) => {
                             self.messages
-                                .push(solx_solc::StandardJsonOutputError::new_error(
+                                .push(solx_standard_json::OutputError::new_error(
                                     None, error, None, None,
                                 ));
                             continue;
@@ -235,7 +235,7 @@ impl Build {
     ///
     pub fn write_to_standard_json(
         self,
-        standard_json: &mut solx_solc::StandardJsonOutput,
+        standard_json: &mut solx_standard_json::Output,
     ) -> anyhow::Result<()> {
         let mut errors = Vec::with_capacity(self.results.len());
         for result in self.results.into_values() {
@@ -250,7 +250,7 @@ impl Build {
                                     .warnings
                                     .iter()
                                     .map(|error| (build.name.full_path.as_str(), error).into())
-                                    .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                                    .collect::<Vec<solx_standard_json::OutputError>>()
                             })
                             .unwrap_or_default(),
                     );
@@ -263,7 +263,7 @@ impl Build {
                                     .warnings
                                     .iter()
                                     .map(|error| (build.name.full_path.as_str(), error).into())
-                                    .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                                    .collect::<Vec<solx_standard_json::OutputError>>()
                             })
                             .unwrap_or_default(),
                     );
@@ -290,7 +290,7 @@ impl Build {
                         .contracts
                         .entry(name.path.clone())
                         .or_default();
-                    let mut contract = solx_solc::StandardJsonOutputContract::default();
+                    let mut contract = solx_standard_json::OutputContract::default();
                     build.write_to_standard_json(&mut contract)?;
                     contracts.insert(name.name.unwrap_or(name.path), contract);
                 }
@@ -302,9 +302,9 @@ impl Build {
     }
 }
 
-impl solx_solc::CollectableError for Build {
-    fn errors(&self) -> Vec<&solx_solc::StandardJsonOutputError> {
-        let mut errors: Vec<&solx_solc::StandardJsonOutputError> = self
+impl solx_standard_json::CollectableError for Build {
+    fn errors(&self) -> Vec<&solx_standard_json::OutputError> {
+        let mut errors: Vec<&solx_standard_json::OutputError> = self
             .results
             .values()
             .filter_map(|build| build.as_ref().err())
@@ -317,8 +317,8 @@ impl solx_solc::CollectableError for Build {
         errors
     }
 
-    fn take_warnings(&mut self) -> Vec<solx_solc::StandardJsonOutputError> {
-        let mut warnings: Vec<solx_solc::StandardJsonOutputError> = self
+    fn take_warnings(&mut self) -> Vec<solx_standard_json::OutputError> {
+        let mut warnings: Vec<solx_standard_json::OutputError> = self
             .messages
             .iter()
             .filter(|message| message.severity == "warning")
@@ -334,7 +334,7 @@ impl solx_solc::CollectableError for Build {
                             .warnings
                             .iter()
                             .map(|error| (contract.name.full_path.as_str(), error).into())
-                            .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                            .collect::<Vec<solx_standard_json::OutputError>>()
                     })
                     .unwrap_or_default(),
             );
@@ -347,7 +347,7 @@ impl solx_solc::CollectableError for Build {
                             .warnings
                             .iter()
                             .map(|error| (contract.name.full_path.as_str(), error).into())
-                            .collect::<Vec<solx_solc::StandardJsonOutputError>>()
+                            .collect::<Vec<solx_standard_json::OutputError>>()
                     })
                     .unwrap_or_default(),
             );

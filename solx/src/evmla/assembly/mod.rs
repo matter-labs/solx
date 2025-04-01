@@ -44,7 +44,7 @@ pub struct Assembly {
     pub factory_dependencies: HashSet<String>,
     /// The EVMLA extra metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub extra_metadata: Option<solx_solc::StandardJsonOutputContractEVMExtraMetadata>,
+    pub extra_metadata: Option<solx_standard_json::OutputContractEVMExtraMetadata>,
 }
 
 impl Assembly {
@@ -164,7 +164,7 @@ impl Assembly {
     /// Replaces with dependency indexes with actual data.
     ///
     pub fn preprocess_dependencies(
-        contracts: &mut BTreeMap<String, BTreeMap<String, solx_solc::StandardJsonOutputContract>>,
+        contracts: &mut BTreeMap<String, BTreeMap<String, solx_standard_json::OutputContract>>,
     ) -> anyhow::Result<()> {
         let mut hash_path_mapping = BTreeMap::new();
 

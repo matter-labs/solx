@@ -1,9 +1,9 @@
 //!
-//! The default build script for `solx`.
+//! The default build script for `solc` libraries used by `solx`.
 //!
 
 ///
-/// Links solc and Boost libraries statically.
+/// Links `solc` and `Boost` libraries statically.
 ///
 fn main() {
     // Re-run if the `Boost` path environment variable is changed.

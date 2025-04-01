@@ -33,14 +33,14 @@ fn main() -> anyhow::Result<()> {
                 .expect("Stderr writing error");
         }
         if let Err(error) = main_inner(arguments, &mut messages) {
-            messages.push(solx_solc::StandardJsonOutputError::new_error(
+            messages.push(solx_standard_json::OutputError::new_error(
                 None, error, None, None,
             ));
         }
     }
 
     if is_standard_json {
-        let output = solx_solc::StandardJsonOutput::new_with_messages(messages);
+        let output = solx_standard_json::Output::new_with_messages(messages);
         output.write_and_exit(BTreeSet::new());
     }
 
@@ -67,7 +67,7 @@ fn main() -> anyhow::Result<()> {
 ///
 fn main_inner(
     arguments: Arguments,
-    messages: &mut Vec<solx_solc::StandardJsonOutputError>,
+    messages: &mut Vec<solx_standard_json::OutputError>,
 ) -> anyhow::Result<()> {
     if arguments.version {
         let solc = solx_solc::Compiler::default();

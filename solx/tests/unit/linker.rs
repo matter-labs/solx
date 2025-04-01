@@ -10,7 +10,7 @@ use test_case::test_case;
 fn get_bytecode(
     path: &str,
     name: &str,
-    libraries: solx_solc::StandardJsonInputLibraries,
+    libraries: solx_standard_json::InputLibraries,
     version: &semver::Version,
     via_ir: bool,
 ) -> Vec<u8> {
@@ -49,7 +49,7 @@ fn library_not_passed_compile_time(via_ir: bool) {
     let bytecode = get_bytecode(
         crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH,
         "SimpleContract",
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
     );
@@ -71,7 +71,7 @@ fn library_not_passed_post_compile_time(via_ir: bool) {
     let bytecode = get_bytecode(
         crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH,
         "SimpleContract",
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
     );
@@ -95,7 +95,7 @@ fn library_not_passed_post_compile_time(via_ir: bool) {
 fn library_passed_compile_time(via_ir: bool) {
     let libraries =
         vec!["tests/data/contracts/solidity/SimpleContract.sol:SimpleLibrary=0x1234567890abcdef1234567890abcdef12345678".to_owned()];
-    let libraries = solx_solc::StandardJsonInputLibraries::try_from(libraries.as_slice())
+    let libraries = solx_standard_json::InputLibraries::try_from(libraries.as_slice())
         .expect("Always valid");
 
     let bytecode = get_bytecode(
@@ -123,7 +123,7 @@ fn library_passed_post_compile_time(via_ir: bool) {
     let bytecode = get_bytecode(
         crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH,
         "SimpleContract",
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
     );
@@ -148,7 +148,7 @@ fn library_passed_post_compile_time_second_call(via_ir: bool) {
     let library_arguments =
         vec!["tests/data/contracts/solidity/SimpleContract.sol:SimpleLibrary=0x1234567890abcdef1234567890abcdef12345678".to_owned()];
     let linker_symbols =
-        solx_solc::StandardJsonInputLibraries::try_from(library_arguments.as_slice())
+        solx_standard_json::InputLibraries::try_from(library_arguments.as_slice())
             .expect("Always valid")
             .as_linker_symbols()
             .expect("Always valid");
@@ -156,7 +156,7 @@ fn library_passed_post_compile_time_second_call(via_ir: bool) {
     let bytecode = get_bytecode(
         crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH,
         "SimpleContract",
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
     );
@@ -190,7 +190,7 @@ fn library_passed_post_compile_time_redundant_args(via_ir: bool) {
     let bytecode = get_bytecode(
         crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH,
         "SimpleContract",
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
     );
@@ -215,7 +215,7 @@ fn library_passed_post_compile_time_redundant_args(via_ir: bool) {
 fn library_passed_post_compile_time_non_elf(via_ir: bool) {
     let library_arguments =
         vec!["tests/data/contracts/solidity/SimpleContract.sol:SimpleLibrary=0x1234567890abcdef1234567890abcdef12345678".to_owned()];
-    let libraries = solx_solc::StandardJsonInputLibraries::try_from(library_arguments.as_slice())
+    let libraries = solx_standard_json::InputLibraries::try_from(library_arguments.as_slice())
         .expect("Always valid")
         .as_linker_symbols()
         .expect("Always valid");
@@ -223,7 +223,7 @@ fn library_passed_post_compile_time_non_elf(via_ir: bool) {
     let bytecode = get_bytecode(
         crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH,
         "SimpleContract",
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
     );
@@ -246,7 +246,7 @@ fn library_passed_post_compile_time_non_elf(via_ir: bool) {
 fn library_produce_equal_bytecode_in_both_cases(via_ir: bool) {
     let library_arguments =
         vec!["tests/data/contracts/solidity/SimpleContract.sol:SimpleLibrary=0x1234567890abcdef1234567890abcdef12345678".to_owned()];
-    let libraries = solx_solc::StandardJsonInputLibraries::try_from(library_arguments.as_slice())
+    let libraries = solx_standard_json::InputLibraries::try_from(library_arguments.as_slice())
         .expect("Always valid");
     let linker_symbols = libraries.as_linker_symbols().expect("Always valid");
 
@@ -266,7 +266,7 @@ fn library_produce_equal_bytecode_in_both_cases(via_ir: bool) {
     let bytecode_post_compile_time = get_bytecode(
         crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH,
         "SimpleContract",
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
     );
@@ -322,7 +322,7 @@ fn libraries_passed_post_compile_time_complex(
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         era_compiler_common::HashType::None,
         BTreeSet::new(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
@@ -381,7 +381,7 @@ fn libraries_not_passed_post_compile_time_complex(sources: &[&str], via_ir: bool
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        solx_solc::StandardJsonInputLibraries::default(),
+        solx_standard_json::InputLibraries::default(),
         era_compiler_common::HashType::None,
         BTreeSet::new(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,

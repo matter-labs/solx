@@ -6,10 +6,6 @@ use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::PathBuf;
 
-use crate::standard_json::input::settings::optimizer::Optimizer as StandardJsonInputSettingsOptimizer;
-use crate::standard_json::input::Input as StandardJsonInput;
-use crate::standard_json::output::error::Error as StandardJsonOutputError;
-use crate::standard_json::output::Output as StandardJsonOutput;
 use crate::version::Version;
 
 ///
@@ -58,12 +54,12 @@ impl Compiler {
     ///
     pub fn standard_json(
         &self,
-        input_json: &mut StandardJsonInput,
-        messages: &mut Vec<StandardJsonOutputError>,
+        input_json: &mut solx_standard_json::Input,
+        messages: &mut Vec<solx_standard_json::OutputError>,
         base_path: Option<String>,
         include_paths: Vec<String>,
         allow_paths: Option<String>,
-    ) -> anyhow::Result<StandardJsonOutput> {
+    ) -> anyhow::Result<solx_standard_json::Output> {
         let original_output_selection = input_json.settings.output_selection.to_owned();
 
         input_json.settings.output_selection.retain_solc();
@@ -130,9 +126,10 @@ impl Compiler {
                 .into_owned()
         };
 
-        let mut solc_output = match era_compiler_common::deserialize_from_str::<StandardJsonOutput>(
-            output_string.as_str(),
-        ) {
+        let mut solc_output = match era_compiler_common::deserialize_from_str::<
+            solx_standard_json::Output,
+        >(output_string.as_str())
+        {
             Ok(solc_output) => solc_output,
             Err(error) => {
                 anyhow::bail!("solc standard JSON output parsing: {error:?}");
@@ -143,7 +140,9 @@ impl Compiler {
         solc_output
             .errors
             .retain(|error| match error.error_code.as_deref() {
-                Some(code) => !StandardJsonOutputError::IGNORED_WARNING_CODES.contains(&code),
+                Some(code) => {
+                    !solx_standard_json::OutputError::IGNORED_WARNING_CODES.contains(&code)
+                }
                 None => true,
             });
         solc_output.errors.append(messages);
@@ -158,12 +157,12 @@ impl Compiler {
         &self,
         paths: &[PathBuf],
         libraries: era_compiler_common::Libraries,
-        messages: &mut Vec<StandardJsonOutputError>,
-    ) -> anyhow::Result<StandardJsonOutput> {
-        let mut solc_input = StandardJsonInput::from_yul_paths(
+        messages: &mut Vec<solx_standard_json::OutputError>,
+    ) -> anyhow::Result<solx_standard_json::Output> {
+        let mut solc_input = solx_standard_json::Input::from_yul_paths(
             paths,
             libraries,
-            StandardJsonInputSettingsOptimizer::default(),
+            solx_standard_json::InputOptimizer::default(),
             vec![],
         );
         self.validate_yul_standard_json(&mut solc_input, messages)
@@ -174,9 +173,9 @@ impl Compiler {
     ///
     pub fn validate_yul_standard_json(
         &self,
-        solc_input: &mut StandardJsonInput,
-        messages: &mut Vec<StandardJsonOutputError>,
-    ) -> anyhow::Result<StandardJsonOutput> {
+        solc_input: &mut solx_standard_json::Input,
+        messages: &mut Vec<solx_standard_json::OutputError>,
+    ) -> anyhow::Result<solx_standard_json::Output> {
         solc_input.settings.output_selection.set_ir(true);
         let solc_output = self.standard_json(solc_input, messages, None, vec![], None)?;
         Ok(solc_output)

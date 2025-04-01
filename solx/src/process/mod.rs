@@ -27,7 +27,7 @@ pub fn run() -> anyhow::Result<()> {
         .map_err(|error| anyhow::anyhow!("Stdin parsing error: {error}"))?;
 
     let source_location =
-        solx_solc::StandardJsonOutputErrorSourceLocation::new(input.contract.name.path.clone());
+        solx_standard_json::OutputErrorSourceLocation::new(input.contract.name.path.clone());
 
     let result = Builder::new()
         .stack_size(crate::WORKER_THREAD_STACK_SIZE)
@@ -45,7 +45,7 @@ pub fn run() -> anyhow::Result<()> {
                 )
                 .map(EVMOutput::new)
                 .map_err(|error| {
-                    solx_solc::StandardJsonOutputError::new_error(
+                    solx_standard_json::OutputError::new_error(
                         None,
                         error,
                         Some(source_location),
@@ -110,10 +110,10 @@ where
             String::from_utf8_lossy(result.stdout.as_slice()),
             String::from_utf8_lossy(result.stderr.as_slice()),
         );
-        return Err(solx_solc::StandardJsonOutputError::new_error(
+        return Err(solx_standard_json::OutputError::new_error(
             None,
             message,
-            Some(solx_solc::StandardJsonOutputErrorSourceLocation::new(
+            Some(solx_standard_json::OutputErrorSourceLocation::new(
                 path.to_owned(),
             )),
             None,
