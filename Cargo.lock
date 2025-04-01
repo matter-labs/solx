@@ -1542,6 +1542,7 @@ dependencies = [
  "era-compiler-llvm-context",
  "num",
  "rayon",
+ "semver",
  "serde",
  "serde_json",
 ]

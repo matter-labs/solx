@@ -30,7 +30,7 @@ pub struct Project {
     /// The project language.
     pub language: solx_standard_json::InputLanguage,
     /// The `solc` compiler version.
-    pub solc_version: solx_solc::Version,
+    pub solc_version: solx_standard_json::Version,
     /// The project build results.
     pub contracts: BTreeMap<String, Contract>,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.

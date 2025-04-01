@@ -11,6 +11,7 @@
 
 pub mod input;
 pub mod output;
+pub mod version;
 
 pub use self::input::language::Language as InputLanguage;
 pub use self::input::settings::metadata::Metadata as InputMetadata;
@@ -29,3 +30,4 @@ pub use self::output::error::collectable::Collectable as CollectableError;
 pub use self::output::error::source_location::SourceLocation as OutputErrorSourceLocation;
 pub use self::output::error::Error as OutputError;
 pub use self::output::Output;
+pub use self::version::Version;
