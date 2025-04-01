@@ -1,6 +1,6 @@
 # Standard JSON
 
-Standard JSON is a protocol for interaction with the *solx* and **solc** compilers. This protocol must be implemented by toolkits such as Hardhat and Foundry.
+Standard JSON is a protocol for interaction with the **solx** and **solc** compilers. This protocol must be implemented by toolkits such as Hardhat and Foundry.
 
 The protocol uses two data formats for communication: [input JSON](#input-json) and [output JSON](#output-json).
 
@@ -19,8 +19,6 @@ Alternatively, the input JSON can be fed to **solx** via *stdin*:
 ```shell
 cat './input.json' | solx --standard-json
 ```
-
-After receiving output JSON, the calling program can process it according to its needs. For projects with deployable libraries, [calling the linker](./02-command-line-interface.md#--link) is usually required before compiled contracts are ready for deployment.
 
 > For the sake of interface unification, **solx** will always return with exit code 0 and have its standard JSON output printed to *stdout*.
 > It differs from **solc** that may return with exit code 1 and a free-formed error in some cases, such as when the standard JSON input file is missing, even though [the **solc** documentation claims otherwise](https://docs.soliditylang.org/en/latest/using-the-compiler.html#compiler-input-and-output-json-description).
@@ -98,18 +96,20 @@ This format features a **solx**-specific section `settings.optimizer` for LLVM o
     // Optional: Select the desired output.
     //
     // Available file-level options, must be listed under "*"."":
-    //   ast                       AST of all source files
+    //   ast                            AST of all source files
     //
     // Available contract-level options, must be listed under "*"."*":
-    //   abi                       Solidity ABI
-    //   evm.methodIdentifiers     Solidity function hashes
-    //   storageLayout             Slots, offsets and types of the contract's state variables in storage
-    //   transientStorageLayout    Slots, offsets and types of the contract's state variables in transient storage
-    //   devdoc                    Developer documentation (natspec)
-    //   userdoc                   User documentation (natspec)
-    //   metadata                  Metadata
-    //   evm.legacyAssembly        EVM assembly produced by **solc**
-    //   irOptimized               Yul produced by **solc**
+    //   abi                            Solidity ABI
+    //   metadata                       Metadata
+    //   devdoc                         Developer documentation (natspec)
+    //   userdoc                        User documentation (natspec)
+    //   storageLayout                  Slots, offsets and types of the contract's state variables in storage
+    //   transientStorageLayout         Slots, offsets and types of the contract's state variables in transient storage
+    //   evm.methodIdentifiers          Solidity function hashes
+    //   evm.legacyAssembly             EVM assembly produced by **solc**
+    //   irOptimized                    Yul produced by **solc**
+    //   evm.bytecode.object            Deploy bytecode produced by **solx**
+    //   evm.deployedBytecode.object    Runtime bytecode produced by **solx**
     //
     // Default: no flags are selected, so no output is generated.
     "outputSelection": {
@@ -133,7 +133,7 @@ This format features a **solx**-specific section `settings.optimizer` for LLVM o
       // Default: false.
       "useLiteralContent": true
     },
-    // Optional: Enables the IR codegen.
+    // Optional: Enables the IR codegen in **solc**.
     "viaIR": true,
 
     // Optional: Extra LLVM settings.

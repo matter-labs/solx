@@ -384,10 +384,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
 
         let (code_segment, blocks) = if let Ok(runtime_code) = self.runtime_code() {
             if let Some(debug_config) = context.debug_config() {
-                debug_config.dump_evmla(
-                    format!("{full_path}.{}", era_compiler_common::CodeSegment::Deploy).as_str(),
-                    self.to_string().as_str(),
-                )?;
+                debug_config.dump_evmla(full_path.as_str(), self.to_string().as_str())?;
             }
 
             let deploy_code_blocks = EtherealIR::get_blocks(
@@ -436,10 +433,11 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
             blocks,
         )?;
         if let Some(debug_config) = context.debug_config() {
-            debug_config.dump_ethir(
-                format!("{full_path}.{code_segment}").as_str(),
-                ethereal_ir.to_string().as_str(),
-            )?;
+            let mut path = full_path.to_owned();
+            if let era_compiler_common::CodeSegment::Runtime = code_segment {
+                path.push_str(format!(".{}", code_segment).as_str());
+            }
+            debug_config.dump_ethir(path.as_str(), ethereal_ir.to_string().as_str())?;
         }
         ethereal_ir.declare(context)?;
         ethereal_ir.into_llvm(context)?;

@@ -36,7 +36,7 @@ The **solx** version consists of three parts:
 
 1. **solx** version itself.
 2. Version of **solc** libraries **solx** is statically linked with.
-3. Revision of the LLVM-friendly fork of **solc** maintained by the **solc** team.
+3. Revision of the LLVM-friendly fork of **solc** maintained by the **solx** team.
 
 For instance, the latest revision of the latest version of *solc* is `0.8.29-1.0.2`. Here are the LLVM revisions released by now:
 
@@ -88,7 +88,7 @@ This repository maintains intuitive and stable naming for the executables and pr
 
    * For MacOS:
 
-     1. Install the *Homebrew* package manager by following the instructions at [brew.sh](https://brew.sh).
+     1. Install the **Homebrew** package manager by following the instructions at [brew.sh](https://brew.sh).
      2. Install the necessary system-wide dependencies:
 
         ```shell

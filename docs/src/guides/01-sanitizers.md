@@ -1,6 +1,6 @@
-# Building SolX with sanitizers
+# Building with Sanitizers
 
-This is a guide on how to build **solx** with sanitizers enabled.
+This is the guide on building **solx** with sanitizers enabled.
 
 ## Introduction
 

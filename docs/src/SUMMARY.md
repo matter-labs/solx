@@ -8,4 +8,4 @@
 
 # Guides
 
-- [Building with sanitizers](./guides/01-sanitizers.md)
+- [Building with Sanitizers](./guides/01-sanitizers.md)

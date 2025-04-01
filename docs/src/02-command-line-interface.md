@@ -1,16 +1,16 @@
 # Command Line Interface (CLI)
 
-The CLI of **solx** is designed with resemblance to the CLI of **solc**. There are several main input/output (I/O) modes in the **solx** interface:
+The CLI of **solx** is designed to mimic that of **solc**. There are several main input/output (I/O) modes in the **solx** interface:
 
 - [Basic CLI](#basic-cli)
 - [Standard JSON](./03-standard-json.md)
 
-The basic CLI and combined JSON modes are more light-weight and suitable for calling from the shell. The standard JSON mode is similar to client-server interaction, thus more suitable for using from other applications.
+The basic CLI is simpler and suitable for using from the shell. The standard JSON mode is similar to client-server interaction, thus more suitable for using from other applications.
 
 > All toolkits using **solx** must be operating in standard JSON mode and follow [its specification](./03-standard-json.md).
 > It will make the toolkits more robust and future-proof, as the standard JSON mode is the most versatile and used for the majority of popular projects.
 
-This page focuses on the basic CLI mode. For more information on the standard JSON mode, see [the corresponding page](./03-standard-json.md).
+This page focuses on the basic CLI mode. For more information on the standard JSON mode, see [this page](./03-standard-json.md).
 
 
 
@@ -29,7 +29,7 @@ The rest of this section describes the available CLI options and their usage. Yo
 Enables the output of compiled bytecode. The following command compiles a Solidity file and prints the bytecode:
 
 ```bash
-solx './Simple.sol' --bin
+solx 'Simple.sol' --bin
 ```
 
 Output:
@@ -37,19 +37,7 @@ Output:
 ```text
 ======= Simple.sol:Simple =======
 Binary:
-0000008003000039000000400030043f0000000100200190000000130000c13d...
-```
-
-It is possible to dry-run the compilation without writing any output. To do this, simply omit `--bin` and other output options:
-
-```bash
-solx './Simple.sol'
-```
-
-Output:
-
-```text
-Compiler run successful. No output requested. Use flags --metadata, --asm, --bin.
+5b60806040525f341415601c5763...
 ```
 
 
@@ -59,13 +47,13 @@ Compiler run successful. No output requested. Use flags --metadata, --asm, --bin
 **solx** supports multiple input files. The following command compiles two Solidity files and prints the bytecode:
 
 ```bash
-solx './Simple.sol' './Complex.sol' --bin
+solx 'Simple.sol' './Complex.sol' --bin
 ```
 
 [Solidity import remappings](https://docs.soliditylang.org/en/latest/path-resolution.html#import-remapping) are passed in the way as input files, but they are distinguished by a `=` symbol between source and destination. The following command compiles a Solidity file with a remapping and prints the bytecode:
 
 ```bash
-solx './Simple.sol' 'github.com/ethereum/dapp-bin/=/usr/local/lib/dapp-bin/' --bin
+solx 'Simple.sol' 'github.com/ethereum/dapp-bin/=/usr/local/lib/dapp-bin/' --bin
 ```
 
 **solx** does not handle remappings itself, but only passes them through to *solc*.
@@ -82,14 +70,8 @@ The specifier has the following format: `<ContractPath>:<ContractName>=<LibraryA
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --libraries 'Simple.sol:Test=0x1234567890abcdef1234567890abcdef12345678'
+solx 'Simple.sol' --bin --libraries 'Simple.sol:Test=0x1234567890abcdef1234567890abcdef12345678'
 ```
-
-There are two ways of linking libraries:
-1. At compile time, immediately after the contract is compiled.
-2. At deploy time (a.k.a. post-compile time), right before the contract is deployed.
-
-The use case above describes linking at compile time. For linking at deploy time, see the [linker documentation](./05-linker.md).
 
 
 
@@ -105,12 +87,28 @@ Visit [the **solc** documentation](https://docs.soliditylang.org/en/latest/path-
 
 Enables the output of contract metadata. The metadata is a JSON object that contains information about the contract, such as its name, source code hash, the list of dependencies, compiler versions, and so on.
 
-The **solx** metadata format is compatible with the [Solidity metadata format](https://docs.soliditylang.org/en/latest/metadata.html#contract-metadata). This means that the metadata output can be used with other tools that support Solidity metadata. Essentially, **solc** metadata is a part of **solx** metadata, and it is included as `source_metadata` without any modifications.
+The **solx** metadata format is compatible with the [Solidity metadata format](https://docs.soliditylang.org/en/latest/metadata.html#contract-metadata). This means that the metadata output can be used with other tools that support Solidity metadata. Extra **solx** data is included in **solc** metadata under `solx` object:
+
+```javascript
+{
+  "solx": {
+    "llvm_options": [],
+    "optimizer_settings": {
+      "is_debug_logging_enabled": false,
+      "is_fallback_to_size_enabled": false,
+      "is_verify_each_enabled": false,
+      "level_back_end": "Aggressive",
+      "level_middle_end": "Aggressive",
+      "level_middle_end_size": "Zero"
+    }
+  }
+}
+```
 
 Usage:
 
 ```bash
-solx './Simple.sol' --metadata
+solx 'Simple.sol' --metadata
 ```
 
 Output:
@@ -118,19 +116,19 @@ Output:
 ```text
 ======= Simple.sol:Simple =======
 Metadata:
-{"llvm_options":[],"optimizer_settings":{"is_debug_logging_enabled":false,"is_fallback_to_size_enabled":false,"is_verify_each_enabled":false,"level_back_end":"Aggressive","level_middle_end":"Aggressive","level_middle_end_size":"Zero"},"solc_version":"x.y.z","solc_zkvm_edition":null,"source_metadata":{...},"zk_version":"x.y.z"}
+{"compiler":{"version":"0.8.29+commit.c6ba0c29"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"first","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"second","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"pure","type":"function"}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"compilationTarget":{"Simple.sol":"Simple"},"evmVersion":"cancun","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[]},"solx":{"llvm_options":[],"optimizer_settings":{"is_debug_logging_enabled":false,"is_fallback_to_size_enabled":false,"is_verify_each_enabled":false,"level_back_end":"Aggressive","level_middle_end":"Aggressive","level_middle_end_size":"Zero"},"solc_llvm_revision":"1.0.2","solc_version":"0.8.29","solx_version":"1.0.0"},"sources":{"Simple.sol":{"keccak256":"0x1145e81d58e9fd0859036aac4ba16cfcfbe11045e3dfd5105a2dca469f31db89","license":"MIT","urls":["bzz-raw://9d97789b5c14a95fac1e7586de6712119f4606f79d6771324c9d24417ebab0db","dweb:/ipfs/QmSZ3HNGZom6N6eb8d74Y7UQAKAGRkXgbinwVVLaiuGb3S"]}},"version":1}
 ```
 
 
 
 ### `--output-dir`
 
-Specifies the output directory for build artifacts. Can only be used in [basic CLI](#basic-cli) and [combined JSON](./04-combined-json.md) modes.
+Specifies the output directory for build artifacts. Can only be used in [basic CLI](#basic-cli) mode.
 
 Usage in basic CLI mode:
 
 ```bash
-solx './Simple.sol' --bin --asm --metadata --output-dir './build/'
+solx 'Simple.sol' --bin --asm --metadata --output-dir './build/'
 ls './build/Simple.sol'
 ```
 
@@ -140,21 +138,6 @@ Output:
 Compiler run successful. Artifact(s) can be found in directory "build".
 ...
 Test.zasm       Test.zbin       Test_meta.json
-```
-
-Usage in combined JSON mode:
-
-```bash
-solx './Simple.sol' --combined-json 'bin,asm,metadata' --output-dir './build/'
-ls './build/'
-```
-
-Output:
-
-```text
-Compiler run successful. Artifact(s) can be found in directory "build".
-...
-combined.json
 ```
 
 
@@ -168,13 +151,13 @@ Can only be used in combination with the [`--output-dir`](#--output-dir) option.
 Usage:
 
 ```bash
-solx './Simple.sol' --combined-json 'bin,asm,metadata' --output-dir './build/' --overwrite
+solx 'Simple.sol' --bin --output-dir './build/' --overwrite
 ```
 
 If the `--overwrite` option is not specified and the output files already exist, **solx** will print an error message and exit:
 
 ```text
-Error: Refusing to overwrite an existing file "build/combined.json" (use --overwrite to force).
+Error: Refusing to overwrite an existing file "./build/Simple.sol/Test.bin" (use --overwrite to force).
 ```
 
 
@@ -205,10 +188,11 @@ solx --help
 
 ## Other I/O Modes
 
-> The mode-altering CLI options are mutually exclusive. This means that only one of the options below can be enabled at a time:
-> - `--standard-json`
-> - `--yul`
-> - `--llvm-ir`
+The mode-altering CLI options are mutually exclusive. This means that only one of the options below can be enabled at a time:
+
+- [`--standard-json`](#--standard-json)
+- [`--yul`](#--yul)
+- [`--llvm-ir`](#--llvm-ir)
 
 
 
@@ -249,13 +233,14 @@ Sets the optimization level to `z` for contracts that failed to compile due to o
 
 Under the hood, this option automatically triggers recompilation of contracts with level `z`. Contracts that were successfully compiled with [the original `--optimization` setting](#--optimization---o) are not recompiled.
 
-> It is recommended to have this option always enabled to prevent compilation failures due to bytecode size constraints. There are no known downsides to using this option.
+> For deployment, it is recommended to have this option always enabled to reduce issues with bytecode size constraints.
+> If your environment does not have bytecode size limitations, it is better to keep this option disabled to prevent unnecessary recompilations.
 
 
 
 ### `--metadata-hash`
 
-Specifies the hash function used for contract metadata.
+Specifies the hash format used for contract metadata.
 
 Usage with `ipfs`:
 
@@ -268,10 +253,8 @@ Output with `ipfs`:
 ```text
 ======= .../Test.sol:Test =======
 Binary:
-00000001002001900000000c0000613d0000008001000039000000400010043f0000000001000416000000000001004b0000000c0000c13d00000020010000390000010000100443000001200000044300000005010000410000000f0001042e000000000100001900000010000104300000000e000004320000000f0001042e0000001000010430000000000000000000000000000000000000000000000000000000020000000000000000000000000000004000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a1646970667358221220aa6c03adc327b2cf98010f155f9849134e325f7a1e2cffd5b99d832a7dba5082002a
+5b60806040525f341415601c5763000000488063000000245f395ff35b5f80...
 ```
-
-Note that a lot of padding is added before the `ipfs` hash to make the bytecode size an odd number of 32-byte words.
 
 
 
@@ -282,7 +265,7 @@ Specifies additional options for the LLVM framework. The argument must be a sing
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --llvm-options='-key=value'
+solx 'Simple.sol' --bin --llvm-options='-key=value'
 ```
 
 > The `--llvm-options` option is experimental and must only be used by experienced users. All supported options will be documented in the future.
@@ -295,25 +278,14 @@ The options in this section are only configuring **solc**, so they are passed di
 
 
 
-### `--codegen`
+### `--via-ir`
 
-Specifies the **solc** codegen. The following values are allowed:
-
-| Value | Description                  | Defaults                           |
-|:------|:-----------------------------|:-----------------------------------|
-| evmla | EVM legacy assembly          | **solc** default for EVM/L1          |
-| yul   | Yul a.k.a. IR                | **solx** default for ZKsync        |
-
-> **solc** uses the `evmla` codegen by default. However, **solx** uses the `yul` codegen by default for historical reasons.
-> Codegens are not equivalent and may lead to different behavior in production.
-> Make sure that this option is set to `evmla` if you want your contracts to behave as they would on L1.
-> For codegen differences, visit the [solc IR breaking changes page](https://docs.soliditylang.org/en/latest/ir-breaking-changes.html).
-> **solx** is going to switch to the `evmla` codegen by default in the future in order to have more parity with L1.
+Switches the **solc** codegen to Yul a.k.a. IR.
 
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --codegen 'evmla'
+solx 'Simple.sol' --bin --via-ir
 ```
 
 
@@ -322,9 +294,9 @@ solx './Simple.sol' --bin --codegen 'evmla'
 
 Specifies the EVM version **solc** will produce artifacts for. Only artifacts such as Yul and EVM assembly are known to be affected by this option. For instance, if the EVM version is set to *cancun*, then Yul and EVM assembly may contain `MCOPY` instructions, so no calls to the Identity precompile (address `0x04`) will be made.
 
-> EVM version only affects IR artifacts produced by **solc** and does not affect EVM bytecode produced by **solx**.
+> EVM version only affects IR artifacts produced by **solc** and only indirectly affects EVM bytecode produced by **solx**.
 
-The default value is chosen by **solc**. For instance, **solc** v0.8.24 and older use *shanghai* by default, whereas newer ones use *cancun*.
+The default value is chosen by **solc**. For instance, **solc** v0.8.24 and older use **shanghai** by default, whereas newer ones use *cancun*.
 
 The following values are allowed, however have in mind that newer EVM versions are only supported by newer versions of *solc*:
 - homestead
@@ -344,7 +316,7 @@ The following values are allowed, however have in mind that newer EVM versions a
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --evm-version 'cancun'
+solx 'Simple.sol' --bin --evm-version 'cancun'
 ```
 
 For more information on how **solc** handles EVM versions, see its [EVM version documentation](https://docs.soliditylang.org/en/latest/using-the-compiler.html#setting-the-evm-version-to-target).
@@ -360,7 +332,7 @@ Tells **solc** to store referenced sources as literal data in the metadata outpu
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --metadata-literal
+solx 'Simple.sol' --bin --metadata --metadata-literal
 ```
 
 
@@ -392,7 +364,7 @@ Output:
 ```text
 ======= Simple.yul =======
 Binary:
-0000000100200190000000060000c13d0000002a01000039000000000010043f...
+5b60806040525f341415601c5763...
 ```
 
 
@@ -401,7 +373,7 @@ Binary:
 
 Enables the LLVM IR mode. In this mode, input is expected to be in the LLVM IR language. The output works the same way as with Solidity input.
 
-Unlike **solc**, **solx** is an LLVM-based compiler toolchain, so it uses LLVM IR as an intermediate representation. It is not recommended to write LLVM IR manually, but it can be useful for debugging and optimization purposes. LLVM IR is more low-level than Yul in the ZKsync compiler toolchain IR hierarchy, so **solc** is not used for compilation.
+Unlike **solc**, **solx** is an LLVM-based compiler toolchain, so it uses LLVM IR as an intermediate representation. It is not recommended to write LLVM IR manually, but it can be useful for debugging and optimization purposes. LLVM IR is more low-level than Yul and EVM assembly in the **solx** IR hierarchy.
 
 Usage:
 
@@ -414,7 +386,7 @@ Output:
 ```text
 ======= Simple.ll =======
 Binary:
-000000000002004b000000070000613d0000002001000039000000000010043f...
+5b60806040525f341415601c5763...
 ```
 
 
@@ -431,17 +403,17 @@ The directory is created if it does not exist. If artifacts are already present 
 
 The intermediate build artifacts can be:
 
-| Name            | Codegen         | File extension   |
-|:----------------|:----------------|:-----------------|
-| EVM Assembly    | evmla           | *evmla*          |
-| EthIR           | evmla           | *ethir*          |  
-| Yul             | yul             | *yul*            |
-| LLVM IR         | evmla, yul      | *ll*             |
+| Name          | Via IR | Extension   |
+|:--------------|:-------|:------------|
+| EVM Assembly  | no     | *evmla*     |
+| EthIR         | no     | *ethir*     |  
+| Yul           | yes    | *yul*       |
+| LLVM IR       | any    | *ll*        |
 
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --debug-output-dir './debug/'
+solx 'Simple.sol' --bin --debug-output-dir './debug/'
 ls './debug/'
 ```
 
@@ -450,17 +422,17 @@ Output:
 ```text
 Compiler run successful. No output generated.
 ...
-Simple.sol.C.runtime.optimized.ll
-Simple.sol.C.runtime.unoptimized.ll
-Simple.sol.C.yul
-Simple.sol.C.zasm
-Simple.sol.Test.runtime.optimized.ll
-Simple.sol.Test.runtime.unoptimized.ll
-Simple.sol.Test.yul
-Simple.sol.Test.zasm
+Simple.sol_Test.evmla
+Simple.sol_Test.ethir
+Simple.sol_Test.unoptimized.ll
+Simple.sol_Test.optimized.ll
+Simple.sol_Test.runtime.evmla
+Simple.sol_Test.runtime.ethir
+Simple.sol_Test.runtime.unoptimized.ll
+Simple.sol_Test.runtime.optimized.ll
 ```
 
-The output file name is constructed as follows: `<ContractPath>.<ContractName>.<Modifiers>.<Extension>`.
+The output file name is constructed as follows: `<ContractPath>_<ContractName>.<Modifiers>.<Extension>`.
 
 
 
@@ -471,7 +443,7 @@ Enables the verification of the LLVM IR after each optimization pass. This optio
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --llvm-verify-each
+solx 'Simple.sol' --bin --llvm-verify-each
 ```
 
 
@@ -483,5 +455,5 @@ Enables the debug logging of the LLVM IR optimization passes. This option is use
 Usage:
 
 ```bash
-solx './Simple.sol' --bin --llvm-debug-logging
+solx 'Simple.sol' --bin --llvm-debug-logging
 ```
