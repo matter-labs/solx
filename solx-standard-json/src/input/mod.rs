@@ -132,6 +132,8 @@ impl Input {
         sources: BTreeMap<String, Source>,
         libraries: era_compiler_common::Libraries,
         optimizer: InputSettingsOptimizer,
+        output_selection: InputSettingsSelection,
+        metadata: InputSettingsMetadata,
         llvm_options: Vec<String>,
     ) -> Self {
         Self {
@@ -143,8 +145,8 @@ impl Input {
                 BTreeSet::new(),
                 None,
                 false,
-                InputSettingsSelection::default(),
-                InputSettingsMetadata::default(),
+                output_selection,
+                metadata,
                 llvm_options,
             ),
         }
@@ -157,6 +159,8 @@ impl Input {
         paths: &[PathBuf],
         libraries: era_compiler_common::Libraries,
         optimizer: InputSettingsOptimizer,
+        output_selection: InputSettingsSelection,
+        metadata: InputSettingsMetadata,
         llvm_options: Vec<String>,
     ) -> Self {
         let sources = paths
@@ -168,7 +172,14 @@ impl Input {
                 )
             })
             .collect();
-        Self::from_yul_sources(sources, libraries, optimizer, llvm_options)
+        Self::from_yul_sources(
+            sources,
+            libraries,
+            optimizer,
+            output_selection,
+            metadata,
+            llvm_options,
+        )
     }
 
     ///

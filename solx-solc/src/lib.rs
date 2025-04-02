@@ -168,6 +168,8 @@ impl Compiler {
             paths,
             libraries,
             solx_standard_json::InputOptimizer::default(),
+            solx_standard_json::InputSelection::default(),
+            solx_standard_json::InputMetadata::default(),
             vec![],
         );
         self.validate_yul_standard_json(&mut solc_input, messages)

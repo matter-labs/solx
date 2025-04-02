@@ -2,9 +2,6 @@
 //! Solidity compiler constants.
 //!
 
-/// The default executable name.
-pub static DEFAULT_EXECUTABLE_NAME: &str = env!("CARGO_PKG_NAME");
-
 /// The worker thread stack size.
 pub const WORKER_THREAD_STACK_SIZE: usize = 64 * 1024 * 1024;
 

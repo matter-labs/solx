@@ -53,8 +53,11 @@ pub fn yul_to_evm(
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
     let libraries = era_compiler_common::Libraries::try_from(libraries)?;
-    let output_selection =
-        solx_standard_json::InputSelection::new(output_bytecode, output_metadata, Some(true));
+    let output_selection = solx_standard_json::InputSelection::new_compilation(
+        output_bytecode,
+        output_metadata,
+        Some(true),
+    );
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let solc_compiler = solx_solc::Compiler::default();
@@ -101,7 +104,7 @@ pub fn llvm_ir_to_evm(
 ) -> anyhow::Result<EVMBuild> {
     let libraries = era_compiler_common::Libraries::try_from(libraries)?;
     let output_selection =
-        solx_standard_json::InputSelection::new(output_bytecode, output_metadata, None);
+        solx_standard_json::InputSelection::new_compilation(output_bytecode, output_metadata, None);
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let project = Project::try_from_llvm_ir_paths(paths, libraries, output_selection, None)?;
@@ -151,7 +154,11 @@ pub fn standard_output_evm(
         solx_standard_json::InputOptimizer::default(),
         evm_version,
         via_ir,
-        solx_standard_json::InputSelection::new(output_bytecode, output_metadata, Some(via_ir)),
+        solx_standard_json::InputSelection::new_compilation(
+            output_bytecode,
+            output_metadata,
+            Some(via_ir),
+        ),
         solx_standard_json::InputMetadata::new(use_literal_content, metadata_hash_type),
         llvm_options.clone(),
     )?;

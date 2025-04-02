@@ -23,25 +23,45 @@ impl Selection {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(bytecode: bool, metadata: bool, via_ir: Option<bool>) -> Self {
-        let mut root = BTreeMap::new();
-        let mut inner = BTreeMap::new();
+    pub fn new(selectors: BTreeSet<Selector>) -> Self {
+        let mut file_level = BTreeMap::new();
+        let mut contract_level = BTreeMap::new();
 
-        let mut set = BTreeSet::new();
+        let mut per_file_selectors = BTreeSet::new();
+        if selectors.contains(&Selector::AST) {
+            per_file_selectors.insert(Selector::AST);
+        }
+        let mut per_contract_selectors = selectors;
+        per_contract_selectors.remove(&Selector::AST);
+
+        if !per_file_selectors.is_empty() {
+            contract_level.insert("".to_owned(), per_file_selectors);
+        }
+        if !per_contract_selectors.is_empty() {
+            contract_level.insert("*".to_owned(), per_contract_selectors);
+        }
+        if !contract_level.is_empty() {
+            file_level.insert("*".to_owned(), contract_level);
+        }
+        Self { inner: file_level }
+    }
+
+    ///
+    /// A shortcut constructor for compilation.
+    ///
+    pub fn new_compilation(bytecode: bool, metadata: bool, via_ir: Option<bool>) -> Self {
+        let mut selectors = BTreeSet::new();
         if bytecode {
-            set.insert(Selector::BytecodeObject);
-            set.insert(Selector::RuntimeBytecodeObject);
+            selectors.insert(Selector::BytecodeObject);
+            selectors.insert(Selector::RuntimeBytecodeObject);
         }
         if metadata {
-            set.insert(Selector::Metadata);
+            selectors.insert(Selector::Metadata);
         }
         if let Some(via_ir) = via_ir {
-            set.insert(via_ir.into());
+            selectors.insert(via_ir.into());
         }
-
-        inner.insert("*".to_owned(), set);
-        root.insert("*".to_owned(), inner);
-        Self { inner: root }
+        Self::new(selectors)
     }
 
     ///

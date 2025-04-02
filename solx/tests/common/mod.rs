@@ -79,7 +79,7 @@ pub fn build_solidity_standard_json(
         solx_standard_json::InputOptimizer::default(),
         None,
         via_ir,
-        solx_standard_json::InputSelection::new(true, true, Some(via_ir)),
+        solx_standard_json::InputSelection::new_compilation(true, true, Some(via_ir)),
         solx_standard_json::InputMetadata::default(),
         vec![],
     )?;
