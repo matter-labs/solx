@@ -159,9 +159,7 @@ impl Contract {
                 let immutables_map = runtime_buffer.get_immutables_evm();
 
                 let deploy_llvm = inkwell::context::Context::create();
-                let deploy_module = deploy_llvm.create_module(
-                    format!("{}.{deploy_code_segment}", self.name.full_path).as_str(),
-                );
+                let deploy_module = deploy_llvm.create_module(self.name.full_path.as_str());
                 let mut deploy_context = era_compiler_llvm_context::EVMContext::new(
                     &deploy_llvm,
                     deploy_module,

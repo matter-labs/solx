@@ -2,7 +2,12 @@
   <img src=".github/assets/logo.png" alt="solx logo" />
 </div>
 
-# `solx`, an optimizing Solidity compiler
+# Optimizing Solidity Compiler
+
+**solx** is a new optimizing compiler for EVM developed by [Matter Labs](https://matter-labs.io/).
+
+> [!WARNING]  
+> The project is in pre-alpha state and not suitable for production use.
 
 **solx** passes [our test suite](https://github.com/matter-labs/era-compiler-tester), which includes:
 
@@ -15,10 +20,10 @@ Our pool of tests is updated with every **solc** release. Arbitrary contracts ar
 Our mid-term goals:
 
 - support EOF
-- further reduce gas consumption and bytecode size
+- further reduce gas usage and bytecode size
 - eliminate the need for inline assembly for efficiency
 - emit [ethdebug](https://ethdebug.github.io/format/index.html) for optimized code
-- run more real-life smart-contracts in CI
+- run more tests of real-life projects in CI
 
 ## Installation
 
@@ -31,17 +36,17 @@ Or, you can take a build used in our [solx_demo](https://github.com/popzxc/solx_
 
 ## Usage
 
-We recommend using `solx` via [foundry](https://github.com/foundry-rs/foundry). It behaves the same way as
-`solc-0.8.29`, so you can download the executable and specify:
+We recommend using **solx** via [Foundry](https://github.com/foundry-rs/foundry). It behaves the same way as
+**solc** v0.8.29, so you can download the executable and specify:
 
 ```toml
 [profile.solx]
 solc_version = "/path/to/solx"
 ```
 
-It might work with `hardhat` as well, but it has not been tested yet.
+It might work with **Hardhat** as well, but it has not been tested yet.
 
-Otherwise, the interface is _mostly_ compatible with `solc`, so you can use it via CLI or standard JSON.
+Otherwise, the interface is mostly compatible with **solc**, so you can use it via CLI or standard JSON.
 
 ## Demo
 
@@ -51,7 +56,7 @@ Check out [this repository](https://github.com/popzxc/solx_demo) to see a demo o
 
 **solx** consists of three main parts:
 
-1. **solx** executable from this repository. The repository also contains a part of the compiler front-end (Yul and EVM assembly lowering).
+1. **solx** executable from this repository. The repository also contains parts of the compiler front end: Yul and EVM assembly lowering.
 2. [era-solidity](https://github.com/matter-labs/era-solidity/), an LLVM-friendly fork of [the Solidity compiler](https://github.com/ethereum/solidity),
   that emits Yul and EVM assembly for **solx**. Despite the repository name, it is not directly related to either ZKsync or ZKsync Era.
 3. [era-compiler-llvm](https://github.com/matter-labs/era-compiler-llvm), a fork of [the LLVM project](https://github.com/llvm/llvm-project)
@@ -59,13 +64,19 @@ Check out [this repository](https://github.com/popzxc/solx_demo) to see a demo o
 
 The most important part of the project is the EVM target in LLVM. You can find its sources [here](https://github.com/matter-labs/era-compiler-llvm/tree/main/llvm/lib/Target/EVM).
 
+## Documentation
+
+**solx** documentation is provided as an [mdBook](https://github.com/rust-lang/mdBook), and its sources available in the `docs/` directory.
+To build the book, follow the [instructions](./docs/README.md).
+
+See also:
+
+- [Solidity Documentation](https://docs.soliditylang.org/en/latest/)
+- [LLVM Documentation](https://llvm.org/docs/)
+
 ## Testing
 
-To run the unit and CLI tests, execute the following command from the repository root:
-
-```shell
-cargo test
-```
+To run the unit and CLI tests, execute `cargo test` at the repository root.
 
 ## Troubleshooting
 
@@ -85,12 +96,8 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 
 **solx** is licensed under [GNU General Public License v3.0](LICENSE.txt).
 
-- [`era-compiler-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.28/LICENSE.txt).
+- [`era-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.29/LICENSE.txt)
 - [`era-compiler-llvm`](https://github.com/matter-labs/era-compiler-llvm) is licensed under the terms of Apache License, Version 2.0 with LLVM Exceptions, ([LICENSE](https://github.com/matter-labs/era-compiler-llvm/blob/main/LICENSE) or https://llvm.org/LICENSE.txt)
-
-## Resources
-
-- [Solidity documentation](https://docs.soliditylang.org/en/latest/)
 
 ## Contact Us
 

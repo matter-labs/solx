@@ -9,6 +9,9 @@
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
 )]
 pub enum Selector {
+    /// The AST JSON.
+    #[serde(rename = "ast")]
+    AST,
     /// The ABI JSON.
     #[serde(rename = "abi")]
     ABI,
@@ -24,21 +27,18 @@ pub enum Selector {
     /// The storage layout.
     #[serde(rename = "storageLayout")]
     StorageLayout,
-    /// The AST JSON.
-    #[serde(rename = "ast")]
-    AST,
-    /// The Yul IR.
-    #[serde(rename = "irOptimized")]
-    Yul,
-    /// The EVM bytecode.
-    #[serde(rename = "evm")]
-    EVM,
-    /// The EVM legacy assembly JSON.
-    #[serde(rename = "evm.legacyAssembly")]
-    EVMLA,
+    /// The transient storage layout.
+    #[serde(rename = "transientStorageLayout")]
+    TransientStorageLayout,
     /// The function signature hashes JSON.
     #[serde(rename = "evm.methodIdentifiers")]
     MethodIdentifiers,
+    /// The EVM legacy assembly JSON.
+    #[serde(rename = "evm.legacyAssembly")]
+    EVMLA,
+    /// The Yul IR.
+    #[serde(rename = "irOptimized")]
+    Yul,
 
     /// The deploy bytecode.
     #[serde(rename = "evm.bytecode.object")]
