@@ -17,5 +17,4 @@ serde_json = { version = "=1.0.128", features = [ "arbitrary_precision" ] }
 semver = { version = "=1.0.23", features = [ "serde" ] }
 num = "=0.4.3"
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "evm-llvmit-tests" }
-era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "evm-llvmit-tests" }
+era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }

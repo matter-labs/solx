@@ -499,7 +499,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "era-compiler-common"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-common?branch=evm-llvmit-tests#698050e8a46040151b1b1d874044bcff616b8502"
+source = "git+https://github.com/matter-labs/era-compiler-common?branch=main#8d33194da0c25b16edc09781103509af939d0a8a"
 dependencies = [
  "anyhow",
  "base58",
@@ -515,7 +515,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "1.5.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=evm-llvmit-tests#e90f10a15f8dec74a9a38122029182db02e77250"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#58f13d13c5edabdfa0427d8c7201744cbf8dbcbe"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1539,7 +1539,6 @@ version = "0.1.0-alpha.1"
 dependencies = [
  "anyhow",
  "era-compiler-common",
- "era-compiler-llvm-context",
  "num",
  "rayon",
  "semver",

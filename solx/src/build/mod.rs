@@ -240,34 +240,56 @@ impl Build {
         let mut errors = Vec::with_capacity(self.results.len());
         for result in self.results.into_values() {
             let build = match result {
-                Ok(build) => {
+                Ok(contract) => {
                     errors.extend(
-                        build
+                        contract
                             .deploy_object
                             .as_ref()
                             .map(|object| {
                                 object
                                     .warnings
                                     .iter()
-                                    .map(|error| (build.name.full_path.as_str(), error).into())
+                                    .map(|error| {
+                                        solx_standard_json::OutputError::new_warning(
+                                            error.code(),
+                                            error.to_string(),
+                                            Some(
+                                                solx_standard_json::OutputErrorSourceLocation::new(
+                                                    contract.name.full_path.clone(),
+                                                ),
+                                            ),
+                                            None,
+                                        )
+                                    })
                                     .collect::<Vec<solx_standard_json::OutputError>>()
                             })
                             .unwrap_or_default(),
                     );
                     errors.extend(
-                        build
+                        contract
                             .runtime_object
                             .as_ref()
                             .map(|object| {
                                 object
                                     .warnings
                                     .iter()
-                                    .map(|error| (build.name.full_path.as_str(), error).into())
+                                    .map(|error| {
+                                        solx_standard_json::OutputError::new_warning(
+                                            error.code(),
+                                            error.to_string(),
+                                            Some(
+                                                solx_standard_json::OutputErrorSourceLocation::new(
+                                                    contract.name.full_path.clone(),
+                                                ),
+                                            ),
+                                            None,
+                                        )
+                                    })
                                     .collect::<Vec<solx_standard_json::OutputError>>()
                             })
                             .unwrap_or_default(),
                     );
-                    build
+                    contract
                 }
                 Err(error) => {
                     errors.push(error);
@@ -333,7 +355,16 @@ impl solx_standard_json::CollectableError for Build {
                         object
                             .warnings
                             .iter()
-                            .map(|error| (contract.name.full_path.as_str(), error).into())
+                            .map(|error| {
+                                solx_standard_json::OutputError::new_warning(
+                                    error.code(),
+                                    error.to_string(),
+                                    Some(solx_standard_json::OutputErrorSourceLocation::new(
+                                        contract.name.full_path.clone(),
+                                    )),
+                                    None,
+                                )
+                            })
                             .collect::<Vec<solx_standard_json::OutputError>>()
                     })
                     .unwrap_or_default(),
@@ -346,7 +377,16 @@ impl solx_standard_json::CollectableError for Build {
                         object
                             .warnings
                             .iter()
-                            .map(|error| (contract.name.full_path.as_str(), error).into())
+                            .map(|error| {
+                                solx_standard_json::OutputError::new_warning(
+                                    error.code(),
+                                    error.to_string(),
+                                    Some(solx_standard_json::OutputErrorSourceLocation::new(
+                                        contract.name.full_path.clone(),
+                                    )),
+                                    None,
+                                )
+                            })
                             .collect::<Vec<solx_standard_json::OutputError>>()
                     })
                     .unwrap_or_default(),

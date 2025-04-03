@@ -29,8 +29,8 @@ num = "=0.4.3"
 
 zkevm_opcode_defs = "=0.150.6"
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "evm-llvmit-tests" }
-era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "evm-llvmit-tests" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
+era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 
 solx-solc = { path = "../solx-solc" }
 solx-standard-json = { path = "../solx-standard-json" }

@@ -117,13 +117,6 @@ impl Error {
     }
 }
 
-impl From<(&str, &era_compiler_llvm_context::EVMWarning)> for Error {
-    fn from((path, warning): (&str, &era_compiler_llvm_context::EVMWarning)) -> Self {
-        let location = SourceLocation::new(path.to_owned());
-        Self::new_warning(warning.code(), warning.to_string(), Some(location), None)
-    }
-}
-
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.formatted_message)

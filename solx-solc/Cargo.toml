@@ -16,6 +16,6 @@ serde_json = { version = "=1.0.128", features = [ "arbitrary_precision" ] }
 semver = { version = "=1.0.23", features = [ "serde" ] }
 libc = "=0.2.171"
 
-era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "evm-llvmit-tests" }
+era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 
 solx-standard-json = { path = "../solx-standard-json" }
