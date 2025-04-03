@@ -93,7 +93,7 @@ fn linker_error() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result
         .failure()
-        .stderr(predicate::str::contains("PLEASE submit a bug report"));
+        .stderr(predicate::str::contains("Assertion"));
 
     Ok(())
 }
