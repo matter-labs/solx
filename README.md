@@ -94,8 +94,10 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 
 ## License
 
-**solx** is licensed under [GNU General Public License v3.0](LICENSE.txt).
-
+- Crates **solx** and **solx-solc** are licensed under [GNU General Public License v3.0](./solx/LICENSE.txt)
+- Crates **solx-standard-json** and **solx-yul** are licensed under the terms of either
+  - Apache License, Version 2.0 ([LICENSE-APACHE](./solx-standard-json/LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+  - MIT license ([LICENSE-MIT](./solx-standard-json/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 - [`era-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.29/LICENSE.txt)
 - [`era-compiler-llvm`](https://github.com/matter-labs/era-compiler-llvm) is licensed under the terms of Apache License, Version 2.0 with LLVM Exceptions, ([LICENSE](https://github.com/matter-labs/era-compiler-llvm/blob/main/LICENSE) or https://llvm.org/LICENSE.txt)
 

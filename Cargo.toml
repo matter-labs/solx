@@ -11,6 +11,5 @@ resolver = "2"
 authors = [
     "The Matter Labs Team <hello@matterlabs.dev>",
 ]
-license = "GPL-3.0"
 edition = "2021"
 version = "0.1.0-alpha.1"
