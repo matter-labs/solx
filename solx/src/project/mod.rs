@@ -130,7 +130,7 @@ impl Project {
     pub fn try_from_yul_paths(
         paths: &[PathBuf],
         libraries: era_compiler_common::Libraries,
-        output_selection: solx_standard_json::InputSelection,
+        output_selection: &solx_standard_json::InputSelection,
         solc_output: Option<&mut solx_standard_json::Output>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
@@ -156,7 +156,7 @@ impl Project {
     pub fn try_from_yul_sources(
         sources: BTreeMap<String, solx_standard_json::InputSource>,
         libraries: era_compiler_common::Libraries,
-        output_selection: solx_standard_json::InputSelection,
+        output_selection: &solx_standard_json::InputSelection,
         mut solc_output: Option<&mut solx_standard_json::Output>,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
@@ -181,7 +181,8 @@ impl Project {
                     None,
                     solx_standard_json::InputSelector::Metadata,
                 ) {
-                    let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
+                    let source_hash =
+                        era_compiler_common::Keccak256Hash::from_slice(source_code.as_bytes());
                     let metadata_json = serde_json::json!({
                         "source_hash": source_hash.to_string(),
                         "solc_version": solx_solc::Compiler::default().version,
@@ -226,7 +227,7 @@ impl Project {
     pub fn try_from_llvm_ir_paths(
         paths: &[PathBuf],
         libraries: era_compiler_common::Libraries,
-        output_selection: solx_standard_json::InputSelection,
+        output_selection: &solx_standard_json::InputSelection,
         solc_output: Option<&mut solx_standard_json::Output>,
     ) -> anyhow::Result<Self> {
         let sources = paths
@@ -245,7 +246,7 @@ impl Project {
     pub fn try_from_llvm_ir_sources(
         sources: BTreeMap<String, solx_standard_json::InputSource>,
         libraries: era_compiler_common::Libraries,
-        output_selection: solx_standard_json::InputSelection,
+        output_selection: &solx_standard_json::InputSelection,
         mut solc_output: Option<&mut solx_standard_json::Output>,
     ) -> anyhow::Result<Self> {
         let results = sources
@@ -261,7 +262,8 @@ impl Project {
                     None,
                     solx_standard_json::InputSelector::Metadata,
                 ) {
-                    let source_hash = era_compiler_common::Hash::keccak256(source_code.as_bytes());
+                    let source_hash =
+                        era_compiler_common::Keccak256Hash::from_slice(source_code.as_bytes());
                     let metadata_json = serde_json::json!({
                         "source_hash": source_hash.to_string(),
                         "llvm_version": era_compiler_llvm_context::LLVM_VERSION,
@@ -307,7 +309,7 @@ impl Project {
         self,
         messages: &mut Vec<solx_standard_json::OutputError>,
         output_bytecode: bool,
-        metadata_hash_type: era_compiler_common::HashType,
+        metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,

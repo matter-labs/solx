@@ -110,10 +110,10 @@ pub struct Arguments {
     pub via_ir: bool,
 
     /// Set the metadata hash type.
-    /// Available types: `none`, `keccak256`, `ipfs`.
-    /// The default is `keccak256`.
+    /// Available types: `none`, `ipfs`.
+    /// The default is `ipfs`.
     #[arg(long)]
-    pub metadata_hash: Option<era_compiler_common::HashType>,
+    pub metadata_hash: Option<era_compiler_common::EVMMetadataHashType>,
 
     /// Sets the literal content flag for contract metadata.
     /// If enabled, the metadata will contain the literal content of the source files.

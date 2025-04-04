@@ -13,7 +13,7 @@ pub struct Metadata {
     pub use_literal_content: bool,
     /// The metadata hash type.
     #[serde(default = "Metadata::default_bytecode_hash", skip_serializing)]
-    pub bytecode_hash: era_compiler_common::HashType,
+    pub bytecode_hash: era_compiler_common::EVMMetadataHashType,
 }
 
 impl Default for Metadata {
@@ -26,7 +26,10 @@ impl Metadata {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(use_literal_content: bool, hash_type: era_compiler_common::HashType) -> Self {
+    pub fn new(
+        use_literal_content: bool,
+        hash_type: era_compiler_common::EVMMetadataHashType,
+    ) -> Self {
         Self {
             bytecode_hash: hash_type,
             use_literal_content,
@@ -36,7 +39,7 @@ impl Metadata {
     ///
     /// The default metadata hash type.
     ///
-    fn default_bytecode_hash() -> era_compiler_common::HashType {
-        era_compiler_common::HashType::Ipfs
+    fn default_bytecode_hash() -> era_compiler_common::EVMMetadataHashType {
+        era_compiler_common::EVMMetadataHashType::IPFS
     }
 }

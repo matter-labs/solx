@@ -20,7 +20,7 @@ fn default(via_ir: bool) {
     crate::common::build_solidity_standard_json(
         sources,
         era_compiler_common::Libraries::default(),
-        era_compiler_common::HashType::Keccak256,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         remappings,
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::cycles(),

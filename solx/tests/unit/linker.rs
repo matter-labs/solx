@@ -19,7 +19,7 @@ fn get_bytecode(
     let build = crate::common::build_solidity_standard_json(
         sources,
         libraries,
-        era_compiler_common::HashType::None,
+        era_compiler_common::EVMMetadataHashType::None,
         BTreeSet::new(),
         version,
         via_ir,
@@ -323,7 +323,7 @@ fn libraries_passed_post_compile_time_complex(
     let build = crate::common::build_solidity_standard_json(
         sources,
         solx_standard_json::InputLibraries::default(),
-        era_compiler_common::HashType::None,
+        era_compiler_common::EVMMetadataHashType::None,
         BTreeSet::new(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,
@@ -382,7 +382,7 @@ fn libraries_not_passed_post_compile_time_complex(sources: &[&str], via_ir: bool
     let build = crate::common::build_solidity_standard_json(
         sources,
         solx_standard_json::InputLibraries::default(),
-        era_compiler_common::HashType::None,
+        era_compiler_common::EVMMetadataHashType::None,
         BTreeSet::new(),
         &solx_solc::Compiler::LAST_SUPPORTED_VERSION,
         via_ir,

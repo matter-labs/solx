@@ -157,7 +157,7 @@ impl Assembly {
     ///
     pub fn keccak256(&self) -> String {
         let json: Vec<u8> = serde_json::to_vec(self).expect("Always valid");
-        era_compiler_common::Hash::keccak256(json.as_slice()).to_string()
+        era_compiler_common::Keccak256Hash::from_slice(json.as_slice()).to_string()
     }
 
     ///

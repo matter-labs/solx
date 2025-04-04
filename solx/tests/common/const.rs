@@ -110,6 +110,22 @@ pub const TEST_LLVM_IR_STANDARD_JSON_MISSING_FILE_PATH: &str =
     "tests/data/standard_json_input/llvm_ir_urls_missing_file.json";
 
 /// A test input file.
+pub const TEST_JSON_CONTRACT_PATH_METADATA_HASH_IPFS_AND_METADATA: &str =
+    "tests/data/standard_json_input/metadata_hash_ipfs_and_metadata.json";
+
+/// A test input file.
+pub const TEST_JSON_CONTRACT_PATH_METADATA_HASH_IPFS_NO_METADATA: &str =
+    "tests/data/standard_json_input/metadata_hash_ipfs_no_metadata.json";
+
+/// A test input file.
+pub const TEST_JSON_CONTRACT_PATH_METADATA_HASH_NONE_AND_METADATA: &str =
+    "tests/data/standard_json_input/metadata_hash_none_and_metadata.json";
+
+/// A test input file.
+pub const TEST_JSON_CONTRACT_PATH_METADATA_HASH_NONE_NO_METADATA: &str =
+    "tests/data/standard_json_input/metadata_hash_none_no_metadata.json";
+
+/// A test input file.
 pub const TEST_LINKER_BYTECODE_PATH: &str = "tests/data/bytecodes/linker.bin";
 
 /// A test input file.
