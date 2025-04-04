@@ -47,7 +47,7 @@ Binary:
 **solx** supports multiple input files. The following command compiles two Solidity files and prints the bytecode:
 
 ```bash
-solx 'Simple.sol' './Complex.sol' --bin
+solx 'Simple.sol' 'Complex.sol' --bin
 ```
 
 [Solidity import remappings](https://docs.soliditylang.org/en/latest/path-resolution.html#import-remapping) are passed in the way as input files, but they are distinguished by a `=` symbol between source and destination. The following command compiles a Solidity file with a remapping and prints the bytecode:
@@ -245,15 +245,49 @@ Specifies the hash format used for contract metadata.
 Usage with `ipfs`:
 
 ```bash
-solx './Test.sol' --bin --metadata-hash 'ipfs'
+solx 'Simple.sol' --bin --metadata-hash 'ipfs'
 ```
 
 Output with `ipfs`:
 
 ```text
-======= .../Test.sol:Test =======
+======= Simple.sol:Simple =======
 Binary:
 5b60806040525f341415601c5763000000488063000000245f395ff35b5f80...
+a2646970667358221220ba14ea4e52366f139a845913d41e98933393bd1c1126331611687003d4aa92de64736f6c6378247a6b736f6c633a312e352e31333b736f6c633a302e382e32393b6c6c766d3a312e302e310055
+```
+
+The byte array starting with `a2` at the end of the bytecode is a CBOR-encoded compiler version data and an optional metadata hash.
+
+JSON representation of a CBOR payload:
+
+```javascript
+{
+    // Optional: included if `--metadata-hash` is set to `ipfs`.
+    "ipfs": "1220ba14ea4e52366f139a845913d41e98933393bd1c1126331611687003d4aa92de",
+
+    // Required: consists of semicolon-separated pairs of colon-separated compiler names and versions.
+    // `solx:<version>` is always included.
+    // `solc:<version>;llvm:<version>` is only included for Solidity and Yul contracts, but not included for LLVM IR ones.
+    // `llvm` stands for the revision of Matter Labs fork of solc, that solx is statically linked with.
+    "solc": "solx:0.1.0;solc:0.8.29;llvm:1.0.2"
+}
+```
+
+For more information on these formats, see the [CBOR](https://cbor.io/) and [IPFS](https://docs.ipfs.tech/) documentation.
+
+
+
+### `--no-cbor-metadata`
+
+Disables the CBOR metadata that is appended at the end of bytecode. This option is useful for debugging and research purposes.
+
+> It is not recommended to use this option in production, as it is not possible to verify contracts deployed without metadata.
+
+Usage:
+
+```shell
+solx 'Simple.sol' --no-cbor-metadata
 ```
 
 
@@ -356,7 +390,7 @@ Enables the Yul mode. In this mode, input is expected to be in the Yul language.
 Usage:
 
 ```bash
-solx --yul './Simple.yul' --bin
+solx --yul 'Simple.yul' --bin
 ```
 
 Output:
@@ -378,7 +412,7 @@ Unlike **solc**, **solx** is an LLVM-based compiler toolchain, so it uses LLVM I
 Usage:
 
 ```bash
-solx --llvm-ir './Simple.ll' --bin
+solx --llvm-ir 'Simple.ll' --bin
 ```
 
 Output:

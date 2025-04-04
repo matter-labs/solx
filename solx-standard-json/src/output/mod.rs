@@ -7,9 +7,9 @@ pub mod error;
 pub mod source;
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 use crate::input::settings::selection::selector::Selector as InputSettingsSelector;
+use crate::input::settings::selection::Selection as InputSettingsSelection;
 use crate::input::source::Source as InputSource;
 
 use self::contract::Contract;
@@ -73,28 +73,40 @@ impl Output {
     ///
     /// Prunes the output JSON and prints it to stdout.
     ///
-    pub fn write_and_exit(mut self, selection_to_prune: BTreeSet<InputSettingsSelector>) -> ! {
-        let contracts = self
-            .contracts
-            .values_mut()
-            .flat_map(|contracts| contracts.values_mut())
-            .collect::<Vec<&mut Contract>>();
-        for contract in contracts.into_iter() {
-            if selection_to_prune.contains(&InputSettingsSelector::Yul) {
-                contract.ir_optimized = String::new();
-            }
-            if let Some(ref mut evm) = contract.evm {
-                if selection_to_prune.contains(&InputSettingsSelector::EVMLA) {
-                    evm.legacy_assembly = serde_json::Value::Null;
+    pub fn write_and_exit(mut self, output_selection: &InputSettingsSelection) -> ! {
+        for (path, file) in self.contracts.iter_mut() {
+            for (name, contract) in file.iter_mut() {
+                if !output_selection.check_selection(
+                    path.as_str(),
+                    Some(name.as_str()),
+                    InputSettingsSelector::Metadata,
+                ) {
+                    contract.metadata = None;
                 }
-            }
-            if contract
-                .evm
-                .as_mut()
-                .map(|evm| evm.is_empty())
-                .unwrap_or_default()
-            {
-                contract.evm = None;
+                if !output_selection.check_selection(
+                    path.as_str(),
+                    Some(name.as_str()),
+                    InputSettingsSelector::Yul,
+                ) {
+                    contract.ir_optimized = String::new();
+                }
+                if let Some(ref mut evm) = contract.evm {
+                    if !output_selection.check_selection(
+                        path.as_str(),
+                        Some(name.as_str()),
+                        InputSettingsSelector::EVMLA,
+                    ) {
+                        evm.legacy_assembly = serde_json::Value::Null;
+                    }
+                }
+                if contract
+                    .evm
+                    .as_mut()
+                    .map(|evm| evm.is_empty())
+                    .unwrap_or_default()
+                {
+                    contract.evm = None;
+                }
             }
         }
 

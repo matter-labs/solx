@@ -4,7 +4,6 @@
 
 pub mod arguments;
 
-use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -41,7 +40,7 @@ fn main() -> anyhow::Result<()> {
 
     if is_standard_json {
         let output = solx_standard_json::Output::new_with_messages(messages);
-        output.write_and_exit(BTreeSet::new());
+        output.write_and_exit(&solx_standard_json::InputSelection::default());
     }
 
     let exit_code = if messages.iter().any(|error| error.severity == "error") {
@@ -135,7 +134,8 @@ fn main_inner(
 
     let metadata_hash_type = arguments
         .metadata_hash
-        .unwrap_or(era_compiler_common::HashType::Keccak256);
+        .unwrap_or(era_compiler_common::EVMMetadataHashType::IPFS);
+    let append_cbor = !arguments.no_cbor_metadata;
 
     let build = if arguments.yul {
         solx::yul_to_evm(
@@ -145,6 +145,7 @@ fn main_inner(
             arguments.output_metadata,
             messages,
             metadata_hash_type,
+            append_cbor,
             optimizer_settings,
             llvm_options,
             debug_config,
@@ -157,6 +158,7 @@ fn main_inner(
             arguments.output_metadata,
             messages,
             metadata_hash_type,
+            append_cbor,
             optimizer_settings,
             llvm_options,
             debug_config,
@@ -177,12 +179,12 @@ fn main_inner(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
             arguments.output_bytecode,
-            arguments.output_metadata,
             messages,
             arguments.evm_version,
             arguments.via_ir,
             metadata_hash_type,
             arguments.metadata_literal,
+            append_cbor,
             arguments.base_path,
             arguments.include_path,
             arguments.allow_paths,
@@ -200,9 +202,13 @@ fn main_inner(
     }?;
 
     if let Some(output_directory) = arguments.output_dir {
-        build.write_to_directory(&output_directory, arguments.overwrite)?;
+        build.write_to_directory(
+            &output_directory,
+            arguments.overwrite,
+            arguments.output_metadata,
+        )?;
     } else {
-        build.write_to_terminal()?;
+        build.write_to_terminal(arguments.output_metadata)?;
     }
 
     Ok(())

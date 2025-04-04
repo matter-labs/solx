@@ -56,7 +56,7 @@ pub fn read_sources(paths: &[&str]) -> BTreeMap<String, String> {
 pub fn build_solidity_standard_json(
     sources: BTreeMap<String, String>,
     libraries: era_compiler_common::Libraries,
-    metadata_hash_type: era_compiler_common::HashType,
+    metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     remappings: BTreeSet<String>,
     via_ir: bool,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -105,7 +105,22 @@ pub fn build_solidity_standard_json(
     )?;
     build.check_errors()?;
 
-    let build = build.link(linker_symbols);
+    let cbor_data = vec![
+        (
+            solx::DEFAULT_EXECUTABLE_NAME.to_owned(),
+            solx::version().parse().expect("Always valid"),
+        ),
+        (
+            solx::SOLC_PRODUCTION_NAME.to_owned(),
+            solc_compiler.version.default.to_owned(),
+        ),
+        (
+            solx::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
+            solc_compiler.version.llvm_revision.to_owned(),
+        ),
+    ];
+
+    let build = build.link(linker_symbols, Some(cbor_data));
     build.check_errors()?;
 
     build.write_to_standard_json(&mut solc_output)?;
@@ -139,21 +154,36 @@ pub fn build_yul_standard_json(
     let project = Project::try_from_yul_sources(
         solc_input.sources,
         era_compiler_common::Libraries::default(),
-        solc_input.settings.output_selection,
+        &solc_input.settings.output_selection,
         Some(&mut solc_output),
         None,
     )?;
     let build = project.compile_to_evm(
         &mut vec![],
         true,
-        era_compiler_common::HashType::Ipfs,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
         vec![],
         None,
     )?;
     build.check_errors()?;
 
-    let build = build.link(BTreeMap::new());
+    let cbor_data = vec![
+        (
+            solx::DEFAULT_EXECUTABLE_NAME.to_owned(),
+            solx::version().parse().expect("Always valid"),
+        ),
+        (
+            solx::SOLC_PRODUCTION_NAME.to_owned(),
+            solc_compiler.version.default.to_owned(),
+        ),
+        (
+            solx::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
+            solc_compiler.version.llvm_revision.to_owned(),
+        ),
+    ];
+
+    let build = build.link(BTreeMap::new(), Some(cbor_data));
     build.check_errors()?;
 
     build.write_to_standard_json(&mut solc_output)?;
@@ -179,20 +209,25 @@ pub fn build_llvm_ir_standard_json(
     let project = Project::try_from_llvm_ir_sources(
         input.sources,
         input.settings.libraries,
-        input.settings.output_selection,
+        &input.settings.output_selection,
         Some(&mut output),
     )?;
     let build = project.compile_to_evm(
         &mut vec![],
         true,
-        era_compiler_common::HashType::Ipfs,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
         vec![],
         None,
     )?;
     build.check_errors()?;
 
-    let build = build.link(BTreeMap::new());
+    let cbor_data = vec![(
+        solx::DEFAULT_EXECUTABLE_NAME.to_owned(),
+        solx::version().parse().expect("Always valid"),
+    )];
+
+    let build = build.link(BTreeMap::new(), Some(cbor_data));
     build.check_errors()?;
 
     build.write_to_standard_json(&mut output)?;

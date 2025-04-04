@@ -12,7 +12,7 @@
 **solx** passes [our test suite](https://github.com/matter-labs/era-compiler-tester), which includes:
 
 - [tests](https://github.com/ethereum/solidity/tree/develop/test/libsolidity/semanticTests) from the **solc** project
-- [real-world projects](https://github.com/matter-labs/era-compiler-tests/tree/main/solidity/complex/defi) such as UniswapV2 and Mooniswap
+- [real-life projects](https://github.com/matter-labs/era-compiler-tests/tree/main/solidity/complex/defi) such as UniswapV2 and Mooniswap
 - [additional tests](https://github.com/matter-labs/era-compiler-tests/tree/main/solidity) written by the **solx** team
 
 Our pool of tests is updated with every **solc** release. Arbitrary contracts are expected to compile correctly, but some may be temporary affected by stack-too-deep errors. Benchmarks indicate that **solx** generates larger code than **solc**, but reduces the gas consumption on average.
@@ -36,7 +36,7 @@ Or, you can take a build used in our [solx_demo](https://github.com/popzxc/solx_
 
 ## Usage
 
-We recommend using **solx** via [Foundry](https://github.com/foundry-rs/foundry). It behaves the same way as
+We recommend using **solx** via [Foundry](https://github.com/foundry-rs/foundry). It behaves in the same way as
 **solc** v0.8.29, so you can download the executable and specify:
 
 ```toml

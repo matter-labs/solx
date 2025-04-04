@@ -63,7 +63,7 @@ impl Contract {
         identifier_paths: BTreeMap<String, String>,
         output_bytecode: bool,
         deployed_libraries: BTreeSet<String>,
-        metadata_hash_type: era_compiler_common::HashType,
+        metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
@@ -83,12 +83,9 @@ impl Contract {
         let metadata_hash = metadata
             .as_ref()
             .and_then(|metadata| match metadata_hash_type {
-                era_compiler_common::HashType::None => None,
-                era_compiler_common::HashType::Keccak256 => {
-                    Some(era_compiler_common::Hash::keccak256(metadata.as_bytes()))
-                }
-                era_compiler_common::HashType::Ipfs => {
-                    Some(era_compiler_common::Hash::ipfs(metadata.as_bytes()))
+                era_compiler_common::EVMMetadataHashType::None => None,
+                era_compiler_common::EVMMetadataHashType::IPFS => {
+                    Some(era_compiler_common::IPFSHash::from_slice(metadata.as_bytes()).into())
                 }
             });
 

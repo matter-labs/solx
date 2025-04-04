@@ -84,12 +84,12 @@ impl Selection {
     }
 
     ///
-    /// Extends the output selection with the IR required for compilation.
+    /// Adds the specified selector to the output selection of all contracts.
     ///
-    pub fn set_ir(&mut self, via_ir: bool) {
+    pub fn set_selector(&mut self, selector: Selector) {
         for file in self.inner.values_mut() {
             for contract in file.values_mut() {
-                contract.insert(via_ir.into());
+                contract.insert(selector);
             }
         }
     }
@@ -117,18 +117,6 @@ impl Selection {
             }
         }
         false
-    }
-
-    ///
-    /// Returns flags that are going to be automatically added by the compiler,
-    /// but were not explicitly requested by the user.
-    ///
-    /// Afterwards, the flags are used to prune JSON output before returning it.
-    ///
-    pub fn to_prune(&self, via_ir: bool) -> BTreeSet<Selector> {
-        let mut selection = BTreeSet::new();
-        selection.insert(via_ir.into());
-        selection
     }
 
     ///

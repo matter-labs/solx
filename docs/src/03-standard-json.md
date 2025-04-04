@@ -29,7 +29,9 @@ cat './input.json' | solx --standard-json
 
 The input JSON provides the compiler with the source code and settings for the compilation. The example below serves as the specification of the input JSON format.
 
-This format features a **solx**-specific section `settings.optimizer` for LLVM optimizer settings.
+This format introduces several **solx**-specific parameters such as `settings.optimizer.sizeFallback`. These parameters are marked as `solx-only`.
+
+On the other hand, parameters that are not mentioned here but are parts of **solc** standard JSON protocol have no effect in **solx**.
 
 ```javascript
 {
@@ -56,17 +58,17 @@ This format features a **solx**-specific section `settings.optimizer` for LLVM o
   "settings": {
     // Optional: Optimizer settings.
     "optimizer": {
-      // Optional: Set the LLVM optimizer level.
+      // Optional, solx-only: Set the LLVM optimizer level.
       // Available options:
       // -0: do not optimize, currently unsupported
       // -1: basic optimizations for gas usage
       // -2: advanced optimizations for gas usage
       // -3: all optimizations for gas usage
-      // -s: basic optimizations for deployment cost
-      // -z: all optimizations for deployment cost
+      // -s: basic optimizations for bytecode size
+      // -z: all optimizations for bytecode size
       // Default: 3.
       "mode": "3",
-      // Optional: Re-run the compilation with "mode": "z" if the compilation with "mode": "3" exceeds the EVM bytecode size limit.
+      // Optional, solx-only: Re-run the compilation with "mode": "z" if the compilation with "mode": "3" exceeds the EVM bytecode size limit.
       // Used on a per-contract basis and applied automatically, so some contracts will end up compiled with "mode": "3", and others with "mode": "z".
       // Default: false.
       "sizeFallback": false
@@ -87,39 +89,45 @@ This format features a **solx**-specific section `settings.optimizer` for LLVM o
       }
     },
 
-    // Optional: Version of EVM **solc** will produce IR for.
+    // Optional: Version of EVM solc will produce IR for.
     // Affects type checking and code generation.
     // Can be "homestead", "tangerineWhistle", "spuriousDragon", "byzantium", "constantinople", "petersburg", "istanbul", "berlin", "london", "paris", "shanghai", "cancun" or "prague".
-    // Only used with Solidity, and only affects Yul and EVM assembly codegen. For instance, with version "cancun", **solc** will produce `MCOPY` instructions, whereas with older EVM versions it will not.
+    // Only used with Solidity, and only affects Yul and EVM assembly codegen. For instance, with version "cancun", solc will produce `MCOPY` instructions, whereas with older EVM versions it will not.
     // Default: "cancun".
     "evmVersion": "cancun",
     // Optional: Select the desired output.
-    //
-    // Available file-level options, must be listed under "*"."":
-    //   ast                            AST of all source files
-    //
-    // Available contract-level options, must be listed under "*"."*":
-    //   abi                            Solidity ABI
-    //   metadata                       Metadata
-    //   devdoc                         Developer documentation (natspec)
-    //   userdoc                        User documentation (natspec)
-    //   storageLayout                  Slots, offsets and types of the contract's state variables in storage
-    //   transientStorageLayout         Slots, offsets and types of the contract's state variables in transient storage
-    //   evm.methodIdentifiers          Solidity function hashes
-    //   evm.legacyAssembly             EVM assembly produced by **solc**
-    //   irOptimized                    Yul produced by **solc**
-    //   evm.bytecode.object            Deploy bytecode produced by **solx**
-    //   evm.deployedBytecode.object    Runtime bytecode produced by **solx**
-    //
-    // Default: no flags are selected, so no output is generated.
+    // Default: no flags are selected, and no output is generated.
     "outputSelection": {
-      "*": {
+      "<path>": {
+        // Available file-level options, must be listed under "<path>"."":
         "": [
+          // AST of all source files.
           "ast"
         ],
-        "*": [
+        // Available contract-level options, must be listed under "<path>"."<name>":
+        "<name>": [
+          // Solidity ABI.
+          "abi",
+          // Metadata.
           "metadata",
-          "irOptimized"
+          // Developer documentation (natspec).
+          "devdoc",
+          // User documentation (natspec).
+          "userdoc",
+          // Slots, offsets and types of the contract's state variables in storage.
+          "storageLayout",
+          // Slots, offsets and types of the contract's state variables in transient storage.
+          "transientStorageLayout",
+          // Solidity function hashes.
+          "evm.methodIdentifiers",
+          // EVM assembly produced by solc.
+          "evm.legacyAssembly",
+          // Yul produced by solc.
+          "irOptimized",
+          // Deploy bytecode produced by solx.
+          "evm.bytecode.object",
+          // Runtime bytecode produced by solx.
+          "evm.deployedBytecode.object"
         ]
       }
     },
@@ -131,12 +139,15 @@ This format features a **solx**-specific section `settings.optimizer` for LLVM o
       "bytecodeHash": "ipfs",
       // Optional: Use only literal content and not URLs.
       // Default: false.
-      "useLiteralContent": true
+      "useLiteralContent": true,
+      // Optional: Whether to include CBOR-encoded metadata at the end of bytecode.
+      // Default: true.
+      "appendCBOR": true
     },
-    // Optional: Enables the IR codegen in **solc**.
+    // Optional: Enables the IR codegen in solc.
     "viaIR": true,
 
-    // Optional: Extra LLVM settings.
+    // Optional, solx: Extra LLVM settings.
     "llvmOptions": [
       "-key", "value"
     ]
@@ -148,7 +159,7 @@ This format features a **solx**-specific section `settings.optimizer` for LLVM o
 
 ## Output JSON
 
-The output JSON contains all artifacts produced by **solx**. The example below serves as the specification of the output JSON format.
+The output JSON contains all artifacts produced by **solx** and **solc** together. The example below serves as the specification of the output JSON format.
 
 ```javascript
 {
@@ -189,7 +200,7 @@ The output JSON contains all artifacts produced by **solx**. The example below s
         // Optional: User documentation (natspec object).
         // Corresponds to "userdoc" in the outputSelection settings.
         "userdoc": {/* ... */},
-        // Optional: Yul produced by **solc** (string).
+        // Optional: Yul produced by solc (string).
         // Corresponds to "irOptimized" in the outputSelection settings.
         "irOptimized": "/* ... */",
         // Required: EVM target outputs.
@@ -220,7 +231,7 @@ The output JSON contains all artifacts produced by **solx**. The example below s
             // Possible values: "elf" (unlinked), "raw" (linked).
             "objectFormat": "elf"
           },
-          // Optional: EVM assembly produced by **solc** (object).
+          // Optional: EVM assembly produced by solc (object).
           // Corresponds to "evm.legacyAssembly" in the outputSelection settings.
           "legacyAssembly": {/* ... */},
           // Optional: List of function hashes (object).
@@ -248,7 +259,7 @@ The output JSON contains all artifacts produced by **solx**. The example below s
         "end": 100
       },
       // Required: Message type.
-      // **solc** errors are listed at https://docs.soliditylang.org/en/latest/using-the-compiler.html#error-types.
+      // solc errors are listed at https://docs.soliditylang.org/en/latest/using-the-compiler.html#error-types.
       "type": "Error",
       // Required: Component the error originates from.
       "component": "general",
@@ -256,8 +267,8 @@ The output JSON contains all artifacts produced by **solx**. The example below s
       // Possible values: "error", "warning", "info".
       "severity": "error",
       // Optional: Unique code for the cause of the error.
-      // Only **solc** produces error codes for now.
-      // **solx** currently emits errors without codes, but they will be introduced soon.
+      // Only solc produces error codes for now.
+      // solx currently emits errors without codes, but they will be introduced soon.
       "errorCode": "3141",
       // Required: Message.
       "message": "Invalid keyword",

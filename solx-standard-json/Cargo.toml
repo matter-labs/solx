@@ -10,11 +10,11 @@ description = "Standard JSON protocol for solx"
 doctest = false
 
 [dependencies]
-anyhow = "=1.0.89"
-rayon = "=1.10.0"
-serde = { version = "=1.0.210", "features" = [ "derive" ] }
-serde_json = { version = "=1.0.128", features = [ "arbitrary_precision" ] }
-semver = { version = "=1.0.23", features = [ "serde" ] }
-num = "=0.4.3"
+anyhow = "1.0"
+rayon = "1.10"
+serde = { version = "1.0", "features" = [ "derive" ] }
+serde_json = { version = "1.0", features = [ "arbitrary_precision" ] }
+semver = { version = "1.0", features = [ "serde" ] }
+num = "0.4"
 
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }

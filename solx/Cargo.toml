@@ -15,17 +15,17 @@ path = "src/solx/main.rs"
 doctest = false
 
 [dependencies]
-clap = { version = "=4.5.21", features = ["derive"] }
-thiserror = "=1.0.64"
-anyhow = "=1.0.89"
-path-slash = "=0.2.1"
-rayon = "=1.10.0"
+clap = { version = "4.5", features = ["derive"] }
+thiserror = "2.0"
+anyhow = "1.0"
+path-slash = "0.2"
+rayon = "1.10"
 
-serde = { version = "=1.0.210", "features" = [ "derive" ] }
-serde_json = { version = "=1.0.128", features = [ "arbitrary_precision" ] }
-semver = { version = "=1.0.23", features = [ "serde" ] }
-hex = "=0.4.3"
-num = "=0.4.3"
+serde = { version = "1.0", "features" = [ "derive" ] }
+serde_json = { version = "1.0", features = [ "arbitrary_precision" ] }
+semver = { version = "1.0", features = [ "serde" ] }
+hex = "0.4"
+num = "0.4"
 
 zkevm_opcode_defs = "=0.150.6"
 
@@ -37,10 +37,10 @@ solx-standard-json = { path = "../solx-standard-json" }
 solx-yul = { path = "../solx-yul" }
 
 [dev-dependencies]
-assert_cmd = "=2.0.16"
-predicates = "=3.1.2"
-tempfile = "=3.12.0"
-test-case = "=3.3.1"
+assert_cmd = "2.0"
+predicates = "3.1"
+tempfile = "3.19"
+test-case = "3.3"
 
 [dependencies.inkwell]
 git = "https://github.com/matter-labs-forks/inkwell"

@@ -15,7 +15,7 @@ fn not_specified(via_ir: bool) {
     let output = crate::common::build_solidity_standard_json(
         sources,
         era_compiler_common::Libraries::default(),
-        era_compiler_common::HashType::Ipfs,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
@@ -64,7 +64,7 @@ fn specified(via_ir: bool) {
     let output = crate::common::build_solidity_standard_json(
         sources,
         libraries,
-        era_compiler_common::HashType::Ipfs,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::cycles(),

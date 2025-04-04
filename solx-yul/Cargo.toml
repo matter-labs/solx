@@ -10,7 +10,7 @@ description = "Yul lexer and parser for solx"
 doctest = false
 
 [dependencies]
-thiserror = "=1.0.64"
-anyhow = "=1.0.89"
+anyhow = "1.0"
+thiserror = "2.0"
 
-serde = { version = "=1.0.210", "features" = [ "derive" ] }
+serde = { version = "1.0", "features" = [ "derive" ] }

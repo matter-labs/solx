@@ -44,6 +44,7 @@ impl Build {
     pub fn link(
         mut self,
         linker_symbols: BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
+        cbor_data: Option<Vec<(String, semver::Version)>>,
     ) -> Self {
         let mut contracts: BTreeMap<String, Contract> = self
             .results
@@ -165,6 +166,7 @@ impl Build {
                     object.identifier.as_str(),
                     false,
                 );
+
                 let (linked_object, object_format) =
                     match era_compiler_llvm_context::evm_link(memory_buffer, &linker_symbols) {
                         Ok((linked_object, object_format)) => (linked_object, object_format),
@@ -176,8 +178,34 @@ impl Build {
                             continue;
                         }
                     };
-                object.bytecode = linked_object.as_slice().to_owned();
                 object.format = object_format;
+
+                object.bytecode = linked_object.as_slice().to_owned();
+                // if let era_compiler_common::CodeSegment::Deploy = object.code_segment {
+                //     let metadata = match contract.metadata_hash {
+                //         Some(era_compiler_common::Hash::IPFS(ref hash)) => {
+                //             let cbor = era_compiler_common::CBOR::new(
+                //                 Some((
+                //                     era_compiler_common::EVMMetadataHashType::IPFS,
+                //                     hash.as_bytes(),
+                //                 )),
+                //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+                //                 cbor_data.clone(),
+                //             );
+                //             cbor.to_vec()
+                //         }
+                //         Some(era_compiler_common::Hash::Keccak256(ref hash)) => hash.to_vec(),
+                //         None => {
+                //             let cbor = era_compiler_common::CBOR::<'_, String>::new(
+                //                 None,
+                //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+                //                 cbor_data.clone(),
+                //             );
+                //             cbor.to_vec()
+                //         }
+                //     };
+                //     object.bytecode.extend(metadata);
+                // }
             }
         }
 
@@ -193,12 +221,14 @@ impl Build {
     ///
     /// Writes all contracts to the terminal.
     ///
-    pub fn write_to_terminal(mut self) -> anyhow::Result<()> {
+    pub fn write_to_terminal(mut self, output_metadata: bool) -> anyhow::Result<()> {
         self.take_and_write_warnings();
         self.exit_on_error();
 
         for (path, build) in self.results.into_iter() {
-            build.expect("Always valid").write_to_terminal(path)?;
+            build
+                .expect("Always valid")
+                .write_to_terminal(path, output_metadata)?;
         }
 
         Ok(())
@@ -211,6 +241,7 @@ impl Build {
         mut self,
         output_directory: &Path,
         overwrite: bool,
+        output_metadata: bool,
     ) -> anyhow::Result<()> {
         self.take_and_write_warnings();
         self.exit_on_error();
@@ -218,9 +249,11 @@ impl Build {
         std::fs::create_dir_all(output_directory)?;
 
         for build in self.results.into_values() {
-            build
-                .expect("Always valid")
-                .write_to_directory(output_directory, overwrite)?;
+            build.expect("Always valid").write_to_directory(
+                output_directory,
+                overwrite,
+                output_metadata,
+            )?;
         }
 
         writeln!(

@@ -50,7 +50,7 @@ impl Contract {
     ///
     /// Writes the contract text assembly and bytecode to terminal.
     ///
-    pub fn write_to_terminal(self, path: String) -> anyhow::Result<()> {
+    pub fn write_to_terminal(self, path: String, output_metadata: bool) -> anyhow::Result<()> {
         writeln!(std::io::stdout(), "\n======= {path} =======")?;
 
         if self.deploy_object.is_some() || self.runtime_object.is_some() {
@@ -64,8 +64,12 @@ impl Contract {
             )?;
         }
 
-        if let Some(metadata) = self.metadata {
-            writeln!(std::io::stdout(), "Metadata:\n{}", metadata)?;
+        if output_metadata {
+            writeln!(
+                std::io::stdout(),
+                "Metadata:\n{}",
+                self.metadata.expect("Always exists")
+            )?;
         }
 
         Ok(())
@@ -74,7 +78,12 @@ impl Contract {
     ///
     /// Writes the contract text assembly and bytecode to files.
     ///
-    pub fn write_to_directory(self, output_path: &Path, overwrite: bool) -> anyhow::Result<()> {
+    pub fn write_to_directory(
+        self,
+        output_path: &Path,
+        overwrite: bool,
+        output_metadata: bool,
+    ) -> anyhow::Result<()> {
         let file_path = PathBuf::from(self.name.path);
         let file_name = file_path
             .file_name()
@@ -112,7 +121,7 @@ impl Contract {
             }
         }
 
-        if let Some(metadata) = self.metadata {
+        if output_metadata {
             let output_name = format!(
                 "{}_meta.{}",
                 self.name.name.as_deref().unwrap_or(file_name),
@@ -126,7 +135,7 @@ impl Contract {
                     "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
                 );
             } else {
-                std::fs::write(output_path.as_path(), metadata)
+                std::fs::write(output_path.as_path(), self.metadata.expect("Always exists"))
                     .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
         }
