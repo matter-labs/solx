@@ -15,7 +15,7 @@ fn default(via_ir: bool) {
     let build_optimized_for_cycles = crate::common::build_solidity_standard_json(
         sources.clone(),
         era_compiler_common::Libraries::default(),
-        era_compiler_common::HashType::Keccak256,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
@@ -24,7 +24,7 @@ fn default(via_ir: bool) {
     let build_optimized_for_size = crate::common::build_solidity_standard_json(
         sources,
         era_compiler_common::Libraries::default(),
-        era_compiler_common::HashType::Keccak256,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
         era_compiler_llvm_context::OptimizerSettings::size(),

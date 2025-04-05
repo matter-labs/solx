@@ -57,7 +57,7 @@ impl Stack {
                 _ => preimages.push(vec![0]),
             }
         }
-        era_compiler_common::Hash::keccak256_multiple(preimages.as_slice())
+        era_compiler_common::Keccak256Hash::from_slices(preimages.as_slice())
             .as_bytes()
             .try_into()
             .expect("Always valid")

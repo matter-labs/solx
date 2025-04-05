@@ -71,7 +71,11 @@ impl Compiler {
         input_json
             .settings
             .output_selection
-            .set_ir(input_json.settings.via_ir);
+            .set_selector(solx_standard_json::InputSelector::Metadata);
+        input_json
+            .settings
+            .output_selection
+            .set_selector(input_json.settings.via_ir.into());
 
         let input_string = serde_json::to_string(input_json).expect("Always valid");
         let input_c_string = CString::new(input_string).expect("Always valid");
@@ -183,7 +187,10 @@ impl Compiler {
         solc_input: &mut solx_standard_json::Input,
         messages: &mut Vec<solx_standard_json::OutputError>,
     ) -> anyhow::Result<solx_standard_json::Output> {
-        solc_input.settings.output_selection.set_ir(true);
+        solc_input
+            .settings
+            .output_selection
+            .set_selector(solx_standard_json::InputSelector::Yul);
         let solc_output = self.standard_json(solc_input, messages, None, vec![], None)?;
         Ok(solc_output)
     }

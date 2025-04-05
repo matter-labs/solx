@@ -13,7 +13,7 @@ fn evmla() {
     let build = crate::common::build_solidity_standard_json(
         sources,
         era_compiler_common::Libraries::default(),
-        era_compiler_common::HashType::Ipfs,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         false,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
@@ -53,7 +53,7 @@ fn yul() {
     let build = crate::common::build_solidity_standard_json(
         sources,
         era_compiler_common::Libraries::default(),
-        era_compiler_common::HashType::Ipfs,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         true,
         era_compiler_llvm_context::OptimizerSettings::cycles(),
@@ -96,7 +96,7 @@ fn yul_empty_solidity_interface() {
     let build = crate::common::build_solidity_standard_json(
         sources,
         era_compiler_common::Libraries::default(),
-        era_compiler_common::HashType::Ipfs,
+        era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         true,
         era_compiler_llvm_context::OptimizerSettings::cycles(),

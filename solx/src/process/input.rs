@@ -23,7 +23,7 @@ pub struct Input {
     /// Already deployed libraries.
     pub deployed_libraries: BTreeSet<String>,
     /// The metadata hash type.
-    pub metadata_hash_type: era_compiler_common::HashType,
+    pub metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     /// The optimizer settings.
     pub optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
     /// The extra LLVM arguments.
@@ -41,7 +41,7 @@ impl Input {
         identifier_paths: BTreeMap<String, String>,
         output_bytecode: bool,
         deployed_libraries: BTreeSet<String>,
-        metadata_hash_type: era_compiler_common::HashType,
+        metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
