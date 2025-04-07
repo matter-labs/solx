@@ -161,51 +161,16 @@ impl Build {
                     Some(object) => object,
                     None => continue,
                 };
-                let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-                    object.bytecode.as_slice(),
-                    object.identifier.as_str(),
-                    false,
-                );
-
-                let (linked_object, object_format) =
-                    match era_compiler_llvm_context::evm_link(memory_buffer, &linker_symbols) {
-                        Ok((linked_object, object_format)) => (linked_object, object_format),
-                        Err(error) => {
-                            self.messages
-                                .push(solx_standard_json::OutputError::new_error(
-                                    None, error, None, None,
-                                ));
-                            continue;
-                        }
-                    };
-                object.format = object_format;
-
-                object.bytecode = linked_object.as_slice().to_owned();
-                // if let era_compiler_common::CodeSegment::Deploy = object.code_segment {
-                //     let metadata = match contract.metadata_hash {
-                //         Some(era_compiler_common::Hash::IPFS(ref hash)) => {
-                //             let cbor = era_compiler_common::CBOR::new(
-                //                 Some((
-                //                     era_compiler_common::EVMMetadataHashType::IPFS,
-                //                     hash.as_bytes(),
-                //                 )),
-                //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
-                //                 cbor_data.clone(),
-                //             );
-                //             cbor.to_vec()
-                //         }
-                //         Some(era_compiler_common::Hash::Keccak256(ref hash)) => hash.to_vec(),
-                //         None => {
-                //             let cbor = era_compiler_common::CBOR::<'_, String>::new(
-                //                 None,
-                //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
-                //                 cbor_data.clone(),
-                //             );
-                //             cbor.to_vec()
-                //         }
-                //     };
-                //     object.bytecode.extend(metadata);
-                // }
+                match object.link(&linker_symbols) {
+                    Ok(_) => {}
+                    Err(error) => {
+                        self.messages
+                            .push(solx_standard_json::OutputError::new_error(
+                                None, error, None, None,
+                            ));
+                        continue;
+                    }
+                }
             }
         }
 

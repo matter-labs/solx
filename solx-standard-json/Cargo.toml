@@ -1,10 +1,10 @@
 [package]
 name = "solx-standard-json"
 authors.workspace = true
-license = "MIT OR Apache-2.0"
 edition.workspace = true
 version.workspace = true
 description = "Standard JSON protocol for solx"
+license = "MIT OR Apache-2.0"
 
 [lib]
 doctest = false

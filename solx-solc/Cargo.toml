@@ -1,10 +1,10 @@
 [package]
 name = "solx-solc"
 authors.workspace = true
-license = "GPL-3.0"
 edition.workspace = true
 version.workspace = true
 description = "solc client for solx"
+license = "GPL-3.0"
 
 [lib]
 doctest = false

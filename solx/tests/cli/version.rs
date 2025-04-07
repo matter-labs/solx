@@ -11,9 +11,9 @@ fn default() -> anyhow::Result<()> {
     let args = &["--version"];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stdout(predicate::str::contains("LLVM-based Solidity compiler"));
+    result.success().stdout(predicate::str::contains(
+        "eXtremely optimizing SOLidity compiler",
+    ));
 
     Ok(())
 }

@@ -1,10 +1,10 @@
 [package]
 name = "solx"
 authors.workspace = true
-license = "GPL-3.0"
 edition.workspace = true
 version.workspace = true
-description = "LLVM-based Solidity compiler"
+description = "eXtremely optimizing SOLidity compiler"
+license = "GPL-3.0"
 links = "compiler-rt-solx"
 
 [[bin]]

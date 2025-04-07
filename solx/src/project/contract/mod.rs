@@ -150,6 +150,7 @@ impl Contract {
                     runtime_code_segment,
                     runtime_code_dependecies,
                     runtime_code_libraries,
+                    era_compiler_common::ObjectFormat::ELF,
                     runtime_code_errors,
                 );
 
@@ -186,6 +187,7 @@ impl Contract {
                     deploy_code_segment,
                     deploy_code_dependecies,
                     deploy_code_libraries,
+                    era_compiler_common::ObjectFormat::ELF,
                     deploy_code_errors,
                 );
 
@@ -246,6 +248,7 @@ impl Contract {
                     runtime_code_segment,
                     runtime_code_dependecies,
                     runtime_code_libraries,
+                    era_compiler_common::ObjectFormat::ELF,
                     runtime_code_errors,
                 );
 
@@ -280,6 +283,7 @@ impl Contract {
                     deploy_code_segment,
                     deploy_code_dependecies,
                     deploy_code_libraries,
+                    era_compiler_common::ObjectFormat::ELF,
                     deploy_code_errors,
                 );
 
@@ -321,7 +325,7 @@ impl Contract {
                     debug_config,
                 );
                 let (runtime_buffer, runtime_code_warnings) = context.build()?;
-                let runtime_object = EVMContractObject::new(
+                let mut runtime_object = EVMContractObject::new(
                     self.name.full_path.clone(),
                     self.name.clone(),
                     runtime_buffer.as_slice().to_owned(),
@@ -329,19 +333,24 @@ impl Contract {
                     runtime_code_segment,
                     runtime_code_dependencies,
                     BTreeSet::new(),
+                    era_compiler_common::ObjectFormat::ELF,
                     runtime_code_warnings,
                 );
+                runtime_object.link(&BTreeMap::new())?;
 
+                let mut deploy_bytecode = era_compiler_llvm_context::evm_minimal_deploy_code(
+                    runtime_object.bytecode.len(),
+                );
+                deploy_bytecode.extend_from_slice(runtime_object.bytecode.as_slice());
                 let deploy_object = EVMContractObject::new(
                     self.name.full_path.clone(),
                     self.name.clone(),
-                    era_compiler_llvm_context::evm_minimal_deploy_code(
-                        runtime_object.bytecode.len(),
-                    ),
+                    deploy_bytecode,
                     false,
                     deploy_code_segment,
                     deploy_code_dependencies,
                     BTreeSet::new(),
+                    era_compiler_common::ObjectFormat::Raw,
                     vec![],
                 );
 

@@ -2,6 +2,7 @@
 //! Bytecode object.
 //!
 
+use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
 ///
@@ -45,6 +46,7 @@ impl Object {
         code_segment: era_compiler_common::CodeSegment,
         dependencies: solx_yul::Dependencies,
         unlinked_libraries: BTreeSet<String>,
+        format: era_compiler_common::ObjectFormat,
         warnings: Vec<era_compiler_llvm_context::EVMWarning>,
     ) -> Self {
         Self {
@@ -56,9 +58,55 @@ impl Object {
             dependencies,
             unlinked_libraries,
             is_assembled: false,
-            format: era_compiler_common::ObjectFormat::ELF,
+            format,
             warnings,
         }
+    }
+
+    ///
+    /// Links the object with its linker symbols.
+    ///
+    pub fn link(
+        &mut self,
+        linker_symbols: &BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
+    ) -> anyhow::Result<()> {
+        let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
+            self.bytecode.as_slice(),
+            self.identifier.as_str(),
+            false,
+        );
+
+        let (linked_object, object_format) =
+            era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
+        self.format = object_format;
+
+        self.bytecode = linked_object.as_slice().to_owned();
+        // if let era_compiler_common::CodeSegment::Deploy = self.code_segment {
+        //     let metadata = match contract.metadata_hash {
+        //         Some(era_compiler_common::Hash::IPFS(ref hash)) => {
+        //             let cbor = era_compiler_common::CBOR::new(
+        //                 Some((
+        //                     era_compiler_common::EVMMetadataHashType::IPFS,
+        //                     hash.as_bytes(),
+        //                 )),
+        //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+        //                 cbor_data.clone(),
+        //             );
+        //             cbor.to_vec()
+        //         }
+        //         Some(era_compiler_common::Hash::Keccak256(ref hash)) => hash.to_vec(),
+        //         None => {
+        //             let cbor = era_compiler_common::CBOR::<'_, String>::new(
+        //                 None,
+        //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+        //                 cbor_data.clone(),
+        //             );
+        //             cbor.to_vec()
+        //         }
+        //     };
+        //     self.bytecode.extend(metadata);
+        // }
+        Ok(())
     }
 
     ///

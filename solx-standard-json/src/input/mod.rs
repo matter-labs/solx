@@ -55,7 +55,7 @@ impl Input {
     }
 
     ///
-    /// A shortcut constructor from Solidity source paths.
+    /// A shortcut constructor from paths to Solidity source files.
     ///
     pub fn try_from_solidity_paths(
         paths: &[PathBuf],
@@ -126,34 +126,7 @@ impl Input {
     }
 
     ///
-    /// A shortcut constructor from source code.
-    ///
-    pub fn from_yul_sources(
-        sources: BTreeMap<String, Source>,
-        libraries: era_compiler_common::Libraries,
-        optimizer: InputSettingsOptimizer,
-        output_selection: InputSettingsSelection,
-        metadata: InputSettingsMetadata,
-        llvm_options: Vec<String>,
-    ) -> Self {
-        Self {
-            language: Language::Yul,
-            sources,
-            settings: Settings::new(
-                optimizer,
-                libraries,
-                BTreeSet::new(),
-                None,
-                false,
-                output_selection,
-                metadata,
-                llvm_options,
-            ),
-        }
-    }
-
-    ///
-    /// A shortcut constructor from source code.
+    /// A shortcut constructor from paths to Yul source files.
     ///
     pub fn from_yul_paths(
         paths: &[PathBuf],
@@ -180,6 +153,90 @@ impl Input {
             metadata,
             llvm_options,
         )
+    }
+
+    ///
+    /// A shortcut constructor from Yul source code.
+    ///
+    pub fn from_yul_sources(
+        sources: BTreeMap<String, Source>,
+        libraries: era_compiler_common::Libraries,
+        optimizer: InputSettingsOptimizer,
+        output_selection: InputSettingsSelection,
+        metadata: InputSettingsMetadata,
+        llvm_options: Vec<String>,
+    ) -> Self {
+        Self {
+            language: Language::Yul,
+            sources,
+            settings: Settings::new(
+                optimizer,
+                libraries,
+                BTreeSet::new(),
+                None,
+                false,
+                output_selection,
+                metadata,
+                llvm_options,
+            ),
+        }
+    }
+
+    ///
+    /// A shortcut constructor from paths to LLVM IR source files.
+    ///
+    pub fn from_llvm_ir_paths(
+        paths: &[PathBuf],
+        libraries: era_compiler_common::Libraries,
+        optimizer: InputSettingsOptimizer,
+        output_selection: InputSettingsSelection,
+        metadata: InputSettingsMetadata,
+        llvm_options: Vec<String>,
+    ) -> Self {
+        let sources = paths
+            .iter()
+            .map(|path| {
+                (
+                    path.to_string_lossy().to_string(),
+                    Source::from(path.as_path()),
+                )
+            })
+            .collect();
+        Self::from_yul_sources(
+            sources,
+            libraries,
+            optimizer,
+            output_selection,
+            metadata,
+            llvm_options,
+        )
+    }
+
+    ///
+    /// A shortcut constructor from LLVM IR source code.
+    ///
+    pub fn from_llvm_ir_sources(
+        sources: BTreeMap<String, Source>,
+        libraries: era_compiler_common::Libraries,
+        optimizer: InputSettingsOptimizer,
+        output_selection: InputSettingsSelection,
+        metadata: InputSettingsMetadata,
+        llvm_options: Vec<String>,
+    ) -> Self {
+        Self {
+            language: Language::LLVMIR,
+            sources,
+            settings: Settings::new(
+                optimizer,
+                libraries,
+                BTreeSet::new(),
+                None,
+                false,
+                output_selection,
+                metadata,
+                llvm_options,
+            ),
+        }
     }
 
     ///
