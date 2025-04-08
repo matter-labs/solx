@@ -99,6 +99,7 @@ jobs:
         with:
           target: ${{ matrix.target || '' }}
           enable-coverage: ${{ matrix.enable-coverage || 'false' }}
+          coverage-token: ${{ secrets.CODECOV_TOKEN }}
 
   # Special job that allows some of the jobs to be skipped or failed
   # requiring others to be successful
