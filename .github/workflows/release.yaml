@@ -119,7 +119,7 @@ jobs:
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
 
       - name: Build solx
-        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@aba-fix-linux-static-linkage
         env:
           BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
           SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
@@ -128,94 +128,94 @@ jobs:
           target: ${{ matrix.target }}
           release-suffix: ${{ format('{0}-{1}', matrix.release-suffix, inputs.prerelease_suffix || format('v{0}', github.ref_name)) }}
 
-  prepare-release:
-    permissions:
-      id-token: write
-      attestations: write
-      contents: write
-    name: Prepare release
-    runs-on: matterlabs-ci-runner-high-performance
-    container:
-      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-    needs: build
-    steps:
-
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
-
-      - name: Get changelog
-        if: github.ref_type == 'tag'
-        id: changelog_reader
-        uses: mindsers/changelog-reader-action@v2
-        with:
-          validation_level: warn
-          path: ./CHANGELOG.md
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: release*
-          path: releases
-
-      - name: Identify release name
-        id: release
-        run: |
-          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-          if [ '${{ github.event_name }}' = 'workflow_dispatch' ]; then
-            VERSION_OR_SHA=$(git rev-parse --short HEAD)
-            echo "version_or_sha=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
-            echo "full_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-            echo "release_title=prerelease-${VERSION_OR_SHA}-${{ github.event.inputs.prerelease_suffix }}" >> $GITHUB_OUTPUT
-          else
-            VERSION_OR_SHA="${GITHUB_REF#refs/tags/}"
-            echo "version_or_sha=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
-            echo "release_title=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Check release version
-        if: github.ref_type == 'tag'
-        run: |
-          TAG="${{ steps.release.outputs.version_or_sha }}"
-          CARGO_PACKAGE_VERSION="$(cargo pkgid --manifest-path solx/Cargo.toml | cut -d "#" -f2)"
-          CHANGELOG_VERSION="${{ steps.changelog_reader.outputs.version }}"
-          # All versions must be equal
-          if [ "${CARGO_PACKAGE_VERSION}" != "${TAG}" ] || [ "${CARGO_PACKAGE_VERSION}" != "${CHANGELOG_VERSION}" ]; then
-            echo "Version mismatch: TAG=${TAG}, CARGO_PACKAGE_VERSION=${CARGO_PACKAGE_VERSION}, CHANGELOG_VERSION=${CHANGELOG_VERSION}"
-            echo "Please update the version in Cargo.toml, CHANGELOG.md and tag the commit with the same version."
-            exit 1
-          fi
-
-      - name: Prepare universal macos binary
-        if: github.ref_type == 'tag' || (inputs.release_macos_amd64 && inputs.release_macos_arm64)
-        env:
-          MACOSX_UNIVERSAL_SUFFIX: "macosx"
-          RELEASE_SUFFIX: ${{ inputs.prerelease_suffix || format('v{0}', github.ref_name) }}
-        run: |
-          OUTDIR="./releases/release-${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}/${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}"
-          mkdir -p "${OUTDIR}"
-          OUTPUT="${OUTDIR}/solx-${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}"
-          llvm-lipo -create -output "${OUTPUT}" \
-            ./releases/release-macosx-amd64-${RELEASE_SUFFIX}/macosx-amd64-${RELEASE_SUFFIX}/solx-macosx-amd64-${RELEASE_SUFFIX} \
-            ./releases/release-macosx-arm64-${RELEASE_SUFFIX}/macosx-arm64-${RELEASE_SUFFIX}/solx-macosx-arm64-${RELEASE_SUFFIX}
-          rm -f ./releases/release-macosx-amd64-${RELEASE_SUFFIX}/macosx-amd64-${RELEASE_SUFFIX}/solx-macosx-amd64-${RELEASE_SUFFIX} \
-            ./releases/release-macosx-arm64-${RELEASE_SUFFIX}/macosx-arm64-${RELEASE_SUFFIX}/solx-macosx-arm64-${RELEASE_SUFFIX}
-
-      - name: Binaries attestation
-        uses: actions/attest-build-provenance@v2
-        if: github.ref_type == 'tag'
-        with:
-          subject-path: 'releases/**/**'
-
-      - name: Prepare release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ steps.release.outputs.release_title }}
-          body: ${{ steps.changelog_reader.outputs.changes }}
-          generate_release_notes: false
-          tag_name: ${{ steps.release.outputs.version_or_sha }}
-          target_commitish: ${{ steps.release.outputs.full_sha }}
-          make_latest: true
-          files: releases/**/**
+#  prepare-release:
+#    permissions:
+#      id-token: write
+#      attestations: write
+#      contents: write
+#    name: Prepare release
+#    runs-on: matterlabs-ci-runner-high-performance
+#    container:
+#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#    needs: build
+#    steps:
+#
+#      - name: Checkout source
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
+#
+#      - name: Get changelog
+#        if: github.ref_type == 'tag'
+#        id: changelog_reader
+#        uses: mindsers/changelog-reader-action@v2
+#        with:
+#          validation_level: warn
+#          path: ./CHANGELOG.md
+#
+#      - name: Download artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          pattern: release*
+#          path: releases
+#
+#      - name: Identify release name
+#        id: release
+#        run: |
+#          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+#          if [ '${{ github.event_name }}' = 'workflow_dispatch' ]; then
+#            VERSION_OR_SHA=$(git rev-parse --short HEAD)
+#            echo "version_or_sha=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
+#            echo "full_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+#            echo "release_title=prerelease-${VERSION_OR_SHA}-${{ github.event.inputs.prerelease_suffix }}" >> $GITHUB_OUTPUT
+#          else
+#            VERSION_OR_SHA="${GITHUB_REF#refs/tags/}"
+#            echo "version_or_sha=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
+#            echo "release_title=${VERSION_OR_SHA}" >> $GITHUB_OUTPUT
+#          fi
+#
+#      - name: Check release version
+#        if: github.ref_type == 'tag'
+#        run: |
+#          TAG="${{ steps.release.outputs.version_or_sha }}"
+#          CARGO_PACKAGE_VERSION="$(cargo pkgid --manifest-path solx/Cargo.toml | cut -d "#" -f2)"
+#          CHANGELOG_VERSION="${{ steps.changelog_reader.outputs.version }}"
+#          # All versions must be equal
+#          if [ "${CARGO_PACKAGE_VERSION}" != "${TAG}" ] || [ "${CARGO_PACKAGE_VERSION}" != "${CHANGELOG_VERSION}" ]; then
+#            echo "Version mismatch: TAG=${TAG}, CARGO_PACKAGE_VERSION=${CARGO_PACKAGE_VERSION}, CHANGELOG_VERSION=${CHANGELOG_VERSION}"
+#            echo "Please update the version in Cargo.toml, CHANGELOG.md and tag the commit with the same version."
+#            exit 1
+#          fi
+#
+#      - name: Prepare universal macos binary
+#        if: github.ref_type == 'tag' || (inputs.release_macos_amd64 && inputs.release_macos_arm64)
+#        env:
+#          MACOSX_UNIVERSAL_SUFFIX: "macosx"
+#          RELEASE_SUFFIX: ${{ inputs.prerelease_suffix || format('v{0}', github.ref_name) }}
+#        run: |
+#          OUTDIR="./releases/release-${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}/${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}"
+#          mkdir -p "${OUTDIR}"
+#          OUTPUT="${OUTDIR}/solx-${MACOSX_UNIVERSAL_SUFFIX}-${RELEASE_SUFFIX}"
+#          llvm-lipo -create -output "${OUTPUT}" \
+#            ./releases/release-macosx-amd64-${RELEASE_SUFFIX}/macosx-amd64-${RELEASE_SUFFIX}/solx-macosx-amd64-${RELEASE_SUFFIX} \
+#            ./releases/release-macosx-arm64-${RELEASE_SUFFIX}/macosx-arm64-${RELEASE_SUFFIX}/solx-macosx-arm64-${RELEASE_SUFFIX}
+#          rm -f ./releases/release-macosx-amd64-${RELEASE_SUFFIX}/macosx-amd64-${RELEASE_SUFFIX}/solx-macosx-amd64-${RELEASE_SUFFIX} \
+#            ./releases/release-macosx-arm64-${RELEASE_SUFFIX}/macosx-arm64-${RELEASE_SUFFIX}/solx-macosx-arm64-${RELEASE_SUFFIX}
+#
+#      - name: Binaries attestation
+#        uses: actions/attest-build-provenance@v2
+#        if: github.ref_type == 'tag'
+#        with:
+#          subject-path: 'releases/**/**'
+#
+#      - name: Prepare release
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          name: ${{ steps.release.outputs.release_title }}
+#          body: ${{ steps.changelog_reader.outputs.changes }}
+#          generate_release_notes: false
+#          tag_name: ${{ steps.release.outputs.version_or_sha }}
+#          target_commitish: ${{ steps.release.outputs.full_sha }}
+#          make_latest: true
+#          files: releases/**/**
