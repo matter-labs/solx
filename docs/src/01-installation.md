@@ -112,6 +112,12 @@ This repository maintains intuitive and stable naming for the executables and pr
    ```shell
    git clone https://github.com/matter-labs/solx --recursive
    ```
+
+   By default, submodules checkout is disabled to prevent cloning large repositories via `cargo`.
+   If you're building locally, ensure all submodules are checked out with:
+   ```shell
+   git submodule update --recursive --checkout
+   ```
     
 4. Install the Matter Labs LLVM framework builder. This tool clones the [repository of Matter Labs LLVM Framework](https://github.com/matter-labs/era-compiler-llvm) and runs a sequence of build commands tuned for the needs of **solx**.
 

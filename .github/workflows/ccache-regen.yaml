@@ -56,6 +56,13 @@ jobs:
         with:
           submodules: 'recursive'
 
+      # This step is required to checkout submodules
+      # that are disabled in .gitmodules config
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --force --depth=1 --recursive --checkout
+
       - name: Prepare Windows env
         if: runner.os == 'Windows'
         uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
@@ -67,6 +74,11 @@ jobs:
           build-type: RelWithDebInfo
           enable-assertions: 'true'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+
+      - name: Clean-up libstdc++
+        if: runner.os == 'Windows'
+        shell: 'msys2 {0}'
+        run: rm -f ./target-llvm/target-final/lib/libstdc++.a
 
       - name: Build LLVM for releases
         uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
