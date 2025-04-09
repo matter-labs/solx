@@ -71,7 +71,9 @@ impl Build {
                             && object.dependencies.inner.iter().all(|dependency| {
                                 all_objects
                                     .iter()
-                                    .find(|object| object.matches_dependency(dependency.as_str()))
+                                    .find(|object| {
+                                        object.identifier.as_str() == dependency.as_str()
+                                    })
                                     .map(|object| !object.requires_assembling())
                                     .unwrap_or_default()
                             })
@@ -98,7 +100,7 @@ impl Build {
                         let original_dependency_identifier = dependency.to_owned();
                         let dependency = all_objects
                             .iter()
-                            .find(|object| object.matches_dependency(dependency.as_str()))
+                            .find(|object| object.identifier.as_str() == dependency.as_str())
                             .expect("Dependency not found");
                         let memory_buffer =
                             inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(

@@ -122,18 +122,18 @@ impl FunctionCall {
     ///
     pub fn accumulate_evm_dependencies(&self, dependencies: &mut Dependencies) {
         match self.name {
-            Name::CodeCopy | Name::DataCopy | Name::DataSize | Name::DataOffset => {
+            Name::DataSize | Name::DataOffset => {
                 if let Expression::Literal(Literal {
                     inner: LexicalLiteral::String(identifier),
                     ..
                 }) = self.arguments.first().expect("Always exists")
                 {
+                    let object_name = identifier.inner.split(".").last().expect("Always exists");
                     let is_runtime_code = dependencies.identifier.as_str()
-                        == identifier
-                            .inner
+                        == object_name
                             .strip_suffix("_deployed")
                             .unwrap_or(dependencies.identifier.as_str());
-                    dependencies.push(identifier.to_string(), is_runtime_code);
+                    dependencies.push(object_name.to_owned(), is_runtime_code);
                 }
                 return;
             }

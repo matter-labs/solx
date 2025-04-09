@@ -115,20 +115,4 @@ impl Object {
     pub fn requires_assembling(&self) -> bool {
         !self.is_assembled && !self.dependencies.inner.is_empty()
     }
-
-    ///
-    /// Checks whether the object name matches a dot-separated dependency name.
-    ///
-    /// This function is only useful for Yul codegen where object names like `A_25.A_25_deployed` are found.
-    /// For EVM assembly codegen, it performs a simple comparison.
-    ///
-    pub fn matches_dependency(&self, dependency: &str) -> bool {
-        let dependency = if self.via_ir {
-            dependency.split('.').next().expect("Always exists")
-        } else {
-            dependency
-        };
-
-        self.identifier.as_str() == dependency
-    }
 }
