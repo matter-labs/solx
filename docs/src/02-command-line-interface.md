@@ -259,7 +259,9 @@ a2646970667358221220ba14ea4e52366f139a845913d41e98933393bd1c1126331611687003d4aa
 
 The byte array starting with `a2` at the end of the bytecode is a CBOR-encoded compiler version data and an optional metadata hash.
 
-JSON representation of a CBOR payload:
+The last two bytes of the metadata (`0x0055`) are not a part of the CBOR payload, but the length of it, which must be known to correctly decode the payload. 
+
+JSON representation of the CBOR payload:
 
 ```javascript
 {
