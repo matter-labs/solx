@@ -67,14 +67,15 @@ impl Build {
                 let assembleable_objects = all_objects
                     .iter()
                     .filter(|object| {
-                        object.requires_assembling()
+                        !object.is_assembled
+                            && object.format == era_compiler_common::ObjectFormat::ELF
                             && object.dependencies.inner.iter().all(|dependency| {
                                 all_objects
                                     .iter()
                                     .find(|object| {
                                         object.identifier.as_str() == dependency.as_str()
                                     })
-                                    .map(|object| !object.requires_assembling())
+                                    .map(|object| object.is_assembled)
                                     .unwrap_or_default()
                             })
                     })
@@ -86,53 +87,17 @@ impl Build {
 
                 let mut assembled_objects_data = Vec::with_capacity(assembleable_objects.len());
                 for object in assembleable_objects.into_iter() {
-                    let memory_buffer =
-                        inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-                            object.bytecode.as_slice(),
-                            object.identifier.as_str(),
-                            false,
-                        );
-                    let mut memory_buffers =
-                        Vec::with_capacity(1 + object.dependencies.inner.len());
-                    memory_buffers.push((object.identifier.to_owned(), memory_buffer));
-
-                    memory_buffers.extend(object.dependencies.inner.iter().map(|dependency| {
-                        let original_dependency_identifier = dependency.to_owned();
-                        let dependency = all_objects
-                            .iter()
-                            .find(|object| object.identifier.as_str() == dependency.as_str())
-                            .expect("Dependency not found");
-                        let memory_buffer =
-                            inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-                                dependency.bytecode.as_slice(),
-                                dependency.identifier.as_str(),
-                                false,
-                            );
-                        (original_dependency_identifier, memory_buffer)
-                    }));
-
-                    let bytecode_buffers = memory_buffers
-                        .iter()
-                        .map(|(_identifier, memory_buffer)| memory_buffer)
-                        .collect::<Vec<&inkwell::memory_buffer::MemoryBuffer>>();
-                    let bytecode_ids = memory_buffers
-                        .iter()
-                        .map(|(identifier, _memory_buffer)| identifier.as_str())
-                        .collect::<Vec<&str>>();
-                    let assembled_object = match era_compiler_llvm_context::evm_assemble(
-                        bytecode_buffers.as_slice(),
-                        bytecode_ids.as_slice(),
-                        object.code_segment,
-                    ) {
-                        Ok(assembled_object) => assembled_object,
-                        Err(error) => {
-                            self.messages
-                                .push(solx_standard_json::OutputError::new_error(
-                                    None, error, None, None,
-                                ));
-                            continue;
-                        }
-                    };
+                    let assembled_object =
+                        match object.assemble(all_objects.as_slice(), cbor_data.clone()) {
+                            Ok(assembled_object) => assembled_object,
+                            Err(error) => {
+                                self.messages
+                                    .push(solx_standard_json::OutputError::new_error(
+                                        None, &error, None, None,
+                                    ));
+                                return Self::new(BTreeMap::new(), &mut self.messages);
+                            }
+                        };
                     assembled_objects_data.push((
                         object.contract_name.full_path.to_owned(),
                         object.code_segment,
@@ -163,15 +128,12 @@ impl Build {
                     Some(object) => object,
                     None => continue,
                 };
-                match object.link(&linker_symbols) {
-                    Ok(_) => {}
-                    Err(error) => {
-                        self.messages
-                            .push(solx_standard_json::OutputError::new_error(
-                                None, error, None, None,
-                            ));
-                        continue;
-                    }
+                if let Err(error) = object.link(&linker_symbols) {
+                    self.messages
+                        .push(solx_standard_json::OutputError::new_error(
+                            None, &error, None, None,
+                        ));
+                    return Self::new(BTreeMap::new(), &mut self.messages);
                 }
             }
         }

@@ -92,7 +92,7 @@ fn linker_error() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx(args)?;
     result.failure().stderr(predicate::str::contains(
-        "ld.lld: error: undefined symbol: foo",
+        "unable to evaluate offset to undefined symbol",
     ));
 
     Ok(())

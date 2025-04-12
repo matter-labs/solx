@@ -2,45 +2,44 @@
 //! CLI tests for the eponymous option.
 //!
 
-// use era_compiler_common::EVMMetadataHashType;
+use era_compiler_common::EVMMetadataHashType;
 use predicates::prelude::*;
 
-// TODO: move metadata to linker
-// #[test]
-// fn none() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn none() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let hash_type = EVMMetadataHashType::None.to_string();
-//     let args = &[
-//         "--metadata-hash",
-//         hash_type.as_str(),
-//         "--bin",
-//         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-//     ];
+    let hash_type = EVMMetadataHashType::None.to_string();
+    let args = &[
+        "--metadata-hash",
+        hash_type.as_str(),
+        "--bin",
+        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result.success().stdout(predicate::str::contains("a164"));
+    let result = crate::cli::execute_solx(args)?;
+    result.success().stdout(predicate::str::contains("a164"));
 
-//     Ok(())
-// }
+    Ok(())
+}
 
-// #[test]
-// fn ipfs() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn ipfs() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let hash_type = EVMMetadataHashType::IPFS.to_string();
-//     let args = &[
-//         "--metadata-hash",
-//         hash_type.as_str(),
-//         "--bin",
-//         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-//     ];
+    let hash_type = EVMMetadataHashType::IPFS.to_string();
+    let args = &[
+        "--metadata-hash",
+        hash_type.as_str(),
+        "--bin",
+        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result.success().stdout(predicate::str::contains("a264"));
+    let result = crate::cli::execute_solx(args)?;
+    result.success().stdout(predicate::str::contains("a264"));
 
-//     Ok(())
-// }
+    Ok(())
+}
 
 #[test]
 fn standard_json_cli_excess_arg() -> anyhow::Result<()> {

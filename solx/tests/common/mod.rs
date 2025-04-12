@@ -121,8 +121,6 @@ pub fn build_solidity_standard_json(
     ];
 
     let build = build.link(linker_symbols, Some(cbor_data));
-    build.check_errors()?;
-
     build.write_to_standard_json(&mut solc_output)?;
     solc_output.check_errors()?;
     Ok(solc_output)
@@ -184,8 +182,6 @@ pub fn build_yul_standard_json(
     ];
 
     let build = build.link(BTreeMap::new(), Some(cbor_data));
-    build.check_errors()?;
-
     build.write_to_standard_json(&mut solc_output)?;
     solc_output.check_errors()?;
     Ok(solc_output)
@@ -228,8 +224,6 @@ pub fn build_llvm_ir_standard_json(
     )];
 
     let build = build.link(BTreeMap::new(), Some(cbor_data));
-    build.check_errors()?;
-
     build.write_to_standard_json(&mut output)?;
     output.check_errors()?;
     Ok(output)

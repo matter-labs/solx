@@ -409,6 +409,9 @@ Binary:
 
 Enables the LLVM IR mode. In this mode, input is expected to be in the LLVM IR language. The output works the same way as with Solidity input.
 
+> In this mode, every input file is treated as runtime code, while deploy code will be generated automatically by **solx**.
+> It is not possible to write deploy code manually yet, but it will be supported in the future.
+
 Unlike **solc**, **solx** is an LLVM-based compiler toolchain, so it uses LLVM IR as an intermediate representation. It is not recommended to write LLVM IR manually, but it can be useful for debugging and optimization purposes. LLVM IR is more low-level than Yul and EVM assembly in the **solx** IR hierarchy.
 
 Usage:
