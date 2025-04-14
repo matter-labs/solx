@@ -226,3 +226,9 @@ jobs:
           target_commitish: ${{ steps.release.outputs.full_sha }}
           make_latest: true
           files: releases/**/**
+
+  deploy-docs:
+    if: github.ref_type == 'tag'
+    needs: prepare-release
+    uses: ./.github/workflows/deploy-docs.yaml
+    secrets: inherit

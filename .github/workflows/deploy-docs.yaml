@@ -1,12 +1,11 @@
 name: Deploy docs
 
 on:
-  release:
-    types: [ released ]
   pull_request:
     paths:
       - 'docs/**'
       - '.github/workflows/deploy-docs.yaml'
+  workflow_call:
   workflow_dispatch:
     inputs:
       version:
