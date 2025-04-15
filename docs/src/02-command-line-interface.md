@@ -259,7 +259,9 @@ a2646970667358221220ba14ea4e52366f139a845913d41e98933393bd1c1126331611687003d4aa
 
 The byte array starting with `a2` at the end of the bytecode is a CBOR-encoded compiler version data and an optional metadata hash.
 
-JSON representation of a CBOR payload:
+The last two bytes of the metadata (`0x0055`) are not a part of the CBOR payload, but the length of it, which must be known to correctly decode the payload. 
+
+JSON representation of the CBOR payload:
 
 ```javascript
 {
@@ -406,6 +408,9 @@ Binary:
 ### `--llvm-ir`
 
 Enables the LLVM IR mode. In this mode, input is expected to be in the LLVM IR language. The output works the same way as with Solidity input.
+
+> In this mode, every input file is treated as runtime code, while deploy code will be generated automatically by **solx**.
+> It is not possible to write deploy code manually yet, but it will be supported in the future.
 
 Unlike **solc**, **solx** is an LLVM-based compiler toolchain, so it uses LLVM IR as an intermediate representation. It is not recommended to write LLVM IR manually, but it can be useful for debugging and optimization purposes. LLVM IR is more low-level than Yul and EVM assembly in the **solx** IR hierarchy.
 

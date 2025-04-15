@@ -91,9 +91,9 @@ fn linker_error() -> anyhow::Result<()> {
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result
-        .failure()
-        .stderr(predicate::str::contains("Assertion"));
+    result.failure().stderr(predicate::str::contains(
+        "unable to evaluate offset to undefined symbol",
+    ));
 
     Ok(())
 }

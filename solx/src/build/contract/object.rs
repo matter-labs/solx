@@ -22,6 +22,8 @@ pub struct Object {
     pub via_ir: bool,
     /// Code segment.
     pub code_segment: era_compiler_common::CodeSegment,
+    /// The metadata bytes. Only appended to runtime code.
+    pub metadata_bytes: Option<Vec<u8>>,
     /// Dependencies.
     pub dependencies: solx_yul::Dependencies,
     /// The unlinked unlinked libraries.
@@ -44,6 +46,7 @@ impl Object {
         bytecode: Vec<u8>,
         via_ir: bool,
         code_segment: era_compiler_common::CodeSegment,
+        metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
         unlinked_libraries: BTreeSet<String>,
         format: era_compiler_common::ObjectFormat,
@@ -55,12 +58,82 @@ impl Object {
             bytecode,
             via_ir,
             code_segment,
+            metadata_bytes,
             dependencies,
             unlinked_libraries,
             is_assembled: false,
             format,
             warnings,
         }
+    }
+
+    ///
+    /// Appends metadata to the object.
+    ///
+    pub fn to_memory_buffer(
+        &self,
+        cbor_data: Option<Vec<(String, semver::Version)>>,
+    ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
+        let mut memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
+            self.bytecode.as_slice(),
+            self.identifier.as_str(),
+            false,
+        );
+
+        if let (era_compiler_common::CodeSegment::Runtime, metadata_bytes) =
+            (self.code_segment, &self.metadata_bytes)
+        {
+            memory_buffer = era_compiler_llvm_context::evm_append_metadata(
+                memory_buffer,
+                metadata_bytes.to_owned(),
+                cbor_data
+                    .map(|cbor_data| (crate::r#const::SOLC_PRODUCTION_NAME.to_owned(), cbor_data)),
+            )?;
+        }
+
+        Ok(memory_buffer)
+    }
+
+    ///
+    /// Assembles the object.
+    ///
+    pub fn assemble(
+        &self,
+        all_objects: &[&Self],
+        cbor_data: Option<Vec<(String, semver::Version)>>,
+    ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
+        let memory_buffer = self.to_memory_buffer(cbor_data.clone())?;
+
+        let mut memory_buffers = Vec::with_capacity(1 + self.dependencies.inner.len());
+        memory_buffers.push((self.identifier.to_owned(), memory_buffer));
+
+        memory_buffers.extend(self.dependencies.inner.iter().map(|dependency| {
+            let original_dependency_identifier = dependency.to_owned();
+            let dependency = all_objects
+                .iter()
+                .find(|object| object.identifier.as_str() == dependency.as_str())
+                .expect("Dependency not found");
+            let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
+                dependency.bytecode.as_slice(),
+                dependency.identifier.as_str(),
+                false,
+            );
+            (original_dependency_identifier, memory_buffer)
+        }));
+
+        let bytecode_buffers = memory_buffers
+            .iter()
+            .map(|(_identifier, memory_buffer)| memory_buffer)
+            .collect::<Vec<&inkwell::memory_buffer::MemoryBuffer>>();
+        let bytecode_ids = memory_buffers
+            .iter()
+            .map(|(identifier, _memory_buffer)| identifier.as_str())
+            .collect::<Vec<&str>>();
+        era_compiler_llvm_context::evm_assemble(
+            bytecode_buffers.as_slice(),
+            bytecode_ids.as_slice(),
+            self.code_segment,
+        )
     }
 
     ///
@@ -81,31 +154,6 @@ impl Object {
         self.format = object_format;
 
         self.bytecode = linked_object.as_slice().to_owned();
-        // if let era_compiler_common::CodeSegment::Deploy = self.code_segment {
-        //     let metadata = match contract.metadata_hash {
-        //         Some(era_compiler_common::Hash::IPFS(ref hash)) => {
-        //             let cbor = era_compiler_common::CBOR::new(
-        //                 Some((
-        //                     era_compiler_common::EVMMetadataHashType::IPFS,
-        //                     hash.as_bytes(),
-        //                 )),
-        //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
-        //                 cbor_data.clone(),
-        //             );
-        //             cbor.to_vec()
-        //         }
-        //         Some(era_compiler_common::Hash::Keccak256(ref hash)) => hash.to_vec(),
-        //         None => {
-        //             let cbor = era_compiler_common::CBOR::<'_, String>::new(
-        //                 None,
-        //                 crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
-        //                 cbor_data.clone(),
-        //             );
-        //             cbor.to_vec()
-        //         }
-        //     };
-        //     self.bytecode.extend(metadata);
-        // }
         Ok(())
     }
 
@@ -113,6 +161,6 @@ impl Object {
     /// Whether the object requires assebmling with its dependencies.
     ///
     pub fn requires_assembling(&self) -> bool {
-        !self.is_assembled && !self.dependencies.inner.is_empty()
+        !self.is_assembled
     }
 }

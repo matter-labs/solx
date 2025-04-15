@@ -21,8 +21,6 @@ pub struct Contract {
     pub deploy_object: Option<Object>,
     /// The runtime code object.
     pub runtime_object: Option<Object>,
-    /// The metadata hash.
-    pub metadata_hash: Option<era_compiler_common::Hash>,
     /// The combined `solc` and `solx` metadata.
     pub metadata: Option<String>,
 }
@@ -35,14 +33,12 @@ impl Contract {
         name: era_compiler_common::ContractName,
         deploy_object: Option<Object>,
         runtime_object: Option<Object>,
-        metadata_hash: Option<era_compiler_common::Hash>,
         metadata: Option<String>,
     ) -> Self {
         Self {
             name,
             deploy_object,
             runtime_object,
-            metadata_hash,
             metadata,
         }
     }

@@ -8,7 +8,6 @@ use assert_cmd::assert::OutputAssertExt;
 use assert_cmd::cargo::CommandCargoExt;
 
 mod allow_paths;
-// mod no_cbor_metadata; TODO: move metadata to linker
 mod base_path;
 mod bin;
 mod debug_output_dir;
@@ -21,6 +20,7 @@ mod llvm_options;
 mod metadata;
 mod metadata_hash;
 mod metadata_literal;
+mod no_cbor_metadata;
 mod optimization;
 mod optimization_size_fallback;
 mod output_dir;

@@ -171,75 +171,74 @@ fn yul() -> anyhow::Result<()> {
     Ok(())
 }
 
-// TODO: move metadata to linker
-// #[test]
-// fn metadata_hash_ipfs_and_metadata() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn metadata_hash_ipfs_and_metadata() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let args = &[
-//         "--standard-json",
-//         crate::common::TEST_JSON_METADATA_HASH_IPFS_AND_METADATA,
-//     ];
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_JSON_METADATA_HASH_IPFS_AND_METADATA,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result
-//         .success()
-//         .stdout(predicate::str::contains("a264"))
-//         .stdout(predicate::str::contains("\"metadata\""));
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("a264"))
+        .stdout(predicate::str::contains("\"metadata\""));
 
-//     Ok(())
-// }
+    Ok(())
+}
 
-// #[test]
-// fn metadata_hash_ipfs_no_metadata() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn metadata_hash_ipfs_no_metadata() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let args = &[
-//         "--standard-json",
-//         crate::common::TEST_JSON_METADATA_HASH_IPFS_NO_METADATA,
-//     ];
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_JSON_METADATA_HASH_IPFS_NO_METADATA,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result
-//         .success()
-//         .stdout(predicate::str::contains("a264"))
-//         .stdout(predicate::str::contains("\"metadata\"").not());
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("a264"))
+        .stdout(predicate::str::contains("\"metadata\"").not());
 
-//     Ok(())
-// }
+    Ok(())
+}
 
-// #[test]
-// fn metadata_hash_none_and_metadata() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn metadata_hash_none_and_metadata() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let args = &[
-//         "--standard-json",
-//         crate::common::TEST_JSON_METADATA_HASH_NONE_AND_METADATA,
-//     ];
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_JSON_METADATA_HASH_NONE_AND_METADATA,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result
-//         .success()
-//         .stdout(predicate::str::contains("a164"))
-//         .stdout(predicate::str::contains("\"metadata\""));
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("a164"))
+        .stdout(predicate::str::contains("\"metadata\""));
 
-//     Ok(())
-// }
+    Ok(())
+}
 
-// #[test]
-// fn metadata_hash_none_no_metadata() -> anyhow::Result<()> {
-//     crate::common::setup()?;
+#[test]
+fn metadata_hash_none_no_metadata() -> anyhow::Result<()> {
+    crate::common::setup()?;
 
-//     let args = &[
-//         "--standard-json",
-//         crate::common::TEST_JSON_METADATA_HASH_NONE_NO_METADATA,
-//     ];
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_JSON_METADATA_HASH_NONE_NO_METADATA,
+    ];
 
-//     let result = crate::cli::execute_solx(args)?;
-//     result
-//         .success()
-//         .stdout(predicate::str::contains("a164"))
-//         .stdout(predicate::str::contains("\"metadata\"").not());
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("a164"))
+        .stdout(predicate::str::contains("\"metadata\"").not());
 
-//     Ok(())
-// }
+    Ok(())
+}
