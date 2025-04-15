@@ -6,5 +6,5 @@
 [submodule "era-solidity"]
 	path = era-solidity
 	url = https://github.com/matter-labs/era-solidity
-	branch = app-timelock
+	branch = app-console-backup
 	update = none

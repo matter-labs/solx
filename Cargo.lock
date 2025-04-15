@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-fix-unreachable#dd5d2a06ef6d4ee0148e53a48f70957f60f3e689"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#26eff8c398d0ffe2509846a9ec1f0f346aedcf55"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1188,9 +1188,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.94"
+version = "1.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a31971752e70b8b2686d7e46ec17fb38dad4051d94024c88df49b667caea9c84"
+checksum = "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778"
 dependencies = [
  "unicode-ident",
 ]
