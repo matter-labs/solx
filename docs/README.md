@@ -16,6 +16,7 @@ cargo install mdbook
 To build the book, use the following command:
 
 ```bash
+cd docs  # if you're not in this directory already
 mdbook build
 ```
 
