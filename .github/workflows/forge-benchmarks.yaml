@@ -1,0 +1,141 @@
+name: Forge benchmarks
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# Cancel the workflow if any new changes pushed to a feature branch or the trunk
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  build-solx:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      # This step is required to checkout submodules
+      # that are disabled in .gitmodules config
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --force --depth=1 --recursive --checkout
+
+      - name: Building solc
+        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        with:
+          cmake-build-type: 'Release'
+          working-dir: 'era-solidity'
+
+      - name: Build LLVM
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          clone-llvm: 'false'
+          build-type: Release
+          enable-assertions: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+
+      - name: Build solx
+        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+        env:
+          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+        with:
+          exec_name: 'solx'
+          target: 'x86_64-unknown-linux-gnu'
+          release-suffix: test
+
+
+  run-benchmarks:
+    needs: build-solx
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: ['solc', 'solx']
+        via_ir: ['false', 'true']
+    env:
+      FOUNDRY_PROFILE: ${{ matrix.compiler == 'solx' && 'solx' || '' }}
+      VIA_IR: ${{ matrix.via_ir == 'true' && '--via-ir' || '' }}
+      # Skipped tests due to `solx` stack compiler issues
+      # If we don't skip, forge cannot produce any results
+      SKIP_TESTS: "--skip ERC1155.t.sol ERC6909.t.sol"
+    steps:
+      - name: Checkout benchmarks
+        uses: actions/checkout@v4
+        with:
+          repository: 'popzxc/solx_demo'
+          submodules: 'recursive'
+          ref: 'c79c6e4ebbf1594614a3df006d9e98174e52f1d2'
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release*
+          path: .
+
+      - name: Move solx
+        run: |
+          mv release-test/test/solx* ./solx
+          chmod a+x ./solx
+
+      - name: Install foundry v0.3.0
+        run: |
+          curl -L https://foundry.paradigm.xyz | bash
+          export PATH="$PATH:${HOME}/.foundry/bin"
+          echo ${HOME}/.foundry/bin >> "${GITHUB_PATH}"
+          foundryup -i 0.3.0
+
+      - name: Run tests
+        working-directory: solmate
+        run: |
+          forge test --gas-report --json ${VIA_IR} ${SKIP_TESTS} \
+            > "${{ matrix.compiler }}${VIA_IR}.json"
+
+      - name: Upload json
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.compiler }}-${{ matrix.via_ir }}
+          path: ./solmate/${{ matrix.compiler }}${{ env.VIA_IR }}.json
+
+
+  analyze-results:
+    runs-on: ubuntu-latest
+    needs: run-benchmarks
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          path: data
+          merge-multiple: 'true'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install pandas tabulate
+
+      - name: Analyze results
+        run: python .github/scripts/solmate_report.py > report.md
+
+      - name: Upload report
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-path: report.md
+          message-id: 'solx-benchmarks-report'
