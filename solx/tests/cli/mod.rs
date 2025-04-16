@@ -21,6 +21,7 @@ mod metadata;
 mod metadata_hash;
 mod metadata_literal;
 mod no_cbor_metadata;
+mod no_import_callback;
 mod optimization;
 mod optimization_size_fallback;
 mod output_dir;

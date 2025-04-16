@@ -52,8 +52,8 @@ impl Selection {
     pub fn new_compilation(bytecode: bool, metadata: bool, via_ir: Option<bool>) -> Self {
         let mut selectors = BTreeSet::new();
         if bytecode {
-            selectors.insert(Selector::BytecodeObject);
-            selectors.insert(Selector::RuntimeBytecodeObject);
+            selectors.insert(Selector::Bytecode);
+            selectors.insert(Selector::RuntimeBytecode);
         }
         if metadata {
             selectors.insert(Selector::Metadata);

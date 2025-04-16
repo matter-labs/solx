@@ -172,6 +172,7 @@ pub fn standard_output_evm(
     base_path: Option<String>,
     include_paths: Vec<String>,
     allow_paths: Option<String>,
+    use_import_callback: bool,
     remappings: BTreeSet<String>,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
     llvm_options: Vec<String>,
@@ -194,6 +195,7 @@ pub fn standard_output_evm(
     let mut solc_output = solc_compiler.standard_json(
         &mut solc_input,
         messages,
+        use_import_callback,
         base_path,
         include_paths,
         allow_paths,
@@ -257,6 +259,7 @@ pub fn standard_json_evm(
     base_path: Option<String>,
     include_paths: Vec<String>,
     allow_paths: Option<String>,
+    use_import_callback: bool,
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<()> {
     let solc_compiler = solx_solc::Compiler::default();
@@ -267,11 +270,11 @@ pub fn standard_json_evm(
     let output_bytecode = solc_input
         .settings
         .output_selection
-        .is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
+        .is_set_for_any(solx_standard_json::InputSelector::Bytecode)
         || solc_input
             .settings
             .output_selection
-            .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeObject);
+            .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecode);
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
@@ -313,6 +316,7 @@ pub fn standard_json_evm(
             let mut solc_output = solc_compiler.standard_json(
                 &mut solc_input,
                 messages,
+                use_import_callback,
                 base_path,
                 include_paths,
                 allow_paths,
