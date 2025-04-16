@@ -124,6 +124,10 @@ pub struct Arguments {
     #[arg(long)]
     pub no_cbor_metadata: bool,
 
+    /// Turn off the default `solc` import resolution callback.
+    #[arg(long)]
+    pub no_import_callback: bool,
+
     /// Output metadata of the compiled project.
     #[arg(long = "metadata")]
     pub output_metadata: bool,

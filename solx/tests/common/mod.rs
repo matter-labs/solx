@@ -86,7 +86,7 @@ pub fn build_solidity_standard_json(
 
     let mut solc_output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.standard_json(&mut solc_input, &mut vec![], None, vec![], None)
+        solc_compiler.standard_json(&mut solc_input, &mut vec![], true, None, vec![], None)
     }?;
     solc_output.check_errors()?;
 

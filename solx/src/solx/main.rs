@@ -136,6 +136,7 @@ fn main_inner(
         .metadata_hash
         .unwrap_or(era_compiler_common::EVMMetadataHashType::IPFS);
     let append_cbor = !arguments.no_cbor_metadata;
+    let use_import_callback = !arguments.no_import_callback;
 
     let build = if arguments.yul {
         solx::yul_to_evm(
@@ -172,6 +173,7 @@ fn main_inner(
             arguments.base_path,
             arguments.include_path,
             arguments.allow_paths,
+            use_import_callback,
             debug_config,
         );
     } else if arguments.output_bytecode || arguments.output_metadata {
@@ -188,6 +190,7 @@ fn main_inner(
             arguments.base_path,
             arguments.include_path,
             arguments.allow_paths,
+            use_import_callback,
             remappings,
             optimizer_settings,
             llvm_options,

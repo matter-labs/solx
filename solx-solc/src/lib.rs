@@ -27,6 +27,14 @@ extern "C" {
     ///
     /// Pass standard JSON input to the Solidity compiler.
     ///
+    fn solidity_compile(
+        input: *const ::libc::c_char,
+        error_pointer: *mut *mut ::libc::c_char,
+    ) -> *const std::os::raw::c_char;
+
+    ///
+    /// Pass standard JSON input to the Solidity compiler.
+    ///
     /// Passes `--base-path`, `--include-paths`, and `--allow-paths` just like it is done with the CLI.
     ///
     fn solidity_compile_default_callback(
@@ -61,6 +69,7 @@ impl Compiler {
         &self,
         input_json: &mut solx_standard_json::Input,
         messages: &mut Vec<solx_standard_json::OutputError>,
+        use_import_callback: bool,
         base_path: Option<String>,
         include_paths: Vec<String>,
         allow_paths: Option<String>,
@@ -117,15 +126,19 @@ impl Compiler {
         let mut error_message = std::ptr::null_mut();
         let error_pointer = &mut error_message;
         let output_string = unsafe {
-            let output_pointer = solidity_compile_default_callback(
-                input_c_string.as_ptr(),
-                base_path,
-                include_paths.len() as u64,
-                include_paths_ptr,
-                allow_paths.len() as u64,
-                allow_paths_ptr,
-                error_pointer,
-            );
+            let output_pointer = if use_import_callback {
+                solidity_compile_default_callback(
+                    input_c_string.as_ptr(),
+                    base_path,
+                    include_paths.len() as u64,
+                    include_paths_ptr,
+                    allow_paths.len() as u64,
+                    allow_paths_ptr,
+                    error_pointer,
+                )
+            } else {
+                solidity_compile(input_c_string.as_ptr(), error_pointer)
+            };
             if !error_message.is_null() {
                 let error_message = CStr::from_ptr(error_message).to_string_lossy().into_owned();
                 anyhow::bail!("solc standard JSON I/O: {error_message}");
@@ -191,7 +204,7 @@ impl Compiler {
             .settings
             .output_selection
             .set_selector(solx_standard_json::InputSelector::Yul);
-        let solc_output = self.standard_json(solc_input, messages, None, vec![], None)?;
+        let solc_output = self.standard_json(solc_input, messages, true, None, vec![], None)?;
         Ok(solc_output)
     }
 

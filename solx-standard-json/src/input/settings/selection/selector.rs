@@ -41,11 +41,11 @@ pub enum Selector {
     Yul,
 
     /// The deploy bytecode.
-    #[serde(rename = "evm.bytecode.object")]
-    BytecodeObject,
+    #[serde(rename = "evm.bytecode", alias = "evm.bytecode.object")]
+    Bytecode,
     /// The runtime bytecode.
-    #[serde(rename = "evm.deployedBytecode.object")]
-    RuntimeBytecodeObject,
+    #[serde(rename = "evm.deployedBytecode", alias = "evm.deployedBytecode.object")]
+    RuntimeBytecode,
 
     /// The catch-all variant.
     #[serde(other)]
@@ -57,10 +57,7 @@ impl Selector {
     /// Whether the data source is `solc`.
     ///
     pub fn is_received_from_solc(&self) -> bool {
-        !matches!(
-            self,
-            Self::BytecodeObject | Self::RuntimeBytecodeObject | Self::Other
-        )
+        !matches!(self, Self::Bytecode | Self::RuntimeBytecode | Self::Other)
     }
 }
 
