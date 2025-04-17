@@ -132,7 +132,7 @@ jobs:
         run: pip install pandas tabulate
 
       - name: Analyze results
-        run: python .github/scripts/solmate_report.py > report.md
+        run: python .github/scripts/foundry_report.py > report.md
 
       - name: Upload report
         uses: mshick/add-pr-comment@v2
