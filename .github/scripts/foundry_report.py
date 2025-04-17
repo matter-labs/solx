@@ -1,6 +1,10 @@
-import json
+# Foundry Benchmarks Formatter
+
 from pathlib import Path
+import json
 import pandas as pd
+
+
 
 # === Config ===
 
@@ -15,29 +19,31 @@ FILE_MAP = {
 }
 
 
+
 # === Helpers ===
 
 def pct_diff(base, new):
     if base is None or new is None or base == 0:
         return "N/A", 0.0, None
     diff = (new - base) / base * 100
-    return f"{diff:.2f}%", abs(diff), diff
+    return f"{diff:.2f}", abs(diff), diff
 
 def decorate(diff_str, raw_val):
     if raw_val is None:
         return diff_str
-    return f"{diff_str} :white_check_mark:" if raw_val < 0 else f"{diff_str} :red_circle:"
+    return f":white_check_mark: {diff_str}" if raw_val < 0 else f":red_circle: {diff_str}"
 
 def summarize_contracts(diffs_dict):
     def format_val(val):
-        return f"{val:.2f}% :white_check_mark:" if val > 0 else f"{val:.2f}% :red_circle:"
+        return f":white_check_mark: {val:.2f}" if val > 0 else f":red_circle: {val:.2f}"
 
     df = pd.DataFrame([
-        {"Test": contract, "gas diff, %": format_val(sum(vals)/len(vals))}
+        {"Test": contract, "Gas (%)": format_val(sum(vals)/len(vals))}
         for contract, vals in diffs_dict.items()
     ])
-    df["__sort"] = df["gas diff, %"].str.extract(r"([-+]?\d*\.\d+|\d+)").astype(float)
+    df["__sort"] = df["Gas (%)"].str.extract(r"([-+]?\d*\.\d+|\d+)").astype(float)
     return df.sort_values("__sort", ascending=False).drop(columns="__sort")
+
 
 
 # === Load and Parse Data ===
@@ -58,6 +64,7 @@ for compiler, contracts in compiler_data.items():
         for fn, metrics in functions.items():
             key = (contract_name, fn)
             mean_table.setdefault(key, {})[compiler] = metrics["mean"]
+
 
 
 # === Build Summary Rows ===
@@ -86,12 +93,13 @@ for (contract, fn), results in mean_table.items():
     summary_rows.append({
         "Test": contract,
         "Function": fn,
-        "evmla gas diff, %": decorate(diff1_str, raw1),
-        "Yul gas diff, %": decorate(diff2_str, raw2),
+        "no viaIR gas (%)": decorate(diff1_str, raw1),
+        "viaIR gas (%)": decorate(diff2_str, raw2),
         "_solc_vs_solx_raw": raw1 or 0.0,
         "_solc_ir_vs_solx_ir_raw": raw2 or 0.0,
         "_sort_diff": max(sort1, sort2)
     })
+
 
 
 # === 1. Summary Table ===
@@ -100,7 +108,7 @@ df = pd.DataFrame(summary_rows)
 total_functions = len(df)
 
 summary_data = {
-    "Codegen": ['evmla', 'Yul'],
+    "Codegen": ['no viaIR', 'viaIR'],
     "Total functions": [total_functions] * 2,
     "Functions improved": [better_solx, better_solx_ir],
     "Functions regressed": [
@@ -108,8 +116,8 @@ summary_data = {
         sum(d > 0 for d in diffs_solc_ir_vs_solx_ir)
     ],
     "Average diff (%)": [
-        f"{sum(diffs_solc_vs_solx)/len(diffs_solc_vs_solx):.2f}%" if diffs_solc_vs_solx else "N/A",
-        f"{sum(diffs_solc_ir_vs_solx_ir)/len(diffs_solc_ir_vs_solx_ir):.2f}%" if diffs_solc_ir_vs_solx_ir else "N/A"
+        f"{sum(diffs_solc_vs_solx)/len(diffs_solc_vs_solx):.2f}" if diffs_solc_vs_solx else "N/A",
+        f"{sum(diffs_solc_ir_vs_solx_ir)/len(diffs_solc_ir_vs_solx_ir):.2f}" if diffs_solc_ir_vs_solx_ir else "N/A"
     ]
 }
 
@@ -119,19 +127,21 @@ print("### 📊 Summary\n")
 print(summary_df.to_markdown(index=False))
 
 
+
 # === 2. Top Function Improvements ===
 
 top_no_ir = df[df["_solc_vs_solx_raw"].notnull()].sort_values("_solc_vs_solx_raw").head(15)
-print("\n### 🚀 Top Improvements Per Function (evmla)\n")
-print(top_no_ir[["Test", "Function", "evmla gas diff, %"]]
-      .rename(columns={"evmla gas diff, %": "gas diff, %"})
+print("\n### 🚀 Top Improvements Per Function (no viaIR)\n")
+print(top_no_ir[["Test", "Function", "no viaIR gas (%)"]]
+      .rename(columns={"no viaIR gas (%)": "Gas (%)"})
       .to_markdown(index=False))
 
 top_with_ir = df[df["_solc_ir_vs_solx_ir_raw"].notnull()].sort_values("_solc_ir_vs_solx_ir_raw").head(15)
-print("\n### 🚀 Top Improvements Per Function (Yul)\n")
-print(top_with_ir[["Test", "Function", "Yul gas diff, %"]]
-      .rename(columns={"Yul gas diff, %": "gas diff, %"})
+print("\n### 🚀 Top Improvements Per Function (viaIR)\n")
+print(top_with_ir[["Test", "Function", "viaIR gas (%)"]]
+      .rename(columns={"viaIR gas (%)": "Gas (%)"})
       .to_markdown(index=False))
+
 
 
 # === 3. Top Contract-Level Improvements ===
@@ -151,11 +161,12 @@ for (contract, _), results in mean_table.items():
         gain = (solc_ir - solx_ir) / solc_ir * 100
         contract_diffs_ir.setdefault(contract, []).append(gain)
 
-print("\n### 🧠 Contract-Level Gas Diff (evmla)\n")
+print("\n### 🧠 Contract-Level Gas Diff (no viaIR)\n")
 print(summarize_contracts(contract_diffs_no_ir).to_markdown(index=False))
 
-print("\n### 🧠 Contract-Level Gas Diff (Yul)\n")
+print("\n### 🧠 Contract-Level Gas Diff (viaIR)\n")
 print(summarize_contracts(contract_diffs_ir).to_markdown(index=False))
+
 
 
 # === 4. All Regressed Functions ===
@@ -163,12 +174,12 @@ print(summarize_contracts(contract_diffs_ir).to_markdown(index=False))
 regressed_no_ir = df[df["_solc_vs_solx_raw"] > 0].sort_values("_solc_vs_solx_raw", ascending=False)
 regressed_ir = df[df["_solc_ir_vs_solx_ir_raw"] > 0].sort_values("_solc_ir_vs_solx_ir_raw", ascending=False)
 
-print("\n### ⚠️ All Regressed Functions (evmla)\n")
-print(regressed_no_ir[["Test", "Function", "evmla gas diff, %"]]
-      .rename(columns={"evmla gas diff, %": "gas diff, %"})
+print("\n### ⚠️ All Regressed Functions (no viaIR)\n")
+print(regressed_no_ir[["Test", "Function", "no viaIR gas (%)"]]
+      .rename(columns={"no viaIR gas (%)": "Gas (%)"})
       .to_markdown(index=False))
 
-print("\n### ⚠️ All Regressed Functions (Yul)\n")
-print(regressed_ir[["Test", "Function", "Yul gas diff, %"]]
-      .rename(columns={"Yul gas diff, %": "gas diff, %"})
+print("\n### ⚠️ All Regressed Functions (viaIR)\n")
+print(regressed_ir[["Test", "Function", "viaIR gas (%)"]]
+      .rename(columns={"viaIR gas (%)": "Gas (%)"})
       .to_markdown(index=False))
