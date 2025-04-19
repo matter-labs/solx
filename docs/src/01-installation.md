@@ -151,7 +151,7 @@ This repository maintains intuitive and stable naming for the executables and pr
    
     The **solx** executable will appear as `./target/release/solx`, where you can run it directly or move it to another location.
 
-    If **cargo** cannot find the LLVM build artifacts, ensure that the `LLVM_SYS_170_PREFIX` environment variable is not set in your system, as it may be pointing to a location different from the one expected by **solx**.
+    If **cargo** cannot find the LLVM build artifacts, ensure that the `LLVM_SYS_191_PREFIX` environment variable is not set in your system, as it may be pointing to a location different from the one expected by **solx**.
 
 
 
