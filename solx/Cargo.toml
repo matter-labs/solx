@@ -29,8 +29,8 @@ num = "0.4"
 
 zkevm_opcode_defs = "=0.150.6"
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "az-update-to-llvm-19" }
 
 solx-solc = { path = "../solx-solc" }
 solx-standard-json = { path = "../solx-standard-json" }
@@ -44,6 +44,6 @@ test-case = "3.3"
 
 [dependencies.inkwell]
 git = "https://github.com/matter-labs-forks/inkwell"
-branch = "llvm-17"
+branch = "llvm-19"
 default-features = false
-features = ["llvm17-0", "no-libffi-linking", "target-evm"]
+features = ["llvm19-1", "serde", "no-libffi-linking", "target-evm"]
