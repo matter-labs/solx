@@ -29,7 +29,8 @@ extern "C" {
     ///
     fn solidity_compile(
         input: *const ::libc::c_char,
-        error_pointer: *mut *mut ::libc::c_char,
+        callback: *const ::libc::c_void,
+        context: *const ::libc::c_void,
     ) -> *const std::os::raw::c_char;
 
     ///
@@ -137,7 +138,7 @@ impl Compiler {
                     error_pointer,
                 )
             } else {
-                solidity_compile(input_c_string.as_ptr(), error_pointer)
+                solidity_compile(input_c_string.as_ptr(), std::ptr::null(), std::ptr::null())
             };
             if !error_message.is_null() {
                 let error_message = CStr::from_ptr(error_message).to_string_lossy().into_owned();
