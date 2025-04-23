@@ -1,0 +1,69 @@
+name: License Consent
+
+# This workflow checks if all contributors to a pull request have given their consent
+# to the license by verifying their GitHub usernames in LICENSE-CONSENT.md.
+# It runs only for pull requests created from forks.
+# All PR contributors must be listed in LICENSE-CONSENT.md.
+# If any contributor is missing, the workflow will fail.
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  content: read
+
+jobs:
+
+  check-consent:
+    # Only run this job if the PR is created from a fork
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    env:
+      LICENSE_CONSENT_FILE: LICENSE-CONSENT.md
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get GitHub usernames from PR commits
+        id: pr-contributors
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CONTRIBUTORS=$(gh pr view ${{ github.event.pull_request.number }} \
+            --repo ${{ github.repository }} --json commits --jq '.commits[].authors[].login' | sort -u)
+          echo "contributors=${CONTRIBUTORS}" | tee -a ${GITHUB_OUTPUT}
+
+      - name: Check license consent
+        run: |
+          # Define users who have consent
+          FILE="${LICENSE_CONSENT_FILE}"
+          START_PATTERN="^If you agree, please add your GitHub username"
+          LINE=$(grep -n "${START_PATTERN}" "${FILE}" | cut -d: -f1)
+          if [ -z "${LINE}" ]; then
+            echo "Consent paragraph not found in ${FILE}"
+            echo "Please, check that the ${FILE} exists and not corrupted."
+            exit 1
+          fi
+          TAIL_START=$((LINE + 1))
+          LICENSED_USERS=$(tail -n +"${TAIL_START}" "${FILE}" | grep -v '^\s*$' | sort -u)
+          echo "LICENSED USERS:"
+          echo "$LICENSED_USERS"
+
+          # Check contributors
+          MISSING=0
+          for user in ${{ steps.pr-contributors.outputs.contributors }}; do
+            echo "${LICENSED_USERS}" | grep -Fx "$user" > /dev/null
+            if [ $? -ne 0 ]; then
+              echo "❌ Contributor '$user' is not in ${LICENSE_CONSENT_FILE}"
+              MISSING=1
+            fi
+          done
+          if [ ${MISSING} -eq 1 ]; then
+            echo ""
+            echo "Please, add the missing contributors to the end of ${LICENSE_CONSENT_FILE}."
+            exit 1
+          else
+            echo "✅ All contributors have given license consent."
+          fi
