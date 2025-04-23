@@ -66,11 +66,12 @@ jobs:
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     strategy:
+      max-parallel: 6
       fail-fast: false
       matrix:
+        project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3' ]
         compiler: [ 'solc', 'solx' ]
         via_ir: [ 'true', 'false' ]
-        project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std' ]
     steps:
       - name: Checkout test suites
         uses: actions/checkout@v4
@@ -105,16 +106,15 @@ jobs:
           echo ${HOME}/.foundry/bin >> "${GITHUB_PATH}"
           foundryup -i 0.3.0
 
-      - name: Patch solmate
-        if: ${{ matrix.project == 'solmate' }}
+      - name: Patch pragmas
         working-directory: projects/${{ matrix.project }}
         run: |
           # Replace solidity version in all .sol files
           find . -name "*.sol" -exec \
-            sed -i 's/pragma solidity 0\.8\.15/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
+            sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
 
-      - name: Patch solady
-        if: ${{ matrix.project == 'solady' }}
+      - name: Patch evm version
+        # if: ${{ matrix.project == 'solady' }}
         working-directory: projects/${{ matrix.project }}
         run: |
           # Replace solidity version in all .sol files
@@ -165,8 +165,12 @@ jobs:
         run: |
           echo "| Project     | Passed / Total | Progress       |" > report.md
           echo "|-------------|----------------|----------------|" >> report.md
-          for PROJECT in solmate solady openzeppelin forge-std; do
+          for PROJECT in solmate solady openzeppelin forge-std aave-v3 uniswap-v4; do
             JSON=data/build_${PROJECT}-solx.json
+            if [ ! -f "$JSON" ]; then
+              echo "No data for ${PROJECT}"
+              continue
+            fi
             TOTAL=$(jq -r '.build_infos[0].source_id_to_path | length' "$JSON")
             FAILURES=$(jq -r '[.errors[] | select(.type == "Error")] | length' "$JSON")
             PASSED=$((TOTAL - FAILURES))
@@ -195,9 +199,9 @@ jobs:
           echo "{
             \"machine\": \"solx\",
             \"target\": \"evm\",
-            \"toolchain\": \"ir-llvm\",
+            \"toolchain\": \"solx\",
             \"compiler_version\": \"${{ steps.solx.outputs.solc-base-version }}\",
-            \"llvm_project_revision\": \"2025-01-01T00:00:00Z\"
+            \"llvm_version\": \"TBD\"
           }" > "context.json"
           benchmark-converter --input-paths ./data/solmate.json --input-paths ./data/solady.json \
             --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report
