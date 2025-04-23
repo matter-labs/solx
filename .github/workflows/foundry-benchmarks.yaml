@@ -69,7 +69,8 @@ jobs:
       max-parallel: 6
       fail-fast: false
       matrix:
-        project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3' ]
+        # project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3' ]
+        project: [ 'ERC721K', 'lil-web3', 'maple-erc20', 'uniswap-v4-periphery' ]
         compiler: [ 'solc', 'solx' ]
         via_ir: [ 'true', 'false' ]
     steps:
@@ -113,6 +114,11 @@ jobs:
           find . -name "*.sol" -exec \
             sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
 
+      - name: Normalize project name
+        run: |
+          PROJECT="${{ matrix.project }}"
+          echo "PROJECT=${PROJECT//\//-}" >> ${GITHUB_ENV}
+
       - name: Patch evm version
         # if: ${{ matrix.project == 'solady' }}
         working-directory: projects/${{ matrix.project }}
@@ -122,13 +128,16 @@ jobs:
 
       - name: Update compiler version in foundry.toml
         working-directory: projects/${{ matrix.project }}
-        run: sed -i 's/solc = ".*"/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+        run: |
+          # Fix config if required
+          forge config --fix
+          sed -i 's/solc = ".*"/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
 
       - name: Build tests
         working-directory: projects/${{ matrix.project }}
         run: |          
-          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
-          BUILD_JSON="${GITHUB_WORKSPACE}/build_${{ matrix.project }}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
+          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"       
+          BUILD_JSON="${GITHUB_WORKSPACE}/build_${PROJECT}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
           forge build ${USE_SOLX} ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json > ${BUILD_JSON} 2>&1 || true
           FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
           echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
@@ -137,14 +146,14 @@ jobs:
         working-directory: projects/${{ matrix.project }}
         run: |
           [ -n "${FAILED_TESTS_TO_SKIP}" ] && SKIP_TESTS="--skip ${FAILED_TESTS_TO_SKIP}"
-          TEST_JSON="${GITHUB_WORKSPACE}/${{ matrix.project }}${{ matrix.compiler == 'solc' && '-solc' || '' }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
+          TEST_JSON="${GITHUB_WORKSPACE}/${PROJECT}${{ matrix.compiler == 'solc' && '-solc' || '' }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
           [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
           forge test --gas-report ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json ${USE_SOLX} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
 
       - name: Upload json
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.project }}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}
+          name: ${{ env.PROJECT }}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}
           path: '*.json'
 
 
