@@ -111,7 +111,7 @@ jobs:
         working-directory: projects/${{ matrix.project }}
         run: |
           # Replace solidity version in all .sol files
-          find . -name "*.sol" -exec \
+          find . -name "*.sol" -type f -exec \
             sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
 
       - name: Normalize project name
