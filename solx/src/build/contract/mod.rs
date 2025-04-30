@@ -157,33 +157,39 @@ impl Contract {
         }
 
         if output_assembly {
-            let output_name = format!(
-                "{}.{}",
-                self.name.name.as_deref().unwrap_or(file_name),
-                era_compiler_common::EXTENSION_ERAVM_ASSEMBLY,
-            );
-            let mut output_path = output_path.clone();
-            output_path.push(output_name.as_str());
+            for (object, code_segment) in
+                [self.deploy_object.as_mut(), self.runtime_object.as_mut()]
+                    .iter_mut()
+                    .zip([
+                        era_compiler_common::CodeSegment::Deploy,
+                        era_compiler_common::CodeSegment::Runtime,
+                    ])
+            {
+                let output_name = format!(
+                    "{}{}.{}",
+                    self.name.name.as_deref().unwrap_or(file_name),
+                    match code_segment {
+                        era_compiler_common::CodeSegment::Deploy => "".to_owned(),
+                        era_compiler_common::CodeSegment::Runtime => format!(".{code_segment}"),
+                    },
+                    era_compiler_common::EXTENSION_EVM_ASSEMBLY,
+                );
+                let mut output_path = output_path.clone();
+                output_path.push(output_name.as_str());
 
-            if output_path.exists() && !overwrite {
-                anyhow::bail!(
-                    "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
-                );
-            } else {
-                let mut assembly = self
-                    .deploy_object
-                    .as_mut()
-                    .and_then(|object| object.assembly.take())
-                    .expect("Always exists");
-                assembly.push('\n');
-                assembly.push_str(
-                    self.runtime_object
-                        .as_ref()
-                        .and_then(|object| object.assembly.as_deref())
-                        .expect("Always exists"),
-                );
-                std::fs::write(output_path.as_path(), assembly)
-                    .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
+                if output_path.exists() && !overwrite {
+                    anyhow::bail!(
+                        "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
+                    );
+                } else {
+                    let assembly = object
+                        .as_mut()
+                        .and_then(|object| object.assembly.take())
+                        .expect("Always exists");
+                    std::fs::write(output_path.as_path(), assembly).map_err(|error| {
+                        anyhow::anyhow!("File {output_path:?} writing: {error}")
+                    })?;
+                }
             }
         }
 
