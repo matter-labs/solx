@@ -6,7 +6,6 @@ pub mod bytecode;
 pub mod extra_metadata;
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 use self::bytecode::Bytecode;
 use self::extra_metadata::ExtraMetadata;
@@ -37,35 +36,18 @@ pub struct EVM {
 
 impl EVM {
     ///
-    /// Sets the EVM and deploy and runtime bytecode.
-    ///
-    pub fn modify(
-        &mut self,
-        deploy_bytecode: String,
-        deploy_object_format: era_compiler_common::ObjectFormat,
-        deploy_unlinked_libraries: BTreeSet<String>,
-        runtime_bytecode: String,
-        runtime_object_format: era_compiler_common::ObjectFormat,
-        runtime_unlinked_libraries: BTreeSet<String>,
-    ) {
-        self.bytecode = Some(Bytecode::new(
-            deploy_bytecode,
-            deploy_unlinked_libraries,
-            deploy_object_format,
-        ));
-        self.deployed_bytecode = Some(Bytecode::new(
-            runtime_bytecode,
-            runtime_unlinked_libraries,
-            runtime_object_format,
-        ));
-    }
-
-    ///
     /// Checks if all fields are `None`.
     ///
     pub fn is_empty(&self) -> bool {
-        self.bytecode.is_none()
-            && self.deployed_bytecode.is_none()
+        self.bytecode
+            .as_ref()
+            .map(|bytecode| bytecode.is_empty())
+            .unwrap_or_default()
+            && self
+                .deployed_bytecode
+                .as_ref()
+                .map(|bytecode| bytecode.is_empty())
+                .unwrap_or_default()
             && self.legacy_assembly.is_null()
             && self.method_identifiers.is_empty()
             && self.extra_metadata.is_none()

@@ -44,6 +44,8 @@ fn default(via_ir: bool) {
         .as_ref()
         .expect("Missing bytecode")
         .object
+        .as_ref()
+        .expect("Missing bytecode object")
         .as_bytes();
     let optimized_for_size = build_optimized_for_size
         .contracts
@@ -58,6 +60,8 @@ fn default(via_ir: bool) {
         .as_ref()
         .expect("Missing bytecode")
         .object
+        .as_ref()
+        .expect("Missing bytecode object")
         .as_bytes();
 
     assert!(

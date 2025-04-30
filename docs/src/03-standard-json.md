@@ -126,8 +126,12 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
           "irOptimized",
           // Deploy bytecode produced by solx.
           "evm.bytecode.object",
+          // Deploy code assembly produced by solx.
+          "evm.bytecode.llvmAssembly",
           // Runtime bytecode produced by solx.
-          "evm.deployedBytecode.object"
+          "evm.deployedBytecode.object",
+          // Runtime code assembly produced by solx.
+          "evm.deployedBytecode.llvmAssembly"
         ]
       }
     },
@@ -207,26 +211,30 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
         "evm": {
           // Required: Deploy EVM bytecode.
           "bytecode": {
-            // Required: Bytecode (string).
+            // Optional: Bytecode (string).
             "object": "0000008003000039000000400030043f0000000100200190000000130000c13d...",
-            // Required: Mapping between full contract identifiers and library identifiers that must be linked after compilation.
+            // Optional: LLVM text assembly (string).
+            "assembly": "/* ... */",
+            // Optional: Mapping between full contract identifiers and library identifiers that must be linked after compilation.
             // Only unlinked libraries are listed here.
             // Example: { "default.sol:Test": "library.sol:Library" }.
             "unlinkedLibraries": {/* ... */},
-            // Required: Binary object format.
+            // Optional: Binary object format.
             // Tells whether the bytecode has been linked.
             // Possible values: "elf" (unlinked), "raw" (linked).
             "objectFormat": "elf"
           },
           // Required: Runtime EVM bytecode.
           "deployedBytecode": {
-            // Required: Bytecode (string).
+            // Optional: Bytecode (string).
             "object": "0000008003000039000000400030043f0000000100200190000000130000c13d...",
-            // Required: Mapping between full contract identifiers and library identifiers that must be linked after compilation.
+            // Optional: LLVM text assembly (string).
+            "assembly": "/* ... */",
+            // Optional: Mapping between full contract identifiers and library identifiers that must be linked after compilation.
             // Only unlinked libraries are listed here.
             // Example: { "default.sol:Test": "library.sol:Library" }.
             "unlinkedLibraries": {/* ... */},
-            // Required: Binary object format.
+            // Optional: Binary object format.
             // Tells whether the bytecode has been linked.
             // Possible values: "elf" (unlinked), "raw" (linked).
             "objectFormat": "elf"

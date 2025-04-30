@@ -18,7 +18,9 @@ pub struct Input {
     pub contract: Contract,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
-    /// Whether to output the bytecode, or only the metadata.
+    /// Whether to output assembly.
+    pub output_assembly: bool,
+    /// Whether to output bytecode.
     pub output_bytecode: bool,
     /// Already deployed libraries.
     pub deployed_libraries: BTreeSet<String>,
@@ -39,6 +41,7 @@ impl Input {
     pub fn new(
         contract: Contract,
         identifier_paths: BTreeMap<String, String>,
+        output_assembly: bool,
         output_bytecode: bool,
         deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
@@ -49,6 +52,7 @@ impl Input {
         Self {
             contract,
             identifier_paths,
+            output_assembly,
             output_bytecode,
             deployed_libraries,
             metadata_hash_type,

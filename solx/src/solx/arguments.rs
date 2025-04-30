@@ -132,6 +132,10 @@ pub struct Arguments {
     #[arg(long = "metadata")]
     pub output_metadata: bool,
 
+    /// Output assembly of the compiled contracts.
+    #[arg(long = "asm")]
+    pub output_assembly: bool,
+
     /// Output bytecode of the compiled contracts.
     #[arg(long = "bin")]
     pub output_bytecode: bool,
@@ -257,7 +261,7 @@ impl Arguments {
         }
 
         if self.standard_json.is_some() {
-            if self.output_metadata || self.output_bytecode {
+            if self.output_metadata || self.output_assembly || self.output_bytecode {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
                     "Cannot output data outside of JSON in standard JSON mode.",

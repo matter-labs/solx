@@ -62,6 +62,7 @@ impl Contract {
     pub fn compile_to_evm(
         self,
         identifier_paths: BTreeMap<String, String>,
+        output_assembly: bool,
         output_bytecode: bool,
         deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
@@ -90,7 +91,7 @@ impl Contract {
                 }
             });
 
-        if !output_bytecode {
+        if !output_bytecode && !output_assembly {
             return Ok(EVMContractBuild::new(self.name, None, None, metadata));
         }
 
@@ -136,21 +137,22 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let (runtime_buffer, runtime_code_warnings) = runtime_context.build()?;
+                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
-                    runtime_buffer.as_slice().to_owned(),
+                    runtime_build.assembly,
+                    runtime_build.bytecode,
                     true,
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependecies,
                     runtime_code_libraries,
                     era_compiler_common::ObjectFormat::ELF,
-                    runtime_code_warnings,
+                    runtime_build.warnings,
                 );
 
-                let immutables_map = runtime_buffer.get_immutables_evm();
+                let immutables_map = runtime_build.immutables.unwrap_or_default();
 
                 let deploy_llvm = inkwell::context::Context::create();
                 let deploy_module = deploy_llvm.create_module(self.name.full_path.as_str());
@@ -174,18 +176,19 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let (deploy_buffer, deploy_code_warnings) = deploy_context.build()?;
+                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
-                    deploy_buffer.as_slice().to_owned(),
+                    deploy_build.assembly,
+                    deploy_build.bytecode,
                     true,
                     deploy_code_segment,
                     None,
                     deploy_code_dependecies,
                     deploy_code_libraries,
                     era_compiler_common::ObjectFormat::ELF,
-                    deploy_code_warnings,
+                    deploy_build.warnings,
                 );
 
                 Ok(EVMContractBuild::new(
@@ -235,21 +238,22 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let (runtime_buffer, runtime_code_warnings) = runtime_context.build()?;
+                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
-                    runtime_buffer.as_slice().to_owned(),
+                    runtime_build.assembly,
+                    runtime_build.bytecode,
                     false,
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependecies,
                     runtime_code_libraries,
                     era_compiler_common::ObjectFormat::ELF,
-                    runtime_code_warnings,
+                    runtime_build.warnings,
                 );
 
-                let immutables_map = runtime_buffer.get_immutables_evm();
+                let immutables_map = runtime_build.immutables.unwrap_or_default();
 
                 let deploy_llvm = inkwell::context::Context::create();
                 let deploy_module = deploy_llvm.create_module(deploy_code_identifier.as_str());
@@ -271,18 +275,19 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let (deploy_buffer, deploy_code_warnings) = deploy_context.build()?;
+                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
-                    deploy_buffer.as_slice().to_owned(),
+                    deploy_build.assembly,
+                    deploy_build.bytecode,
                     false,
                     deploy_code_segment,
                     None,
                     deploy_code_dependecies,
                     deploy_code_libraries,
                     era_compiler_common::ObjectFormat::ELF,
-                    deploy_code_warnings,
+                    deploy_build.warnings,
                 );
 
                 Ok(EVMContractBuild::new(
@@ -338,18 +343,19 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
-                let (runtime_buffer, runtime_code_warnings) = runtime_context.build()?;
+                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
-                    runtime_buffer.as_slice().to_owned(),
+                    runtime_build.assembly,
+                    runtime_build.bytecode,
                     false,
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependencies,
                     BTreeSet::new(),
                     era_compiler_common::ObjectFormat::ELF,
-                    runtime_code_warnings,
+                    runtime_build.warnings,
                 );
 
                 let deploy_llvm = inkwell::context::Context::create();
@@ -364,18 +370,19 @@ impl Contract {
                     optimizer,
                     debug_config,
                 );
-                let (deploy_buffer, deploy_code_warnings) = deploy_context.build()?;
+                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
-                    deploy_buffer.as_slice().to_owned(),
+                    deploy_build.assembly,
+                    deploy_build.bytecode,
                     false,
                     deploy_code_segment,
                     None,
                     deploy_code_dependencies,
                     BTreeSet::new(),
                     era_compiler_common::ObjectFormat::ELF,
-                    deploy_code_warnings,
+                    deploy_build.warnings,
                 );
 
                 Ok(EVMContractBuild::new(

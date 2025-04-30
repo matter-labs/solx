@@ -64,6 +64,7 @@ impl Build {
                     })
                     .flatten()
                     .collect::<Vec<&ContractObject>>();
+
                 let assembleable_objects = all_objects
                     .iter()
                     .filter(|object| {
@@ -116,7 +117,7 @@ impl Build {
                     era_compiler_common::CodeSegment::Runtime => &mut contract.runtime_object,
                 };
                 if let Some(object) = object {
-                    object.bytecode = assembled_object.as_slice().to_owned();
+                    object.bytecode = Some(assembled_object.as_slice().to_owned());
                     object.is_assembled = true;
                 }
             }
@@ -150,14 +151,22 @@ impl Build {
     ///
     /// Writes all contracts to the terminal.
     ///
-    pub fn write_to_terminal(mut self, output_metadata: bool) -> anyhow::Result<()> {
+    pub fn write_to_terminal(
+        mut self,
+        output_bytecode: bool,
+        output_assembly: bool,
+        output_metadata: bool,
+    ) -> anyhow::Result<()> {
         self.take_and_write_warnings();
         self.exit_on_error();
 
         for (path, build) in self.results.into_iter() {
-            build
-                .expect("Always valid")
-                .write_to_terminal(path, output_metadata)?;
+            build.expect("Always valid").write_to_terminal(
+                path,
+                output_bytecode,
+                output_assembly,
+                output_metadata,
+            )?;
         }
 
         Ok(())
@@ -170,6 +179,8 @@ impl Build {
         mut self,
         output_directory: &Path,
         overwrite: bool,
+        output_bytecode: bool,
+        output_assembly: bool,
         output_metadata: bool,
     ) -> anyhow::Result<()> {
         self.take_and_write_warnings();
@@ -181,6 +192,8 @@ impl Build {
             build.expect("Always valid").write_to_directory(
                 output_directory,
                 overwrite,
+                output_bytecode,
+                output_assembly,
                 output_metadata,
             )?;
         }
