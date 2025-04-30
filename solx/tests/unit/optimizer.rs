@@ -40,7 +40,7 @@ fn default(via_ir: bool) {
         .evm
         .as_ref()
         .expect("Missing EVM data")
-        .bytecode
+        .deployed_bytecode
         .as_ref()
         .expect("Missing bytecode")
         .object
@@ -56,7 +56,7 @@ fn default(via_ir: bool) {
         .evm
         .as_ref()
         .expect("Missing EVM data")
-        .bytecode
+        .deployed_bytecode
         .as_ref()
         .expect("Missing bytecode")
         .object
