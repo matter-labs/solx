@@ -43,9 +43,15 @@ pub enum Selector {
     /// The deploy bytecode.
     #[serde(rename = "evm.bytecode", alias = "evm.bytecode.object")]
     Bytecode,
+    /// The deploy LLVM assembly.
+    #[serde(rename = "evm.bytecode.llvmAssembly")]
+    DeployLLVMAssembly,
     /// The runtime bytecode.
     #[serde(rename = "evm.deployedBytecode", alias = "evm.deployedBytecode.object")]
     RuntimeBytecode,
+    /// The runtime LLVM assembly.
+    #[serde(rename = "evm.deployedBytecode.llvmAssembly")]
+    RuntimeLLVMAssembly,
 
     /// The catch-all variant.
     #[serde(other)]
@@ -57,7 +63,14 @@ impl Selector {
     /// Whether the data source is `solc`.
     ///
     pub fn is_received_from_solc(&self) -> bool {
-        !matches!(self, Self::Bytecode | Self::RuntimeBytecode | Self::Other)
+        !matches!(
+            self,
+            Self::Bytecode
+                | Self::RuntimeBytecode
+                | Self::DeployLLVMAssembly
+                | Self::RuntimeLLVMAssembly
+                | Self::Other
+        )
     }
 }
 

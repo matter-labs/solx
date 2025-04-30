@@ -25,6 +25,8 @@ fn standard_json_yul_solc() {
         .as_ref()
         .expect("The `bytecode` field is missing")
         .object
+        .as_ref()
+        .expect("The `object` field is missing")
         .is_empty())
 }
 
@@ -50,6 +52,8 @@ fn standard_json_yul_solc_validated() {
         .as_ref()
         .expect("The `bytecode` field is missing")
         .object
+        .as_ref()
+        .expect("The `object` field is missing")
         .is_empty())
 }
 
@@ -74,6 +78,8 @@ fn standard_json_yul_solc_urls() {
         .as_ref()
         .expect("The `bytecode` field is missing")
         .object
+        .as_ref()
+        .expect("The `object` field is missing")
         .is_empty())
 }
 
@@ -99,6 +105,8 @@ fn standard_json_yul_solc_urls_validated() {
         .as_ref()
         .expect("The `bytecode` field is missing")
         .object
+        .as_ref()
+        .expect("The `object` field is missing")
         .is_empty())
 }
 
@@ -123,5 +131,7 @@ fn standard_json_llvm_ir_urls() {
         .as_ref()
         .expect("The `bytecode` field is missing")
         .object
+        .as_ref()
+        .expect("The `object` field is missing")
         .is_empty())
 }

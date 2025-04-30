@@ -143,6 +143,7 @@ fn main_inner(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
             arguments.output_bytecode,
+            arguments.output_assembly,
             arguments.output_metadata,
             messages,
             metadata_hash_type,
@@ -156,6 +157,7 @@ fn main_inner(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
             arguments.output_bytecode,
+            arguments.output_assembly,
             arguments.output_metadata,
             messages,
             metadata_hash_type,
@@ -176,11 +178,12 @@ fn main_inner(
             use_import_callback,
             debug_config,
         );
-    } else if arguments.output_bytecode || arguments.output_metadata {
+    } else if arguments.output_bytecode || arguments.output_assembly || arguments.output_metadata {
         solx::standard_output_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
             arguments.output_bytecode,
+            arguments.output_assembly,
             messages,
             arguments.evm_version,
             arguments.via_ir,
@@ -208,10 +211,16 @@ fn main_inner(
         build.write_to_directory(
             &output_directory,
             arguments.overwrite,
+            arguments.output_bytecode,
+            arguments.output_assembly,
             arguments.output_metadata,
         )?;
     } else {
-        build.write_to_terminal(arguments.output_metadata)?;
+        build.write_to_terminal(
+            arguments.output_bytecode,
+            arguments.output_assembly,
+            arguments.output_metadata,
+        )?;
     }
 
     Ok(())

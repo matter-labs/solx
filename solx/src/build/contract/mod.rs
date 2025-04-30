@@ -46,18 +46,47 @@ impl Contract {
     ///
     /// Writes the contract text assembly and bytecode to terminal.
     ///
-    pub fn write_to_terminal(self, path: String, output_metadata: bool) -> anyhow::Result<()> {
+    pub fn write_to_terminal(
+        mut self,
+        path: String,
+        output_bytecode: bool,
+        output_assembly: bool,
+        output_metadata: bool,
+    ) -> anyhow::Result<()> {
         writeln!(std::io::stdout(), "\n======= {path} =======")?;
 
-        if self.deploy_object.is_some() || self.runtime_object.is_some() {
-            let deploy_bytecode = self.deploy_object.map(|object| object.bytecode);
-            let runtime_bytecode = self.runtime_object.map(|object| object.bytecode);
+        if output_bytecode {
+            let deploy_bytecode = self
+                .deploy_object
+                .as_mut()
+                .and_then(|object| object.bytecode.take())
+                .expect("Always exists");
+            let runtime_bytecode = self
+                .runtime_object
+                .as_mut()
+                .and_then(|object| object.bytecode.take())
+                .expect("Always exists");
             writeln!(
                 std::io::stdout(),
                 "Binary:\n{}{}",
-                hex::encode(deploy_bytecode.unwrap_or_default()),
-                hex::encode(runtime_bytecode.unwrap_or_default()),
+                hex::encode(deploy_bytecode),
+                hex::encode(runtime_bytecode),
             )?;
+        }
+
+        if output_assembly {
+            let deploy_assembly = self
+                .deploy_object
+                .as_mut()
+                .and_then(|object| object.assembly.take())
+                .expect("Always exists");
+            let runtime_assembly = self
+                .runtime_object
+                .as_mut()
+                .and_then(|object| object.assembly.take())
+                .expect("Always exists");
+            writeln!(std::io::stdout(), "Deploy assembly:\n{deploy_assembly}")?;
+            writeln!(std::io::stdout(), "Runtime assembly:\n{runtime_assembly}")?;
         }
 
         if output_metadata {
@@ -75,9 +104,11 @@ impl Contract {
     /// Writes the contract text assembly and bytecode to files.
     ///
     pub fn write_to_directory(
-        self,
+        mut self,
         output_path: &Path,
         overwrite: bool,
+        output_bytecode: bool,
+        output_assembly: bool,
         output_metadata: bool,
     ) -> anyhow::Result<()> {
         let file_path = PathBuf::from(self.name.path);
@@ -91,7 +122,7 @@ impl Contract {
         output_path.push(file_name);
         std::fs::create_dir_all(output_path.as_path())?;
 
-        if self.deploy_object.is_some() || self.runtime_object.is_some() {
+        if output_bytecode {
             let output_name = format!(
                 "{}.{}",
                 self.name.name.as_deref().unwrap_or(file_name),
@@ -105,15 +136,60 @@ impl Contract {
                     "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
                 );
             } else {
-                let deploy_bytecode = self.deploy_object.map(|object| object.bytecode);
-                let runtime_bytecode = self.runtime_object.map(|object| object.bytecode);
+                let deploy_bytecode = self
+                    .deploy_object
+                    .as_mut()
+                    .and_then(|object| object.bytecode.take())
+                    .expect("Always exists");
+                let runtime_bytecode = self
+                    .runtime_object
+                    .as_mut()
+                    .and_then(|object| object.bytecode.take())
+                    .expect("Always exists");
                 let bytecode = format!(
                     "{}{}",
-                    hex::encode(deploy_bytecode.unwrap_or_default()),
-                    hex::encode(runtime_bytecode.unwrap_or_default()),
+                    hex::encode(deploy_bytecode),
+                    hex::encode(runtime_bytecode),
                 );
                 std::fs::write(output_path.as_path(), bytecode)
                     .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
+            }
+        }
+
+        if output_assembly {
+            for (object, code_segment) in
+                [self.deploy_object.as_mut(), self.runtime_object.as_mut()]
+                    .iter_mut()
+                    .zip([
+                        era_compiler_common::CodeSegment::Deploy,
+                        era_compiler_common::CodeSegment::Runtime,
+                    ])
+            {
+                let output_name = format!(
+                    "{}{}.{}",
+                    self.name.name.as_deref().unwrap_or(file_name),
+                    match code_segment {
+                        era_compiler_common::CodeSegment::Deploy => "".to_owned(),
+                        era_compiler_common::CodeSegment::Runtime => format!(".{code_segment}"),
+                    },
+                    era_compiler_common::EXTENSION_EVM_ASSEMBLY,
+                );
+                let mut output_path = output_path.clone();
+                output_path.push(output_name.as_str());
+
+                if output_path.exists() && !overwrite {
+                    anyhow::bail!(
+                        "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
+                    );
+                } else {
+                    let assembly = object
+                        .as_mut()
+                        .and_then(|object| object.assembly.take())
+                        .expect("Always exists");
+                    std::fs::write(output_path.as_path(), assembly).map_err(|error| {
+                        anyhow::anyhow!("File {output_path:?} writing: {error}")
+                    })?;
+                }
             }
         }
 
@@ -153,14 +229,16 @@ impl Contract {
             .get_or_insert_with(solx_standard_json::OutputContractEVM::default);
         evm.bytecode = self.deploy_object.map(|object| {
             solx_standard_json::OutputContractEVMBytecode::new(
-                hex::encode(object.bytecode),
+                object.bytecode.map(hex::encode),
+                object.assembly,
                 object.unlinked_libraries,
                 object.format,
             )
         });
         evm.deployed_bytecode = self.runtime_object.map(|object| {
             solx_standard_json::OutputContractEVMBytecode::new(
-                hex::encode(object.bytecode),
+                object.bytecode.map(hex::encode),
+                object.assembly,
                 object.unlinked_libraries,
                 object.format,
             )

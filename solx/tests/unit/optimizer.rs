@@ -40,10 +40,12 @@ fn default(via_ir: bool) {
         .evm
         .as_ref()
         .expect("Missing EVM data")
-        .bytecode
+        .deployed_bytecode
         .as_ref()
         .expect("Missing bytecode")
         .object
+        .as_ref()
+        .expect("Missing bytecode object")
         .as_bytes();
     let optimized_for_size = build_optimized_for_size
         .contracts
@@ -54,10 +56,12 @@ fn default(via_ir: bool) {
         .evm
         .as_ref()
         .expect("Missing EVM data")
-        .bytecode
+        .deployed_bytecode
         .as_ref()
         .expect("Missing bytecode")
         .object
+        .as_ref()
+        .expect("Missing bytecode object")
         .as_bytes();
 
     assert!(

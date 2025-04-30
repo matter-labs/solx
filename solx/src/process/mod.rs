@@ -36,6 +36,7 @@ pub fn run() -> anyhow::Result<()> {
                 .contract
                 .compile_to_evm(
                     input.identifier_paths,
+                    input.output_assembly,
                     input.output_bytecode,
                     input.deployed_libraries,
                     input.metadata_hash_type,

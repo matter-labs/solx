@@ -98,6 +98,7 @@ pub fn build_solidity_standard_json(
     let build = project.compile_to_evm(
         &mut vec![],
         true,
+        true,
         metadata_hash_type,
         optimizer_settings,
         vec![],
@@ -159,6 +160,7 @@ pub fn build_yul_standard_json(
     let build = project.compile_to_evm(
         &mut vec![],
         true,
+        true,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
         vec![],
@@ -210,6 +212,7 @@ pub fn build_llvm_ir_standard_json(
     )?;
     let build = project.compile_to_evm(
         &mut vec![],
+        true,
         true,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,

@@ -16,8 +16,10 @@ pub struct Object {
     pub identifier: String,
     /// Contract full name.
     pub contract_name: era_compiler_common::ContractName,
+    /// Text assembly.
+    pub assembly: Option<String>,
     /// Bytecode.
-    pub bytecode: Vec<u8>,
+    pub bytecode: Option<Vec<u8>>,
     /// Whether IR codegen is used.
     pub via_ir: bool,
     /// Code segment.
@@ -43,7 +45,8 @@ impl Object {
     pub fn new(
         identifier: String,
         contract_name: era_compiler_common::ContractName,
-        bytecode: Vec<u8>,
+        assembly: Option<String>,
+        bytecode: Option<Vec<u8>>,
         via_ir: bool,
         code_segment: era_compiler_common::CodeSegment,
         metadata_bytes: Option<Vec<u8>>,
@@ -55,6 +58,7 @@ impl Object {
         Self {
             identifier,
             contract_name,
+            assembly,
             bytecode,
             via_ir,
             code_segment,
@@ -70,12 +74,17 @@ impl Object {
     ///
     /// Appends metadata to the object.
     ///
+    /// # Panics
+    /// If bytecode is `None`.
+    ///
     pub fn to_memory_buffer(
         &self,
         cbor_data: Option<Vec<(String, semver::Version)>>,
     ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
+        let bytecode = self.bytecode.as_deref().expect("Bytecode is not set");
+
         let mut memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-            self.bytecode.as_slice(),
+            bytecode,
             self.identifier.as_str(),
             false,
         );
@@ -97,6 +106,9 @@ impl Object {
     ///
     /// Assembles the object.
     ///
+    /// # Panics
+    /// If bytecode is `None`.
+    ///
     pub fn assemble(
         &self,
         all_objects: &[&Self],
@@ -113,8 +125,9 @@ impl Object {
                 .iter()
                 .find(|object| object.identifier.as_str() == dependency.as_str())
                 .expect("Dependency not found");
+            let dependency_bytecode = self.bytecode.as_deref().expect("Bytecode is not set");
             let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-                dependency.bytecode.as_slice(),
+                dependency_bytecode,
                 dependency.identifier.as_str(),
                 false,
             );
@@ -139,12 +152,17 @@ impl Object {
     ///
     /// Links the object with its linker symbols.
     ///
+    /// # Panics
+    /// If bytecode is `None`.
+    ///
     pub fn link(
         &mut self,
         linker_symbols: &BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> anyhow::Result<()> {
+        let bytecode = self.bytecode.as_deref().expect("Bytecode is not set");
+
         let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-            self.bytecode.as_slice(),
+            bytecode,
             self.identifier.as_str(),
             false,
         );
@@ -153,7 +171,7 @@ impl Object {
             era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
         self.format = object_format;
 
-        self.bytecode = linked_object.as_slice().to_owned();
+        self.bytecode = Some(linked_object.as_slice().to_owned());
         Ok(())
     }
 
@@ -161,6 +179,6 @@ impl Object {
     /// Whether the object requires assebmling with its dependencies.
     ///
     pub fn requires_assembling(&self) -> bool {
-        !self.is_assembled
+        !self.is_assembled && self.bytecode.is_some()
     }
 }

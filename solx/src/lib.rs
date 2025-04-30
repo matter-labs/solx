@@ -45,6 +45,7 @@ pub fn yul_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_bytecode: bool,
+    output_assembly: bool,
     output_metadata: bool,
     messages: &mut Vec<solx_standard_json::OutputError>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
@@ -74,6 +75,7 @@ pub fn yul_to_evm(
 
     let mut build = project.compile_to_evm(
         messages,
+        output_assembly,
         output_bytecode,
         metadata_hash_type,
         optimizer_settings,
@@ -102,10 +104,14 @@ pub fn yul_to_evm(
         None
     };
 
-    let mut build = build.link(linker_symbols, cbor_data);
-    build.take_and_write_warnings();
-    build.check_errors()?;
-    Ok(build)
+    Ok(if output_bytecode {
+        let mut build = build.link(linker_symbols, cbor_data);
+        build.take_and_write_warnings();
+        build.check_errors()?;
+        build
+    } else {
+        build
+    })
 }
 
 ///
@@ -115,6 +121,7 @@ pub fn llvm_ir_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_bytecode: bool,
+    output_assembly: bool,
     output_metadata: bool,
     messages: &mut Vec<solx_standard_json::OutputError>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
@@ -132,6 +139,7 @@ pub fn llvm_ir_to_evm(
 
     let mut build = project.compile_to_evm(
         messages,
+        output_assembly,
         output_bytecode,
         metadata_hash_type,
         optimizer_settings,
@@ -150,10 +158,14 @@ pub fn llvm_ir_to_evm(
         None
     };
 
-    let mut build = build.link(linker_symbols, cbor_data);
-    build.take_and_write_warnings();
-    build.check_errors()?;
-    Ok(build)
+    Ok(if output_bytecode {
+        let mut build = build.link(linker_symbols, cbor_data);
+        build.take_and_write_warnings();
+        build.check_errors()?;
+        build
+    } else {
+        build
+    })
 }
 
 ///
@@ -163,6 +175,7 @@ pub fn standard_output_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_bytecode: bool,
+    output_assembly: bool,
     messages: &mut Vec<solx_standard_json::OutputError>,
     evm_version: Option<era_compiler_common::EVMVersion>,
     via_ir: bool,
@@ -216,6 +229,7 @@ pub fn standard_output_evm(
 
     let mut build = project.compile_to_evm(
         messages,
+        output_assembly,
         output_bytecode,
         metadata_hash_type,
         optimizer_settings,
@@ -244,10 +258,14 @@ pub fn standard_output_evm(
         None
     };
 
-    let mut build = build.link(linker_symbols, cbor_data);
-    build.take_and_write_warnings();
-    build.check_errors()?;
-    Ok(build)
+    Ok(if output_bytecode {
+        let mut build = build.link(linker_symbols, cbor_data);
+        build.take_and_write_warnings();
+        build.check_errors()?;
+        build
+    } else {
+        build
+    })
 }
 
 ///
@@ -275,6 +293,14 @@ pub fn standard_json_evm(
             .settings
             .output_selection
             .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecode);
+    let output_assembly = solc_input
+        .settings
+        .output_selection
+        .is_set_for_any(solx_standard_json::InputSelector::DeployLLVMAssembly)
+        || solc_input
+            .settings
+            .output_selection
+            .is_set_for_any(solx_standard_json::InputSelector::RuntimeLLVMAssembly);
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
@@ -376,6 +402,7 @@ pub fn standard_json_evm(
 
     let build = project.compile_to_evm(
         messages,
+        output_assembly,
         output_bytecode,
         metadata_hash_type,
         optimizer_settings,
@@ -387,7 +414,11 @@ pub fn standard_json_evm(
         solc_output.write_and_exit(&solc_input.settings.output_selection);
     }
 
-    let build = build.link(linker_symbols, cbor_data);
+    let build = if output_bytecode {
+        build.link(linker_symbols, cbor_data)
+    } else {
+        build
+    };
     build.write_to_standard_json(&mut solc_output)?;
     solc_output.write_and_exit(&solc_input.settings.output_selection);
 }

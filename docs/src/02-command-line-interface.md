@@ -26,7 +26,7 @@ The rest of this section describes the available CLI options and their usage. Yo
 
 ### `--bin`
 
-Enables the output of compiled bytecode. The following command compiles a Solidity file and prints the bytecode:
+Enables the output of compiled bytecode.
 
 ```bash
 solx 'Simple.sol' --bin
@@ -38,6 +38,41 @@ Output:
 ======= Simple.sol:Simple =======
 Binary:
 5b60806040525f341415601c5763...
+```
+
+
+
+### `--asm`
+
+Enables the output of text assembly produced by LLVM.
+
+```bash
+solx 'Simple.sol' --asm
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Deploy assembly:
+        .text
+        .file   "Simple.sol:Test"
+main:
+.func_begin0:
+        JUMPDEST
+        PUSH1 128
+        PUSH1 64
+...
+
+Runtime assembly:
+        .text
+        .file   "Simple.sol:Test.runtime"
+main:
+.func_begin0:
+        JUMPDEST
+        PUSH1 128
+        PUSH1 64
+...
 ```
 
 
