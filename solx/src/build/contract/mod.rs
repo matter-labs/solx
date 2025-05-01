@@ -56,22 +56,12 @@ impl Contract {
         writeln!(std::io::stdout(), "\n======= {path} =======")?;
 
         if output_bytecode {
-            let deploy_bytecode = self
+            let bytecode = self
                 .deploy_object
                 .as_mut()
                 .and_then(|object| object.bytecode.take())
                 .expect("Always exists");
-            let runtime_bytecode = self
-                .runtime_object
-                .as_mut()
-                .and_then(|object| object.bytecode.take())
-                .expect("Always exists");
-            writeln!(
-                std::io::stdout(),
-                "Binary:\n{}{}",
-                hex::encode(deploy_bytecode),
-                hex::encode(runtime_bytecode),
-            )?;
+            writeln!(std::io::stdout(), "Binary:\n{}", hex::encode(bytecode))?;
         }
 
         if output_assembly {
@@ -80,12 +70,12 @@ impl Contract {
                 .as_mut()
                 .and_then(|object| object.assembly.take())
                 .expect("Always exists");
+            writeln!(std::io::stdout(), "Deploy assembly:\n{deploy_assembly}")?;
             let runtime_assembly = self
                 .runtime_object
                 .as_mut()
                 .and_then(|object| object.assembly.take())
                 .expect("Always exists");
-            writeln!(std::io::stdout(), "Deploy assembly:\n{deploy_assembly}")?;
             writeln!(std::io::stdout(), "Runtime assembly:\n{runtime_assembly}")?;
         }
 
@@ -136,22 +126,12 @@ impl Contract {
                     "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
                 );
             } else {
-                let deploy_bytecode = self
+                let bytecode = self
                     .deploy_object
                     .as_mut()
                     .and_then(|object| object.bytecode.take())
                     .expect("Always exists");
-                let runtime_bytecode = self
-                    .runtime_object
-                    .as_mut()
-                    .and_then(|object| object.bytecode.take())
-                    .expect("Always exists");
-                let bytecode = format!(
-                    "{}{}",
-                    hex::encode(deploy_bytecode),
-                    hex::encode(runtime_bytecode),
-                );
-                std::fs::write(output_path.as_path(), bytecode)
+                std::fs::write(output_path.as_path(), hex::encode(bytecode))
                     .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
         }
@@ -238,8 +218,8 @@ impl Contract {
         evm.deployed_bytecode = self.runtime_object.map(|object| {
             solx_standard_json::OutputContractEVMBytecode::new(
                 object.bytecode.map(hex::encode),
-                object.assembly,
-                object.unlinked_libraries,
+                object.assembly.to_owned(),
+                object.unlinked_libraries.to_owned(),
                 object.format,
             )
         });

@@ -44,7 +44,7 @@ impl Source {
                     _ => None,
                 },
             )
-            .last()
+            .next_back()
             .ok_or_else(|| anyhow::anyhow!("The last contract not found in the AST"))
     }
 }

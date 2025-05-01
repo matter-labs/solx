@@ -11,21 +11,17 @@ use std::collections::BTreeSet;
 #[serde(rename_all = "camelCase")]
 pub struct Bytecode {
     /// Bytecode object.
-    #[serde(default, skip_serializing_if = "Option::is_none", skip_deserializing)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub object: Option<String>,
     /// Text assembly from LLVM.
-    #[serde(default, skip_serializing_if = "Option::is_none", skip_deserializing)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub llvm_assembly: Option<String>,
 
     /// Unlinked deployable references.
-    #[serde(
-        default,
-        skip_serializing_if = "BTreeSet::is_empty",
-        skip_deserializing
-    )]
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub unlinked_references: BTreeSet<String>,
     /// Binary object format.
-    #[serde(default, skip_serializing_if = "Option::is_none", skip_deserializing)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub format: Option<era_compiler_common::ObjectFormat>,
 }
 

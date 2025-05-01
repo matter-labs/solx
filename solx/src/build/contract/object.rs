@@ -125,7 +125,7 @@ impl Object {
                 .iter()
                 .find(|object| object.identifier.as_str() == dependency.as_str())
                 .expect("Dependency not found");
-            let dependency_bytecode = self.bytecode.as_deref().expect("Bytecode is not set");
+            let dependency_bytecode = dependency.bytecode.as_deref().expect("Bytecode is not set");
             let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
                 dependency_bytecode,
                 dependency.identifier.as_str(),
@@ -179,6 +179,6 @@ impl Object {
     /// Whether the object requires assebmling with its dependencies.
     ///
     pub fn requires_assembling(&self) -> bool {
-        !self.is_assembled && self.bytecode.is_some()
+        !self.is_assembled
     }
 }

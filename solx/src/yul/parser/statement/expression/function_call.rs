@@ -670,7 +670,7 @@ impl FunctionCall {
                 let object_name = arguments[0].original.take().ok_or_else(|| {
                     anyhow::anyhow!("{} `dataoffset` literal is missing", location)
                 })?;
-                let object_name = object_name.split('.').last().expect("Always exists");
+                let object_name = object_name.split('.').next_back().expect("Always exists");
                 era_compiler_llvm_context::evm_code::data_offset(context, object_name).map(Some)
             }
             Name::DataSize => {
@@ -679,7 +679,7 @@ impl FunctionCall {
                     .original
                     .take()
                     .ok_or_else(|| anyhow::anyhow!("{} `datasize` literal is missing", location))?;
-                let object_name = object_name.split('.').last().expect("Always exists");
+                let object_name = object_name.split('.').next_back().expect("Always exists");
                 era_compiler_llvm_context::evm_code::data_size(context, object_name).map(Some)
             }
             Name::DataCopy => {
