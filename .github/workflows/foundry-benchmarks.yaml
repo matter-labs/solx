@@ -69,8 +69,8 @@ jobs:
       max-parallel: 6
       fail-fast: false
       matrix:
-        # project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3' ]
-        project: [ 'ERC721K', 'lil-web3', 'maple-erc20', 'uniswap-v4-periphery' ]
+        project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3' ]
+        # project: [ 'ERC721K', 'lil-web3', 'maple-erc20', 'uniswap-v4-periphery' ]
         compiler: [ 'solc', 'solx' ]
         via_ir: [ 'true', 'false' ]
     steps:
@@ -94,8 +94,8 @@ jobs:
       - name: Download solx
         id: solx
         run: |
-          wget --no-verbose https://github.com/matter-labs/solx/releases/download/f25d0b9/solx-linux-amd64-gnu-hardhat-support
-          mv solx-linux-amd64-gnu-hardhat-support ./solx
+          wget --no-verbose https://github.com/matter-labs/solx/releases/download/e3c7653/solx-linux-amd64-gnu-v0.1.0-alpha.2
+          mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
           chmod a+x ./solx
           ./solx --version
           echo "solc-base-version=$(./solx --version | tail -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" >> ${GITHUB_OUTPUT}
