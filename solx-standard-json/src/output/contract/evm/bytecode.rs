@@ -2,6 +2,7 @@
 //! The `solc --standard-json` output contract EVM bytecode.
 //!
 
+use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
 ///
@@ -16,6 +17,19 @@ pub struct Bytecode {
     /// Text assembly from LLVM.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub llvm_assembly: Option<String>,
+
+    /// Opcodes placeholder.
+    #[serde(default)]
+    pub opcodes: String,
+    /// Source maps placeholder.
+    #[serde(default)]
+    pub source_map: String,
+    /// Link references placeholder.
+    #[serde(default)]
+    pub link_references: BTreeMap<String, BTreeMap<String, Vec<String>>>,
+    /// Immutable references placeholder.
+    #[serde(default)]
+    pub immutable_references: BTreeMap<String, Vec<String>>,
 
     /// Unlinked deployable references.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
@@ -38,6 +52,12 @@ impl Bytecode {
         Self {
             object,
             llvm_assembly,
+
+            opcodes: String::default(),
+            source_map: String::default(),
+            link_references: BTreeMap::default(),
+            immutable_references: BTreeMap::default(),
+
             unlinked_references,
             format: Some(format),
         }
