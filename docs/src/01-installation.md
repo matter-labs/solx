@@ -1,12 +1,9 @@
 # Installing **solx**
 
-You can install **solx** using the following methods:
+You can start using **solx** in the following ways:
 
-1. Use Foundry, Hardhat, or other popular toolkits, so they will manage the compiler installation for you. See [Ethereum Development Toolkits](#ethereum-development-toolkits).
-2. Download [stable releases](https://github.com/matter-labs/solx/releases). See [Static Executables](#static-executables).
-3. Build **solx** from sources. See [Building from Source](#building-from-source).
-
-> For small projects, learning and research purposes, the **solx** executable without a toolkit is sufficient.
+1. Download [stable releases](https://github.com/matter-labs/solx/releases). See [Static Executables](#static-executables).
+2. Build **solx** from sources. See [Building from Source](#building-from-source).
 
 
 
@@ -53,7 +50,7 @@ For instance, the latest revision of the latest version of *solc* is `0.8.29-1.0
 ## Ethereum Development Toolkits
 
 For large codebases, it is more convenient to use **solx** via toolkits such as Foundry and Hardhat.
-These tools manage the compiler executables and their dependencies, and provide additional features like incremental compilation and caching.
+These tools manage compiler input and output on a higher level, and provide additional features like incremental compilation and caching.
 
 
 
