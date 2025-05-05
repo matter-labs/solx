@@ -65,15 +65,17 @@ jobs:
     runs-on: matterlabs-ci-runner-high-performance
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    outputs:
+      solx-version: ${{ steps.solx.outputs.solx-version }}
+      solx-llvm-version: ${{ steps.solx.outputs.solx-llvm-version }}
+      solc-base-version: ${{ steps.solx.outputs.solc-base-version }}
     strategy:
       max-parallel: 6
       fail-fast: false
       matrix:
         project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3', 'lil-web3', 'maple-erc20' ]
-        compiler: [ 'solx' ]
+        compiler: [ 'solc', 'solx' ]
         via_ir: [ 'false' ]
-        # compiler: [ 'solc', 'solx' ]
-        # via_ir: [ 'true', 'false' ]
     steps:
       - name: Checkout test suites
         uses: actions/checkout@v4
@@ -99,7 +101,12 @@ jobs:
           mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
           chmod a+x ./solx
           ./solx --version
-          echo "solc-base-version=$(./solx --version | tail -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" >> ${GITHUB_OUTPUT}
+          SOLX_VERSION=$(./solx --version | head -n 1)
+          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
+          echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
 
       - name: Install foundry v0.3.0
         run: |
@@ -120,19 +127,14 @@ jobs:
           PROJECT="${{ matrix.project }}"
           echo "PROJECT=${PROJECT//\//-}" >> ${GITHUB_ENV}
 
-      - name: Patch evm version
-        # if: ${{ matrix.project == 'solady' }}
-        working-directory: projects/${{ matrix.project }}
-        run: |
-          # Replace solidity version in all .sol files
-          sed -i '/^\s*evm_version\s*=/d' foundry.toml
-
       - name: Update compiler version in foundry.toml
         working-directory: projects/${{ matrix.project }}
         run: |
           # Fix config if required
           forge config --fix
+          sed -i '/^\s*evm_version\s*=/d' foundry.toml
           sed -i 's/solc = ".*"/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+          sed -i 's/solc_version = ".*"/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
 
       - name: Build tests
         working-directory: projects/${{ matrix.project }}
@@ -175,7 +177,7 @@ jobs:
         run: |
           echo "| Project     | Passed / Total | Progress       |" > report.md
           echo "|-------------|----------------|----------------|" >> report.md
-          for PROJECT in solmate solady openzeppelin forge-std aave-v3 uniswap-v4 lil-web3 maple-erc20; do
+          for PROJECT in solmate solady lil-web3 maple-erc20 openzeppelin forge-std aave-v3 uniswap-v4; do
             JSON=data/build_${PROJECT}-solx.json
             if [ ! -f "$JSON" ]; then
               echo "No data for ${PROJECT}"
@@ -207,13 +209,19 @@ jobs:
       - name: Prepare LNT report
         run: |
           echo "{
-            \"machine\": \"solx\",
+            \"machine\": \"solx_benchmarks\",
             \"target\": \"evm\",
             \"toolchain\": \"ir_llvm\",
-            \"compiler_version\": \"${{ steps.solx.outputs.solc-base-version }}\",
-            \"llvm_version\": \"TBD\"
+            \"compiler_version\": \"${{ needs.test.outputs.solx-version }} ${{ needs.test.outputs.solc-base-version }}\",
+            \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\"
           }" > "context.json"
-          benchmark-converter --input-paths ./data/solmate.json --input-paths ./data/solady.json \
+          benchmark-converter \
+            --input-paths ./data/solmate.json \
+            --input-paths ./data/solady.json \
+            --input-paths ./data/openzeppelin.json \
+            --input-paths ./data/forge-std.json \
+            --input-paths ./data/lil-web3.json \
+            --input-paths ./data/maple-erc20.json \
             --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report
           cat ./lnt-report/*
 
