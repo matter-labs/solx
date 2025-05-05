@@ -69,10 +69,11 @@ jobs:
       max-parallel: 6
       fail-fast: false
       matrix:
-        project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3' ]
-        # project: [ 'ERC721K', 'lil-web3', 'maple-erc20', 'uniswap-v4-periphery' ]
-        compiler: [ 'solc', 'solx' ]
-        via_ir: [ 'true', 'false' ]
+        project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3', 'lil-web3', 'maple-erc20' ]
+        compiler: [ 'solx' ]
+        via_ir: [ 'false' ]
+        # compiler: [ 'solc', 'solx' ]
+        # via_ir: [ 'true', 'false' ]
     steps:
       - name: Checkout test suites
         uses: actions/checkout@v4
@@ -94,7 +95,7 @@ jobs:
       - name: Download solx
         id: solx
         run: |
-          wget --no-verbose https://github.com/matter-labs/solx/releases/download/e3c7653/solx-linux-amd64-gnu-v0.1.0-alpha.2
+          wget --no-verbose https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.2/solx-linux-amd64-gnu-v0.1.0-alpha.2
           mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
           chmod a+x ./solx
           ./solx --version
@@ -174,7 +175,7 @@ jobs:
         run: |
           echo "| Project     | Passed / Total | Progress       |" > report.md
           echo "|-------------|----------------|----------------|" >> report.md
-          for PROJECT in solmate solady openzeppelin forge-std aave-v3 uniswap-v4; do
+          for PROJECT in solmate solady openzeppelin forge-std aave-v3 uniswap-v4 lil-web3 maple-erc20; do
             JSON=data/build_${PROJECT}-solx.json
             if [ ! -f "$JSON" ]; then
               echo "No data for ${PROJECT}"
@@ -201,14 +202,14 @@ jobs:
       - name: Install LNT benchmark-converter
         run: |
           cargo install benchmark-analyzer --bin benchmark-converter \
-            --git https://github.com/matter-labs/era-compiler-tester --branch az-foundry-benchmark-reports
+            --git https://github.com/matter-labs/era-compiler-tester
 
       - name: Prepare LNT report
         run: |
           echo "{
             \"machine\": \"solx\",
             \"target\": \"evm\",
-            \"toolchain\": \"solx\",
+            \"toolchain\": \"ir_llvm\",
             \"compiler_version\": \"${{ steps.solx.outputs.solc-base-version }}\",
             \"llvm_version\": \"TBD\"
           }" > "context.json"
