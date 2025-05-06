@@ -1,7 +1,7 @@
 [submodule "llvm"]
 	path = llvm
 	url = https://github.com/matter-labs/era-compiler-llvm
-	branch = dborisenkov-llvm19
+	branch = main
 	update = none
 [submodule "era-solidity"]
 	path = era-solidity
