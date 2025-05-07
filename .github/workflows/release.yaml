@@ -144,14 +144,6 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
 
-      - name: Get changelog
-        if: github.ref_type == 'tag'
-        id: changelog_reader
-        uses: mindsers/changelog-reader-action@v2
-        with:
-          validation_level: warn
-          path: ./CHANGELOG.md
-
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -178,11 +170,10 @@ jobs:
         run: |
           TAG="${{ steps.release.outputs.version_or_sha }}"
           CARGO_PACKAGE_VERSION="$(cargo pkgid --manifest-path solx/Cargo.toml | cut -d "#" -f2)"
-          CHANGELOG_VERSION="${{ steps.changelog_reader.outputs.version }}"
           # All versions must be equal
-          if [ "${CARGO_PACKAGE_VERSION}" != "${TAG}" ] || [ "${CARGO_PACKAGE_VERSION}" != "${CHANGELOG_VERSION}" ]; then
-            echo "Version mismatch: TAG=${TAG}, CARGO_PACKAGE_VERSION=${CARGO_PACKAGE_VERSION}, CHANGELOG_VERSION=${CHANGELOG_VERSION}"
-            echo "Please update the version in Cargo.toml, CHANGELOG.md and tag the commit with the same version."
+          if [ "${CARGO_PACKAGE_VERSION}" != "${TAG}" ]; then
+            echo "Version mismatch: TAG=${TAG}, CARGO_PACKAGE_VERSION=${CARGO_PACKAGE_VERSION}"
+            echo "Please update the version in Cargo.toml and tag the commit with the same version."
             exit 1
           fi
 
@@ -211,8 +202,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.release.outputs.release_title }}
-          body: ${{ steps.changelog_reader.outputs.changes }}
-          generate_release_notes: false
+          generate_release_notes: true
           tag_name: ${{ steps.release.outputs.version_or_sha }}
           target_commitish: ${{ steps.release.outputs.full_sha }}
           make_latest: true
