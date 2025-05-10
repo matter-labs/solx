@@ -137,7 +137,11 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
+                let runtime_build = runtime_context.build(
+                    output_assembly,
+                    output_bytecode,
+                    runtime_code_libraries,
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -147,8 +151,7 @@ impl Contract {
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependecies,
-                    runtime_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    runtime_build.unlinked_symbols,
                     runtime_build.warnings,
                 );
 
@@ -176,7 +179,11 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
+                let deploy_build = deploy_context.build(
+                    output_assembly,
+                    output_bytecode,
+                    deploy_code_libraries,
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -186,8 +193,7 @@ impl Contract {
                     deploy_code_segment,
                     None,
                     deploy_code_dependecies,
-                    deploy_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    deploy_build.unlinked_symbols,
                     deploy_build.warnings,
                 );
 
@@ -211,9 +217,9 @@ impl Contract {
                 let mut runtime_code_libraries = runtime_code_assembly.get_unlinked_libraries();
                 runtime_code_libraries.retain(|library| !deployed_libraries.contains(library));
 
-                let mut deploy_code_dependecies =
+                let mut deploy_code_dependencies =
                     solx_yul::Dependencies::new(deploy_code_identifier.as_str());
-                deploy_code.accumulate_evm_dependencies(&mut deploy_code_dependecies);
+                deploy_code.accumulate_evm_dependencies(&mut deploy_code_dependencies);
                 let mut runtime_code_dependecies =
                     solx_yul::Dependencies::new(runtime_code_identifier.as_str());
                 runtime_code_assembly.accumulate_evm_dependencies(&mut runtime_code_dependecies);
@@ -238,7 +244,11 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
+                let runtime_build = runtime_context.build(
+                    output_assembly,
+                    output_bytecode,
+                    runtime_code_libraries,
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -248,8 +258,7 @@ impl Contract {
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependecies,
-                    runtime_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    runtime_build.unlinked_symbols,
                     runtime_build.warnings,
                 );
 
@@ -275,7 +284,11 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
+                let deploy_build = deploy_context.build(
+                    output_assembly,
+                    output_bytecode,
+                    deploy_code_libraries,
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -284,9 +297,8 @@ impl Contract {
                     false,
                     deploy_code_segment,
                     None,
-                    deploy_code_dependecies,
-                    deploy_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    deploy_code_dependencies,
+                    deploy_build.unlinked_symbols,
                     deploy_build.warnings,
                 );
 
@@ -343,7 +355,8 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
-                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
+                let runtime_build =
+                    runtime_context.build(output_assembly, output_bytecode, BTreeSet::new())?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -353,8 +366,7 @@ impl Contract {
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependencies,
-                    BTreeSet::new(),
-                    era_compiler_common::ObjectFormat::ELF,
+                    runtime_build.unlinked_symbols,
                     runtime_build.warnings,
                 );
 
@@ -370,7 +382,8 @@ impl Contract {
                     optimizer,
                     debug_config,
                 );
-                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
+                let deploy_build =
+                    deploy_context.build(output_assembly, output_bytecode, BTreeSet::new())?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -380,8 +393,7 @@ impl Contract {
                     deploy_code_segment,
                     None,
                     deploy_code_dependencies,
-                    BTreeSet::new(),
-                    era_compiler_common::ObjectFormat::ELF,
+                    deploy_build.unlinked_symbols,
                     deploy_build.warnings,
                 );
 

@@ -211,16 +211,20 @@ impl Contract {
             solx_standard_json::OutputContractEVMBytecode::new(
                 object.bytecode.map(hex::encode),
                 object.assembly,
-                object.unlinked_libraries,
-                object.format,
+                None,
+                None,
+                object.unlinked_symbols,
+                None,
             )
         });
         evm.deployed_bytecode = self.runtime_object.map(|object| {
             solx_standard_json::OutputContractEVMBytecode::new(
                 object.bytecode.map(hex::encode),
-                object.assembly.to_owned(),
-                object.unlinked_libraries.to_owned(),
-                object.format,
+                object.assembly,
+                None,
+                None,
+                object.unlinked_symbols,
+                None,
             )
         });
 

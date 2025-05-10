@@ -3,7 +3,6 @@
 //!
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 ///
 /// Bytecode object.
@@ -28,12 +27,10 @@ pub struct Object {
     pub metadata_bytes: Option<Vec<u8>>,
     /// Dependencies.
     pub dependencies: solx_yul::Dependencies,
-    /// The unlinked unlinked libraries.
-    pub unlinked_libraries: BTreeSet<String>,
+    /// The unlinked symbols, such as libraries.
+    pub unlinked_symbols: Option<BTreeMap<String, Vec<u64>>>,
     /// Whether the object is already assembled.
     pub is_assembled: bool,
-    /// Binary object format.
-    pub format: era_compiler_common::ObjectFormat,
     /// Compilation warnings.
     pub warnings: Vec<era_compiler_llvm_context::EVMWarning>,
 }
@@ -51,8 +48,7 @@ impl Object {
         code_segment: era_compiler_common::CodeSegment,
         metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
-        unlinked_libraries: BTreeSet<String>,
-        format: era_compiler_common::ObjectFormat,
+        unlinked_symbols: Option<BTreeMap<String, Vec<u64>>>,
         warnings: Vec<era_compiler_llvm_context::EVMWarning>,
     ) -> Self {
         Self {
@@ -64,9 +60,8 @@ impl Object {
             code_segment,
             metadata_bytes,
             dependencies,
-            unlinked_libraries,
+            unlinked_symbols,
             is_assembled: false,
-            format,
             warnings,
         }
     }
@@ -167,11 +162,24 @@ impl Object {
             false,
         );
 
-        let (linked_object, object_format) =
-            era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
-        self.format = object_format;
+        let linked_object = era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
 
-        self.bytecode = Some(linked_object.as_slice().to_owned());
+        let unlinked_symbols = self
+            .unlinked_symbols
+            .as_ref()
+            .map(|unlinked_symbols| {
+                unlinked_symbols
+                .keys()
+                .map(|symbol| {
+                    (symbol.to_owned(), [0u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS])
+                })
+                .collect::<BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>>()
+            })
+            .unwrap_or_default();
+        let linked_object_with_placeholders =
+            era_compiler_llvm_context::evm_link(linked_object, &unlinked_symbols)?;
+
+        self.bytecode = Some(linked_object_with_placeholders.as_slice().to_owned());
         Ok(())
     }
 

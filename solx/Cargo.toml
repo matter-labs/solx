@@ -3,7 +3,7 @@ name = "solx"
 authors.workspace = true
 edition.workspace = true
 version.workspace = true
-description = "eXtremely optimizing SOLidity compiler"
+description = "LLVM-based Solidity compiler for the EVM"
 license = "GPL-3.0"
 links = "compiler-rt-solx"
 
@@ -29,7 +29,7 @@ num = "0.4"
 
 zkevm_opcode_defs = "=0.150.6"
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "az-support-deploy-time-linking" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 
 solx-solc = { path = "../solx-solc" }
@@ -44,6 +44,6 @@ test-case = "3.3"
 
 [dependencies.inkwell]
 git = "https://github.com/matter-labs-forks/inkwell"
-branch = "llvm-19"
+branch = "az-support-deploy-time-linking"
 default-features = false
 features = ["llvm19-1", "serde", "no-libffi-linking", "target-evm"]

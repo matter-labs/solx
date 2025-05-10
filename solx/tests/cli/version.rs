@@ -12,7 +12,7 @@ fn default() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains(
-        "eXtremely optimizing SOLidity compiler",
+        "LLVM-based Solidity compiler for the EVM",
     ));
 
     Ok(())

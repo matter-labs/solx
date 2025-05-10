@@ -236,9 +236,9 @@ checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
 
 [[package]]
 name = "cc"
-version = "1.2.20"
+version = "1.2.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04da6a0d40b948dfc4fa8f5bbf402b0fc1a64a28dbf7d12ffd683550f2c1b63a"
+checksum = "32db95edf998450acc7881c932f94cd9b05c87b4b2599e8bab064753da4acfd1"
 dependencies = [
  "shlex",
 ]
@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#258108b38421393449b1cc9c60ca493b45703820"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-support-deploy-time-linking#525b219080a5d0c002566bb18a03972a3b7bf210"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -665,9 +665,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73fea8450eea4bac3940448fb7ae50d91f034f941199fcd9d909a5a07aa455f0"
+checksum = "26145e563e54f2cadc477553f1ec5ee650b00862f0a58bcd12cbdc5f0ea2d2f4"
 dependencies = [
  "cfg-if",
  "libc",
@@ -764,7 +764,7 @@ dependencies = [
 [[package]]
 name = "inkwell"
 version = "0.5.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#6a6eaf88cde4045c4a05a60cdd48d92dc843da90"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=az-support-deploy-time-linking#11089f7d7a335ca324cdab32c6dba683b5ec50cc"
 dependencies = [
  "either",
  "inkwell_internals",
@@ -778,7 +778,7 @@ dependencies = [
 [[package]]
 name = "inkwell_internals"
 version = "0.10.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#6a6eaf88cde4045c4a05a60cdd48d92dc843da90"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=az-support-deploy-time-linking#11089f7d7a335ca324cdab32c6dba683b5ec50cc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -884,7 +884,7 @@ checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
 [[package]]
 name = "llvm-sys"
 version = "191.0.0"
-source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-19#d6d4c23af212d596eda9ac19257d21c84af2729e"
+source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=az-support-deploy-time-linking#2da86f67e0b19377319b2d510758b9ae813bad93"
 dependencies = [
  "anyhow",
  "cc",
@@ -1252,9 +1252,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.11"
+version = "0.5.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2f103c6d277498fbceb16e84d317e2a400f160f46904d5f5410848c829511a3"
+checksum = "928fca9cf2aa042393a8325b9ead81d2f0df4cb12e1e24cef072922ccd99c5af"
 dependencies = [
  "bitflags",
 ]
@@ -1496,7 +1496,7 @@ dependencies = [
 
 [[package]]
 name = "solx"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1523,7 +1523,7 @@ dependencies = [
 
 [[package]]
 name = "solx-solc"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1536,7 +1536,7 @@ dependencies = [
 
 [[package]]
 name = "solx-standard-json"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1549,7 +1549,7 @@ dependencies = [
 
 [[package]]
 name = "solx-yul"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1622,7 +1622,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7437ac7763b9b123ccf33c338a5cc1bac6f69b45a136c19bdd8a65e3916435bf"
 dependencies = [
  "fastrand",
- "getrandom 0.3.2",
+ "getrandom 0.3.3",
  "once_cell",
  "rustix",
  "windows-sys",
@@ -1886,9 +1886,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.7.8"
+version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e27d6ad3dac991091e4d35de9ba2d2d00647c5d0fc26c5496dee55984ae111b"
+checksum = "c06928c8748d81b05c9be96aad92e1b6ff01833332f281e8cfca3be4b35fc9ec"
 dependencies = [
  "memchr",
 ]
