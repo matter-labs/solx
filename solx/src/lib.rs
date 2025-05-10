@@ -12,16 +12,12 @@
 pub mod build;
 pub mod r#const;
 pub mod evmla;
-pub mod linker;
 pub mod process;
 pub mod project;
 pub mod yul;
 
 pub use self::build::contract::Contract as EVMContractBuild;
 pub use self::build::Build as EVMBuild;
-pub use self::linker::input::Input as LinkerInput;
-pub use self::linker::output::Output as LinkerOutput;
-pub use self::linker::Linker;
 pub use self::process::input::Input as EVMProcessInput;
 pub use self::process::output::Output as EVMProcessOutput;
 pub use self::process::run as run_recursive;
