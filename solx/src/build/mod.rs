@@ -69,7 +69,6 @@ impl Build {
                     .iter()
                     .filter(|object| {
                         !object.is_assembled
-                            && object.format == era_compiler_common::ObjectFormat::ELF
                             && object.dependencies.inner.iter().all(|dependency| {
                                 all_objects
                                     .iter()
