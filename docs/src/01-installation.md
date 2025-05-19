@@ -35,13 +35,13 @@ The **solx** version consists of three parts:
 2. Version of **solc** libraries **solx** is statically linked with.
 3. Revision of the LLVM-friendly fork of **solc** maintained by the **solx** team.
 
-For instance, the latest revision of the latest version of *solc* is `0.8.29-1.0.2`. Here are the LLVM revisions released by now:
+For instance, the latest revision of the latest version of **solc** is `0.8.29-1.0.2`. Here are the **solc** revisions released by now:
 
-| Revision |                           Fixes                            |
-|:---------|:-----------------------------------------------------------|
-| *v1.0.0* | Fixed compatibility between EVM assembly and LLVM IR       |
-| *v1.0.1* | Fixed a compiler crash with nested try-catch patterns      |
-| *v1.0.2* | Fixed metadata of recursive calls across inheritance       |
+| Revision |                         Fixes                        |
+|:---------|:-----------------------------------------------------|
+| *v1.0.0* | Compatibility between EVM assembly and LLVM IR       |
+| *v1.0.1* | A compiler crash with nested try-catch patterns      |
+| *v1.0.2* | Metadata of recursive calls across inheritance       |
 
 > We recommend always using the latest version of **solx** to benefit from the latest features and bug fixes.
 
@@ -140,7 +140,54 @@ This repository maintains intuitive and stable naming for the executables and pr
   
    For more information and available build options, run `zksync-llvm build --help`.
 
-6. Build the **solx** executable.
+6. Build the **solc** libraries.
+
+   ```shell
+   cd era-solidity
+   mkdir -pv build
+   cd build
+   cmake .. \
+      -DPEDANTIC='OFF' \
+      -DTESTS='OFF' \
+      -DCMAKE_BUILD_TYPE='Release' \
+      -DSOL_VERSION_ZKSYNC='0.8.29-1.0.2'
+   cmake --build . --config Release --parallel ${YOUR_CPU_COUNT}
+   cd ../..
+   ```
+
+   The sequence above may fail with clang v20 and/or Boost 1.88.
+   We are currently looking for a solution and will document it when we find one.
+   If you encounter compilation errors, try specifying the aforementioned versions to replace your system default:
+
+   ```shell
+   # MacOS example
+
+   # Install Boost v1.85
+   brew install boost@1.85
+
+   # Make Boost v1.85 default
+   brew unlink boost
+   brew link boost@1.85
+   
+   # Install LLVM with clang v19
+   brew install llvm@19
+
+   # Re-run the build command
+   cmake .. \
+      -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm@19/bin/clang \
+      -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm@19/bin/clang++ \
+      -DPEDANTIC=OFF \
+      -DTESTS=OFF \
+      -DCMAKE_BUILD_TYPE="Release" \
+      -DSOL_VERSION_ZKSYNC="0.8.29-1.0.2"
+   cmake --build . --config Release --parallel ${YOUR_CPU_COUNT}
+   ```
+
+   The `-DSOL_VERSION_ZKSYNC` flag is used to specify the version-revision of the **solc** that is reported by **solx**.
+   By default, we recommend keeping the revision at `1.0.2` to follow our [versioning](#versioning).
+   Otherwise, feel free to change it according to your needs.
+
+7. Build the **solx** executable.
 
     ```shell
     cargo build --release
