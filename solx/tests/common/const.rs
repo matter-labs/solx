@@ -74,6 +74,10 @@ pub const TEST_SOLIDITY_STANDARD_JSON_SOLC_PATH: &str =
     "tests/data/standard_json_input/solidity_solc.json";
 
 /// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_DEPLOY_TIME_LINKING_PATH: &str =
+    "tests/data/standard_json_input/solidity_deploy_time_linking.json";
+
+/// A test input file.
 pub const TEST_SOLIDITY_STANDARD_JSON_SOLC_EMPTY_SOURCES_PATH: &str =
     "tests/data/standard_json_input/solidity_solc_empty_sources.json";
 
