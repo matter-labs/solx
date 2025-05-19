@@ -19,6 +19,8 @@ pub struct Object {
     pub assembly: Option<String>,
     /// Bytecode.
     pub bytecode: Option<Vec<u8>>,
+    /// Hexadecimal bytecode.
+    pub bytecode_hex: Option<String>,
     /// Whether IR codegen is used.
     pub via_ir: bool,
     /// Code segment.
@@ -36,6 +38,9 @@ pub struct Object {
 }
 
 impl Object {
+    /// Length of the library placeholder.
+    pub const LIBRARY_PLACEHOLDER_LENGTH: usize = 17;
+
     ///
     /// A shortcut constructor.
     ///
@@ -51,11 +56,13 @@ impl Object {
         unlinked_symbols: Option<BTreeMap<String, Vec<u64>>>,
         warnings: Vec<era_compiler_llvm_context::EVMWarning>,
     ) -> Self {
+        let bytecode_hex = bytecode.as_ref().map(hex::encode);
         Self {
             identifier,
             contract_name,
             assembly,
             bytecode,
+            bytecode_hex,
             via_ir,
             code_segment,
             metadata_bytes,
@@ -154,32 +161,51 @@ impl Object {
         &mut self,
         linker_symbols: &BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> anyhow::Result<()> {
-        let bytecode = self.bytecode.as_deref().expect("Bytecode is not set");
-
         let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-            bytecode,
+            self.bytecode.as_deref().expect("Bytecode is not set"),
             self.identifier.as_str(),
             false,
         );
 
         let linked_object = era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
-
-        let unlinked_symbols = self
-            .unlinked_symbols
-            .as_ref()
-            .map(|unlinked_symbols| {
-                unlinked_symbols
+        let linked_object_with_placeholders = era_compiler_llvm_context::evm_link(
+            linked_object,
+            &self
+                .unlinked_symbols
+                .as_ref()
+                .map(|unlinked_symbols| {
+                    unlinked_symbols
                 .keys()
                 .map(|symbol| {
                     (symbol.to_owned(), [0u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS])
                 })
                 .collect::<BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>>()
-            })
-            .unwrap_or_default();
-        let linked_object_with_placeholders =
-            era_compiler_llvm_context::evm_link(linked_object, &unlinked_symbols)?;
+                })
+                .unwrap_or_default(),
+        )?;
 
+        let mut bytecode_hex = hex::encode(linked_object_with_placeholders.as_slice());
+        if let Some(unlinked_symbols) = self.unlinked_symbols.as_ref() {
+            for (symbol, offsets) in unlinked_symbols.iter() {
+                let hash =
+                    era_compiler_common::Keccak256Hash::from_slice(symbol.as_bytes()).to_vec();
+                let placeholder = format!(
+                    "__${}$__",
+                    hex::encode(&hash[0..Self::LIBRARY_PLACEHOLDER_LENGTH])
+                );
+                for offset in offsets.iter() {
+                    let offset = *offset as usize;
+                    unsafe {
+                        bytecode_hex.as_bytes_mut()[(offset * 2)
+                            ..(offset + era_compiler_common::BYTE_LENGTH_ETH_ADDRESS) * 2]
+                            .copy_from_slice(placeholder.as_bytes());
+                    }
+                }
+            }
+        }
         self.bytecode = Some(linked_object_with_placeholders.as_slice().to_owned());
+        self.bytecode_hex = Some(bytecode_hex);
+
         Ok(())
     }
 
@@ -188,5 +214,12 @@ impl Object {
     ///
     pub fn requires_assembling(&self) -> bool {
         !self.is_assembled
+    }
+
+    ///
+    /// The bytecode length in bytes.
+    ///
+    pub fn bytecode_length(&self) -> usize {
+        self.bytecode.as_ref().map_or(0, |bytecode| bytecode.len())
     }
 }

@@ -56,12 +56,24 @@ impl Contract {
         writeln!(std::io::stdout(), "\n======= {path} =======")?;
 
         if output_bytecode {
-            let bytecode = self
+            let mut deploy_bytecode_hex = self
                 .deploy_object
                 .as_mut()
-                .and_then(|object| object.bytecode.take())
+                .and_then(|object| object.bytecode_hex.take())
                 .expect("Always exists");
-            writeln!(std::io::stdout(), "Binary:\n{}", hex::encode(bytecode))?;
+
+            let runtime_bytecode_hex = self
+                .runtime_object
+                .as_mut()
+                .and_then(|object| object.bytecode_hex.take())
+                .expect("Always exists");
+            if deploy_bytecode_hex.len() > runtime_bytecode_hex.len() {
+                deploy_bytecode_hex
+                    .truncate(deploy_bytecode_hex.len() - runtime_bytecode_hex.len());
+                deploy_bytecode_hex.push_str(runtime_bytecode_hex.as_str());
+            }
+
+            writeln!(std::io::stdout(), "Binary:\n{deploy_bytecode_hex}")?;
         }
 
         if output_assembly {
@@ -126,12 +138,24 @@ impl Contract {
                     "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
                 );
             } else {
-                let bytecode = self
+                let mut deploy_bytecode_hex = self
                     .deploy_object
                     .as_mut()
-                    .and_then(|object| object.bytecode.take())
+                    .and_then(|object| object.bytecode_hex.take())
                     .expect("Always exists");
-                std::fs::write(output_path.as_path(), hex::encode(bytecode))
+
+                let runtime_bytecode_hex = self
+                    .runtime_object
+                    .as_mut()
+                    .and_then(|object| object.bytecode_hex.take())
+                    .expect("Always exists");
+                if deploy_bytecode_hex.len() > runtime_bytecode_hex.len() {
+                    deploy_bytecode_hex
+                        .truncate(deploy_bytecode_hex.len() - runtime_bytecode_hex.len());
+                    deploy_bytecode_hex.push_str(runtime_bytecode_hex.as_str());
+                }
+
+                std::fs::write(output_path.as_path(), deploy_bytecode_hex)
                     .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
         }
@@ -207,19 +231,9 @@ impl Contract {
         let evm = standard_json_contract
             .evm
             .get_or_insert_with(solx_standard_json::OutputContractEVM::default);
-        evm.bytecode = self.deploy_object.map(|object| {
-            solx_standard_json::OutputContractEVMBytecode::new(
-                object.bytecode.map(hex::encode),
-                object.assembly,
-                None,
-                None,
-                object.unlinked_symbols,
-                None,
-            )
-        });
         evm.deployed_bytecode = self.runtime_object.map(|object| {
             solx_standard_json::OutputContractEVMBytecode::new(
-                object.bytecode.map(hex::encode),
+                object.bytecode_hex,
                 object.assembly,
                 None,
                 None,
@@ -227,6 +241,30 @@ impl Contract {
                 None,
             )
         });
+        evm.bytecode = self.deploy_object.map(|object| {
+            solx_standard_json::OutputContractEVMBytecode::new(
+                object.bytecode_hex,
+                object.assembly,
+                None,
+                None,
+                object.unlinked_symbols,
+                None,
+            )
+        });
+        if let (Some(deploy_bytecode_object), Some(runtime_bytecode_object)) = (
+            evm.bytecode
+                .as_mut()
+                .and_then(|bytecode| bytecode.object.as_mut()),
+            evm.deployed_bytecode
+                .as_ref()
+                .and_then(|bytecode| bytecode.object.as_ref()),
+        ) {
+            if deploy_bytecode_object.len() > runtime_bytecode_object.len() {
+                deploy_bytecode_object
+                    .truncate(deploy_bytecode_object.len() - runtime_bytecode_object.len());
+                deploy_bytecode_object.push_str(runtime_bytecode_object.as_str());
+            }
+        }
 
         Ok(())
     }
