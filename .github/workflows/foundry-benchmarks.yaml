@@ -18,50 +18,50 @@ defaults:
 
 jobs:
 
-  build-solx:
-    runs-on: matterlabs-ci-runner-high-performance
-    container:
-      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-
-      # This step is required to checkout submodules
-      # that are disabled in .gitmodules config
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --force --depth=1 --recursive --checkout
-
-      - name: Building solc
-        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
-        with:
-          cmake-build-type: 'Release'
-          working-dir: 'era-solidity'
-
-      - name: Build LLVM
-        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
-        with:
-          clone-llvm: 'false'
-          build-type: Release
-          enable-assertions: 'false'
-          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
-
-      - name: Build solx
-        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
-        env:
-          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
-        with:
-          exec_name: 'solx'
-          target: 'x86_64-unknown-linux-gnu'
-          release-suffix: test
+#  build-solx:
+#    runs-on: matterlabs-ci-runner-high-performance
+#    container:
+#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#    steps:
+#      - name: Checkout source
+#        uses: actions/checkout@v4
+#        with:
+#          submodules: 'recursive'
+#
+#      # This step is required to checkout submodules
+#      # that are disabled in .gitmodules config
+#      - name: Checkout submodules
+#        run: |
+#          git config --global --add safe.directory '*'
+#          git submodule update --force --depth=1 --recursive --checkout
+#
+#      - name: Building solc
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+#        with:
+#          cmake-build-type: 'Release'
+#          working-dir: 'era-solidity'
+#
+#      - name: Build LLVM
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+#        with:
+#          clone-llvm: 'false'
+#          build-type: Release
+#          enable-assertions: 'false'
+#          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+#
+#      - name: Build solx
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+#        env:
+#          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+#          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+#        with:
+#          exec_name: 'solx'
+#          target: 'x86_64-unknown-linux-gnu'
+#          release-suffix: test
 
 
   test:
-    needs: build-solx
+#    needs: build-solx
     runs-on: matterlabs-ci-runner-high-performance
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
@@ -69,13 +69,14 @@ jobs:
       solx-version: ${{ steps.solx.outputs.solx-version }}
       solx-llvm-version: ${{ steps.solx.outputs.solx-llvm-version }}
       solc-base-version: ${{ steps.solx.outputs.solc-base-version }}
-    strategy:
-      max-parallel: 6
-      fail-fast: false
-      matrix:
-        project: [ 'solmate', 'solady', 'openzeppelin', 'forge-std', 'uniswap-v4', 'aave-v3', 'lil-web3', 'maple-erc20' ]
-        compiler: [ 'solc', 'solx' ]
-        via_ir: [ 'false' ]
+#    strategy:
+#      max-parallel: 6
+#      fail-fast: false
+      # , 'openzeppelin', 'forge-std', 'uniswap-v4', 'lil-web3', 'maple-erc20'
+#      matrix:
+#        project: [ 'solmate', 'solady' ] # 'aave-v3'
+#        compiler: [ 'solc', 'solx' ]
+#        via_ir: [ 'true', 'false' ]
     steps:
       - name: Checkout test suites
         uses: actions/checkout@v4
@@ -83,30 +84,16 @@ jobs:
           repository: 'antonbaliasnikov/solidity-test-suite'
           submodules: 'recursive'
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: release*
-          path: .
-
-      - name: Move solx
-        run: |
-          mv release-test/test/solx* ./solx
-          chmod a+x ./solx
-          SOLX_VERSION=$(./solx --version | head -n 1)
-          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
-          echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
-          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
-          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
-
-#      - name: Download solx
-#        id: solx
+#      - name: Download artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          pattern: release*
+#          path: .
+#
+#      - name: Move solx
 #        run: |
-#          wget --no-verbose https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.2/solx-linux-amd64-gnu-v0.1.0-alpha.2
-#          mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
+#          mv release-test/test/solx* ./solx
 #          chmod a+x ./solx
-#          ./solx --version
 #          SOLX_VERSION=$(./solx --version | head -n 1)
 #          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
 #          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
@@ -114,55 +101,94 @@ jobs:
 #          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
 #          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
 
-      - name: Install foundry v0.3.0
+      - name: Download solx
+        id: solx
+        run: |
+          wget --no-verbose https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.2/solx-linux-amd64-gnu-v0.1.0-alpha.2
+          mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
+          chmod a+x ./solx
+          ./solx --version
+          SOLX_VERSION=$(./solx --version | head -n 1)
+          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
+          echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
+
+      - name: Install foundry
         run: |
           curl -L https://foundry.paradigm.xyz | bash
           export PATH="$PATH:${HOME}/.foundry/bin"
           echo ${HOME}/.foundry/bin >> "${GITHUB_PATH}"
-          foundryup -i 0.3.0
-
-      - name: Patch pragmas
-        working-directory: projects/${{ matrix.project }}
-        run: |
-          # Replace solidity version in all .sol files
-          find . -name "*.sol" -type f -exec \
-            sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
-
-      - name: Normalize project name
-        run: |
-          PROJECT="${{ matrix.project }}"
-          echo "PROJECT=${PROJECT//\//-}" >> ${GITHUB_ENV}
-
-      - name: Update compiler version in foundry.toml
-        working-directory: projects/${{ matrix.project }}
-        run: |
-          # Fix config if required
-          forge config --fix
-          sed -i '/^\s*evm_version\s*=/d' foundry.toml
-          sed -i 's/solc = ".*"/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
-          sed -i 's/solc_version = ".*"/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
-
-      - name: Build tests
-        working-directory: projects/${{ matrix.project }}
-        run: |          
-          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"       
-          BUILD_JSON="${GITHUB_WORKSPACE}/build_${PROJECT}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
-          forge build ${USE_SOLX} ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json > ${BUILD_JSON} 2>&1 || true
-          FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
-          echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
+          foundryup
 
       - name: Run tests
-        working-directory: projects/${{ matrix.project }}
         run: |
-          [ -n "${FAILED_TESTS_TO_SKIP}" ] && SKIP_TESTS="--skip ${FAILED_TESTS_TO_SKIP}"
-          TEST_JSON="${GITHUB_WORKSPACE}/${PROJECT}${{ matrix.compiler == 'solc' && '-solc' || '' }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
-          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
-          forge test --gas-report ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json ${USE_SOLX} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
+          for PROJECT in 'solmate' 'solady' 'openzeppelin' 'forge-std' 'uniswap-v4' 'lil-web3' 'maple-erc20'; do
+            for COMPILER in 'solc' 'solx'; do
+              for VIA_IR in 'true' 'false'; do
+                (
+                  cd "projects/${PROJECT}"
+                  echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
+                  # Replace solidity version in all .sol files
+                  find . -name "*.sol" -type f -exec \
+                    sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
+                  # Fix config if required
+                  forge config --fix
+                  sed -i '/^\s*evm_version\s*=/d' foundry.toml
+                  sed -i 's/solc = .*/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+                  sed -i 's/solc_version = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+                  # Build project
+                  [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
+                  [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-via-ir"
+                  [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir"
+                  BUILD_JSON="${GITHUB_WORKSPACE}/build_${PROJECT}-${COMPILER}${VIA_IR_SUFFIX}.json"
+                  forge build ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>&1 || true
+                  FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
+                  echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
+                  # Run tests
+                  [ -n "${FAILED_TESTS_TO_SKIP}" ] && SKIP_TESTS="--skip ${FAILED_TESTS_TO_SKIP}"
+                  TEST_JSON="${GITHUB_WORKSPACE}/${PROJECT}${COMPILER}${VIA_IR_SUFFIX}.json"
+                  [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
+                  forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
+                )
+              done
+            done
+          done
+
+#      - name: Update compiler version in foundry.toml
+#        working-directory: projects/${{ matrix.project }}
+#        run: |
+#          # Replace solidity version in all .sol files
+#          find . -name "*.sol" -type f -exec \
+#            sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
+#          # Fix config if required
+#          forge config --fix
+#          sed -i '/^\s*evm_version\s*=/d' foundry.toml
+#          sed -i 's/solc = .*/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+#          sed -i 's/solc_version = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+#
+#      - name: Build tests
+#        working-directory: projects/${{ matrix.project }}
+#        run: |
+#          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
+#          BUILD_JSON="${GITHUB_WORKSPACE}/build_${PROJECT}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
+#          forge build ${USE_SOLX} ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json > ${BUILD_JSON} 2>&1 || true
+#          FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
+#          echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
+#
+#      - name: Run tests
+#        working-directory: projects/${{ matrix.project }}
+#        run: |
+#          [ -n "${FAILED_TESTS_TO_SKIP}" ] && SKIP_TESTS="--skip ${FAILED_TESTS_TO_SKIP}"
+#          TEST_JSON="${GITHUB_WORKSPACE}/${PROJECT}${{ matrix.compiler == 'solc' && '-solc' || '' }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
+#          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
+#          forge test --gas-report ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json ${USE_SOLX} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
 
       - name: Upload json
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PROJECT }}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}
+          name: results
           path: '*.json'
 
 
@@ -176,6 +202,7 @@ jobs:
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
+          name: results
           path: data
           merge-multiple: 'true'
 
@@ -183,7 +210,9 @@ jobs:
         run: |
           echo "| Project     | Passed / Total | Progress       |" > report.md
           echo "|-------------|----------------|----------------|" >> report.md
-          for PROJECT in solmate solady lil-web3 maple-erc20 openzeppelin forge-std aave-v3 uniswap-v4; do
+          
+          # aave-v3
+          for PROJECT in solmate solady lil-web3 maple-erc20 openzeppelin forge-std uniswap-v4; do
             JSON=data/build_${PROJECT}-solx.json
             if [ ! -f "$JSON" ]; then
               echo "No data for ${PROJECT}"
@@ -212,6 +241,11 @@ jobs:
           cargo install benchmark-analyzer --bin benchmark-converter \
             --git https://github.com/matter-labs/era-compiler-tester
 
+      - name: Check data directory
+        run: |
+          ls -la ./data
+          find ./data
+
       - name: Prepare LNT report
         run: |
           echo "{
@@ -231,8 +265,76 @@ jobs:
             --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report
           mv ./lnt-report/* ./lnt-report/results.json
 
+      - name: Prepare LNT report solc
+        run: |
+          echo "{
+            \"machine\": \"solx_benchmarks_solc\",
+            \"target\": \"evm\",
+            \"toolchain\": \"solc\",
+            \"compiler_version\": \"solc-0.8.29\"
+          }" > "context.json"
+          benchmark-converter \
+            $(for f in ./data/*-solc.json; do [ -s "$f" ] && echo --input-paths "$f"; done)
+            --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report-solc
+          mv ./lnt-report-solc/* ./lnt-report-solc/results.json
+
+      - name: Prepare LNT report solc
+        run: |
+          echo "{
+            \"machine\": \"solx_benchmarks_solc_via_ir\",
+            \"target\": \"evm\",
+            \"toolchain\": \"solc\",
+            \"compiler_version\": \"solc-0.8.29\"
+          }" > "context.json"
+          benchmark-converter \
+            --input-paths ./data/solmate-solc-via-ir.json \
+            --input-paths ./data/solady-solc-via-ir.json \
+            --input-paths ./data/openzeppelin-solc-via-ir.json \
+            --input-paths ./data/forge-std-solc-via-ir.json \
+            --input-paths ./data/lil-web3-solc-via-ir.json \
+            --input-paths ./data/maple-erc20-solc-via-ir.json \
+            --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report-solc-via-ir
+          mv ./lnt-report-solc-via-ir/* ./lnt-report-solc-via-ir/results.json
+
+      - name: Prepare LNT report via-ir
+        run: |
+          echo "{
+            \"machine\": \"solx_benchmarks_via_ir\",
+            \"target\": \"evm\",
+            \"toolchain\": \"ir_llvm\",
+            \"compiler_version\": \"${{ needs.test.outputs.solx-version }} ${{ needs.test.outputs.solc-base-version }}\",
+            \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\"
+          }" > "context.json"
+          benchmark-converter \
+            --input-paths ./data/solmate-via-ir.json \
+            --input-paths ./data/solady-via-ir.json \
+            --input-paths ./data/openzeppelin-via-ir.json \
+            --input-paths ./data/forge-std-via-ir.json \
+            --input-paths ./data/lil-web3-via-ir.json \
+            --input-paths ./data/maple-erc20-via-ir.json \
+            --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report-via-ir
+          mv ./lnt-report-via-ir/* ./lnt-report-via-ir/results.json
+
       - name: Upload LNT report
         uses: actions/upload-artifact@v4
         with:
           name: lnt-report
           path: './lnt-report/results.json'
+
+      - name: Upload LNT report via-ir
+        uses: actions/upload-artifact@v4
+        with:
+          name: lnt-report-via-ir
+          path: './lnt-report-via-ir/results.json'
+
+      - name: Upload LNT report solc
+        uses: actions/upload-artifact@v4
+        with:
+          name: lnt-report-solc
+          path: './lnt-report-solc/results.json'
+
+      - name: Upload LNT report solc via-ir
+        uses: actions/upload-artifact@v4
+        with:
+          name: lnt-report-solc
+          path: './lnt-report-solc-via-ir/results.json'
