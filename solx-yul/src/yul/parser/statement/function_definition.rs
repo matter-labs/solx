@@ -203,7 +203,11 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -239,7 +243,11 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -275,7 +283,11 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -311,7 +323,11 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -347,7 +363,11 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::ReservedIdentifier {

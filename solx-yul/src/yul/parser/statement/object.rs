@@ -7,7 +7,6 @@ use std::collections::HashSet;
 
 use crate::dependencies::Dependencies;
 use crate::yul::error::Error;
-use crate::yul::lexer::token::lexeme::keyword::Keyword;
 use crate::yul::lexer::token::lexeme::literal::Literal;
 use crate::yul::lexer::token::lexeme::symbol::Symbol;
 use crate::yul::lexer::token::lexeme::Lexeme;
@@ -48,15 +47,19 @@ where
     ///
     /// The element parser.
     ///
-    pub fn parse(lexer: &mut Lexer, initial: Option<Token>) -> Result<Self, Error> {
+    pub fn parse(
+        lexer: &mut Lexer,
+        initial: Option<Token>,
+        code_segment: era_compiler_common::CodeSegment,
+    ) -> Result<Self, Error> {
         let token = crate::yul::parser::take_or_next(initial, lexer)?;
 
         let location = match token {
             Token {
-                lexeme: Lexeme::Keyword(Keyword::Object),
+                lexeme: Lexeme::Identifier(identifier),
                 location,
                 ..
-            } => location,
+            } if identifier.inner.as_str() == "object" => location,
             token => {
                 return Err(ParserError::InvalidToken {
                     location: token.location,
@@ -81,7 +84,6 @@ where
                 .into());
             }
         };
-        let is_runtime_code = identifier.ends_with("_deployed");
 
         match lexer.next()? {
             Token {
@@ -102,22 +104,14 @@ where
         let mut inner_object = None;
         let mut factory_dependencies = HashSet::new();
 
-        if !is_runtime_code {
+        if let era_compiler_common::CodeSegment::Deploy = code_segment {
             inner_object = match lexer.peek()? {
                 Token {
-                    lexeme: Lexeme::Keyword(Keyword::Object),
+                    lexeme: Lexeme::Identifier(identifier),
                     ..
-                } => {
-                    let mut object = Self::parse(lexer, None)?;
-
-                    if format!("{identifier}_deployed") != object.identifier {
-                        return Err(ParserError::InvalidObjectName {
-                            location: object.location,
-                            expected: format!("{identifier}_deployed"),
-                            found: object.identifier,
-                        }
-                        .into());
-                    }
+                } if identifier.inner.as_str() == "object" => {
+                    let mut object =
+                        Self::parse(lexer, None, era_compiler_common::CodeSegment::Runtime)?;
 
                     factory_dependencies.extend(object.factory_dependencies.drain());
                     Some(Box::new(object))
@@ -144,11 +138,15 @@ where
                     lexeme: Lexeme::Symbol(Symbol::BracketCurlyRight),
                     ..
                 } => break,
-                token @ Token {
-                    lexeme: Lexeme::Keyword(Keyword::Object),
+                ref token @ Token {
+                    lexeme: Lexeme::Identifier(ref identifier),
                     ..
-                } => {
-                    let dependency = Self::parse(lexer, Some(token))?;
+                } if identifier.inner.as_str() == "object" => {
+                    let dependency = Self::parse(
+                        lexer,
+                        Some(token.to_owned()),
+                        era_compiler_common::CodeSegment::Deploy,
+                    )?;
                     factory_dependencies.insert(dependency.identifier);
                 }
                 Token {
@@ -217,6 +215,34 @@ mod tests {
     use crate::yul::parser::statement::object::Object;
 
     #[test]
+    fn unrelated_object_names() {
+        let input = r#"
+object "Init" {
+    code {
+        {
+            return(0, 0)
+        }
+    }
+    object "Deployed" {
+        code {
+            {
+                return(0, 0)
+            }
+        }
+    }
+}
+    "#;
+
+        let mut lexer = Lexer::new(input.to_owned());
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
     fn error_invalid_token_object() {
         let input = r#"
 class "Test" {
@@ -236,7 +262,11 @@ class "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -268,7 +298,11 @@ object 256 {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -300,7 +334,11 @@ object "Test" (
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -332,45 +370,17 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {
                 location: Location::new(8, 5),
                 expected: vec!["object", "}"],
                 found: "class".to_owned(),
-            }
-            .into())
-        );
-    }
-
-    #[test]
-    fn error_invalid_object_name() {
-        let input = r#"
-object "Test" {
-    code {
-        {
-            return(0, 0)
-        }
-    }
-    object "Invalid" {
-        code {
-            {
-                return(0, 0)
-            }
-        }
-    }
-}
-    "#;
-
-        let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
-        assert_eq!(
-            result,
-            Err(Error::InvalidObjectName {
-                location: Location::new(8, 5),
-                expected: "Test_deployed".to_owned(),
-                found: "Invalid".to_owned(),
             }
             .into())
         );

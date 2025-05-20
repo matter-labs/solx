@@ -37,7 +37,7 @@ impl Yul {
         }
 
         let mut lexer = Lexer::new(source_code.to_owned());
-        let object = Object::parse(&mut lexer, None)
+        let object = Object::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy)
             .map_err(|error| anyhow::anyhow!("Yul parsing: {error:?}"))?;
 
         Ok(Some(Self {

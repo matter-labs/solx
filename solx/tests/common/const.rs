@@ -49,6 +49,9 @@ pub const SOLIDITY_BIN_OUTPUT_NAME: &str = "Test.bin";
 pub const TEST_YUL_CONTRACT_PATH: &str = "tests/data/contracts/yul/Test.yul";
 
 /// A test input file.
+pub const TEST_YUL_CONTRACT_OBJECT_NAMING_PATH: &str = "tests/data/contracts/yul/ObjectNaming.yul";
+
+/// A test input file.
 pub const TEST_LLVM_IR_CONTRACT_PATH: &str = "tests/data/contracts/llvm_ir/Test.ll";
 
 /// A test input file.

@@ -41,18 +41,6 @@ pub enum Error {
         /// The actual number of arguments.
         found: usize,
     },
-    /// Invalid object name.
-    #[error(
-        "{location} Objects must be named as '<name>' (deploy) and '<name>_deployed' (runtime)"
-    )]
-    InvalidObjectName {
-        /// The invalid token location.
-        location: Location,
-        /// The expected identifier.
-        expected: String,
-        /// The invalid identifier.
-        found: String,
-    },
     /// Invalid attributes.
     #[error("{location} Found invalid LLVM attributes: {values:?}")]
     InvalidAttributes {

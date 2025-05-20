@@ -17,6 +17,22 @@ fn default() -> anyhow::Result<()> {
 }
 
 #[test]
+fn object_naming() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        crate::common::TEST_YUL_CONTRACT_OBJECT_NAMING_PATH,
+        "--yul",
+        "--bin",
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.success().stdout(predicate::str::contains("Binary"));
+
+    Ok(())
+}
+
+#[test]
 fn solc() -> anyhow::Result<()> {
     crate::common::setup()?;
 

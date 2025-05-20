@@ -113,6 +113,36 @@ mod tests {
     use crate::yul::parser::statement::object::Object;
 
     #[test]
+    fn unreserved_keyword() {
+        let input = r#"
+object "Test" {
+    code {
+        {
+            return(0, 0)
+        }
+    }
+    object "Test_deployed" {
+        code {
+            {
+                let object := 42
+                let code := 84
+                return(0, 0)
+            }
+        }
+    }
+}
+    "#;
+
+        let mut lexer = Lexer::new(input.to_owned());
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
     fn error_reserved_identifier() {
         let input = r#"
 object "Test" {
@@ -133,7 +163,11 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::ReservedIdentifier {

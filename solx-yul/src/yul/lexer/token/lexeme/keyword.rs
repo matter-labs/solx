@@ -13,10 +13,6 @@ use crate::yul::lexer::token::Token;
 ///
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Keyword {
-    /// The `object` keyword.
-    Object,
-    /// The `code` keyword.
-    Code,
     /// The `function` keyword.
     Function,
     /// The `let` keyword.
@@ -91,8 +87,6 @@ impl Keyword {
         }
 
         Some(match input {
-            "object" => Self::Object,
-            "code" => Self::Code,
             "function" => Self::Function,
             "let" => Self::Let,
             "if" => Self::If,
@@ -136,8 +130,6 @@ impl Keyword {
 impl std::fmt::Display for Keyword {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Object => write!(f, "object"),
-            Self::Code => write!(f, "code"),
             Self::Function => write!(f, "function"),
             Self::Let => write!(f, "let"),
             Self::If => write!(f, "if"),

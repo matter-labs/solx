@@ -178,7 +178,8 @@ object "Test" {
         invalid_attributes.insert("UnknownAttribute".to_owned());
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<EraDialect>::parse(&mut lexer, None);
+        let result =
+            Object::<EraDialect>::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy);
         assert_eq!(
             result,
             Err(Error::InvalidAttributes {
@@ -216,7 +217,8 @@ object "Test" {
         invalid_attributes.insert("UnknownAttribute2".to_owned());
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<EraDialect>::parse(&mut lexer, None);
+        let result =
+            Object::<EraDialect>::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy);
         assert_eq!(
             result,
             Err(Error::InvalidAttributes {

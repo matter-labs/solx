@@ -6,7 +6,6 @@ use std::collections::BTreeSet;
 
 use crate::dependencies::Dependencies;
 use crate::yul::error::Error;
-use crate::yul::lexer::token::lexeme::keyword::Keyword;
 use crate::yul::lexer::token::lexeme::Lexeme;
 use crate::yul::lexer::token::location::Location;
 use crate::yul::lexer::token::Token;
@@ -42,10 +41,10 @@ where
 
         let location = match token {
             Token {
-                lexeme: Lexeme::Keyword(Keyword::Code),
+                lexeme: Lexeme::Identifier(identifier),
                 location,
                 ..
-            } => location,
+            } if identifier.inner.as_str() == "code" => location,
             token => {
                 return Err(ParserError::InvalidToken {
                     location: token.location,
@@ -104,7 +103,11 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input.to_owned());
-        let result = Object::<DefaultDialect>::parse(&mut lexer, None);
+        let result = Object::<DefaultDialect>::parse(
+            &mut lexer,
+            None,
+            era_compiler_common::CodeSegment::Deploy,
+        );
         assert_eq!(
             result,
             Err(Error::InvalidToken {

@@ -1552,6 +1552,7 @@ name = "solx-yul"
 version = "0.1.0-alpha.2"
 dependencies = [
  "anyhow",
+ "era-compiler-common",
  "serde",
  "thiserror 2.0.12",
 ]

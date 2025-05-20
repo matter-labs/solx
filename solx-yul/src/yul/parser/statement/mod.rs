@@ -88,14 +88,23 @@ where
         let token = crate::yul::parser::take_or_next(initial, lexer)?;
 
         match token {
-            token @ Token {
-                lexeme: Lexeme::Keyword(Keyword::Object),
+            ref token @ Token {
+                lexeme: Lexeme::Identifier(ref identifier),
                 ..
-            } => Ok((Statement::Object(Object::parse(lexer, Some(token))?), None)),
+            } if identifier.inner.as_str() == "object" => Ok((
+                Statement::Object(Object::parse(
+                    lexer,
+                    Some(token.to_owned()),
+                    era_compiler_common::CodeSegment::Deploy,
+                )?),
+                None,
+            )),
             Token {
-                lexeme: Lexeme::Keyword(Keyword::Code),
+                lexeme: Lexeme::Identifier(identifier),
                 ..
-            } => Ok((Statement::Code(Code::parse(lexer, None)?), None)),
+            } if identifier.inner.as_str() == "code" => {
+                Ok((Statement::Code(Code::parse(lexer, None)?), None))
+            }
             Token {
                 lexeme: Lexeme::Keyword(Keyword::Function),
                 ..
