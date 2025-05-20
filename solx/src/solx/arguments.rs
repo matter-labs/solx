@@ -10,12 +10,7 @@ use clap::Parser;
 use path_slash::PathExt;
 
 ///
-/// Compiles the provided Solidity input files (or use the standard input if no files
-/// are given or "-" is specified as a file name). Outputs the components based on the
-/// chosen options, either to the standard output or to files within the designated
-/// output directory.
-///
-/// Example: solx ERC20.sol -O3 --bin --output-dir "./build/"
+/// Solidity compiler arguments.
 ///
 #[derive(Debug, Parser)]
 #[command(about, long_about = None, arg_required_else_help = true)]
@@ -26,6 +21,7 @@ pub struct Arguments {
 
     /// Specify the input paths and remappings.
     /// If an argument contains a '=', it is considered a remapping.
+    // #[arg(allow_hyphen_values = true)]
     pub inputs: Vec<String>,
 
     /// Set the given path as the root of the source tree instead of the root of the filesystem.
@@ -89,7 +85,7 @@ pub struct Arguments {
     /// Switch to Yul mode.
     /// Only one input Yul file is allowed.
     /// Cannot be used with standard JSON mode.
-    #[arg(long)]
+    #[arg(long, alias = "strict-assembly")]
     pub yul: bool,
 
     /// Switch to LLVM IR mode.

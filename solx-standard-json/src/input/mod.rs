@@ -77,8 +77,13 @@ impl Input {
         let sources = paths
             .into_par_iter()
             .map(|path| {
-                let source = Source::try_read(path.as_path())?;
-                Ok((path.to_string_lossy().to_string(), source))
+                let source = Source::try_from_path(path.as_path())?;
+                let path = if path.to_string_lossy() == Source::STDIN_INPUT_IDENTIFIER {
+                    Source::STDIN_OUTPUT_IDENTIFIER.to_owned()
+                } else {
+                    path.to_string_lossy().to_string()
+                };
+                Ok((path, source))
             })
             .collect::<anyhow::Result<BTreeMap<String, Source>>>()?;
 
@@ -145,6 +150,7 @@ impl Input {
                 )
             })
             .collect();
+
         Self::from_yul_sources(
             sources,
             libraries,
@@ -202,6 +208,7 @@ impl Input {
                 )
             })
             .collect();
+
         Self::from_yul_sources(
             sources,
             libraries,

@@ -20,13 +20,20 @@ pub struct Source {
 }
 
 impl Source {
+    /// Stdin input identifier.
+    pub const STDIN_INPUT_IDENTIFIER: &'static str = "-";
+
+    /// Stdin output identifier.
+    pub const STDIN_OUTPUT_IDENTIFIER: &'static str = "<stdin>";
+
     ///
     /// Reads the source from the file system.
     ///
-    pub fn try_read(path: &Path) -> anyhow::Result<Self> {
-        let content = if path.to_string_lossy() == "-" {
-            std::io::read_to_string(std::io::stdin())
-                .map_err(|error| anyhow::anyhow!("<stdin> reading: {error}"))
+    pub fn try_from_path(path: &Path) -> anyhow::Result<Self> {
+        let content = if path.to_string_lossy() == Self::STDIN_INPUT_IDENTIFIER {
+            std::io::read_to_string(std::io::stdin()).map_err(|error| {
+                anyhow::anyhow!("{} reading: {error}", Self::STDIN_OUTPUT_IDENTIFIER)
+            })
         } else {
             std::fs::read_to_string(path)
                 .map_err(|error| anyhow::anyhow!("File {path:?} reading: {error}"))
@@ -50,7 +57,7 @@ impl Source {
                 let mut errors = Vec::with_capacity(urls.len());
                 for url in urls.iter() {
                     let url_path = PathBuf::from(url);
-                    match Source::try_read(url_path.as_path()) {
+                    match Source::try_from_path(url_path.as_path()) {
                         Ok(resolved) => {
                             *self = resolved;
                             break;

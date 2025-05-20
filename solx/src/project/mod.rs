@@ -137,10 +137,18 @@ impl Project {
         let sources = paths
             .iter()
             .map(|path| {
-                let source = solx_standard_json::InputSource::from(path.as_path());
-                (path.to_string_lossy().to_string(), source)
+                let source = solx_standard_json::InputSource::try_from_path(path.as_path())?;
+                let path = if path.to_string_lossy()
+                    == solx_standard_json::InputSource::STDIN_INPUT_IDENTIFIER
+                {
+                    solx_standard_json::InputSource::STDIN_OUTPUT_IDENTIFIER.to_owned()
+                } else {
+                    path.to_string_lossy().to_string()
+                };
+                Ok((path, source))
             })
-            .collect::<BTreeMap<String, solx_standard_json::InputSource>>();
+            .collect::<anyhow::Result<BTreeMap<String, solx_standard_json::InputSource>>>()?;
+
         Self::try_from_yul_sources(
             sources,
             libraries,
@@ -233,10 +241,18 @@ impl Project {
         let sources = paths
             .iter()
             .map(|path| {
-                let source = solx_standard_json::InputSource::from(path.as_path());
-                (path.to_string_lossy().to_string(), source)
+                let source = solx_standard_json::InputSource::try_from_path(path.as_path())?;
+                let path = if path.to_string_lossy()
+                    == solx_standard_json::InputSource::STDIN_INPUT_IDENTIFIER
+                {
+                    solx_standard_json::InputSource::STDIN_OUTPUT_IDENTIFIER.to_owned()
+                } else {
+                    path.to_string_lossy().to_string()
+                };
+                Ok((path, source))
             })
-            .collect::<BTreeMap<String, solx_standard_json::InputSource>>();
+            .collect::<anyhow::Result<BTreeMap<String, solx_standard_json::InputSource>>>()?;
+
         Self::try_from_llvm_ir_sources(sources, libraries, output_selection, solc_output)
     }
 

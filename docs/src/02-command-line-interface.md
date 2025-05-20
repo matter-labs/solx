@@ -434,7 +434,7 @@ The following sections outline how to use **solx** with these languages.
 
 
 
-### `--yul`
+### `--yul` (or `--strict-assembly`)
 
 Enables the Yul mode. In this mode, input is expected to be in the Yul language. The output works the same way as with Solidity input.
 
