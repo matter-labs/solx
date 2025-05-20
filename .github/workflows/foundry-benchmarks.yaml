@@ -18,50 +18,50 @@ defaults:
 
 jobs:
 
-#  build-solx:
-#    runs-on: matterlabs-ci-runner-high-performance
-#    container:
-#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-#    steps:
-#      - name: Checkout source
-#        uses: actions/checkout@v4
-#        with:
-#          submodules: 'recursive'
-#
-#      # This step is required to checkout submodules
-#      # that are disabled in .gitmodules config
-#      - name: Checkout submodules
-#        run: |
-#          git config --global --add safe.directory '*'
-#          git submodule update --force --depth=1 --recursive --checkout
-#
-#      - name: Building solc
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
-#        with:
-#          cmake-build-type: 'Release'
-#          working-dir: 'era-solidity'
-#
-#      - name: Build LLVM
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
-#        with:
-#          clone-llvm: 'false'
-#          build-type: Release
-#          enable-assertions: 'false'
-#          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
-#
-#      - name: Build solx
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
-#        env:
-#          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-#          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
-#        with:
-#          exec_name: 'solx'
-#          target: 'x86_64-unknown-linux-gnu'
-#          release-suffix: test
+  build-solx:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      # This step is required to checkout submodules
+      # that are disabled in .gitmodules config
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --force --depth=1 --recursive --checkout
+
+      - name: Building solc
+        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        with:
+          cmake-build-type: 'Release'
+          working-dir: 'era-solidity'
+
+      - name: Build LLVM
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          clone-llvm: 'false'
+          build-type: Release
+          enable-assertions: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+
+      - name: Build solx
+        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+        env:
+          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+        with:
+          exec_name: 'solx'
+          target: 'x86_64-unknown-linux-gnu'
+          release-suffix: test
 
 
   test:
-#    needs: build-solx
+    needs: build-solx
     runs-on: matterlabs-ci-runner-high-performance
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
@@ -83,30 +83,36 @@ jobs:
           repository: 'antonbaliasnikov/solidity-test-suite'
           submodules: 'recursive'
 
-#      - name: Download artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          pattern: release*
-#          path: .
-#
-#      - name: Move solx
-#        run: |
-#          mv release-test/test/solx* ./solx
-#          chmod a+x ./solx
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release*
+          path: .
 
-      - name: Download solx
-        id: solx
+      - name: Move solx
         run: |
-          wget --no-verbose https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.2/solx-linux-amd64-gnu-v0.1.0-alpha.2
-          mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
+          mv release-test/test/solx* ./solx
           chmod a+x ./solx
-          ./solx --version
           SOLX_VERSION=$(./solx --version | head -n 1)
           SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
           echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
           echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
           echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
+
+#      - name: Download solx
+#        id: solx
+#        run: |
+#          wget --no-verbose https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.2/solx-linux-amd64-gnu-v0.1.0-alpha.2
+#          mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
+#          chmod a+x ./solx
+#          ./solx --version
+#          SOLX_VERSION=$(./solx --version | head -n 1)
+#          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+#          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
+#          echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
+#          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
+#          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
 
       - name: Install foundry v0.3.0
         run: |
@@ -223,10 +229,10 @@ jobs:
             --input-paths ./data/lil-web3.json \
             --input-paths ./data/maple-erc20.json \
             --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report
-          cat ./lnt-report/*
+          mv ./lnt-report/* ./lnt-report/results.json
 
       - name: Upload LNT report
         uses: actions/upload-artifact@v4
         with:
           name: lnt-report
-          path: './lnt-report/'
+          path: './lnt-report/results.json'
