@@ -69,14 +69,17 @@ jobs:
       solx-version: ${{ steps.solx.outputs.solx-version }}
       solx-llvm-version: ${{ steps.solx.outputs.solx-llvm-version }}
       solc-base-version: ${{ steps.solx.outputs.solc-base-version }}
-#    strategy:
-#      max-parallel: 6
-#      fail-fast: false
-      # , 'openzeppelin', 'forge-std', 'uniswap-v4', 'lil-web3', 'maple-erc20'
-#      matrix:
-#        project: [ 'solmate', 'solady' ] # 'aave-v3'
-#        compiler: [ 'solc', 'solx' ]
-#        via_ir: [ 'true', 'false' ]
+    strategy:
+      fail-fast: false
+      matrix:
+        # 'aave-v3'
+        project: [
+          'solmate openzeppelin',
+          'solady forge-std',
+          'uniswap-v4 lil-web3 maple-erc20'
+        ]
+        compiler: [ 'solc', 'solx' ]
+        via_ir: [ 'true', 'false' ]
     steps:
       - name: Checkout test suites
         uses: actions/checkout@v4
@@ -104,6 +107,7 @@ jobs:
       - name: Download solx
         id: solx
         run: |
+          mkdir -p compilers && cd compilers
           wget --no-verbose https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.2/solx-linux-amd64-gnu-v0.1.0-alpha.2
           mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
           chmod a+x ./solx
@@ -124,9 +128,9 @@ jobs:
 
       - name: Run tests
         run: |
-          for PROJECT in 'solmate' 'solady' 'openzeppelin' 'forge-std' 'uniswap-v4' 'lil-web3' 'maple-erc20'; do
-            for COMPILER in 'solc' 'solx'; do
-              for VIA_IR in 'true' 'false'; do
+          for PROJECT in ${{ matrix.project }}; do
+            for COMPILER in ${{ matrix.compiler }}; do
+              for VIA_IR in ${{ matrix.via_ir }}; do
                 (
                   cd "projects/${PROJECT}"
                   echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
@@ -135,74 +139,41 @@ jobs:
                     sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
                   # Fix config if required
                   forge config --fix
-                  sed -i '/^\s*evm_version\s*=/d' foundry.toml
-                  sed -i 's/solc = .*/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+                  sed -i '/evm_version =.*/d' foundry.toml
+                  sed -i 's/solc = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                   sed -i 's/solc_version = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                   # Build project
-                  [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
+                  [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/compilers/solx"
                   [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-via-ir"
                   [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir"
-                  BUILD_JSON="${GITHUB_WORKSPACE}/build_${PROJECT}-${COMPILER}${VIA_IR_SUFFIX}.json"
+                  mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
+                  BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
                   forge build ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>&1 || true
                   FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
                   echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
                   # Run tests
                   [ -n "${FAILED_TESTS_TO_SKIP}" ] && SKIP_TESTS="--skip ${FAILED_TESTS_TO_SKIP}"
-                  TEST_JSON="${GITHUB_WORKSPACE}/${PROJECT}${COMPILER}${VIA_IR_SUFFIX}.json"
-                  [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
+                  TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
                   forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
                 )
               done
             done
           done
 
-#      - name: Update compiler version in foundry.toml
-#        working-directory: projects/${{ matrix.project }}
-#        run: |
-#          # Replace solidity version in all .sol files
-#          find . -name "*.sol" -type f -exec \
-#            sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
-#          # Fix config if required
-#          forge config --fix
-#          sed -i '/^\s*evm_version\s*=/d' foundry.toml
-#          sed -i 's/solc = .*/solc = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
-#          sed -i 's/solc_version = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
-#
-#      - name: Build tests
-#        working-directory: projects/${{ matrix.project }}
-#        run: |
-#          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
-#          BUILD_JSON="${GITHUB_WORKSPACE}/build_${PROJECT}-${{ matrix.compiler }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
-#          forge build ${USE_SOLX} ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json > ${BUILD_JSON} 2>&1 || true
-#          FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
-#          echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
-#
-#      - name: Run tests
-#        working-directory: projects/${{ matrix.project }}
-#        run: |
-#          [ -n "${FAILED_TESTS_TO_SKIP}" ] && SKIP_TESTS="--skip ${FAILED_TESTS_TO_SKIP}"
-#          TEST_JSON="${GITHUB_WORKSPACE}/${PROJECT}${{ matrix.compiler == 'solc' && '-solc' || '' }}${{ matrix.via_ir == 'true' && '-via-ir' || '' }}.json"
-#          [ ${{ matrix.compiler }} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/solx"
-#          forge test --gas-report ${{ matrix.via_ir == 'true' && '--via-ir' || '' }} --json ${USE_SOLX} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
-
       - name: Upload json
         uses: actions/upload-artifact@v4
         with:
-          name: results
-          path: '*.json'
+          name: results-${{ strategy.job-index }}
+          path: 'sol*/'
 
-
-  analyze-results:
-    runs-on: matterlabs-ci-runner-high-performance
-    container:
-      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+  prepare-compatibility-table:
+    runs-on: ubuntu-latest
     needs: test
     steps:
 
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
-          name: results
           path: data
           merge-multiple: 'true'
 
@@ -210,11 +181,11 @@ jobs:
         run: |
           echo "| Project     | Passed / Total | Progress       |" > report.md
           echo "|-------------|----------------|----------------|" >> report.md
-          
+
           # aave-v3
           for PROJECT in solmate solady lil-web3 maple-erc20 openzeppelin forge-std uniswap-v4; do
-            JSON=data/build_${PROJECT}-solx.json
-            if [ ! -f "$JSON" ]; then
+            JSON=data/solx/build_${PROJECT}.json
+            if [ ! -s "$JSON" ]; then
               echo "No data for ${PROJECT}"
               continue
             fi
@@ -236,6 +207,21 @@ jobs:
           message-path: report.md
           message-id: 'compatibility-matrix'
 
+
+  analyze-results:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    needs: test
+    env:
+      DEV_PREFIX: 'DEV__'
+    steps:
+      - name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          path: data
+          merge-multiple: 'true'
+
       - name: Install LNT benchmark-converter
         run: |
           cargo install benchmark-analyzer --bin benchmark-converter \
@@ -246,95 +232,43 @@ jobs:
           ls -la ./data
           find ./data
 
-      - name: Prepare LNT report
+      - name: Generate context.json
         run: |
-          echo "{
-            \"machine\": \"solx_benchmarks\",
-            \"target\": \"evm\",
-            \"toolchain\": \"ir_llvm\",
-            \"compiler_version\": \"${{ needs.test.outputs.solx-version }} ${{ needs.test.outputs.solc-base-version }}\",
-            \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\"
-          }" > "context.json"
-          benchmark-converter \
-            --input-paths ./data/solmate.json \
-            --input-paths ./data/solady.json \
-            --input-paths ./data/openzeppelin.json \
-            --input-paths ./data/forge-std.json \
-            --input-paths ./data/lil-web3.json \
-            --input-paths ./data/maple-erc20.json \
-            --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report
-          mv ./lnt-report/* ./lnt-report/results.json
+          if [[ "${{ github.event_name }}" != "push" ]]; then
+            DEV_MACHINE_PREFIX="${DEV_PREFIX}"
+          fi
+          for COMPILER in solx solx-via-ir solc solc-via-ir; do
+            [[ ${COMPILER} == "solx"* ]] && TOOLCHAIN="ir-llvm" || TOOLCHAIN="evm"
+            [[ ${COMPILER} == "solx"* ]] && VERSION="${{ needs.test.outputs.solx-version }}" || VERSION="${{ needs.test.outputs.solc-base-version }}"
+            [[ ${COMPILER} == *"via-ir" ]] && CODEGEN="via-ir" || CODEGEN="evmla"
+            echo "{
+              \"machine\": \"${DEV_MACHINE_PREFIX}forge-benchmarks-${COMPILER}\",
+              \"target\": \"evm\",
+              \"toolchain\": \"${TOOLCHAIN}\",
+              \"compiler_version\": \"${VERSION}\",
+              \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\",
+              \"codegen\": \"${CODEGEN}\",
+              \"optimization\": \"Default\"
+            }" > context.json
+            INPUTS=""
+            rm -f ./data/${COMPILER}/build*.json
+            JSONS=$(ls ./data/${COMPILER}/*.json)
+            for JSON in ${JSONS}; do
+              if [ ! -s "${JSON}" ]; then
+                echo "${JSON} is empty. Skipping..."
+                continue
+              fi
+              INPUTS+=" --input-paths ${JSON}"
+            done
+            benchmark-converter ${INPUTS} \
+              --benchmark-format json-lnt \
+              --benchmark-context context.json \
+              --output-path ./${COMPILER}
+            mv ./${COMPILER}/* ./lnt-report-${COMPILER}.json
+          done
 
-      - name: Prepare LNT report solc
-        run: |
-          echo "{
-            \"machine\": \"solx_benchmarks_solc\",
-            \"target\": \"evm\",
-            \"toolchain\": \"solc\",
-            \"compiler_version\": \"solc-0.8.29\"
-          }" > "context.json"
-          benchmark-converter \
-            $(for f in ./data/*-solc.json; do [ -s "$f" ] && echo --input-paths "$f"; done)
-            --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report-solc
-          mv ./lnt-report-solc/* ./lnt-report-solc/results.json
-
-      - name: Prepare LNT report solc
-        run: |
-          echo "{
-            \"machine\": \"solx_benchmarks_solc_via_ir\",
-            \"target\": \"evm\",
-            \"toolchain\": \"solc\",
-            \"compiler_version\": \"solc-0.8.29\"
-          }" > "context.json"
-          benchmark-converter \
-            --input-paths ./data/solmate-solc-via-ir.json \
-            --input-paths ./data/solady-solc-via-ir.json \
-            --input-paths ./data/openzeppelin-solc-via-ir.json \
-            --input-paths ./data/forge-std-solc-via-ir.json \
-            --input-paths ./data/lil-web3-solc-via-ir.json \
-            --input-paths ./data/maple-erc20-solc-via-ir.json \
-            --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report-solc-via-ir
-          mv ./lnt-report-solc-via-ir/* ./lnt-report-solc-via-ir/results.json
-
-      - name: Prepare LNT report via-ir
-        run: |
-          echo "{
-            \"machine\": \"solx_benchmarks_via_ir\",
-            \"target\": \"evm\",
-            \"toolchain\": \"ir_llvm\",
-            \"compiler_version\": \"${{ needs.test.outputs.solx-version }} ${{ needs.test.outputs.solc-base-version }}\",
-            \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\"
-          }" > "context.json"
-          benchmark-converter \
-            --input-paths ./data/solmate-via-ir.json \
-            --input-paths ./data/solady-via-ir.json \
-            --input-paths ./data/openzeppelin-via-ir.json \
-            --input-paths ./data/forge-std-via-ir.json \
-            --input-paths ./data/lil-web3-via-ir.json \
-            --input-paths ./data/maple-erc20-via-ir.json \
-            --benchmark-format json-lnt --benchmark-context context.json --output-path ./lnt-report-via-ir
-          mv ./lnt-report-via-ir/* ./lnt-report-via-ir/results.json
-
-      - name: Upload LNT report
+      - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: lnt-report
-          path: './lnt-report/results.json'
-
-      - name: Upload LNT report via-ir
-        uses: actions/upload-artifact@v4
-        with:
-          name: lnt-report-via-ir
-          path: './lnt-report-via-ir/results.json'
-
-      - name: Upload LNT report solc
-        uses: actions/upload-artifact@v4
-        with:
-          name: lnt-report-solc
-          path: './lnt-report-solc/results.json'
-
-      - name: Upload LNT report solc via-ir
-        uses: actions/upload-artifact@v4
-        with:
-          name: lnt-report-solc
-          path: './lnt-report-solc-via-ir/results.json'
+          name: lnt-reports
+          path: lnt-report*.json
