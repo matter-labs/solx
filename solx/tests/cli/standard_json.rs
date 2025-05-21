@@ -22,6 +22,23 @@ fn default() -> anyhow::Result<()> {
 }
 
 #[test]
+fn deploy_time_linking() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_DEPLOY_TIME_LINKING_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.success().stdout(predicate::str::contains(
+        "__$32d65841735fc578113c8cbc3571729a2b$__",
+    ));
+
+    Ok(())
+}
+
+#[test]
 fn invalid_input_yul() -> anyhow::Result<()> {
     crate::common::setup()?;
 

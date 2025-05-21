@@ -74,6 +74,10 @@ pub const TEST_SOLIDITY_STANDARD_JSON_SOLC_PATH: &str =
     "tests/data/standard_json_input/solidity_solc.json";
 
 /// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_DEPLOY_TIME_LINKING_PATH: &str =
+    "tests/data/standard_json_input/solidity_deploy_time_linking.json";
+
+/// A test input file.
 pub const TEST_SOLIDITY_STANDARD_JSON_SOLC_EMPTY_SOURCES_PATH: &str =
     "tests/data/standard_json_input/solidity_solc_empty_sources.json";
 
@@ -130,36 +134,6 @@ pub const TEST_JSON_METADATA_HASH_NONE_NO_METADATA: &str =
 
 /// A test input file.
 pub const TEST_JSON_NO_CBOR_METADATA: &str = "tests/data/standard_json_input/no_cbor_metadata.json";
-
-/// A test input file.
-pub const TEST_LINKER_BYTECODE_PATH: &str = "tests/data/bytecodes/linker.bin";
-
-/// A test input file.
-pub const TEST_LINKER_ERROR_BYTECODE_PATH: &str = "tests/data/bytecodes/linker_error.bin";
-
-/// The temporary directory for data created by tests.
-pub const TEST_TEMP_DIRECTORY: &str = "tests/data/temp";
-
-/// A test input file.
-/// The linker hexadecimal string bytecode sample path.
-/// This file must be copied from `TEST_LINKER_BYTECODE_PATH` before linking and removed afterwards.
-pub const TEST_LINKER_BYTECODE_COPY_PATH: &str = "tests/data/temp/linker_copy.bin";
-
-/// A test input file.
-pub const TEST_LINKER_STANDARD_JSON_INPUT_WITH_LIBRARIES_PATH: &str =
-    "tests/data/standard_json_input/linker/with_libraries.json";
-
-/// A test input file.
-pub const TEST_LINKER_STANDARD_JSON_INPUT_WITHOUT_LIBRARIES_PATH: &str =
-    "tests/data/standard_json_input/linker/without_libraries.json";
-
-/// A test input file.
-pub const TEST_LINKER_STANDARD_JSON_INPUT_INVALID_HEXADECIMAL_PATH: &str =
-    "tests/data/standard_json_input/linker/invalid_hexadecimal.json";
-
-/// A test input file.
-pub const TEST_LINKER_STANDARD_JSON_INPUT_LINKER_ERROR_PATH: &str =
-    "tests/data/standard_json_input/linker/linker_error.json";
 
 /// The broken input file path.
 pub const TEST_BROKEN_INPUT_PATH: &str = "tests/data/broken.bad";
