@@ -118,9 +118,6 @@ jobs:
 
       - name: Build solx
         uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
-        env:
-          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
         with:
           exec_name: 'solx'
           target: ${{ matrix.target }}
