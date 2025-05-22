@@ -140,6 +140,8 @@ jobs:
                   # Fix config if required
                   forge config --fix
                   sed -i '/evm_version =.*/d' foundry.toml
+                  sed -i '/via_ir =.*/d' foundry.toml
+                  sed -i '/skip =.*/d' foundry.toml
                   sed -i 's/solc = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                   sed -i 's/solc_version = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                   # Build project
