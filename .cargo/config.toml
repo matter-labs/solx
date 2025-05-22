@@ -21,9 +21,6 @@ rustflags = [
     "-C", "link-arg=-mmacosx-version-min=11.0",
 ]
 
-[target.aarch64-unknown-linux-musl]
-linker = "rust-lld"
-
 [profile.release]
 strip = true
 

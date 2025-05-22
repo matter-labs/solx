@@ -18,50 +18,50 @@ defaults:
 
 jobs:
 
-#  build-solx:
-#    runs-on: matterlabs-ci-runner-high-performance
-#    container:
-#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-#    steps:
-#      - name: Checkout source
-#        uses: actions/checkout@v4
-#        with:
-#          submodules: 'recursive'
-#
-#      # This step is required to checkout submodules
-#      # that are disabled in .gitmodules config
-#      - name: Checkout submodules
-#        run: |
-#          git config --global --add safe.directory '*'
-#          git submodule update --force --depth=1 --recursive --checkout
-#
-#      - name: Building solc
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
-#        with:
-#          cmake-build-type: 'Release'
-#          working-dir: 'era-solidity'
-#
-#      - name: Build LLVM
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
-#        with:
-#          clone-llvm: 'false'
-#          build-type: Release
-#          enable-assertions: 'false'
-#          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
-#
-#      - name: Build solx
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
-#        env:
-#          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-#          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
-#        with:
-#          exec_name: 'solx'
-#          target: 'x86_64-unknown-linux-gnu'
-#          release-suffix: test
+  build-solx:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      # This step is required to checkout submodules
+      # that are disabled in .gitmodules config
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --force --depth=1 --recursive --checkout
+
+      - name: Building solc
+        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        with:
+          cmake-build-type: 'Release'
+          working-dir: 'era-solidity'
+
+      - name: Build LLVM
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          clone-llvm: 'false'
+          build-type: Release
+          enable-assertions: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+
+      - name: Build solx
+        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+        env:
+          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+        with:
+          exec_name: 'solx'
+          target: 'x86_64-unknown-linux-gnu'
+          release-suffix: test
 
 
   test:
-#    needs: build-solx
+    needs: build-solx
     runs-on: matterlabs-ci-runner-high-performance
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
@@ -72,11 +72,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 'aave-v3'
+        # 'aave-v3' 'uniswap-v4'
         project: [
           'solmate openzeppelin',
           'solady forge-std',
-          'uniswap-v4 lil-web3 maple-erc20'
+          'lil-web3 maple-erc20'
         ]
         compiler: [ 'solc', 'solx' ]
         via_ir: [ 'true', 'false' ]
@@ -87,31 +87,19 @@ jobs:
           repository: 'antonbaliasnikov/solidity-test-suite'
           submodules: 'recursive'
 
-#      - name: Download artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          pattern: release*
-#          path: .
-#
-#      - name: Move solx
-#        run: |
-#          mv release-test/test/solx* ./solx
-#          chmod a+x ./solx
-#          SOLX_VERSION=$(./solx --version | head -n 1)
-#          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-#          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
-#          echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
-#          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
-#          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release*
+          path: .
 
-      - name: Download solx
+      - name: Setup solx
         id: solx
         run: |
-          mkdir -p compilers && cd compilers
-          wget --no-verbose https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.2/solx-linux-amd64-gnu-v0.1.0-alpha.2
-          mv solx-linux-amd64-gnu-v0.1.0-alpha.2 ./solx
+          mkdir -p compilers
+          mv release-test/test/solx* ./compilers/solx
+          cd compilers
           chmod a+x ./solx
-          ./solx --version
           SOLX_VERSION=$(./solx --version | head -n 1)
           SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
@@ -125,6 +113,14 @@ jobs:
           export PATH="$PATH:${HOME}/.foundry/bin"
           echo ${HOME}/.foundry/bin >> "${GITHUB_PATH}"
           foundryup
+
+      - name: Install yq
+        env:
+          YQ_DOWNLOAD_URL: https://github.com/mikefarah/yq/releases/download/v4.45.4/yq_linux_amd64
+        run: |
+          wget "${YQ_DOWNLOAD_URL}"
+          mv yq_linux_amd64 yq
+          chmod +x yq
 
       - name: Run tests
         run: |
@@ -141,7 +137,6 @@ jobs:
                   forge config --fix
                   sed -i '/evm_version =.*/d' foundry.toml
                   sed -i '/via_ir =.*/d' foundry.toml
-                  sed -i '/skip =.*/d' foundry.toml
                   sed -i 's/solc = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                   sed -i 's/solc_version = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                   # Build project
@@ -154,9 +149,12 @@ jobs:
                   FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
                   echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
                   # Run tests
-                  [ -n "${FAILED_TESTS_TO_SKIP}" ] && SKIP_TESTS="--skip ${FAILED_TESTS_TO_SKIP}"
+                  DEFAULT_SKIP=$(${GITHUB_WORKSPACE}/yq '.profile.default.skip[]' foundry.toml)
+                  if [[ -n "${DEFAULT_SKIP}" ]] || [[ -n "${FAILED_TESTS_TO_SKIP}" ]]; then
+                    SKIP_TESTS="--skip ${DEFAULT_SKIP} ${FAILED_TESTS_TO_SKIP}"
+                  fi
                   TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
-                  forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
+                  forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
                 )
               done
             done
@@ -172,7 +170,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
@@ -216,8 +213,29 @@ jobs:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: test
     env:
-      DEV_PREFIX: 'DEV__'
+      LNT_SERVER_URL: http://llvm-lnt.infra.matterlabs.corp
+      LNT_TEST_SUITE: zksync
+      CONFIG_FILE: lntadmin.yaml
+      DEV_PREFIX: DEV__
+      LNT_RESULTS_FILE: lnt_results.txt
+      CONTEXT_FILE: context.json
+      COMPARISON_FILE: comparison_links.txt
     steps:
+
+      - name: Checkout LNT
+        uses: actions/checkout@v4
+        with:
+          repository: llvm/llvm-lnt
+          path: lnt
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install LNT
+        run: cd lnt && pip install .
+
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
@@ -251,7 +269,7 @@ jobs:
               \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\",
               \"codegen\": \"${CODEGEN}\",
               \"optimization\": \"Default\"
-            }" > context.json
+            }" > ${CONTEXT_FILE}
             INPUTS=""
             rm -f ./data/${COMPILER}/build*.json
             JSONS=$(ls ./data/${COMPILER}/*.json)
@@ -264,7 +282,7 @@ jobs:
             done
             benchmark-converter ${INPUTS} \
               --benchmark-format json-lnt \
-              --benchmark-context context.json \
+              --benchmark-context ${CONTEXT_FILE} \
               --output-path ./${COMPILER}
             mv ./${COMPILER}/* ./lnt-report-${COMPILER}.json
           done
@@ -274,3 +292,32 @@ jobs:
         with:
           name: lnt-reports
           path: lnt-report*.json
+
+      - name: Submit LNT results
+        shell: bash -ex {0}
+        run: |
+          SUBMIT_URL="${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/submitRun"
+          echo SOLX_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx.json) | tee -a ${GITHUB_ENV}
+          echo SOLX_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx-via-ir.json) | tee -a ${GITHUB_ENV}
+          echo SOLC_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc.json) | tee -a ${GITHUB_ENV}
+          echo SOLC_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc-via-ir.json) | tee -a ${GITHUB_ENV}
+
+      - name: Publish comparison links
+        if: ${{ github.event_name == 'pull_request' }}
+        shell: bash -ex {0}
+        run: |
+          # Initialize the Markdown table
+          echo '|  Mode   | Link |' > "${COMPARISON_FILE}"
+          echo '|---------|------|' >> "${COMPARISON_FILE}"
+          COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_LINK##*/}?compare_to=${SOLC_LINK##*/})"
+          VIA_IR_COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_VIA_IR_LINK##*/}?compare_to=${SOLC_VIA_IR_LINK##*/})"
+          echo "| default | ${COMPARISON} |" >> "${COMPARISON_FILE}"
+          echo "| via-ir | ${VIA_IR_COMPARISON} |" >> "${COMPARISON_FILE}"
+          cat "${COMPARISON_FILE}"
+
+      - name: Posting LNT comparison
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-path: ${{ env.COMPARISON_FILE }}
+          message-id: comparison_links
