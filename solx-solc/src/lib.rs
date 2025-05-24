@@ -76,7 +76,6 @@ impl Compiler {
         allow_paths: Option<String>,
     ) -> anyhow::Result<solx_standard_json::Output> {
         let original_output_selection = input_json.settings.output_selection.to_owned();
-
         input_json.settings.output_selection.retain_solc();
         input_json
             .settings
@@ -186,7 +185,7 @@ impl Compiler {
             paths,
             libraries,
             solx_standard_json::InputOptimizer::default(),
-            solx_standard_json::InputSelection::default(),
+            &solx_standard_json::InputSelection::default(),
             solx_standard_json::InputMetadata::default(),
             vec![],
         );

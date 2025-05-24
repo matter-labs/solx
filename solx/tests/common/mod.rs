@@ -72,33 +72,43 @@ pub fn build_solidity_standard_json(
         .map(|(path, source)| (path, solx_standard_json::InputSource::from(source)))
         .collect();
 
-    let mut solc_input = solx_standard_json::Input::try_from_solidity_sources(
+    let mut selectors = BTreeSet::new();
+    selectors.insert(solx_standard_json::InputSelector::BytecodeObject);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeObject);
+    selectors.insert(solx_standard_json::InputSelector::Metadata);
+    selectors.insert(if via_ir {
+        solx_standard_json::InputSelector::Yul
+    } else {
+        solx_standard_json::InputSelector::EVMLA
+    });
+    let output_selection = solx_standard_json::InputSelection::new(selectors);
+
+    let mut input = solx_standard_json::Input::try_from_solidity_sources(
         sources,
         libraries.clone(),
         remappings,
         solx_standard_json::InputOptimizer::default(),
         None,
         via_ir,
-        solx_standard_json::InputSelection::new_compilation(true, true, Some(via_ir)),
+        &output_selection,
         solx_standard_json::InputMetadata::default(),
         vec![],
     )?;
 
-    let mut solc_output = {
+    let mut output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.standard_json(&mut solc_input, &mut vec![], true, None, vec![], None)
+        solc_compiler.standard_json(&mut input, &mut vec![], true, None, vec![], None)
     }?;
-    solc_output.check_errors()?;
+    output.check_errors()?;
 
     let linker_symbols = libraries.as_linker_symbols()?;
 
-    let project = Project::try_from_solc_output(libraries, via_ir, &mut solc_output, None)?;
-    solc_output.check_errors()?;
+    let project = Project::try_from_solc_output(libraries, via_ir, &mut output, None)?;
+    output.check_errors()?;
 
     let build = project.compile_to_evm(
         &mut vec![],
-        true,
-        true,
+        &input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings,
         vec![],
@@ -122,9 +132,9 @@ pub fn build_solidity_standard_json(
     ];
 
     let build = build.link(linker_symbols, Some(cbor_data));
-    build.write_to_standard_json(&mut solc_output)?;
-    solc_output.check_errors()?;
-    Ok(solc_output)
+    build.write_to_standard_json(&mut output, &input.settings.output_selection)?;
+    output.check_errors()?;
+    Ok(output)
 }
 
 ///
@@ -133,7 +143,7 @@ pub fn build_solidity_standard_json(
 /// If `solc_compiler` is set, the standard JSON is validated with `solc`.
 ///
 pub fn build_yul_standard_json(
-    mut solc_input: solx_standard_json::Input,
+    mut input: solx_standard_json::Input,
 ) -> anyhow::Result<solx_standard_json::Output> {
     self::setup()?;
 
@@ -141,26 +151,24 @@ pub fn build_yul_standard_json(
 
     era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
 
-    let optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
-        solc_input.settings.optimizer.mode,
-    )?;
+    let optimizer_settings =
+        era_compiler_llvm_context::OptimizerSettings::try_from_cli(input.settings.optimizer.mode)?;
 
     let mut solc_output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.validate_yul_standard_json(&mut solc_input, &mut vec![])
+        solc_compiler.validate_yul_standard_json(&mut input, &mut vec![])
     }?;
 
     let project = Project::try_from_yul_sources(
-        solc_input.sources,
+        input.sources,
         era_compiler_common::Libraries::default(),
-        &solc_input.settings.output_selection,
+        &input.settings.output_selection,
         Some(&mut solc_output),
         None,
     )?;
     let build = project.compile_to_evm(
         &mut vec![],
-        true,
-        true,
+        &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
         vec![],
@@ -184,7 +192,7 @@ pub fn build_yul_standard_json(
     ];
 
     let build = build.link(BTreeMap::new(), Some(cbor_data));
-    build.write_to_standard_json(&mut solc_output)?;
+    build.write_to_standard_json(&mut solc_output, &input.settings.output_selection)?;
     solc_output.check_errors()?;
     Ok(solc_output)
 }
@@ -212,8 +220,7 @@ pub fn build_llvm_ir_standard_json(
     )?;
     let build = project.compile_to_evm(
         &mut vec![],
-        true,
-        true,
+        &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
         vec![],
@@ -227,7 +234,7 @@ pub fn build_llvm_ir_standard_json(
     )];
 
     let build = build.link(BTreeMap::new(), Some(cbor_data));
-    build.write_to_standard_json(&mut output)?;
+    build.write_to_standard_json(&mut output, &input.settings.output_selection)?;
     output.check_errors()?;
     Ok(output)
 }

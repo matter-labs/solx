@@ -19,24 +19,21 @@ pub struct Bytecode {
     pub llvm_assembly: Option<String>,
 
     /// Opcodes placeholder.
-    #[serde(default)]
-    pub opcodes: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub opcodes: Option<String>,
     /// Source maps placeholder.
-    #[serde(default)]
-    pub source_map: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_map: Option<String>,
     /// Link references placeholder.
-    #[serde(default)]
-    pub link_references: BTreeMap<String, BTreeMap<String, Vec<String>>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub link_references: Option<BTreeMap<String, BTreeMap<String, Vec<String>>>>,
     /// Immutable references placeholder.
-    #[serde(default)]
-    pub immutable_references: BTreeMap<String, Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub immutable_references: Option<BTreeMap<String, Vec<String>>>,
 
     /// Unlinked deployable references.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub unlinked_references: BTreeSet<String>,
-    /// Binary object format.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub format: Option<era_compiler_common::ObjectFormat>,
 }
 
 impl Bytecode {
@@ -46,20 +43,24 @@ impl Bytecode {
     pub fn new(
         object: Option<String>,
         llvm_assembly: Option<String>,
+
+        opcodes: Option<String>,
+        source_map: Option<String>,
+        link_references: Option<BTreeMap<String, BTreeMap<String, Vec<String>>>>,
+        immutable_references: Option<BTreeMap<String, Vec<String>>>,
+
         unlinked_references: BTreeSet<String>,
-        format: era_compiler_common::ObjectFormat,
     ) -> Self {
         Self {
             object,
             llvm_assembly,
 
-            opcodes: String::default(),
-            source_map: String::default(),
-            link_references: BTreeMap::default(),
-            immutable_references: BTreeMap::default(),
+            opcodes,
+            source_map,
+            link_references,
+            immutable_references,
 
             unlinked_references,
-            format: Some(format),
         }
     }
 
@@ -67,6 +68,11 @@ impl Bytecode {
     /// Checks if all key fields are empty.
     ///
     pub fn is_empty(&self) -> bool {
-        self.object.is_none() && self.llvm_assembly.is_none()
+        self.object.is_none()
+            && self.llvm_assembly.is_none()
+            && self.opcodes.is_none()
+            && self.source_map.is_none()
+            && self.link_references.is_none()
+            && self.immutable_references.is_none()
     }
 }

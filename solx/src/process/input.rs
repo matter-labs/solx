@@ -18,10 +18,8 @@ pub struct Input {
     pub contract: Contract,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
-    /// Whether to output assembly.
-    pub output_assembly: bool,
-    /// Whether to output bytecode.
-    pub output_bytecode: bool,
+    /// Output selection for the compilation.
+    pub output_selection: solx_standard_json::InputSelection,
     /// Already deployed libraries.
     pub deployed_libraries: BTreeSet<String>,
     /// The metadata hash type.
@@ -41,8 +39,7 @@ impl Input {
     pub fn new(
         contract: Contract,
         identifier_paths: BTreeMap<String, String>,
-        output_assembly: bool,
-        output_bytecode: bool,
+        output_selection: solx_standard_json::InputSelection,
         deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -52,8 +49,7 @@ impl Input {
         Self {
             contract,
             identifier_paths,
-            output_assembly,
-            output_bytecode,
+            output_selection,
             deployed_libraries,
             metadata_hash_type,
             optimizer_settings,

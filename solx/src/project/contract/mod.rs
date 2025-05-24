@@ -62,8 +62,7 @@ impl Contract {
     pub fn compile_to_evm(
         self,
         identifier_paths: BTreeMap<String, String>,
-        output_assembly: bool,
-        output_bytecode: bool,
+        output_selection: solx_standard_json::InputSelection,
         deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -91,9 +90,10 @@ impl Contract {
                 }
             });
 
-        if !output_bytecode && !output_assembly {
-            return Ok(EVMContractBuild::new(self.name, None, None, metadata));
-        }
+        let output_bytecode = output_selection
+            .is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
+            || output_selection
+                .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeObject);
 
         let deploy_code_segment = era_compiler_common::CodeSegment::Deploy;
         let runtime_code_segment = era_compiler_common::CodeSegment::Runtime;
@@ -137,7 +137,12 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
+                let runtime_build = runtime_context.build(
+                    output_selection.is_set_for_any(
+                        solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
+                    ),
+                    output_bytecode,
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -176,7 +181,11 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
+                let deploy_build = deploy_context.build(
+                    output_selection
+                        .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
+                    output_bytecode,
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -193,8 +202,8 @@ impl Contract {
 
                 Ok(EVMContractBuild::new(
                     self.name,
-                    Some(deploy_object),
-                    Some(runtime_object),
+                    deploy_object,
+                    runtime_object,
                     metadata,
                 ))
             }
@@ -238,7 +247,12 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
+                let runtime_build = runtime_context.build(
+                    output_selection.is_set_for_any(
+                        solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
+                    ),
+                    output_bytecode,
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -275,7 +289,11 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
+                let deploy_build = deploy_context.build(
+                    output_selection
+                        .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
+                    output_bytecode,
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -292,8 +310,8 @@ impl Contract {
 
                 Ok(EVMContractBuild::new(
                     self.name,
-                    Some(deploy_object),
-                    Some(runtime_object),
+                    deploy_object,
+                    runtime_object,
                     metadata,
                 ))
             }
@@ -343,7 +361,12 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
-                let runtime_build = runtime_context.build(output_assembly, output_bytecode)?;
+                let runtime_build = runtime_context.build(
+                    output_selection.is_set_for_any(
+                        solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
+                    ),
+                    output_bytecode,
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -370,7 +393,11 @@ impl Contract {
                     optimizer,
                     debug_config,
                 );
-                let deploy_build = deploy_context.build(output_assembly, output_bytecode)?;
+                let deploy_build = deploy_context.build(
+                    output_selection
+                        .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
+                    output_bytecode,
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -387,8 +414,8 @@ impl Contract {
 
                 Ok(EVMContractBuild::new(
                     self.name,
-                    Some(deploy_object),
-                    Some(runtime_object),
+                    deploy_object,
+                    runtime_object,
                     metadata,
                 ))
             }

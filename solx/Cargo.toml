@@ -27,8 +27,6 @@ semver = { version = "1.0", features = [ "serde" ] }
 hex = "0.4"
 num = "0.4"
 
-zkevm_opcode_defs = "=0.150.6"
-
 era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 

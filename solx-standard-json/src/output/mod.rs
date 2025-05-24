@@ -98,14 +98,22 @@ impl Output {
                     ) {
                         evm.legacy_assembly = serde_json::Value::Null;
                     }
-                }
-                if contract
-                    .evm
-                    .as_mut()
-                    .map(|evm| evm.is_empty())
-                    .unwrap_or_default()
-                {
-                    contract.evm = None;
+                    if evm
+                        .bytecode
+                        .as_ref()
+                        .map(|bytecode| bytecode.is_empty())
+                        .unwrap_or_default()
+                    {
+                        evm.bytecode = None;
+                    }
+                    if evm
+                        .deployed_bytecode
+                        .as_ref()
+                        .map(|bytecode| bytecode.is_empty())
+                        .unwrap_or_default()
+                    {
+                        evm.deployed_bytecode = None;
+                    }
                 }
             }
         }
