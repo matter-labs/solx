@@ -4,6 +4,7 @@
 
 pub mod arguments;
 
+use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -111,6 +112,20 @@ fn main_inner(
     optimizer_settings.is_verify_each_enabled = arguments.llvm_verify_each;
     optimizer_settings.is_debug_logging_enabled = arguments.llvm_debug_logging;
 
+    let mut selectors = BTreeSet::new();
+    if arguments.output_bytecode {
+        selectors.insert(solx_standard_json::InputSelector::BytecodeObject);
+        selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeObject);
+    }
+    if arguments.output_assembly {
+        selectors.insert(solx_standard_json::InputSelector::BytecodeLLVMAssembly);
+        selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly);
+    }
+    if arguments.output_metadata {
+        selectors.insert(solx_standard_json::InputSelector::Metadata);
+    }
+    let output_selection = solx_standard_json::InputSelection::new(selectors);
+
     let llvm_options: Vec<String> = arguments
         .llvm_options
         .as_ref()
@@ -142,9 +157,7 @@ fn main_inner(
         solx::yul_to_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
-            arguments.output_bytecode,
-            arguments.output_assembly,
-            arguments.output_metadata,
+            &output_selection,
             messages,
             metadata_hash_type,
             append_cbor,
@@ -156,9 +169,7 @@ fn main_inner(
         solx::llvm_ir_to_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
-            arguments.output_bytecode,
-            arguments.output_assembly,
-            arguments.output_metadata,
+            &output_selection,
             messages,
             metadata_hash_type,
             append_cbor,
@@ -178,12 +189,11 @@ fn main_inner(
             use_import_callback,
             debug_config,
         );
-    } else if arguments.output_bytecode || arguments.output_assembly || arguments.output_metadata {
+    } else if !output_selection.is_empty() {
         solx::standard_output_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
-            arguments.output_bytecode,
-            arguments.output_assembly,
+            &output_selection,
             messages,
             arguments.evm_version,
             arguments.via_ir,
@@ -208,19 +218,9 @@ fn main_inner(
     }?;
 
     if let Some(output_directory) = arguments.output_dir {
-        build.write_to_directory(
-            &output_directory,
-            arguments.overwrite,
-            arguments.output_bytecode,
-            arguments.output_assembly,
-            arguments.output_metadata,
-        )?;
+        build.write_to_directory(&output_directory, &output_selection, arguments.overwrite)?;
     } else {
-        build.write_to_terminal(
-            arguments.output_bytecode,
-            arguments.output_assembly,
-            arguments.output_metadata,
-        )?;
+        build.write_to_terminal(&output_selection)?;
     }
 
     Ok(())

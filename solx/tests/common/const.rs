@@ -94,6 +94,26 @@ pub const TEST_SOLIDITY_STANDARD_JSON_SOLX_INVALID_PATH: &str =
     "tests/data/standard_json_input/solidity_solx_invalid.json";
 
 /// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_PATH: &str =
+    "tests/data/standard_json_input/select_evm.json";
+
+/// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_BYTECODE_PATH: &str =
+    "tests/data/standard_json_input/select_evm_bytecode.json";
+
+/// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_BYTECODE_OPCODES_PATH: &str =
+    "tests/data/standard_json_input/select_evm_bytecode_opcodes.json";
+
+/// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_DEPLOYED_BYTECODE_PATH: &str =
+    "tests/data/standard_json_input/select_evm_deployed_bytecode.json";
+
+/// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_DEPLOYED_BYTECODE_LINK_REFERENCES_PATH: &str =
+    "tests/data/standard_json_input/select_evm_deployed_bytecode_link_references.json";
+
+/// A test input file.
 pub const TEST_YUL_STANDARD_JSON_SOLC_PATH: &str = "tests/data/standard_json_input/yul_solc.json";
 
 /// A test input file.

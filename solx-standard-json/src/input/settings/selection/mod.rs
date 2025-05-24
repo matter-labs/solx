@@ -47,24 +47,6 @@ impl Selection {
     }
 
     ///
-    /// A shortcut constructor for compilation.
-    ///
-    pub fn new_compilation(bytecode: bool, metadata: bool, via_ir: Option<bool>) -> Self {
-        let mut selectors = BTreeSet::new();
-        if bytecode {
-            selectors.insert(Selector::Bytecode);
-            selectors.insert(Selector::RuntimeBytecode);
-        }
-        if metadata {
-            selectors.insert(Selector::Metadata);
-        }
-        if let Some(via_ir) = via_ir {
-            selectors.insert(via_ir.into());
-        }
-        Self::new(selectors)
-    }
-
-    ///
     /// Checks if the output element of the specified contract is selected.
     ///
     pub fn check_selection(&self, path: &str, name: Option<&str>, selector: Selector) -> bool {
@@ -72,12 +54,8 @@ impl Selection {
             if let (Some(any), selector @ Selector::AST) = (file.get(""), selector) {
                 return any.contains(&selector);
             }
-            if let Some(name) = name {
-                if let Some(contract) = file.get("*").or(file.get(name)) {
-                    return contract.contains(&selector);
-                }
-            } else {
-                return true;
+            if let Some(contract) = file.get("*").or(name.and_then(|name| file.get(name))) {
+                return contract.contains(&selector);
             }
         }
         false
@@ -111,8 +89,34 @@ impl Selection {
     pub fn is_set_for_any(&self, selector: Selector) -> bool {
         for file in self.inner.values() {
             for contract in file.values() {
-                if contract.contains(&selector) {
-                    return true;
+                match selector {
+                    Selector::BytecodeObject
+                    | Selector::BytecodeLLVMAssembly
+                    | Selector::BytecodeOpcodes
+                    | Selector::BytecodeLinkReferences
+                    | Selector::BytecodeSourceMap
+                    | Selector::BytecodeFunctionDebugData
+                    | Selector::BytecodeGeneratedSources
+                        if contract.contains(&Selector::Bytecode)
+                            || contract.contains(&Selector::EVM) =>
+                    {
+                        return true
+                    }
+                    Selector::RuntimeBytecodeObject
+                    | Selector::RuntimeBytecodeLLVMAssembly
+                    | Selector::RuntimeBytecodeOpcodes
+                    | Selector::RuntimeBytecodeLinkReferences
+                    | Selector::RuntimeBytecodeImmutableReferences
+                    | Selector::RuntimeBytecodeSourceMap
+                    | Selector::RuntimeBytecodeFunctionDebugData
+                    | Selector::RuntimeBytecodeGeneratedSources
+                        if contract.contains(&Selector::RuntimeBytecode)
+                            || contract.contains(&Selector::EVM) =>
+                    {
+                        return true
+                    }
+                    selector if contract.contains(&selector) => return true,
+                    _ => continue,
                 }
             }
         }

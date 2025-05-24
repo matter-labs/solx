@@ -44,9 +44,7 @@ pub type Result<T> = std::result::Result<T, solx_standard_json::OutputError>;
 pub fn yul_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
-    output_bytecode: bool,
-    output_assembly: bool,
-    output_metadata: bool,
+    output_selection: &solx_standard_json::InputSelection,
     messages: &mut Vec<solx_standard_json::OutputError>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
@@ -55,11 +53,6 @@ pub fn yul_to_evm(
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
     let libraries = era_compiler_common::Libraries::try_from(libraries)?;
-    let output_selection = solx_standard_json::InputSelection::new_compilation(
-        output_bytecode,
-        output_metadata,
-        Some(true),
-    );
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let solc_compiler = solx_solc::Compiler::default();
@@ -68,15 +61,14 @@ pub fn yul_to_evm(
     let project = Project::try_from_yul_paths(
         paths,
         libraries,
-        &output_selection,
+        output_selection,
         None,
         debug_config.as_ref(),
     )?;
 
     let mut build = project.compile_to_evm(
         messages,
-        output_assembly,
-        output_bytecode,
+        output_selection,
         metadata_hash_type,
         optimizer_settings,
         llvm_options,
@@ -104,14 +96,16 @@ pub fn yul_to_evm(
         None
     };
 
-    Ok(if output_bytecode {
-        let mut build = build.link(linker_symbols, cbor_data);
-        build.take_and_write_warnings();
-        build.check_errors()?;
-        build
-    } else {
-        build
-    })
+    Ok(
+        if output_selection.is_set_for_any(solx_standard_json::InputSelector::BytecodeObject) {
+            let mut build = build.link(linker_symbols, cbor_data);
+            build.take_and_write_warnings();
+            build.check_errors()?;
+            build
+        } else {
+            build
+        },
+    )
 }
 
 ///
@@ -120,9 +114,7 @@ pub fn yul_to_evm(
 pub fn llvm_ir_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
-    output_bytecode: bool,
-    output_assembly: bool,
-    output_metadata: bool,
+    output_selection: &solx_standard_json::InputSelection,
     messages: &mut Vec<solx_standard_json::OutputError>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
@@ -131,16 +123,13 @@ pub fn llvm_ir_to_evm(
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
     let libraries = era_compiler_common::Libraries::try_from(libraries)?;
-    let output_selection =
-        solx_standard_json::InputSelection::new_compilation(output_bytecode, output_metadata, None);
     let linker_symbols = libraries.as_linker_symbols()?;
 
-    let project = Project::try_from_llvm_ir_paths(paths, libraries, &output_selection, None)?;
+    let project = Project::try_from_llvm_ir_paths(paths, libraries, output_selection, None)?;
 
     let mut build = project.compile_to_evm(
         messages,
-        output_assembly,
-        output_bytecode,
+        output_selection,
         metadata_hash_type,
         optimizer_settings,
         llvm_options,
@@ -158,14 +147,16 @@ pub fn llvm_ir_to_evm(
         None
     };
 
-    Ok(if output_bytecode {
-        let mut build = build.link(linker_symbols, cbor_data);
-        build.take_and_write_warnings();
-        build.check_errors()?;
-        build
-    } else {
-        build
-    })
+    Ok(
+        if output_selection.is_set_for_any(solx_standard_json::InputSelector::BytecodeObject) {
+            let mut build = build.link(linker_symbols, cbor_data);
+            build.take_and_write_warnings();
+            build.check_errors()?;
+            build
+        } else {
+            build
+        },
+    )
 }
 
 ///
@@ -174,8 +165,7 @@ pub fn llvm_ir_to_evm(
 pub fn standard_output_evm(
     paths: &[PathBuf],
     libraries: &[String],
-    output_bytecode: bool,
-    output_assembly: bool,
+    output_selection: &solx_standard_json::InputSelection,
     messages: &mut Vec<solx_standard_json::OutputError>,
     evm_version: Option<era_compiler_common::EVMVersion>,
     via_ir: bool,
@@ -198,7 +188,7 @@ pub fn standard_output_evm(
         solx_standard_json::InputOptimizer::default(),
         evm_version,
         via_ir,
-        solx_standard_json::InputSelection::new_compilation(output_bytecode, true, Some(via_ir)),
+        output_selection,
         solx_standard_json::InputMetadata::new(metadata_literal, append_cbor, metadata_hash_type),
         llvm_options.clone(),
     )?;
@@ -229,8 +219,7 @@ pub fn standard_output_evm(
 
     let mut build = project.compile_to_evm(
         messages,
-        output_assembly,
-        output_bytecode,
+        &solc_input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings,
         llvm_options,
@@ -258,14 +247,20 @@ pub fn standard_output_evm(
         None
     };
 
-    Ok(if output_bytecode {
-        let mut build = build.link(linker_symbols, cbor_data);
-        build.take_and_write_warnings();
-        build.check_errors()?;
-        build
-    } else {
-        build
-    })
+    Ok(
+        if solc_input
+            .settings
+            .output_selection
+            .is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
+        {
+            let mut build = build.link(linker_symbols, cbor_data);
+            build.take_and_write_warnings();
+            build.check_errors()?;
+            build
+        } else {
+            build
+        },
+    )
 }
 
 ///
@@ -285,22 +280,6 @@ pub fn standard_json_evm(
     let mut solc_input = solx_standard_json::Input::try_from(json_path.as_deref())?;
     let language = solc_input.language;
     let via_ir = solc_input.settings.via_ir;
-    let output_bytecode = solc_input
-        .settings
-        .output_selection
-        .is_set_for_any(solx_standard_json::InputSelector::Bytecode)
-        || solc_input
-            .settings
-            .output_selection
-            .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecode);
-    let output_assembly = solc_input
-        .settings
-        .output_selection
-        .is_set_for_any(solx_standard_json::InputSelector::DeployLLVMAssembly)
-        || solc_input
-            .settings
-            .output_selection
-            .is_set_for_any(solx_standard_json::InputSelector::RuntimeLLVMAssembly);
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
@@ -402,23 +381,26 @@ pub fn standard_json_evm(
 
     let build = project.compile_to_evm(
         messages,
-        output_assembly,
-        output_bytecode,
+        &solc_input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings,
         llvm_options,
         debug_config,
     )?;
     if build.has_errors() {
-        build.write_to_standard_json(&mut solc_output)?;
+        build.write_to_standard_json(&mut solc_output, &solc_input.settings.output_selection)?;
         solc_output.write_and_exit(&solc_input.settings.output_selection);
     }
 
-    let build = if output_bytecode {
+    let build = if solc_input
+        .settings
+        .output_selection
+        .is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
+    {
         build.link(linker_symbols, cbor_data)
     } else {
         build
     };
-    build.write_to_standard_json(&mut solc_output)?;
+    build.write_to_standard_json(&mut solc_output, &solc_input.settings.output_selection)?;
     solc_output.write_and_exit(&solc_input.settings.output_selection);
 }
