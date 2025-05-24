@@ -324,8 +324,7 @@ impl Project {
     pub fn compile_to_evm(
         self,
         messages: &mut Vec<solx_standard_json::OutputError>,
-        output_assembly: bool,
-        output_bytecode: bool,
+        output_selection: &solx_standard_json::InputSelection,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
@@ -339,8 +338,7 @@ impl Project {
                 let input = EVMProcessInput::new(
                     contract,
                     self.identifier_paths.clone(),
-                    output_assembly,
-                    output_bytecode,
+                    output_selection.to_owned(),
                     deployed_libraries.clone(),
                     metadata_hash_type,
                     optimizer_settings.clone(),

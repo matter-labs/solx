@@ -19,7 +19,8 @@
         "*": [
           "abi",
           "evm.methodIdentifiers",
-          "evm.bytecode.object"
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object"
         ]
       }
     },

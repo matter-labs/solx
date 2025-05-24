@@ -242,3 +242,96 @@ fn metadata_hash_none_no_metadata() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn select_evm() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"))
+        .stdout(predicate::str::contains("deployedBytecode"))
+        .stdout(predicate::str::contains("llvmAssembly"))
+        .stdout(predicate::str::contains("opcodes"))
+        .stdout(predicate::str::contains("linkReferences"));
+
+    Ok(())
+}
+
+#[test]
+fn select_evm_bytecode() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_BYTECODE_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"))
+        .stdout(predicate::str::contains("deployedBytecode").not());
+
+    Ok(())
+}
+
+#[test]
+fn select_evm_deployed_bytecode() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_DEPLOYED_BYTECODE_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("deployedBytecode"))
+        .stdout(predicate::str::contains("bytecode").not());
+
+    Ok(())
+}
+
+#[test]
+fn select_evm_bytecode_opcodes() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_BYTECODE_OPCODES_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("opcodes"))
+        .stdout(predicate::str::contains("deployedBytecode").not());
+
+    Ok(())
+}
+
+#[test]
+fn select_evm_deployed_bytecode_link_references() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_DEPLOYED_BYTECODE_LINK_REFERENCES_PATH
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("linkReferences"))
+        .stdout(predicate::str::contains("bytecode").not());
+
+    Ok(())
+}
