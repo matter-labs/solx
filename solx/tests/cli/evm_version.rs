@@ -73,7 +73,7 @@ fn standard_json() -> anyhow::Result<()> {
     let evm_version = era_compiler_common::EVMVersion::Cancun.to_string();
     let args = &[
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
         "--evm-version",
         evm_version.as_str(),
     ];

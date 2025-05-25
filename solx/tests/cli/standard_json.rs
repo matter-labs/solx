@@ -10,13 +10,98 @@ fn default() -> anyhow::Result<()> {
 
     let args = &[
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
     ];
 
     let result = crate::cli::execute_solx(args)?;
     result
         .success()
         .stdout(predicate::str::contains("bytecode"));
+
+    Ok(())
+}
+
+#[test]
+fn deploy_time_linking() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_DEPLOY_TIME_LINKING_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.success().stdout(predicate::str::contains(
+        "__$32d65841735fc578113c8cbc3571729a2b$__",
+    ));
+
+    Ok(())
+}
+
+#[test]
+fn recursion() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_RECURSION_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"));
+
+    Ok(())
+}
+
+#[test]
+fn yul() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_YUL_STANDARD_JSON_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"));
+
+    Ok(())
+}
+
+#[test]
+fn yul_urls() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_YUL_STANDARD_JSON_URLS_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"));
+
+    Ok(())
+}
+
+#[test]
+fn yul_urls_invalid() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_YUL_STANDARD_JSON_URLS_INVALID_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.success().stdout(predicate::str::contains(
+        "DeclarationError: Function \\\"mdelete\\\" not found.",
+    ));
 
     Ok(())
 }
@@ -41,30 +126,13 @@ fn invalid_input_solc_error() -> anyhow::Result<()> {
 
     let args = &[
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_INVALID_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_INVALID_PATH,
     ];
 
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains(
         "ParserError: Expected identifier but got",
     ));
-
-    Ok(())
-}
-
-#[test]
-fn recursion() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let args = &[
-        "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLX_RECURSION_PATH,
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stdout(predicate::str::contains("bytecode"));
 
     Ok(())
 }
@@ -126,7 +194,7 @@ fn empty_sources() -> anyhow::Result<()> {
 
     let args = &[
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_EMPTY_SOURCES_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_EMPTY_SOURCES_PATH,
     ];
 
     let result = crate::cli::execute_solx(args)?;
@@ -143,30 +211,13 @@ fn missing_sources() -> anyhow::Result<()> {
 
     let args = &[
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_MISSING_SOURCES_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_MISSING_SOURCES_PATH,
     ];
 
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains(
         "Standard JSON parsing: missing field `sources`",
     ));
-
-    Ok(())
-}
-
-#[test]
-fn yul() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let args = &[
-        "--standard-json",
-        crate::common::TEST_YUL_STANDARD_JSON_SOLC_PATH,
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result
-        .success()
-        .stdout(predicate::str::contains("bytecode"));
 
     Ok(())
 }
@@ -277,7 +328,8 @@ fn select_evm_bytecode() -> anyhow::Result<()> {
     result
         .success()
         .stdout(predicate::str::contains("bytecode"))
-        .stdout(predicate::str::contains("deployedBytecode").not());
+        .stdout(predicate::str::contains("deployedBytecode").not())
+        .stdout(predicate::str::contains("metadata").not());
 
     Ok(())
 }
@@ -295,7 +347,8 @@ fn select_evm_deployed_bytecode() -> anyhow::Result<()> {
     result
         .success()
         .stdout(predicate::str::contains("deployedBytecode"))
-        .stdout(predicate::str::contains("bytecode").not());
+        .stdout(predicate::str::contains("bytecode").not())
+        .stdout(predicate::str::contains("metadata").not());
 
     Ok(())
 }
@@ -332,6 +385,62 @@ fn select_evm_deployed_bytecode_link_references() -> anyhow::Result<()> {
         .success()
         .stdout(predicate::str::contains("linkReferences"))
         .stdout(predicate::str::contains("bytecode").not());
+
+    Ok(())
+}
+
+#[test]
+fn select_none() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_NONE_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("\"evm\"").not())
+        .stdout(predicate::str::contains("\"bytecode\"").not())
+        .stdout(predicate::str::contains("\"deployedBytecode\"").not());
+
+    Ok(())
+}
+
+#[test]
+fn select_all() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_ALL_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("\"ast\""))
+        .stdout(predicate::str::contains("\"abi\""))
+        .stdout(predicate::str::contains("\"metadata\""))
+        .stdout(predicate::str::contains("\"devdoc\""))
+        .stdout(predicate::str::contains("\"userdoc\""))
+        .stdout(predicate::str::contains("\"storageLayout\""))
+        .stdout(predicate::str::contains("\"transientStorageLayout\""))
+        .stdout(predicate::str::contains("\"methodIdentifiers\""))
+        .stdout(predicate::str::contains("\"legacyAssembly\""))
+        .stdout(predicate::str::contains("\"irOptimized\""))
+        .stdout(predicate::str::contains("\"evm\""))
+        .stdout(predicate::str::contains("\"bytecode\""))
+        .stdout(predicate::str::contains("\"deployedBytecode\""))
+        .stdout(predicate::str::contains("\"object\"").count(2))
+        .stdout(predicate::str::contains("\"llvmAssembly\"").count(2))
+        .stdout(predicate::str::contains("\"opcodes\"").count(2))
+        .stdout(predicate::str::contains("\"linkReferences\"").count(2))
+        .stdout(predicate::str::contains("\"sourceMap\"").count(2))
+        .stdout(predicate::str::contains("\"functionDebugData\"").count(2))
+        .stdout(predicate::str::contains("\"generatedSources\"").count(2))
+        .stdout(predicate::str::contains("\"immutableReferences\""));
 
     Ok(())
 }

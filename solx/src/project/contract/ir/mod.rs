@@ -6,8 +6,6 @@ pub mod evmla;
 pub mod llvm_ir;
 pub mod yul;
 
-use std::collections::BTreeSet;
-
 use self::evmla::EVMLA;
 use self::llvm_ir::LLVMIR;
 use self::yul::Yul;
@@ -23,30 +21,6 @@ pub enum IR {
     EVMLA(EVMLA),
     /// The LLVM IR source code.
     LLVMIR(LLVMIR),
-}
-
-impl IR {
-    ///
-    /// Drains the list of factory dependencies.
-    ///
-    pub fn drain_factory_dependencies(&mut self) -> BTreeSet<String> {
-        match self {
-            IR::Yul(ref mut yul) => yul.object.0.factory_dependencies.drain().collect(),
-            IR::EVMLA(ref mut evm) => evm.assembly.factory_dependencies.drain().collect(),
-            IR::LLVMIR(_) => BTreeSet::new(),
-        }
-    }
-
-    ///
-    /// Get the list of unlinked deployable libraries.
-    ///
-    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
-        match self {
-            Self::Yul(inner) => inner.get_unlinked_libraries(),
-            Self::EVMLA(inner) => inner.get_unlinked_libraries(),
-            Self::LLVMIR(_inner) => BTreeSet::new(),
-        }
-    }
 }
 
 impl From<Yul> for IR {

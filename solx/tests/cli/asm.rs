@@ -5,6 +5,19 @@
 use predicates::prelude::*;
 
 #[test]
+fn default() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[crate::common::TEST_SOLIDITY_CONTRACT_PATH, "--asm"];
+
+    let result = crate::cli::execute_solx(args)?;
+
+    result.success();
+
+    Ok(())
+}
+
+#[test]
 fn invalid_input() -> anyhow::Result<()> {
     crate::common::setup()?;
 
@@ -25,7 +38,7 @@ fn standard_json() -> anyhow::Result<()> {
 
     let args = &[
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
         "--asm",
     ];
 

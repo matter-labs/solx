@@ -31,7 +31,7 @@ fn standard_json() -> anyhow::Result<()> {
 
     let args = &[
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
         "--debug-output-dir",
         tmp_dir_debug.path().to_str().unwrap(),
     ];

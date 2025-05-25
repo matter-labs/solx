@@ -2,7 +2,9 @@
   "language": "Yul",
   "sources": {
     "Test": {
-      "content": "object \"Return\" { code { { return(0, 0) } } object \"Return_deployed\" { code { { return(0, 0) } } } }"
+      "urls": [
+        "tests/data/contracts/yul/Invalid.yul"
+      ]
     }
   },
   "settings": {

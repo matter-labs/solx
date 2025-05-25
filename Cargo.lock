@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#9551c155c38d55bc281520bb64af31f69be252b6"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#57d287d9ecd66a1136d9e619fe535d8d1450293f"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -764,7 +764,7 @@ dependencies = [
 [[package]]
 name = "inkwell"
 version = "0.5.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#6a6eaf88cde4045c4a05a60cdd48d92dc843da90"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#a65fd9036900a428eeeb04b83d2dac4911ca496f"
 dependencies = [
  "either",
  "inkwell_internals",
@@ -778,7 +778,7 @@ dependencies = [
 [[package]]
 name = "inkwell_internals"
 version = "0.10.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#6a6eaf88cde4045c4a05a60cdd48d92dc843da90"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#a65fd9036900a428eeeb04b83d2dac4911ca496f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -884,7 +884,7 @@ checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
 [[package]]
 name = "llvm-sys"
 version = "191.0.0"
-source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-19#d6d4c23af212d596eda9ac19257d21c84af2729e"
+source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-19#33629f00f941152c2d1f19c760cac0755f1f28b6"
 dependencies = [
  "anyhow",
  "cc",
@@ -1502,7 +1502,7 @@ dependencies = [
 
 [[package]]
 name = "solx"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.4"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1528,7 +1528,7 @@ dependencies = [
 
 [[package]]
 name = "solx-solc"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.4"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1541,7 +1541,7 @@ dependencies = [
 
 [[package]]
 name = "solx-standard-json"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.4"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1554,7 +1554,7 @@ dependencies = [
 
 [[package]]
 name = "solx-yul"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.4"
 dependencies = [
  "anyhow",
  "era-compiler-common",

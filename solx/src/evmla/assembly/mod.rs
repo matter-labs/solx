@@ -174,7 +174,7 @@ impl Assembly {
                 let deploy_code_assembly = match contract
                     .evm
                     .as_ref()
-                    .map(|evm| &evm.legacy_assembly)
+                    .and_then(|evm| evm.legacy_assembly.as_ref())
                     .filter(|json| json.is_object())
                 {
                     Some(assembly) => serde_json::from_value::<Assembly>(assembly.to_owned())
@@ -202,7 +202,7 @@ impl Assembly {
                 let assembly = match contract
                     .evm
                     .as_mut()
-                    .map(|evm| &mut evm.legacy_assembly)
+                    .and_then(|evm| evm.legacy_assembly.as_mut())
                     .filter(|json| json.is_object())
                 {
                     Some(assembly) => assembly,

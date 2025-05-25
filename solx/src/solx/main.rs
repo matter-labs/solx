@@ -177,8 +177,6 @@ fn main_inner(
             llvm_options,
             debug_config,
         )
-    } else if arguments.link {
-        anyhow::bail!("The EVM target does not support linking yet.");
     } else if let Some(standard_json) = arguments.standard_json {
         return solx::standard_json_evm(
             standard_json.map(PathBuf::from),

@@ -75,20 +75,3 @@ fn standard_json() -> anyhow::Result<()> {
 
     Ok(())
 }
-
-#[test]
-fn invalid_solc_error() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let args = &[
-        "--standard-json",
-        crate::common::TEST_YUL_STANDARD_JSON_SOLC_INVALID_PATH,
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result.success().stdout(predicate::str::contains(
-        "DeclarationError: Function \\\"mdelete\\\" not found.",
-    ));
-
-    Ok(())
-}

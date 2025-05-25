@@ -13,26 +13,26 @@ use self::evm::EVM;
 #[serde(rename_all = "camelCase")]
 pub struct Contract {
     /// The contract ABI.
-    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
-    pub abi: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub abi: Option<serde_json::Value>,
     /// The contract storage layout.
-    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
-    pub storage_layout: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub storage_layout: Option<serde_json::Value>,
     /// The contract storage layout.
-    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
-    pub transient_storage_layout: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transient_storage_layout: Option<serde_json::Value>,
     /// The contract metadata.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub metadata: Option<String>,
     /// The contract developer documentation.
-    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
-    pub devdoc: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub devdoc: Option<serde_json::Value>,
     /// The contract user documentation.
-    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
-    pub userdoc: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub userdoc: Option<serde_json::Value>,
     /// The contract optimized IR code.
-    #[serde(default, skip_serializing_if = "String::is_empty")]
-    pub ir_optimized: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ir_optimized: Option<String>,
     /// The EVM data of the contract.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub evm: Option<EVM>,
@@ -43,13 +43,13 @@ impl Contract {
     /// Checks if all fields are unset or empty.
     ///
     pub fn is_empty(&self) -> bool {
-        self.abi.is_null()
-            && self.storage_layout.is_null()
-            && self.transient_storage_layout.is_null()
+        self.abi.is_none()
+            && self.storage_layout.is_none()
+            && self.transient_storage_layout.is_none()
             && self.metadata.is_none()
-            && self.devdoc.is_null()
-            && self.userdoc.is_null()
-            && self.ir_optimized.is_empty()
+            && self.devdoc.is_none()
+            && self.userdoc.is_none()
+            && self.ir_optimized.is_none()
             && self.evm.is_none()
     }
 }

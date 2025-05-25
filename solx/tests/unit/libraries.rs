@@ -35,14 +35,12 @@ fn not_specified(via_ir: bool) {
             .deployed_bytecode
             .as_ref()
             .expect("Always exists")
-            .unlinked_references
-            .contains(
-                format!(
-                    "{}:SimpleLibrary",
-                    crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH
-                )
-                .as_str()
-            ),
+            .link_references
+            .as_ref()
+            .expect("Always exists")
+            .get(crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH)
+            .expect("Always exists")
+            .contains_key("SimpleLibrary"),
         "Missing library not detected"
     );
 }
@@ -83,7 +81,9 @@ fn specified(via_ir: bool) {
             .deployed_bytecode
             .as_ref()
             .expect("Always exists")
-            .unlinked_references
+            .link_references
+            .as_ref()
+            .expect("Always exists")
             .is_empty(),
         "The list of unlinked libraries must be empty"
     );

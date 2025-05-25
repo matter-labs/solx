@@ -92,7 +92,7 @@ impl Project {
                 let result = if via_ir {
                     ContractYul::try_from_source(
                         name.full_path.as_str(),
-                        contract.ir_optimized.as_str(),
+                        contract.ir_optimized.as_ref()?.as_str(),
                         debug_config,
                     )
                     .map(|yul| yul.map(ContractIR::from))

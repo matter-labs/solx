@@ -22,7 +22,8 @@ impl EVMLA {
     pub fn try_from_contract(contract: &solx_standard_json::OutputContract) -> Option<Self> {
         let evm = contract.evm.as_ref()?;
 
-        let mut assembly: Assembly = serde_json::from_value(evm.legacy_assembly.to_owned()).ok()?;
+        let mut assembly: Assembly =
+            serde_json::from_value(evm.legacy_assembly.as_ref()?.to_owned()).ok()?;
         assembly.extra_metadata = evm.extra_metadata.to_owned();
         if let Ok(runtime_code) = assembly.runtime_code_mut() {
             runtime_code.extra_metadata = evm.extra_metadata.to_owned();

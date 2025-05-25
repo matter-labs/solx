@@ -1,0 +1,32 @@
+{
+  "language": "Solidity",
+  "sources":
+  {
+    "SimpleContract":
+    {
+      "urls": [
+        "tests/data/contracts/solidity/SimpleContract.sol"
+      ]
+    }
+  },
+  "settings": {
+    "outputSelection": {
+      "*": {
+        "": [
+          "ast"
+        ],
+        "*": [
+          "abi",
+          "evm.methodIdentifiers",
+          "evm.bytecode.object",
+          "evm.bytecode.linkReferences",
+          "evm.deployedBytecode.object",
+          "evm.deployedBytecode.linkReferences"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

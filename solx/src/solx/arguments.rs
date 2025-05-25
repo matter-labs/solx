@@ -95,12 +95,6 @@ pub struct Arguments {
     #[arg(long)]
     pub llvm_ir: bool,
 
-    /// Specify the bytecode file to link.
-    /// In default mode, input bytecode files and `--libraries` are required, and the input files are modified in place.
-    /// In standard JSON mode, the result of linking is returned via stdout in a JSON.
-    #[arg(long)]
-    pub link: bool,
-
     /// Enable the `solc` IR codegen.
     #[arg(long)]
     pub via_ir: bool,
@@ -173,21 +167,20 @@ impl Arguments {
             ));
         }
 
-        let modes_count = [
-            self.yul,
-            self.llvm_ir,
-            self.link,
-            self.standard_json.is_some(),
-        ]
-        .iter()
-        .filter(|&&x| x)
-        .count();
-        if modes_count > 1 + ((self.link && self.standard_json.is_some()) as usize) {
+        let modes_count = [self.yul, self.llvm_ir, self.standard_json.is_some()]
+            .iter()
+            .filter(|&&x| x)
+            .count();
+        if modes_count > 1 {
             messages.push(solx_standard_json::OutputError::new_error(
-                None, "Only one mode is allowed at the same time: Yul, LLVM IR, standard JSON. Only linker can be used with `--standard-json`.", None, None));
+                None,
+                "Only one mode is allowed at the same time: Yul, LLVM IR, standard JSON.",
+                None,
+                None,
+            ));
         }
 
-        if self.yul || self.llvm_ir || self.link {
+        if self.yul || self.llvm_ir {
             if self.base_path.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
@@ -236,21 +229,6 @@ impl Arguments {
             messages.push(solx_standard_json::OutputError::new_error(
                 None,
                 "Libraries are only supported in Solidity, Yul, and linker modes.",
-                None,
-                None,
-            ));
-        }
-
-        let mut linker_default_arguments_count = 2;
-        linker_default_arguments_count += match self.standard_json {
-            Some(Some(_)) => 2,
-            Some(None) => 1,
-            _ => self.inputs.len() + ((!self.libraries.is_empty()) as usize) + self.libraries.len(),
-        };
-        if self.link && std::env::args().count() > linker_default_arguments_count {
-            messages.push(solx_standard_json::OutputError::new_error(
-                None,
-                "Error: No other options except bytecode files, `--libraries`, `--standard-json`, `--target` are allowed in linker mode.",
                 None,
                 None,
             ));

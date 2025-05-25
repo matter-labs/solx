@@ -3,7 +3,7 @@ name = "solx"
 authors.workspace = true
 edition.workspace = true
 version.workspace = true
-description = "eXtremely optimizing SOLidity compiler"
+description = "LLVM-based Solidity compiler for the EVM"
 license = "GPL-3.0"
 links = "compiler-rt-solx"
 

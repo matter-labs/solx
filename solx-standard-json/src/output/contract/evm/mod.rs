@@ -23,11 +23,11 @@ pub struct EVM {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub deployed_bytecode: Option<Bytecode>,
     /// The contract EVM legacy assembly code.
-    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
-    pub legacy_assembly: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub legacy_assembly: Option<serde_json::Value>,
     /// The contract function signatures.
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
-    pub method_identifiers: BTreeMap<String, String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub method_identifiers: Option<BTreeMap<String, String>>,
 
     /// The extra EVMLA metadata.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -42,14 +42,13 @@ impl EVM {
         self.bytecode
             .as_ref()
             .map(|bytecode| bytecode.is_empty())
-            .unwrap_or_default()
+            .unwrap_or(true)
             && self
                 .deployed_bytecode
                 .as_ref()
                 .map(|bytecode| bytecode.is_empty())
-                .unwrap_or_default()
-            && self.legacy_assembly.is_null()
-            && self.method_identifiers.is_empty()
-            && self.extra_metadata.is_none()
+                .unwrap_or(true)
+            && self.legacy_assembly.is_none()
+            && self.method_identifiers.is_none()
     }
 }

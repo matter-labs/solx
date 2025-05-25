@@ -3,7 +3,6 @@
 //!
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 ///
 /// Bytecode object.
@@ -20,6 +19,8 @@ pub struct Object {
     pub assembly: Option<String>,
     /// Bytecode.
     pub bytecode: Option<Vec<u8>>,
+    /// Hexadecimal bytecode.
+    pub bytecode_hex: Option<String>,
     /// Whether IR codegen is used.
     pub via_ir: bool,
     /// Code segment.
@@ -28,17 +29,18 @@ pub struct Object {
     pub metadata_bytes: Option<Vec<u8>>,
     /// Dependencies.
     pub dependencies: solx_yul::Dependencies,
-    /// The unlinked unlinked libraries.
-    pub unlinked_libraries: BTreeSet<String>,
+    /// The unlinked symbols, such as libraries.
+    pub unlinked_symbols: BTreeMap<String, Vec<u64>>,
     /// Whether the object is already assembled.
     pub is_assembled: bool,
-    /// Binary object format.
-    pub format: era_compiler_common::ObjectFormat,
     /// Compilation warnings.
     pub warnings: Vec<era_compiler_llvm_context::EVMWarning>,
 }
 
 impl Object {
+    /// Length of the library placeholder.
+    pub const LIBRARY_PLACEHOLDER_LENGTH: usize = 17;
+
     ///
     /// A shortcut constructor.
     ///
@@ -51,22 +53,22 @@ impl Object {
         code_segment: era_compiler_common::CodeSegment,
         metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
-        unlinked_libraries: BTreeSet<String>,
-        format: era_compiler_common::ObjectFormat,
+        unlinked_symbols: BTreeMap<String, Vec<u64>>,
         warnings: Vec<era_compiler_llvm_context::EVMWarning>,
     ) -> Self {
+        let bytecode_hex = bytecode.as_ref().map(hex::encode);
         Self {
             identifier,
             contract_name,
             assembly,
             bytecode,
+            bytecode_hex,
             via_ir,
             code_segment,
             metadata_bytes,
             dependencies,
-            unlinked_libraries,
+            unlinked_symbols,
             is_assembled: false,
-            format,
             warnings,
         }
     }
@@ -159,26 +161,65 @@ impl Object {
         &mut self,
         linker_symbols: &BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> anyhow::Result<()> {
-        let bytecode = self.bytecode.as_deref().expect("Bytecode is not set");
-
         let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
-            bytecode,
+            self.bytecode.as_deref().expect("Bytecode is not set"),
             self.identifier.as_str(),
             false,
         );
 
-        let (linked_object, object_format) =
-            era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
-        self.format = object_format;
+        let linked_object = era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
+        let linked_object_with_placeholders = era_compiler_llvm_context::evm_link(
+            linked_object,
+            &self
+                .unlinked_symbols
+                .keys()
+                .map(|symbol| {
+                    (
+                        symbol.to_owned(),
+                        [0u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS],
+                    )
+                })
+                .collect::<BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>>(),
+        )?;
 
-        self.bytecode = Some(linked_object.as_slice().to_owned());
+        let mut bytecode_hex = hex::encode(linked_object_with_placeholders.as_slice());
+        for (symbol, offsets) in self.unlinked_symbols.iter() {
+            let hash = era_compiler_common::Keccak256Hash::from_slice(symbol.as_bytes()).to_vec();
+            let placeholder = format!(
+                "__${}$__",
+                hex::encode(&hash[0..Self::LIBRARY_PLACEHOLDER_LENGTH])
+            );
+            for offset in offsets.iter() {
+                let offset = *offset as usize;
+                unsafe {
+                    bytecode_hex.as_bytes_mut()
+                        [(offset * 2)..(offset + era_compiler_common::BYTE_LENGTH_ETH_ADDRESS) * 2]
+                        .copy_from_slice(placeholder.as_bytes());
+                }
+            }
+        }
+        self.bytecode = Some(linked_object_with_placeholders.as_slice().to_owned());
+        self.bytecode_hex = Some(bytecode_hex);
+
         Ok(())
     }
 
     ///
-    /// Whether the object requires assebmling with its dependencies.
+    /// Returns warnings in standard JSON format.
     ///
-    pub fn requires_assembling(&self) -> bool {
-        !self.is_assembled
+    pub fn warnings_standard_json(&self, path: &str) -> Vec<solx_standard_json::OutputError> {
+        self.warnings
+            .iter()
+            .map(|warning| {
+                solx_standard_json::OutputError::new_warning(
+                    warning.code(),
+                    warning.to_string(),
+                    Some(solx_standard_json::OutputErrorSourceLocation::new(
+                        path.to_owned(),
+                    )),
+                    None,
+                )
+            })
+            .collect::<Vec<solx_standard_json::OutputError>>()
     }
 }

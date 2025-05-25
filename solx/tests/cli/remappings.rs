@@ -47,7 +47,7 @@ fn standard_json() -> anyhow::Result<()> {
     let args = &[
         "./path/to/1.sol=./path/to/2.sol",
         "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SOLC_PATH,
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
     ];
 
     let result = crate::cli::execute_solx(args)?;

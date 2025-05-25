@@ -142,6 +142,7 @@ impl Contract {
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    runtime_code_libraries,
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
@@ -152,8 +153,7 @@ impl Contract {
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependecies,
-                    runtime_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    runtime_build.unlinked_symbols.unwrap_or_default(),
                     runtime_build.warnings,
                 );
 
@@ -185,6 +185,7 @@ impl Contract {
                     output_selection
                         .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
                     output_bytecode,
+                    deploy_code_libraries,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -195,8 +196,7 @@ impl Contract {
                     deploy_code_segment,
                     None,
                     deploy_code_dependecies,
-                    deploy_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    deploy_build.unlinked_symbols.unwrap_or_default(),
                     deploy_build.warnings,
                 );
 
@@ -220,9 +220,9 @@ impl Contract {
                 let mut runtime_code_libraries = runtime_code_assembly.get_unlinked_libraries();
                 runtime_code_libraries.retain(|library| !deployed_libraries.contains(library));
 
-                let mut deploy_code_dependecies =
+                let mut deploy_code_dependencies =
                     solx_yul::Dependencies::new(deploy_code_identifier.as_str());
-                deploy_code.accumulate_evm_dependencies(&mut deploy_code_dependecies);
+                deploy_code.accumulate_evm_dependencies(&mut deploy_code_dependencies);
                 let mut runtime_code_dependecies =
                     solx_yul::Dependencies::new(runtime_code_identifier.as_str());
                 runtime_code_assembly.accumulate_evm_dependencies(&mut runtime_code_dependecies);
@@ -252,6 +252,7 @@ impl Contract {
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    runtime_code_libraries,
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
@@ -262,8 +263,7 @@ impl Contract {
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependecies,
-                    runtime_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    runtime_build.unlinked_symbols.unwrap_or_default(),
                     runtime_build.warnings,
                 );
 
@@ -293,6 +293,7 @@ impl Contract {
                     output_selection
                         .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
                     output_bytecode,
+                    deploy_code_libraries,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -302,9 +303,8 @@ impl Contract {
                     false,
                     deploy_code_segment,
                     None,
-                    deploy_code_dependecies,
-                    deploy_code_libraries,
-                    era_compiler_common::ObjectFormat::ELF,
+                    deploy_code_dependencies,
+                    deploy_build.unlinked_symbols.unwrap_or_default(),
                     deploy_build.warnings,
                 );
 
@@ -366,6 +366,7 @@ impl Contract {
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    BTreeSet::new(),
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
@@ -376,8 +377,7 @@ impl Contract {
                     runtime_code_segment,
                     metadata_bytes,
                     runtime_code_dependencies,
-                    BTreeSet::new(),
-                    era_compiler_common::ObjectFormat::ELF,
+                    runtime_build.unlinked_symbols.unwrap_or_default(),
                     runtime_build.warnings,
                 );
 
@@ -397,6 +397,7 @@ impl Contract {
                     output_selection
                         .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
                     output_bytecode,
+                    BTreeSet::new(),
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -407,8 +408,7 @@ impl Contract {
                     deploy_code_segment,
                     None,
                     deploy_code_dependencies,
-                    BTreeSet::new(),
-                    era_compiler_common::ObjectFormat::ELF,
+                    deploy_build.unlinked_symbols.unwrap_or_default(),
                     deploy_build.warnings,
                 );
 
@@ -420,19 +420,5 @@ impl Contract {
                 ))
             }
         }
-    }
-
-    ///
-    /// Get the list of unlinked deployable libraries.
-    ///
-    pub fn get_unlinked_libraries(
-        &self,
-        deployed_libraries: &BTreeSet<String>,
-    ) -> BTreeSet<String> {
-        self.ir
-            .get_unlinked_libraries()
-            .into_iter()
-            .filter(|library| !deployed_libraries.contains(library))
-            .collect::<BTreeSet<String>>()
     }
 }

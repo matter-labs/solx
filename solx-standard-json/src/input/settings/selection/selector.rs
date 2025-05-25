@@ -108,9 +108,11 @@ impl Selector {
         !matches!(
             self,
             Self::BytecodeObject
-                | Self::RuntimeBytecodeObject
                 | Self::BytecodeLLVMAssembly
+                | Self::BytecodeLinkReferences
+                | Self::RuntimeBytecodeObject
                 | Self::RuntimeBytecodeLLVMAssembly
+                | Self::RuntimeBytecodeLinkReferences
                 | Self::Other
         )
     }

@@ -2,9 +2,7 @@
   "language": "Yul",
   "sources": {
     "Test": {
-      "urls": [
-        "tests/data/contracts/yul/InvalidSolc.yul"
-      ]
+      "content": "object \"Return\" { code { { return(0, 0) } } object \"Return_deployed\" { code { { return(0, 0) } } } }"
     }
   },
   "settings": {
@@ -23,7 +21,9 @@
           "abi",
           "evm.methodIdentifiers",
           "evm.bytecode.object",
-          "evm.deployedBytecode.object"
+          "evm.bytecode.llvmAssembly",
+          "evm.deployedBytecode.object",
+          "evm.deployedBytecode.llvmAssembly"
         ]
       }
     },

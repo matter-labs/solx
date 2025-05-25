@@ -79,16 +79,9 @@ impl Output {
                 if !output_selection.check_selection(
                     path.as_str(),
                     Some(name.as_str()),
-                    InputSettingsSelector::Metadata,
-                ) {
-                    contract.metadata = None;
-                }
-                if !output_selection.check_selection(
-                    path.as_str(),
-                    Some(name.as_str()),
                     InputSettingsSelector::Yul,
                 ) {
-                    contract.ir_optimized = String::new();
+                    contract.ir_optimized = None;
                 }
                 if let Some(ref mut evm) = contract.evm {
                     if !output_selection.check_selection(
@@ -96,13 +89,13 @@ impl Output {
                         Some(name.as_str()),
                         InputSettingsSelector::EVMLA,
                     ) {
-                        evm.legacy_assembly = serde_json::Value::Null;
+                        evm.legacy_assembly = None;
                     }
                     if evm
                         .bytecode
                         .as_ref()
                         .map(|bytecode| bytecode.is_empty())
-                        .unwrap_or_default()
+                        .unwrap_or(true)
                     {
                         evm.bytecode = None;
                     }
@@ -110,10 +103,18 @@ impl Output {
                         .deployed_bytecode
                         .as_ref()
                         .map(|bytecode| bytecode.is_empty())
-                        .unwrap_or_default()
+                        .unwrap_or(true)
                     {
                         evm.deployed_bytecode = None;
                     }
+                }
+                if contract
+                    .evm
+                    .as_ref()
+                    .map(|evm| evm.is_empty())
+                    .unwrap_or(true)
+                {
+                    contract.evm = None;
                 }
             }
         }

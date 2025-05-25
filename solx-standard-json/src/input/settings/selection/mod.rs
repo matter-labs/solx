@@ -90,6 +90,11 @@ impl Selection {
         for file in self.inner.values() {
             for contract in file.values() {
                 match selector {
+                    Selector::MethodIdentifiers | Selector::EVMLA
+                        if contract.contains(&Selector::EVM) =>
+                    {
+                        return true
+                    }
                     Selector::BytecodeObject
                     | Selector::BytecodeLLVMAssembly
                     | Selector::BytecodeOpcodes

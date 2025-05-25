@@ -63,7 +63,6 @@ impl Build {
                     .iter()
                     .filter(|object| {
                         !object.is_assembled
-                            && object.format == era_compiler_common::ObjectFormat::ELF
                             && object.dependencies.inner.iter().all(|dependency| {
                                 all_objects
                                     .iter()
@@ -199,36 +198,12 @@ impl Build {
                     errors.extend(
                         contract
                             .deploy_object
-                            .warnings
-                            .iter()
-                            .map(|error| {
-                                solx_standard_json::OutputError::new_warning(
-                                    error.code(),
-                                    error.to_string(),
-                                    Some(solx_standard_json::OutputErrorSourceLocation::new(
-                                        contract.name.full_path.clone(),
-                                    )),
-                                    None,
-                                )
-                            })
-                            .collect::<Vec<solx_standard_json::OutputError>>(),
+                            .warnings_standard_json(contract.name.full_path.as_str()),
                     );
                     errors.extend(
                         contract
                             .runtime_object
-                            .warnings
-                            .iter()
-                            .map(|error| {
-                                solx_standard_json::OutputError::new_warning(
-                                    error.code(),
-                                    error.to_string(),
-                                    Some(solx_standard_json::OutputErrorSourceLocation::new(
-                                        contract.name.full_path.clone(),
-                                    )),
-                                    None,
-                                )
-                            })
-                            .collect::<Vec<solx_standard_json::OutputError>>(),
+                            .warnings_standard_json(contract.name.full_path.as_str()),
                     );
                     contract
                 }
@@ -246,7 +221,7 @@ impl Build {
                     contracts.get_mut(name.name.as_deref().unwrap_or(name.path.as_str()))
                 }) {
                 Some(contract) => {
-                    build.write_to_standard_json(contract, output_selection)?;
+                    build.write_to_standard_json(contract, output_selection);
                 }
                 None => {
                     let contracts = standard_json
@@ -254,7 +229,7 @@ impl Build {
                         .entry(name.path.clone())
                         .or_default();
                     let mut contract = solx_standard_json::OutputContract::default();
-                    build.write_to_standard_json(&mut contract, output_selection)?;
+                    build.write_to_standard_json(&mut contract, output_selection);
                     contracts.insert(name.name.unwrap_or(name.path), contract);
                 }
             }
@@ -291,36 +266,12 @@ impl solx_standard_json::CollectableError for Build {
             warnings.extend(
                 contract
                     .deploy_object
-                    .warnings
-                    .iter()
-                    .map(|error| {
-                        solx_standard_json::OutputError::new_warning(
-                            error.code(),
-                            error.to_string(),
-                            Some(solx_standard_json::OutputErrorSourceLocation::new(
-                                contract.name.full_path.clone(),
-                            )),
-                            None,
-                        )
-                    })
-                    .collect::<Vec<solx_standard_json::OutputError>>(),
+                    .warnings_standard_json(contract.name.full_path.as_str()),
             );
             warnings.extend(
                 contract
                     .runtime_object
-                    .warnings
-                    .iter()
-                    .map(|error| {
-                        solx_standard_json::OutputError::new_warning(
-                            error.code(),
-                            error.to_string(),
-                            Some(solx_standard_json::OutputErrorSourceLocation::new(
-                                contract.name.full_path.clone(),
-                            )),
-                            None,
-                        )
-                    })
-                    .collect::<Vec<solx_standard_json::OutputError>>(),
+                    .warnings_standard_json(contract.name.full_path.as_str()),
             );
         }
         self.messages

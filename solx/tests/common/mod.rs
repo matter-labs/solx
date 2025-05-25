@@ -74,8 +74,28 @@ pub fn build_solidity_standard_json(
 
     let mut selectors = BTreeSet::new();
     selectors.insert(solx_standard_json::InputSelector::BytecodeObject);
+    selectors.insert(solx_standard_json::InputSelector::BytecodeLinkReferences);
+    selectors.insert(solx_standard_json::InputSelector::BytecodeOpcodes);
+    selectors.insert(solx_standard_json::InputSelector::BytecodeLLVMAssembly);
+    selectors.insert(solx_standard_json::InputSelector::BytecodeSourceMap);
+    selectors.insert(solx_standard_json::InputSelector::BytecodeGeneratedSources);
+    selectors.insert(solx_standard_json::InputSelector::BytecodeFunctionDebugData);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeObject);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeLinkReferences);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeImmutableReferences);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeOpcodes);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeSourceMap);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeGeneratedSources);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeFunctionDebugData);
+    selectors.insert(solx_standard_json::InputSelector::AST);
+    selectors.insert(solx_standard_json::InputSelector::ABI);
     selectors.insert(solx_standard_json::InputSelector::Metadata);
+    selectors.insert(solx_standard_json::InputSelector::Devdoc);
+    selectors.insert(solx_standard_json::InputSelector::Userdoc);
+    selectors.insert(solx_standard_json::InputSelector::StorageLayout);
+    selectors.insert(solx_standard_json::InputSelector::TransientStorageLayout);
+    selectors.insert(solx_standard_json::InputSelector::MethodIdentifiers);
     selectors.insert(if via_ir {
         solx_standard_json::InputSelector::Yul
     } else {

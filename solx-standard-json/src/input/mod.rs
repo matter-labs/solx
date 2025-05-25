@@ -209,7 +209,7 @@ impl Input {
             })
             .collect();
 
-        Self::from_yul_sources(
+        Self::from_llvm_ir_sources(
             sources,
             libraries,
             optimizer,

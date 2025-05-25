@@ -7,7 +7,7 @@ use std::path::PathBuf;
 #[test]
 fn standard_json_yul_solc() {
     let solc_input = solx_standard_json::Input::try_from(Some(
-        PathBuf::from("tests/data/standard_json_input/yul_solc.json").as_path(),
+        PathBuf::from("tests/data/standard_json_input/yul.json").as_path(),
     ))
     .expect("Standard JSON reading error");
     let solc_output = crate::common::build_yul_standard_json(solc_input).expect("Test failure");
@@ -33,7 +33,7 @@ fn standard_json_yul_solc() {
 #[test]
 fn standard_json_yul_solc_validated() {
     let solc_input = solx_standard_json::Input::try_from(Some(
-        PathBuf::from("tests/data/standard_json_input/yul_solc.json").as_path(),
+        PathBuf::from("tests/data/standard_json_input/yul.json").as_path(),
     ))
     .expect("Standard JSON reading error");
 
@@ -60,7 +60,7 @@ fn standard_json_yul_solc_validated() {
 #[test]
 fn standard_json_yul_solc_urls() {
     let solc_input = solx_standard_json::Input::try_from(Some(
-        PathBuf::from("tests/data/standard_json_input/yul_solc_urls.json").as_path(),
+        PathBuf::from("tests/data/standard_json_input/yul_urls.json").as_path(),
     ))
     .expect("Standard JSON reading error");
     let solc_output = crate::common::build_yul_standard_json(solc_input).expect("Test failure");
@@ -86,7 +86,7 @@ fn standard_json_yul_solc_urls() {
 #[test]
 fn standard_json_yul_solc_urls_validated() {
     let solc_input = solx_standard_json::Input::try_from(Some(
-        PathBuf::from("tests/data/standard_json_input/yul_solc_urls.json").as_path(),
+        PathBuf::from("tests/data/standard_json_input/yul_urls.json").as_path(),
     ))
     .expect("Standard JSON reading error");
 

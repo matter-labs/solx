@@ -30,7 +30,7 @@ fn evmla() {
             .as_ref()
             .expect("EVM object is missing")
             .legacy_assembly
-            .is_null(),
+            .is_none(),
         "EVM assembly is missing",
     );
     assert!(
@@ -41,7 +41,7 @@ fn evmla() {
             .get("Test")
             .expect("Always exists")
             .ir_optimized
-            .is_empty(),
+            .is_none(),
         "Yul is present although not requested",
     );
 }
@@ -68,7 +68,7 @@ fn yul() {
             .get("Test")
             .expect("Always exists")
             .ir_optimized
-            .is_empty(),
+            .is_none(),
         "Yul is missing"
     );
     assert!(
@@ -82,7 +82,7 @@ fn yul() {
             .as_ref()
             .expect("EVM object is missing")
             .legacy_assembly
-            .is_null(),
+            .is_none(),
         "EVM assembly is present although not requested"
     );
 }
