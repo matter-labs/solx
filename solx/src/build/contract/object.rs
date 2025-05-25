@@ -186,6 +186,7 @@ impl Object {
 
         let mut bytecode_hex = hex::encode(linked_object_with_placeholders.as_slice());
         if let Some(unlinked_symbols) = self.unlinked_symbols.as_ref() {
+            dbg!(&unlinked_symbols);
             for (symbol, offsets) in unlinked_symbols.iter() {
                 let hash =
                     era_compiler_common::Keccak256Hash::from_slice(symbol.as_bytes()).to_vec();
