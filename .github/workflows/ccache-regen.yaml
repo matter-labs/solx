@@ -32,9 +32,9 @@ jobs:
       matrix:
         include:
           - name: "MacOS x86"
-            runner: macos-13-large
+            runner: macos-latest-large
           - name: "MacOS arm64"
-            runner: [self-hosted, macOS, ARM64]
+            runner: macos-latest-xlarge
           - name: "Linux x86 gnu"
             runner: matterlabs-ci-runner-high-performance
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
