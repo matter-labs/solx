@@ -17,7 +17,7 @@ jobs:
 
   # Check for cargo issues
   cargo-checks:
-    runs-on: [ci-runner-compiler, Linux]
+    runs-on: matterlabs-ci-runner-high-performance
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     steps:
@@ -59,7 +59,7 @@ jobs:
           - name: "MacOS arm64"
             runner: [self-hosted, macOS, ARM64]
           - name: "Linux x86 gnu"
-            runner: [ci-runner-compiler, Linux]
+            runner: matterlabs-ci-runner-high-performance
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "x86_64-unknown-linux-gnu"
             enable-coverage: 'true' # enable coverage on Linux GNU
