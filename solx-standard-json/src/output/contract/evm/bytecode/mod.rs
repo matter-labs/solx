@@ -38,7 +38,7 @@ pub struct Bytecode {
     pub function_debug_data: Option<BTreeMap<String, serde_json::Value>>,
     /// Immutable generated_sources placeholder.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub immutable_references: Option<BTreeMap<String, Vec<String>>>,
+    pub immutable_references: Option<serde_json::Value>,
 }
 
 impl Bytecode {
@@ -54,7 +54,7 @@ impl Bytecode {
         source_map: Option<String>,
         generated_sources: Option<Vec<serde_json::Value>>,
         function_debug_data: Option<BTreeMap<String, serde_json::Value>>,
-        immutable_references: Option<BTreeMap<String, Vec<String>>>,
+        immutable_references: Option<serde_json::Value>,
     ) -> Self {
         let link_references = unlinked_symbols.map(|unlinked_symbols| {
             let mut link_references = BTreeMap::new();

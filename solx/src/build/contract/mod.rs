@@ -383,24 +383,10 @@ impl Contract {
                 self.name.name.as_deref(),
                 solx_standard_json::InputSelector::RuntimeBytecodeImmutableReferences,
             ) {
-                Some(BTreeMap::new())
+                Some(serde_json::json!({}))
             } else {
                 None
             },
         ));
-        if let (Some(deploy_bytecode_object), Some(runtime_bytecode_object)) = (
-            evm.bytecode
-                .as_mut()
-                .and_then(|bytecode| bytecode.object.as_mut()),
-            evm.deployed_bytecode
-                .as_ref()
-                .and_then(|bytecode| bytecode.object.as_ref()),
-        ) {
-            if deploy_bytecode_object.len() > runtime_bytecode_object.len() {
-                deploy_bytecode_object
-                    .truncate(deploy_bytecode_object.len() - runtime_bytecode_object.len());
-                deploy_bytecode_object.push_str(runtime_bytecode_object.as_str());
-            }
-        }
     }
 }

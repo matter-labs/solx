@@ -22,7 +22,7 @@ on:
 
 jobs:
   run-with-sanitizers:
-    runs-on: [ci-runner-compiler, Linux]
+    runs-on: matterlabs-ci-runner-high-performance
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
       options: -m 110g

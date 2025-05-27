@@ -9,15 +9,8 @@
   },
   "settings": {
     "optimizer": {
-      "runs": 200,
-      "details": {
-        "peephole": true,
-        "jumpdestRemover": true,
-        "orderLiterals": true,
-        "deduplicate": true,
-        "cse": true,
-        "constantOptimizer": true
-      }
+      "mode": "3",
+      "sizeFallback": true
     },
     "outputSelection": {
       "*": {

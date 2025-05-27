@@ -275,9 +275,16 @@ pub fn standard_json_evm(
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
-        solc_input.settings.optimizer.mode,
+        solc_input.settings.optimizer.mode.unwrap_or_else(|| {
+            solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
+        }),
     )?;
-    if solc_input.settings.optimizer.size_fallback {
+    if solc_input
+        .settings
+        .optimizer
+        .size_fallback
+        .unwrap_or_default()
+    {
         optimizer_settings.enable_fallback_to_size();
     }
     let llvm_options = solc_input.settings.llvm_options.clone();

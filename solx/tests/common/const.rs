@@ -110,6 +110,10 @@ pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_EVM_DEPLOYED_BYTECODE_LINK_REFERENC
     "tests/data/standard_json_input/select_evm_deployed_bytecode_link_references.json";
 
 /// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_SINGLE_PATH: &str =
+    "tests/data/standard_json_input/select_single.json";
+
+/// A test input file.
 pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_NONE_PATH: &str =
     "tests/data/standard_json_input/select_none.json";
 

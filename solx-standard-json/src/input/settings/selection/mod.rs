@@ -132,6 +132,20 @@ impl Selection {
     }
 
     ///
+    /// Normalizes the selection by converting multi-item selectors into single-item selectors.
+    ///
+    pub fn normalize(&mut self) {
+        for file in self.inner.values_mut() {
+            for contract in file.values_mut() {
+                *contract = contract
+                    .iter()
+                    .flat_map(|selector| selector.into_single_selectors())
+                    .collect::<BTreeSet<_>>();
+            }
+        }
+    }
+
+    ///
     /// Retains only the selectors that request data from `solc`.
     ///
     pub fn retain_solc(&mut self) {

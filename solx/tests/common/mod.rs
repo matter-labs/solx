@@ -175,8 +175,11 @@ pub fn build_yul_standard_json(
 
     era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
 
-    let optimizer_settings =
-        era_compiler_llvm_context::OptimizerSettings::try_from_cli(input.settings.optimizer.mode)?;
+    let optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
+        input.settings.optimizer.mode.unwrap_or_else(|| {
+            solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
+        }),
+    )?;
 
     let mut solc_output = {
         let _lock = UNIT_TEST_LOCK.lock();
@@ -235,8 +238,11 @@ pub fn build_llvm_ir_standard_json(
 
     era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
 
-    let optimizer_settings =
-        era_compiler_llvm_context::OptimizerSettings::try_from_cli(input.settings.optimizer.mode)?;
+    let optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
+        input.settings.optimizer.mode.unwrap_or_else(|| {
+            solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
+        }),
+    )?;
 
     let mut output = solx_standard_json::Output::new(&BTreeMap::new(), &mut vec![]);
 

@@ -391,6 +391,24 @@ fn select_evm_deployed_bytecode_link_references() -> anyhow::Result<()> {
 }
 
 #[test]
+fn select_single() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_SINGLE_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("\"bytecode\"").count(1))
+        .stdout(predicate::str::contains("\"deployedBytecode\"").count(1));
+
+    Ok(())
+}
+
+#[test]
 fn select_none() -> anyhow::Result<()> {
     crate::common::setup()?;
 

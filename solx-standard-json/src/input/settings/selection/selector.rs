@@ -107,13 +107,100 @@ impl Selector {
     pub fn is_received_from_solc(&self) -> bool {
         !matches!(
             self,
-            Self::BytecodeObject
+            Self::EVM
+                | Self::Bytecode
+                | Self::BytecodeObject
                 | Self::BytecodeLLVMAssembly
                 | Self::BytecodeLinkReferences
+                | Self::BytecodeSourceMap
+                | Self::BytecodeGeneratedSources
+                | Self::BytecodeFunctionDebugData
+                | Self::RuntimeBytecode
                 | Self::RuntimeBytecodeObject
                 | Self::RuntimeBytecodeLLVMAssembly
+                | Self::RuntimeBytecodeSourceMap
+                | Self::RuntimeBytecodeGeneratedSources
+                | Self::RuntimeBytecodeFunctionDebugData
                 | Self::RuntimeBytecodeLinkReferences
+                | Self::RuntimeBytecodeImmutableReferences
         )
+    }
+
+    ///
+    /// Converts a multi-item selector into a group of single-item selectors.
+    ///
+    pub fn into_single_selectors(self) -> Vec<Self> {
+        match self {
+            Self::EVM => vec![
+                Self::Bytecode,
+                Self::BytecodeObject,
+                Self::BytecodeLLVMAssembly,
+                Self::BytecodeOpcodes,
+                Self::BytecodeLinkReferences,
+                Self::BytecodeSourceMap,
+                Self::BytecodeFunctionDebugData,
+                Self::BytecodeGeneratedSources,
+                Self::RuntimeBytecode,
+                Self::RuntimeBytecodeObject,
+                Self::RuntimeBytecodeLLVMAssembly,
+                Self::RuntimeBytecodeOpcodes,
+                Self::RuntimeBytecodeLinkReferences,
+                Self::RuntimeBytecodeImmutableReferences,
+                Self::RuntimeBytecodeSourceMap,
+                Self::RuntimeBytecodeFunctionDebugData,
+                Self::RuntimeBytecodeGeneratedSources,
+            ],
+            Self::Bytecode => vec![
+                Self::BytecodeObject,
+                Self::BytecodeLLVMAssembly,
+                Self::BytecodeOpcodes,
+                Self::BytecodeLinkReferences,
+                Self::BytecodeSourceMap,
+                Self::BytecodeFunctionDebugData,
+                Self::BytecodeGeneratedSources,
+            ],
+            Self::RuntimeBytecode => vec![
+                Self::RuntimeBytecodeObject,
+                Self::RuntimeBytecodeLLVMAssembly,
+                Self::RuntimeBytecodeOpcodes,
+                Self::RuntimeBytecodeLinkReferences,
+                Self::RuntimeBytecodeImmutableReferences,
+                Self::RuntimeBytecodeSourceMap,
+                Self::RuntimeBytecodeFunctionDebugData,
+                Self::RuntimeBytecodeGeneratedSources,
+            ],
+            Self::Any => vec![
+                Self::AST,
+                Self::ABI,
+                Self::Metadata,
+                Self::Devdoc,
+                Self::Userdoc,
+                Self::StorageLayout,
+                Self::TransientStorageLayout,
+                Self::MethodIdentifiers,
+                Self::EVMLA,
+                Self::Yul,
+                Self::EVM,
+                Self::Bytecode,
+                Self::BytecodeObject,
+                Self::BytecodeLLVMAssembly,
+                Self::BytecodeOpcodes,
+                Self::BytecodeLinkReferences,
+                Self::BytecodeSourceMap,
+                Self::BytecodeFunctionDebugData,
+                Self::BytecodeGeneratedSources,
+                Self::RuntimeBytecode,
+                Self::RuntimeBytecodeObject,
+                Self::RuntimeBytecodeLLVMAssembly,
+                Self::RuntimeBytecodeOpcodes,
+                Self::RuntimeBytecodeLinkReferences,
+                Self::RuntimeBytecodeImmutableReferences,
+                Self::RuntimeBytecodeSourceMap,
+                Self::RuntimeBytecodeFunctionDebugData,
+                Self::RuntimeBytecodeGeneratedSources,
+            ],
+            selector => vec![selector],
+        }
     }
 }
 
