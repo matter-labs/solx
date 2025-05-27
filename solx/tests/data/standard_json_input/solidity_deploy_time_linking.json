@@ -17,6 +17,8 @@
         ],
         "*": [
           "abi",
+          "irOptimized",
+          "evm.legacyAssembly",
           "evm.methodIdentifiers",
           "evm.bytecode.object",
           "evm.bytecode.linkReferences",

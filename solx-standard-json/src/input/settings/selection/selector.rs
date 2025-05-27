@@ -95,9 +95,9 @@ pub enum Selector {
     #[serde(rename = "evm.deployedBytecode.generatedSources")]
     RuntimeBytecodeGeneratedSources,
 
-    /// The catch-all variant.
-    #[serde(other)]
-    Other,
+    /// The wildcard variant that selects everything.
+    #[serde(rename = "*")]
+    Any,
 }
 
 impl Selector {
@@ -113,7 +113,6 @@ impl Selector {
                 | Self::RuntimeBytecodeObject
                 | Self::RuntimeBytecodeLLVMAssembly
                 | Self::RuntimeBytecodeLinkReferences
-                | Self::Other
         )
     }
 }

@@ -43,10 +43,6 @@ impl<'a> Metadata<'a> {
     /// Inserts the metadata into the original `solc` object.
     ///
     pub fn insert_into(self, metadata_string: &str) -> String {
-        if metadata_string.is_empty() {
-            return metadata_string.to_owned();
-        }
-
         let mut object: serde_json::Value =
             serde_json::from_str(metadata_string).expect("Always valid");
         object.as_object_mut().expect("Always valid").insert(

@@ -17,8 +17,10 @@ fn default() -> anyhow::Result<()> {
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--bin",
+        "--asm",
+        "--metadata",
         "--output-dir",
-        tmp_dir_solx.path().to_str().unwrap(),
+        tmp_dir_solx.path().to_str().expect("Always valid"),
     ];
 
     let result = crate::cli::execute_solx(args)?;
@@ -48,8 +50,10 @@ fn yul(extension: &str) -> anyhow::Result<()> {
         input_path.to_str().expect("Always valid"),
         "--yul",
         "--bin",
+        "--asm",
+        "--metadata",
         "--output-dir",
-        tmp_dir_solx.path().to_str().unwrap(),
+        tmp_dir_solx.path().to_str().expect("Always valid"),
     ];
 
     let result = crate::cli::execute_solx(args)?;
@@ -75,8 +79,10 @@ fn unusual_path_characters() -> anyhow::Result<()> {
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--bin",
+        "--asm",
+        "--metadata",
         "--output-dir",
-        tmp_dir_solx.path().to_str().unwrap(),
+        tmp_dir_solx.path().to_str().expect("Always valid"),
     ];
 
     let result = crate::cli::execute_solx(args)?;

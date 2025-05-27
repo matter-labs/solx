@@ -118,6 +118,10 @@ pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_ALL_PATH: &str =
     "tests/data/standard_json_input/select_all.json";
 
 /// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_SELECT_ALL_WILDCARD_PATH: &str =
+    "tests/data/standard_json_input/select_all_wildcard.json";
+
+/// A test input file.
 pub const TEST_YUL_STANDARD_JSON_PATH: &str = "tests/data/standard_json_input/yul.json";
 
 /// A test input file.

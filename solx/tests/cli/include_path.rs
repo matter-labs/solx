@@ -68,3 +68,22 @@ fn llvm_ir() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn base_path_missing() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--include-path",
+        crate::common::TEST_CONTRACTS_PATH,
+        "--bin",
+        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.failure().stderr(predicate::str::contains(
+        "--include-path option requires a non-empty base path",
+    ));
+
+    Ok(())
+}

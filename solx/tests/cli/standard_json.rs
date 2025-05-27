@@ -3,6 +3,7 @@
 //!
 
 use predicates::prelude::*;
+use test_case::test_case;
 
 #[test]
 fn default() -> anyhow::Result<()> {
@@ -408,14 +409,12 @@ fn select_none() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[test]
-fn select_all() -> anyhow::Result<()> {
+#[test_case(crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_ALL_PATH)]
+#[test_case(crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_ALL_WILDCARD_PATH)]
+fn select_all(path: &str) -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &[
-        "--standard-json",
-        crate::common::TEST_SOLIDITY_STANDARD_JSON_SELECT_ALL_PATH,
-    ];
+    let args = &["--standard-json", path];
 
     let result = crate::cli::execute_solx(args)?;
     result

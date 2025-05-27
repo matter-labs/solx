@@ -29,5 +29,6 @@ pub use self::output::contract::Contract as OutputContract;
 pub use self::output::error::collectable::Collectable as CollectableError;
 pub use self::output::error::source_location::SourceLocation as OutputErrorSourceLocation;
 pub use self::output::error::Error as OutputError;
+pub use self::output::source::Source as OutputSource;
 pub use self::output::Output;
 pub use self::version::Version;

@@ -145,10 +145,10 @@ impl Build {
         self.take_and_write_warnings();
         self.exit_on_error();
 
-        for (path, build) in self.results.into_iter() {
+        for build in self.results.into_values() {
             build
                 .expect("Always valid")
-                .write_to_terminal(path, output_selection)?;
+                .write_to_terminal(output_selection)?;
         }
 
         Ok(())

@@ -12,7 +12,6 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use rayon::iter::IntoParallelIterator;
-use rayon::iter::IntoParallelRefMutIterator;
 use rayon::iter::ParallelIterator;
 
 use crate::input::settings::metadata::Metadata as InputSettingsMetadata;
@@ -244,17 +243,5 @@ impl Input {
                 llvm_options,
             ),
         }
-    }
-
-    ///
-    /// Tries to resolve all sources.
-    ///
-    pub fn resolve_sources(&mut self) {
-        self.sources
-            .par_iter_mut()
-            .map(|(_path, source)| {
-                let _ = source.try_resolve();
-            })
-            .collect::<Vec<()>>();
     }
 }

@@ -3,16 +3,55 @@
 //!
 
 use predicates::prelude::*;
-use test_case::test_case;
 
-#[test_case(crate::common::TEST_LLVM_IR_CONTRACT_PATH)]
-fn default(path: &str) -> anyhow::Result<()> {
+#[test]
+fn bin() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &[path, "--llvm-ir", "--bin"];
+    let args = &[
+        crate::common::TEST_LLVM_IR_CONTRACT_PATH,
+        "--llvm-ir",
+        "--bin",
+    ];
 
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains("Binary"));
+
+    Ok(())
+}
+
+#[test]
+fn asm() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        crate::common::TEST_LLVM_IR_CONTRACT_PATH,
+        "--llvm-ir",
+        "--asm",
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("assembly"));
+
+    Ok(())
+}
+
+#[test]
+fn metadata() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        crate::common::TEST_LLVM_IR_CONTRACT_PATH,
+        "--llvm-ir",
+        "--metadata",
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("Metadata"));
 
     Ok(())
 }

@@ -21,7 +21,6 @@ pub struct Arguments {
 
     /// Specify the input paths and remappings.
     /// If an argument contains a '=', it is considered a remapping.
-    // #[arg(allow_hyphen_values = true)]
     pub inputs: Vec<String>,
 
     /// Set the given path as the root of the source tree instead of the root of the filesystem.

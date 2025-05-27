@@ -90,10 +90,7 @@ impl Contract {
                 }
             });
 
-        let output_bytecode = output_selection
-            .is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
-            || output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeObject);
+        let output_bytecode = output_selection.is_bytecode_set_for_any();
 
         let deploy_code_segment = era_compiler_common::CodeSegment::Deploy;
         let runtime_code_segment = era_compiler_common::CodeSegment::Runtime;
@@ -138,7 +135,9 @@ impl Contract {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
                 let runtime_build = runtime_context.build(
-                    output_selection.is_set_for_any(
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -182,8 +181,11 @@ impl Contract {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
                 let deploy_build = deploy_context.build(
-                    output_selection
-                        .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
+                        solx_standard_json::InputSelector::BytecodeLLVMAssembly,
+                    ),
                     output_bytecode,
                     deploy_code_libraries,
                 )?;
@@ -248,7 +250,9 @@ impl Contract {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
                 let runtime_build = runtime_context.build(
-                    output_selection.is_set_for_any(
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -290,8 +294,11 @@ impl Contract {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
                 let deploy_build = deploy_context.build(
-                    output_selection
-                        .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
+                        solx_standard_json::InputSelector::BytecodeLLVMAssembly,
+                    ),
                     output_bytecode,
                     deploy_code_libraries,
                 )?;
@@ -362,7 +369,9 @@ impl Contract {
                     debug_config.clone(),
                 );
                 let runtime_build = runtime_context.build(
-                    output_selection.is_set_for_any(
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -394,8 +403,11 @@ impl Contract {
                     debug_config,
                 );
                 let deploy_build = deploy_context.build(
-                    output_selection
-                        .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly),
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
+                        solx_standard_json::InputSelector::BytecodeLLVMAssembly,
+                    ),
                     output_bytecode,
                     BTreeSet::new(),
                 )?;

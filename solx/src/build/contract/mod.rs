@@ -49,14 +49,17 @@ impl Contract {
     ///
     pub fn write_to_terminal(
         mut self,
-        path: String,
         output_selection: &solx_standard_json::InputSelection,
     ) -> anyhow::Result<()> {
-        writeln!(std::io::stdout(), "\n======= {path} =======")?;
+        writeln!(
+            std::io::stdout(),
+            "\n======= {} =======",
+            self.name.full_path
+        )?;
 
         if output_selection.check_selection(
-            path.as_str(),
-            None,
+            self.name.path.as_str(),
+            self.name.name.as_deref(),
             solx_standard_json::InputSelector::BytecodeObject,
         ) {
             let mut deploy_bytecode_hex = self
@@ -80,16 +83,16 @@ impl Contract {
         }
 
         if output_selection.check_selection(
-            path.as_str(),
-            None,
+            self.name.path.as_str(),
+            self.name.name.as_deref(),
             solx_standard_json::InputSelector::BytecodeLLVMAssembly,
         ) {
             let deploy_assembly = self.deploy_object.assembly.take().expect("Always exists");
             writeln!(std::io::stdout(), "Deploy assembly:\n{deploy_assembly}")?;
         }
         if output_selection.check_selection(
-            path.as_str(),
-            None,
+            self.name.path.as_str(),
+            self.name.name.as_deref(),
             solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
         ) {
             let runtime_assembly = self.runtime_object.assembly.take().expect("Always exists");
@@ -97,8 +100,8 @@ impl Contract {
         }
 
         if output_selection.check_selection(
-            path.as_str(),
-            None,
+            self.name.path.as_str(),
+            self.name.name.as_deref(),
             solx_standard_json::InputSelector::Metadata,
         ) {
             writeln!(
@@ -133,7 +136,7 @@ impl Contract {
 
         if output_selection.check_selection(
             self.name.path.as_str(),
-            None,
+            self.name.name.as_deref(),
             solx_standard_json::InputSelector::BytecodeObject,
         ) {
             let output_name = format!(
@@ -173,7 +176,7 @@ impl Contract {
 
         if output_selection.check_selection(
             self.name.path.as_str(),
-            None,
+            self.name.name.as_deref(),
             solx_standard_json::InputSelector::BytecodeLLVMAssembly,
         ) {
             for (object, code_segment) in [&mut self.deploy_object, &mut self.runtime_object]
@@ -210,7 +213,7 @@ impl Contract {
 
         if output_selection.check_selection(
             self.name.path.as_str(),
-            None,
+            self.name.name.as_deref(),
             solx_standard_json::InputSelector::Metadata,
         ) {
             let output_name = format!(
@@ -243,7 +246,11 @@ impl Contract {
         output_selection: &solx_standard_json::InputSelection,
     ) {
         standard_json_contract.metadata = self.metadata.filter(|_| {
-            output_selection.is_set_for_any(solx_standard_json::InputSelector::Metadata)
+            output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::Metadata,
+            )
         });
 
         let evm = standard_json_contract
@@ -251,40 +258,60 @@ impl Contract {
             .get_or_insert_with(solx_standard_json::OutputContractEVM::default);
         evm.bytecode = Some(solx_standard_json::OutputContractEVMBytecode::new(
             self.deploy_object.bytecode_hex.filter(|_| {
-                output_selection.is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
+                output_selection.check_selection(
+                    self.name.path.as_str(),
+                    self.name.name.as_deref(),
+                    solx_standard_json::InputSelector::BytecodeObject,
+                )
             }),
             self.deploy_object.assembly.filter(|_| {
-                output_selection
-                    .is_set_for_any(solx_standard_json::InputSelector::BytecodeLLVMAssembly)
+                output_selection.check_selection(
+                    self.name.path.as_str(),
+                    self.name.name.as_deref(),
+                    solx_standard_json::InputSelector::BytecodeLLVMAssembly,
+                )
             }),
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::BytecodeLinkReferences)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::BytecodeLinkReferences,
+            ) {
                 Some(self.deploy_object.unlinked_symbols)
             } else {
                 None
             },
-            if output_selection.is_set_for_any(solx_standard_json::InputSelector::BytecodeOpcodes) {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::BytecodeOpcodes,
+            ) {
                 Some(String::new())
             } else {
                 None
             },
-            if output_selection.is_set_for_any(solx_standard_json::InputSelector::BytecodeSourceMap)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::BytecodeSourceMap,
+            ) {
                 Some(String::new())
             } else {
                 None
             },
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::BytecodeGeneratedSources)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::BytecodeGeneratedSources,
+            ) {
                 Some(Vec::new())
             } else {
                 None
             },
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::BytecodeFunctionDebugData)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::BytecodeFunctionDebugData,
+            ) {
                 Some(BTreeMap::new())
             } else {
                 None
@@ -293,49 +320,67 @@ impl Contract {
         ));
         evm.deployed_bytecode = Some(solx_standard_json::OutputContractEVMBytecode::new(
             self.runtime_object.bytecode_hex.filter(|_| {
-                output_selection
-                    .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeObject)
+                output_selection.check_selection(
+                    self.name.path.as_str(),
+                    self.name.name.as_deref(),
+                    solx_standard_json::InputSelector::RuntimeBytecodeObject,
+                )
             }),
             self.runtime_object.assembly.filter(|_| {
-                output_selection
-                    .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly)
+                output_selection.check_selection(
+                    self.name.path.as_str(),
+                    self.name.name.as_deref(),
+                    solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
+                )
             }),
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeLinkReferences)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::RuntimeBytecodeLinkReferences,
+            ) {
                 Some(self.runtime_object.unlinked_symbols)
             } else {
                 None
             },
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeOpcodes)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::RuntimeBytecodeOpcodes,
+            ) {
                 Some(String::new())
             } else {
                 None
             },
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeSourceMap)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::RuntimeBytecodeSourceMap,
+            ) {
                 Some(String::new())
             } else {
                 None
             },
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeGeneratedSources)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::RuntimeBytecodeGeneratedSources,
+            ) {
                 Some(Vec::new())
             } else {
                 None
             },
-            if output_selection
-                .is_set_for_any(solx_standard_json::InputSelector::RuntimeBytecodeFunctionDebugData)
-            {
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::RuntimeBytecodeFunctionDebugData,
+            ) {
                 Some(BTreeMap::new())
             } else {
                 None
             },
-            if output_selection.is_set_for_any(
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
                 solx_standard_json::InputSelector::RuntimeBytecodeImmutableReferences,
             ) {
                 Some(BTreeMap::new())

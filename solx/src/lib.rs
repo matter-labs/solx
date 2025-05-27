@@ -92,16 +92,14 @@ pub fn yul_to_evm(
         None
     };
 
-    Ok(
-        if output_selection.is_set_for_any(solx_standard_json::InputSelector::BytecodeObject) {
-            let mut build = build.link(linker_symbols, cbor_data);
-            build.take_and_write_warnings();
-            build.check_errors()?;
-            build
-        } else {
-            build
-        },
-    )
+    Ok(if output_selection.is_bytecode_set_for_any() {
+        let mut build = build.link(linker_symbols, cbor_data);
+        build.take_and_write_warnings();
+        build.check_errors()?;
+        build
+    } else {
+        build
+    })
 }
 
 ///
@@ -143,16 +141,14 @@ pub fn llvm_ir_to_evm(
         None
     };
 
-    Ok(
-        if output_selection.is_set_for_any(solx_standard_json::InputSelector::BytecodeObject) {
-            let mut build = build.link(linker_symbols, cbor_data);
-            build.take_and_write_warnings();
-            build.check_errors()?;
-            build
-        } else {
-            build
-        },
-    )
+    Ok(if output_selection.is_bytecode_set_for_any() {
+        let mut build = build.link(linker_symbols, cbor_data);
+        build.take_and_write_warnings();
+        build.check_errors()?;
+        build
+    } else {
+        build
+    })
 }
 
 ///
@@ -247,7 +243,7 @@ pub fn standard_output_evm(
         if solc_input
             .settings
             .output_selection
-            .is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
+            .is_bytecode_set_for_any()
         {
             let mut build = build.link(linker_symbols, cbor_data);
             build.take_and_write_warnings();
@@ -391,7 +387,7 @@ pub fn standard_json_evm(
     let build = if solc_input
         .settings
         .output_selection
-        .is_set_for_any(solx_standard_json::InputSelector::BytecodeObject)
+        .is_bytecode_set_for_any()
     {
         build.link(linker_symbols, cbor_data)
     } else {

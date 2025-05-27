@@ -5,13 +5,41 @@
 use predicates::prelude::*;
 
 #[test]
-fn default() -> anyhow::Result<()> {
+fn bin() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul", "--bin"];
 
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains("Binary"));
+
+    Ok(())
+}
+
+#[test]
+fn asm() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul", "--asm"];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("assembly"));
+
+    Ok(())
+}
+
+#[test]
+fn metadata() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul", "--metadata"];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("Metadata"));
 
     Ok(())
 }

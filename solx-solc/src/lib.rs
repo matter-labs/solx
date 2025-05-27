@@ -66,6 +66,9 @@ impl Compiler {
     ///
     /// The Solidity `--standard-json` mirror.
     ///
+    /// Metadata is always requested in order to calculate the metadata hash even if not requested in the `output_selection`.
+    /// EVM assembly or Yul is always selected in order to compile the Solidity code.
+    ///
     pub fn standard_json(
         &self,
         input_json: &mut solx_standard_json::Input,

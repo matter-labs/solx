@@ -151,7 +151,11 @@ pub fn build_solidity_standard_json(
         ),
     ];
 
-    let build = build.link(linker_symbols, Some(cbor_data));
+    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
+        build.link(linker_symbols, Some(cbor_data))
+    } else {
+        build
+    };
     build.write_to_standard_json(&mut output, &input.settings.output_selection)?;
     output.check_errors()?;
     Ok(output)
@@ -211,7 +215,11 @@ pub fn build_yul_standard_json(
         ),
     ];
 
-    let build = build.link(BTreeMap::new(), Some(cbor_data));
+    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
+        build.link(BTreeMap::new(), Some(cbor_data))
+    } else {
+        build
+    };
     build.write_to_standard_json(&mut solc_output, &input.settings.output_selection)?;
     solc_output.check_errors()?;
     Ok(solc_output)
@@ -253,7 +261,11 @@ pub fn build_llvm_ir_standard_json(
         solx::version().parse().expect("Always valid"),
     )];
 
-    let build = build.link(BTreeMap::new(), Some(cbor_data));
+    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
+        build.link(BTreeMap::new(), Some(cbor_data))
+    } else {
+        build
+    };
     build.write_to_standard_json(&mut output, &input.settings.output_selection)?;
     output.check_errors()?;
     Ok(output)
