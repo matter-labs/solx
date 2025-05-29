@@ -37,7 +37,6 @@ pub fn run() -> anyhow::Result<()> {
                 .compile_to_evm(
                     input.identifier_paths,
                     input.output_selection,
-                    input.deployed_libraries,
                     input.metadata_hash_type,
                     input.optimizer_settings,
                     input.llvm_options,

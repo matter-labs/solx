@@ -53,7 +53,6 @@ impl Object {
         code_segment: era_compiler_common::CodeSegment,
         metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
-        unlinked_symbols: BTreeMap<String, Vec<u64>>,
         warnings: Vec<era_compiler_llvm_context::EVMWarning>,
     ) -> Self {
         let bytecode_hex = bytecode.as_ref().map(hex::encode);
@@ -67,7 +66,7 @@ impl Object {
             code_segment,
             metadata_bytes,
             dependencies,
-            unlinked_symbols,
+            unlinked_symbols: BTreeMap::new(),
             is_assembled: false,
             warnings,
         }

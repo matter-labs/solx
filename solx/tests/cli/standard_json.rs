@@ -32,9 +32,9 @@ fn deploy_time_linking() -> anyhow::Result<()> {
     ];
 
     let result = crate::cli::execute_solx(args)?;
-    result.success().stdout(predicate::str::contains(
-        "__$32d65841735fc578113c8cbc3571729a2b$__",
-    ));
+    result
+        .success()
+        .stdout(predicate::str::contains("__$32d65841735fc578113c8cbc3571729a2b$__").count(2));
 
     Ok(())
 }

@@ -5,7 +5,6 @@
 //!
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 
 use crate::project::contract::Contract;
 
@@ -20,8 +19,6 @@ pub struct Input {
     pub identifier_paths: BTreeMap<String, String>,
     /// Output selection for the compilation.
     pub output_selection: solx_standard_json::InputSelection,
-    /// Already deployed libraries.
-    pub deployed_libraries: BTreeSet<String>,
     /// The metadata hash type.
     pub metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     /// The optimizer settings.
@@ -40,7 +37,6 @@ impl Input {
         contract: Contract,
         identifier_paths: BTreeMap<String, String>,
         output_selection: solx_standard_json::InputSelection,
-        deployed_libraries: BTreeSet<String>,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
@@ -50,7 +46,6 @@ impl Input {
             contract,
             identifier_paths,
             output_selection,
-            deployed_libraries,
             metadata_hash_type,
             optimizer_settings,
             llvm_options,

@@ -110,6 +110,17 @@ impl Build {
                     era_compiler_common::CodeSegment::Runtime => &mut contract.runtime_object,
                 };
                 object.bytecode = Some(assembled_object.as_slice().to_owned());
+                for undefined_reference in assembled_object
+                    .get_undefined_references_evm()
+                    .into_iter()
+                    .filter(|reference| !linker_symbols.contains_key(reference))
+                {
+                    let symbol_offsets =
+                        assembled_object.get_symbol_offsets_evm(undefined_reference.as_str());
+                    object
+                        .unlinked_symbols
+                        .insert(undefined_reference, symbol_offsets);
+                }
                 object.is_assembled = true;
             }
         }

@@ -330,7 +330,6 @@ impl Project {
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<EVMBuild> {
-        let deployed_libraries = self.libraries.as_paths();
         let results = self
             .contracts
             .into_par_iter()
@@ -339,7 +338,6 @@ impl Project {
                     contract,
                     self.identifier_paths.clone(),
                     output_selection.to_owned(),
-                    deployed_libraries.clone(),
                     metadata_hash_type,
                     optimizer_settings.clone(),
                     llvm_options.clone(),

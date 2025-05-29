@@ -62,24 +62,13 @@ impl Contract {
             self.name.name.as_deref(),
             solx_standard_json::InputSelector::BytecodeObject,
         ) {
-            let mut deploy_bytecode_hex = self
+            let bytecode_hex = self
                 .deploy_object
                 .bytecode_hex
                 .take()
                 .expect("Always exists");
 
-            let runtime_bytecode_hex = self
-                .runtime_object
-                .bytecode_hex
-                .take()
-                .expect("Always exists");
-            if deploy_bytecode_hex.len() > runtime_bytecode_hex.len() {
-                deploy_bytecode_hex
-                    .truncate(deploy_bytecode_hex.len() - runtime_bytecode_hex.len());
-                deploy_bytecode_hex.push_str(runtime_bytecode_hex.as_str());
-            }
-
-            writeln!(std::io::stdout(), "Binary:\n{deploy_bytecode_hex}")?;
+            writeln!(std::io::stdout(), "Binary:\n{bytecode_hex}")?;
         }
 
         if output_selection.check_selection(
@@ -152,24 +141,13 @@ impl Contract {
                     "Refusing to overwrite an existing file {output_path:?} (use --overwrite to force)."
                 );
             } else {
-                let mut deploy_bytecode_hex = self
+                let bytecode_hex = self
                     .deploy_object
                     .bytecode_hex
                     .take()
                     .expect("Always exists");
 
-                let runtime_bytecode_hex = self
-                    .runtime_object
-                    .bytecode_hex
-                    .take()
-                    .expect("Always exists");
-                if deploy_bytecode_hex.len() > runtime_bytecode_hex.len() {
-                    deploy_bytecode_hex
-                        .truncate(deploy_bytecode_hex.len() - runtime_bytecode_hex.len());
-                    deploy_bytecode_hex.push_str(runtime_bytecode_hex.as_str());
-                }
-
-                std::fs::write(output_path.as_path(), deploy_bytecode_hex)
+                std::fs::write(output_path.as_path(), bytecode_hex)
                     .map_err(|error| anyhow::anyhow!("File {output_path:?} writing: {error}"))?;
             }
         }

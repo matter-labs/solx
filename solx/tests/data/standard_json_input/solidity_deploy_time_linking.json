@@ -13,6 +13,7 @@
     "outputSelection": {
       "*": {
         "": [
+          "ast"
         ],
         "*": [
           "evm.bytecode.object",

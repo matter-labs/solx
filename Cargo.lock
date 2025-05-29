@@ -262,9 +262,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.38"
+version = "4.5.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed93b9805f8ba930df42c2590f05453d5ec36cbb85d018868a5b24d31f6ac000"
+checksum = "fd60e63e9be68e5fb56422e397cf9baddded06dae1d2e523401542383bc72a9f"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -272,9 +272,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.38"
+version = "4.5.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "379026ff283facf611b0ea629334361c4211d1b12ee01024eec1591133b04120"
+checksum = "89cc6392a1f72bbeb820d71f32108f61fdaf18bc526e1d23954168a67759ef51"
 dependencies = [
  "anstream",
  "anstyle",
@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#57d287d9ecd66a1136d9e619fe535d8d1450293f"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#bbf2fa512b3cbfaa0268943142fd6c6a57896228"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -764,7 +764,7 @@ dependencies = [
 [[package]]
 name = "inkwell"
 version = "0.5.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#020993dff10d274c59204dd279352eff4f90a897"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#e61dc8bfe1798ddbe9501c385e78a233c70bc929"
 dependencies = [
  "either",
  "inkwell_internals",
@@ -778,7 +778,7 @@ dependencies = [
 [[package]]
 name = "inkwell_internals"
 version = "0.10.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#020993dff10d274c59204dd279352eff4f90a897"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#e61dc8bfe1798ddbe9501c385e78a233c70bc929"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -884,7 +884,7 @@ checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
 [[package]]
 name = "llvm-sys"
 version = "191.0.0"
-source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-19#33629f00f941152c2d1f19c760cac0755f1f28b6"
+source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-19#57e995166a82a8220ae5620e7c8444c6565dd3a8"
 dependencies = [
  "anyhow",
  "cc",
