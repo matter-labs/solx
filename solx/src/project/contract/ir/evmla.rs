@@ -10,23 +10,23 @@ use crate::evmla::assembly::Assembly;
 /// The contract EVM legacy assembly source code.
 ///
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct EVMLA {
+pub struct EVMLegacyAssembly {
     /// The EVM legacy assembly source code.
     pub assembly: Assembly,
 }
 
-impl EVMLA {
+impl EVMLegacyAssembly {
     ///
     /// Transforms the `solc` standard JSON output contract into an EVM legacy assembly object.
     ///
-    pub fn try_from_contract(contract: &solx_standard_json::OutputContract) -> Option<Self> {
-        let evm = contract.evm.as_ref()?;
-
-        let mut assembly: Assembly =
-            serde_json::from_value(evm.legacy_assembly.as_ref()?.to_owned()).ok()?;
-        assembly.extra_metadata = evm.extra_metadata.to_owned();
+    pub fn try_from_contract(
+        legacy_assembly: serde_json::Value,
+        extra_metadata: Option<solx_standard_json::OutputContractEVMExtraMetadata>,
+    ) -> Option<Self> {
+        let mut assembly: Assembly = serde_json::from_value(legacy_assembly).ok()?;
+        assembly.extra_metadata = extra_metadata.clone();
         if let Ok(runtime_code) = assembly.runtime_code_mut() {
-            runtime_code.extra_metadata = evm.extra_metadata.to_owned();
+            runtime_code.extra_metadata = extra_metadata;
         }
 
         Some(Self { assembly })
@@ -47,7 +47,7 @@ impl EVMLA {
     }
 }
 
-impl era_compiler_llvm_context::EVMWriteLLVM for EVMLA {
+impl era_compiler_llvm_context::EVMWriteLLVM for EVMLegacyAssembly {
     fn declare(
         &mut self,
         context: &mut era_compiler_llvm_context::EVMContext,
