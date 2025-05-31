@@ -87,7 +87,7 @@ impl Output {
                     if !output_selection.check_selection(
                         path.as_str(),
                         Some(name.as_str()),
-                        InputSettingsSelector::EVMLA,
+                        InputSettingsSelector::EVMLegacyAssembly,
                     ) {
                         evm.legacy_assembly = None;
                     }

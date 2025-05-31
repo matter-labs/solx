@@ -6,9 +6,6 @@
 pub const TEST_CONTRACTS_PATH: &str = "tests/data/contracts/";
 
 /// A test input file.
-pub const TEST_SOLIDITY_CONTRACT_NAME: &str = "Test.sol";
-
-/// A test input file.
 pub const TEST_SOLIDITY_CONTRACT_PATH: &str = "tests/data/contracts/solidity/Test.sol";
 
 /// A test input file.
@@ -38,9 +35,6 @@ pub const TEST_SOLIDITY_CONTRACT_OPTIMIZED_PATH: &str =
 /// A test input file.
 pub const TEST_SOLIDITY_CONTRACT_INTERFACE_EMPTY_YUL_PATH: &str =
     "tests/data/contracts/solidity/InterfaceEmptyYul.sol";
-
-/// A test input file.
-pub const SOLIDITY_BIN_OUTPUT_NAME: &str = "Test.bin";
 
 /// A test input file.
 pub const TEST_YUL_CONTRACT_PATH: &str = "tests/data/contracts/yul/Test.yul";

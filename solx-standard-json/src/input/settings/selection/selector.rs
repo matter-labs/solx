@@ -20,10 +20,10 @@ pub enum Selector {
     Metadata,
     /// The developer documentation.
     #[serde(rename = "devdoc")]
-    Devdoc,
+    DeveloperDocumentation,
     /// The user documentation.
     #[serde(rename = "userdoc")]
-    Userdoc,
+    UserDocumentation,
     /// The storage layout.
     #[serde(rename = "storageLayout")]
     StorageLayout,
@@ -35,7 +35,7 @@ pub enum Selector {
     MethodIdentifiers,
     /// The EVM legacy assembly JSON.
     #[serde(rename = "evm.legacyAssembly")]
-    EVMLA,
+    EVMLegacyAssembly,
     /// The Yul IR.
     #[serde(rename = "irOptimized")]
     Yul,
@@ -173,12 +173,12 @@ impl Selector {
                 Self::AST,
                 Self::ABI,
                 Self::Metadata,
-                Self::Devdoc,
-                Self::Userdoc,
+                Self::DeveloperDocumentation,
+                Self::UserDocumentation,
                 Self::StorageLayout,
                 Self::TransientStorageLayout,
                 Self::MethodIdentifiers,
-                Self::EVMLA,
+                Self::EVMLegacyAssembly,
                 Self::Yul,
                 Self::EVM,
                 Self::Bytecode,
@@ -209,7 +209,7 @@ impl From<bool> for Selector {
         if via_ir {
             Self::Yul
         } else {
-            Self::EVMLA
+            Self::EVMLegacyAssembly
         }
     }
 }

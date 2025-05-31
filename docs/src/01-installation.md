@@ -35,7 +35,7 @@ The **solx** version consists of three parts:
 2. Version of **solc** libraries **solx** is statically linked with.
 3. Revision of the LLVM-friendly fork of **solc** maintained by the **solx** team.
 
-For instance, the latest revision of the latest version of **solc** is `0.8.29-1.0.2`. Here are the **solc** revisions released by now:
+For instance, the latest revision of the latest version of **solc** is `0.8.30-1.0.2`. Here are the **solc** revisions released by now:
 
 | Revision |                         Fixes                        |
 |:---------|:-----------------------------------------------------|
@@ -150,7 +150,7 @@ This repository maintains intuitive and stable naming for the executables and pr
       -DPEDANTIC='OFF' \
       -DTESTS='OFF' \
       -DCMAKE_BUILD_TYPE='Release' \
-      -DSOL_VERSION_ZKSYNC='0.8.29-1.0.2'
+      -DSOL_VERSION_ZKSYNC='0.8.30-1.0.2'
    cmake --build . --config Release --parallel ${YOUR_CPU_COUNT}
    cd ../..
    ```
@@ -179,7 +179,7 @@ This repository maintains intuitive and stable naming for the executables and pr
       -DPEDANTIC=OFF \
       -DTESTS=OFF \
       -DCMAKE_BUILD_TYPE="Release" \
-      -DSOL_VERSION_ZKSYNC="0.8.29-1.0.2"
+      -DSOL_VERSION_ZKSYNC="0.8.30-1.0.2"
    cmake --build . --config Release --parallel ${YOUR_CPU_COUNT}
    ```
 

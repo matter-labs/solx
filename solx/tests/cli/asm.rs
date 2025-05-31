@@ -12,7 +12,10 @@ fn default() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx(args)?;
 
-    result.success();
+    result
+        .success()
+        .stdout(predicate::str::contains("Deploy LLVM EVM assembly").count(1))
+        .stdout(predicate::str::contains("Runtime LLVM EVM assembly").count(1));
 
     Ok(())
 }

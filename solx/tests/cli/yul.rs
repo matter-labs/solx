@@ -3,6 +3,7 @@
 //!
 
 use predicates::prelude::*;
+use test_case::test_case;
 
 #[test]
 fn bin() -> anyhow::Result<()> {
@@ -40,6 +41,28 @@ fn metadata() -> anyhow::Result<()> {
     result
         .success()
         .stdout(predicate::str::contains("Metadata"));
+
+    Ok(())
+}
+
+#[test_case("--ast-json")]
+#[test_case("--abi")]
+#[test_case("--hashes")]
+#[test_case("--userdoc")]
+#[test_case("--devdoc")]
+#[test_case("--storage-layout")]
+#[test_case("--transient-storage-layout")]
+#[test_case("--asm-solc-json")]
+#[test_case("--ir-optimized")]
+fn unavailable(flag: &str) -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[crate::common::TEST_YUL_CONTRACT_PATH, "--yul", flag];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.failure().stderr(predicate::str::contains(
+        "can be only emitted for Solidity contracts",
+    ));
 
     Ok(())
 }

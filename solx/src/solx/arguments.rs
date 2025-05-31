@@ -117,17 +117,57 @@ pub struct Arguments {
     #[arg(long)]
     pub no_import_callback: bool,
 
-    /// Output metadata of the compiled project.
-    #[arg(long = "metadata")]
-    pub output_metadata: bool,
+    /// Emit bytecode of the compiled contracts.
+    #[arg(long = "bin")]
+    pub output_bytecode: bool,
 
-    /// Output assembly of the compiled contracts.
+    /// Emit deployed bytecode of the compiled contracts.
+    #[arg(long = "bin-runtime")]
+    pub output_bytecode_runtime: bool,
+
+    /// Emit assembly of the compiled contracts.
     #[arg(long = "asm")]
     pub output_assembly: bool,
 
-    /// Output bytecode of the compiled contracts.
-    #[arg(long = "bin")]
-    pub output_bytecode: bool,
+    /// Emit metadata of the compiled project.
+    #[arg(long = "metadata")]
+    pub output_metadata: bool,
+
+    /// Emit ABI specification of the compiled project.
+    #[arg(long = "abi")]
+    pub output_abi: bool,
+
+    /// Emit function signature hashes of the compiled project.
+    #[arg(long = "hashes")]
+    pub output_hashes: bool,
+
+    /// Emit user documentation of the compiled project.
+    #[arg(long = "userdoc")]
+    pub output_userdoc: bool,
+
+    /// Emit developer documentation of the compiled project.
+    #[arg(long = "devdoc")]
+    pub output_devdoc: bool,
+
+    /// Emit storage layout of the compiled project.
+    #[arg(long = "storage-layout")]
+    pub output_storage_layout: bool,
+
+    /// Emit storage layout of the compiled project.
+    #[arg(long = "transient-storage-layout")]
+    pub output_transient_storage_layout: bool,
+
+    /// Emit AST of the compiled project.
+    #[arg(long = "ast-json")]
+    pub output_ast_json: bool,
+
+    /// Emit solc's EVM assembly of the compiled project.
+    #[arg(long = "asm-solc-json")]
+    pub output_asm_solc_json: bool,
+
+    /// Emit solc's optimized Yul IR of the compiled project.
+    #[arg(long = "ir-optimized")]
+    pub output_ir_optimized: bool,
 
     /// Dump all IRs to files in the specified directory.
     /// Only for testing and debugging.
@@ -205,6 +245,24 @@ impl Arguments {
                 ));
             }
 
+            if self.output_abi
+                || self.output_hashes
+                || self.output_userdoc
+                || self.output_devdoc
+                || self.output_storage_layout
+                || self.output_transient_storage_layout
+                || self.output_ast_json
+                || self.output_asm_solc_json
+                || self.output_ir_optimized
+            {
+                messages.push(solx_standard_json::OutputError::new_error(
+                    None,
+                    "ABI, hashes, userdoc, devdoc, storage layout, transient storage layout, AST, EVM assembly, Yul can be only emitted for Solidity contracts.",
+                    None,
+                    None,
+                ));
+            }
+
             if self.evm_version.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
@@ -224,17 +282,21 @@ impl Arguments {
             }
         }
 
-        if self.llvm_ir && !self.libraries.is_empty() {
-            messages.push(solx_standard_json::OutputError::new_error(
-                None,
-                "Libraries are only supported in Solidity, Yul, and linker modes.",
-                None,
-                None,
-            ));
-        }
-
         if self.standard_json.is_some() {
-            if self.output_metadata || self.output_assembly || self.output_bytecode {
+            if self.output_bytecode
+                || self.output_bytecode_runtime
+                || self.output_assembly
+                || self.output_metadata
+                || self.output_abi
+                || self.output_hashes
+                || self.output_userdoc
+                || self.output_devdoc
+                || self.output_storage_layout
+                || self.output_transient_storage_layout
+                || self.output_ast_json
+                || self.output_asm_solc_json
+                || self.output_ir_optimized
+            {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
                     "Cannot output data outside of JSON in standard JSON mode.",

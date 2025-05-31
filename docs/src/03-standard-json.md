@@ -68,10 +68,10 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
       // -z: all optimizations for bytecode size
       // Default: 3.
       "mode": "3",
-      // Optional, solx-only: Re-run the compilation with "mode": "z" if the compilation with "mode": "3" exceeds the EVM bytecode size limit.
-      // Used on a per-contract basis and applied automatically, so some contracts will end up compiled with "mode": "3", and others with "mode": "z".
-      // Default: false.
-      "sizeFallback": false
+      // Optional, solx-only: Re-run the compilation with "mode": "z" if the initial compilation exceeds the EVM bytecode size limit.
+      // Used on a per-contract basis and applied automatically, so some contracts will end up compiled in the initial mode, and others with "mode": "z".
+      // Default: true.
+      "sizeFallback": true
     },
 
     // Optional: Sorted list of remappings.
@@ -118,20 +118,48 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
           "storageLayout",
           // Slots, offsets and types of the contract's state variables in transient storage.
           "transientStorageLayout",
+          // Yul produced by solc.
+          "irOptimized",
+          // Everything of the below.
+          "evm",
           // Solidity function hashes.
           "evm.methodIdentifiers",
           // EVM assembly produced by solc.
           "evm.legacyAssembly",
-          // Yul produced by solc.
-          "irOptimized",
-          // Deploy bytecode produced by solx.
+          // Everything that starts with "evm.bytecode".
+          "evm.bytecode",
+          // Deploy bytecode produced by solx/LLVM.
+          // As long as the solx bytecode linker is in experimental stage, all contracts will be compiled if this key is enabled for at least one contract.
           "evm.bytecode.object",
-          // Deploy code assembly produced by solx.
+          // Deploy code assembly produced by solx/LLVM.
           "evm.bytecode.llvmAssembly",
-          // Runtime bytecode produced by solx.
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.bytecode.opcodes",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.bytecode.sourceMap",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.bytecode.functionDebugData",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.bytecode.generatedSources",
+          // Everything that starts with "evm.deployedBytecode".
+          "evm.deployedBytecode",
+          // Runtime bytecode produced by solx/LLVM.
+          // As long as the solx bytecode linker is in experimental stage, all contracts will be compiled if this key is enabled for at least one contract.
           "evm.deployedBytecode.object",
-          // Runtime code assembly produced by solx.
-          "evm.deployedBytecode.llvmAssembly"
+          // Runtime code assembly produced by solx/LLVM.
+          "evm.deployedBytecode.llvmAssembly",
+          // Link references for linkers that are to resolve library addresses at deploy time.
+          "evm.deployedBytecode.linkReferences",
+          // Resolved automatically by solx/LLVM, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.deployedBytecode.immutableReferences",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.deployedBytecode.opcodes",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.deployedBytecode.sourceMap",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.deployedBytecode.functionDebugData",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.deployedBytecode.generatedSources"
         ]
       }
     },
@@ -207,38 +235,9 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
         // Optional: Yul produced by solc (string).
         // Corresponds to "irOptimized" in the outputSelection settings.
         "irOptimized": "/* ... */",
-        // Required: EVM target outputs.
+        // Optional: EVM target outputs.
+        // Corresponds to "evm" in the outputSelection settings.
         "evm": {
-          // Required: Deploy EVM bytecode.
-          "bytecode": {
-            // Optional: Bytecode (string).
-            "object": "0000008003000039000000400030043f0000000100200190000000130000c13d...",
-            // Optional: LLVM text assembly (string).
-            "assembly": "/* ... */",
-            // Optional: Mapping between full contract identifiers and library identifiers that must be linked after compilation.
-            // Only unlinked libraries are listed here.
-            // Example: { "default.sol:Test": "library.sol:Library" }.
-            "unlinkedLibraries": {/* ... */},
-            // Optional: Binary object format.
-            // Tells whether the bytecode has been linked.
-            // Possible values: "elf" (unlinked), "raw" (linked).
-            "objectFormat": "elf"
-          },
-          // Required: Runtime EVM bytecode.
-          "deployedBytecode": {
-            // Optional: Bytecode (string).
-            "object": "0000008003000039000000400030043f0000000100200190000000130000c13d...",
-            // Optional: LLVM text assembly (string).
-            "assembly": "/* ... */",
-            // Optional: Mapping between full contract identifiers and library identifiers that must be linked after compilation.
-            // Only unlinked libraries are listed here.
-            // Example: { "default.sol:Test": "library.sol:Library" }.
-            "unlinkedLibraries": {/* ... */},
-            // Optional: Binary object format.
-            // Tells whether the bytecode has been linked.
-            // Possible values: "elf" (unlinked), "raw" (linked).
-            "objectFormat": "elf"
-          },
           // Optional: EVM assembly produced by solc (object).
           // Corresponds to "evm.legacyAssembly" in the outputSelection settings.
           "legacyAssembly": {/* ... */},
@@ -247,6 +246,60 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
           "methodIdentifiers": {
             // Mapping between the function signature and its hash.
             "delegate(address)": "5c19a95c"
+          },
+          // Optional: Deploy EVM bytecode.
+          // Corresponds to "evm.bytecode" in the outputSelection settings.
+          "bytecode": {
+            // Optional: Bytecode (string).
+            // Corresponds to "evm.bytecode.object" in the outputSelection settings.
+            "object": "5b60806040525f341415601c5763...",
+            // Optional: LLVM text assembly (string).
+            // Corresponds to "evm.bytecode.llvmAssembly" in the outputSelection settings.
+            "llvmAssembly": "/* ... */",
+            // Optional: Link references for linkers that are to resolve library addresses at deploy time (object).
+            // Corresponds to "evm.bytecode.linkReferences" in the outputSelection settings.
+            "linkReferences": {/* ... */},
+            // Optional: Always empty, included only to preserve compatibility with some toolkits (string).
+            // Corresponds to "evm.bytecode.immutableReferences" in the outputSelection settings.
+            "opcodes": {},
+            // Optional: Always empty, Included only to preserve compatibility with some toolkits (string).
+            // Corresponds to "evm.bytecode.sourceMap" in the outputSelection settings.
+            "sourceMap": {},
+            // Optional: Always empty, Included only to preserve compatibility with some toolkits (array).
+            // Corresponds to "evm.bytecode.functionDebugData" in the outputSelection settings.
+            "functionDebugData": {},
+            // Optional: Always empty, Included only to preserve compatibility with some toolkits (object).
+            // Corresponds to "evm.bytecode.generatedSources" in the outputSelection settings.
+            "generatedSources": {}
+          },
+          // Optional: Runtime EVM bytecode.
+          // Corresponds to "evm.deployedBytecode" in the outputSelection settings.
+          "deployedBytecode": {
+            // Optional: Bytecode (string).
+            // Corresponds to "evm.deployedBytecode.object" in the outputSelection settings.
+            "object": "5b60806040525f34141560145760...",
+            // Optional: LLVM text assembly (string).
+            // Corresponds to "evm.deployedBytecode.llvmAssembly" in the outputSelection settings.
+            "llvmAssembly": "/* ... */",
+            // Optional: Link references for linkers that are to resolve library addresses at deploy time (object).
+            // Corresponds to "evm.deployedBytecode.linkReferences" in the outputSelection settings.
+            "linkReferences": {/* ... */},
+            // Optional: Resolved by LLVM automatically, so always returned as an empty object (object).
+            // Included only to preserve compatibility with some toolkits.
+            // Corresponds to "evm.deployedBytecode.immutableReferences" in the outputSelection settings.
+            "immutableReferences": {},
+            // Optional: Always empty, included only to preserve compatibility with some toolkits (string).
+            // Corresponds to "evm.deployedBytecode.opcodes" in the outputSelection settings.
+            "opcodes": {},
+            // Optional: Always empty, Included only to preserve compatibility with some toolkits (string).
+            // Corresponds to "evm.deployedBytecode.sourceMap" in the outputSelection settings.
+            "sourceMap": {},
+            // Optional: Always empty, Included only to preserve compatibility with some toolkits (array).
+            // Corresponds to "evm.deployedBytecode.functionDebugData" in the outputSelection settings.
+            "functionDebugData": {},
+            // Optional: Always empty, Included only to preserve compatibility with some toolkits (object).
+            // Corresponds to "evm.deployedBytecode.generatedSources" in the outputSelection settings.
+            "generatedSources": {}
           }
         }
       }

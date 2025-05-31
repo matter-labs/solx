@@ -41,7 +41,7 @@ pub fn setup() -> anyhow::Result<()> {
 ///
 pub fn read_sources(paths: &[&str]) -> BTreeMap<String, String> {
     paths
-        .into_iter()
+        .iter()
         .map(|path| {
             let result = std::fs::read_to_string(path).map_err(|error| anyhow::anyhow!(error));
             result.map(|result| ((*path).to_owned(), result))
@@ -91,15 +91,15 @@ pub fn build_solidity_standard_json(
     selectors.insert(solx_standard_json::InputSelector::AST);
     selectors.insert(solx_standard_json::InputSelector::ABI);
     selectors.insert(solx_standard_json::InputSelector::Metadata);
-    selectors.insert(solx_standard_json::InputSelector::Devdoc);
-    selectors.insert(solx_standard_json::InputSelector::Userdoc);
+    selectors.insert(solx_standard_json::InputSelector::DeveloperDocumentation);
+    selectors.insert(solx_standard_json::InputSelector::UserDocumentation);
     selectors.insert(solx_standard_json::InputSelector::StorageLayout);
     selectors.insert(solx_standard_json::InputSelector::TransientStorageLayout);
     selectors.insert(solx_standard_json::InputSelector::MethodIdentifiers);
     selectors.insert(if via_ir {
         solx_standard_json::InputSelector::Yul
     } else {
-        solx_standard_json::InputSelector::EVMLA
+        solx_standard_json::InputSelector::EVMLegacyAssembly
     });
     let output_selection = solx_standard_json::InputSelection::new(selectors);
 

@@ -21,25 +21,6 @@ fn default() -> anyhow::Result<()> {
 }
 
 #[test]
-fn llvm_ir() -> anyhow::Result<()> {
-    crate::common::setup()?;
-
-    let args = &[
-        "--llvm-ir",
-        crate::common::TEST_LLVM_IR_CONTRACT_PATH,
-        "--libraries",
-        crate::common::LIBRARY_DEFAULT,
-    ];
-
-    let result = crate::cli::execute_solx(args)?;
-    result.failure().stderr(predicate::str::contains(
-        "Libraries are only supported in Solidity, Yul, and linker modes.",
-    ));
-
-    Ok(())
-}
-
-#[test]
 fn standard_json() -> anyhow::Result<()> {
     crate::common::setup()?;
 

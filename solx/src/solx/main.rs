@@ -115,6 +115,8 @@ fn main_inner(
     let mut selectors = BTreeSet::new();
     if arguments.output_bytecode {
         selectors.insert(solx_standard_json::InputSelector::BytecodeObject);
+    }
+    if arguments.output_bytecode_runtime {
         selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeObject);
     }
     if arguments.output_assembly {
@@ -123,6 +125,33 @@ fn main_inner(
     }
     if arguments.output_metadata {
         selectors.insert(solx_standard_json::InputSelector::Metadata);
+    }
+    if arguments.output_abi {
+        selectors.insert(solx_standard_json::InputSelector::ABI);
+    }
+    if arguments.output_hashes {
+        selectors.insert(solx_standard_json::InputSelector::MethodIdentifiers);
+    }
+    if arguments.output_userdoc {
+        selectors.insert(solx_standard_json::InputSelector::UserDocumentation);
+    }
+    if arguments.output_devdoc {
+        selectors.insert(solx_standard_json::InputSelector::DeveloperDocumentation);
+    }
+    if arguments.output_storage_layout {
+        selectors.insert(solx_standard_json::InputSelector::StorageLayout);
+    }
+    if arguments.output_transient_storage_layout {
+        selectors.insert(solx_standard_json::InputSelector::TransientStorageLayout);
+    }
+    if arguments.output_ast_json {
+        selectors.insert(solx_standard_json::InputSelector::AST);
+    }
+    if arguments.output_asm_solc_json {
+        selectors.insert(solx_standard_json::InputSelector::EVMLegacyAssembly);
+    }
+    if arguments.output_ir_optimized {
+        selectors.insert(solx_standard_json::InputSelector::Yul);
     }
     let output_selection = solx_standard_json::InputSelection::new(selectors);
 

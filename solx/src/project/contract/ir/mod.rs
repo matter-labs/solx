@@ -6,7 +6,7 @@ pub mod evmla;
 pub mod llvm_ir;
 pub mod yul;
 
-use self::evmla::EVMLA;
+use self::evmla::EVMLegacyAssembly;
 use self::llvm_ir::LLVMIR;
 use self::yul::Yul;
 
@@ -18,7 +18,7 @@ pub enum IR {
     /// The Yul source code.
     Yul(Yul),
     /// The EVM legacy assembly source code.
-    EVMLA(EVMLA),
+    EVMLegacyAssembly(EVMLegacyAssembly),
     /// The LLVM IR source code.
     LLVMIR(LLVMIR),
 }
@@ -29,9 +29,9 @@ impl From<Yul> for IR {
     }
 }
 
-impl From<EVMLA> for IR {
-    fn from(inner: EVMLA) -> Self {
-        Self::EVMLA(inner)
+impl From<EVMLegacyAssembly> for IR {
+    fn from(inner: EVMLegacyAssembly) -> Self {
+        Self::EVMLegacyAssembly(inner)
     }
 }
 

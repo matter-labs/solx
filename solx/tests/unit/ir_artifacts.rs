@@ -20,7 +20,7 @@ fn evmla() {
     )
     .expect("Test failure");
     assert!(
-        !build
+        build
             .contracts
             .get(crate::common::TEST_SOLIDITY_CONTRACT_PATH)
             .expect("Always exists")
@@ -30,7 +30,7 @@ fn evmla() {
             .as_ref()
             .expect("EVM object is missing")
             .legacy_assembly
-            .is_none(),
+            .is_some(),
         "EVM assembly is missing",
     );
     assert!(
@@ -61,14 +61,14 @@ fn yul() {
     .expect("Test failure");
 
     assert!(
-        !build
+        build
             .contracts
             .get(crate::common::TEST_SOLIDITY_CONTRACT_PATH)
             .expect("Always exists")
             .get("Test")
             .expect("Always exists")
             .ir_optimized
-            .is_none(),
+            .is_some(),
         "Yul is missing"
     );
     assert!(

@@ -57,7 +57,8 @@ impl Selection {
     ///
     pub fn check_selection(&self, path: &str, name: Option<&str>, selector: Selector) -> bool {
         if let Some(file) = self.inner.get(Self::WILDCARD).or(self.inner.get(path)) {
-            if let (Some(any), selector @ Selector::AST) = (file.get(Self::ANY_CONTRACT), selector)
+            if let (Some(any), selector @ Selector::AST) =
+                (file.get(Self::ANY_CONTRACT).or(file.get(path)), selector)
             {
                 return any.contains(&Selector::Any) || any.contains(&selector);
             }
@@ -66,7 +67,7 @@ impl Selection {
                 .or(name.and_then(|name| file.get(name)))
             {
                 match selector {
-                    Selector::MethodIdentifiers | Selector::EVMLA
+                    Selector::MethodIdentifiers | Selector::EVMLegacyAssembly
                         if contract.contains(&Selector::EVM) =>
                     {
                         return true

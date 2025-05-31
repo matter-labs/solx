@@ -7,7 +7,9 @@ pub mod contract;
 use std::collections::BTreeMap;
 use std::io::Write;
 use std::path::Path;
+use std::path::PathBuf;
 
+use normpath::PathExt;
 use solx_standard_json::CollectableError;
 
 use self::contract::object::Object as ContractObject;
@@ -20,6 +22,8 @@ use self::contract::Contract;
 pub struct Build {
     /// The contract data,
     pub results: BTreeMap<String, Result<Contract, solx_standard_json::OutputError>>,
+    /// The Solidity AST JSONs of the source files.
+    pub ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
     /// The additional message to output.
     pub messages: Vec<solx_standard_json::OutputError>,
 }
@@ -30,10 +34,12 @@ impl Build {
     ///
     pub fn new(
         results: BTreeMap<String, Result<Contract, solx_standard_json::OutputError>>,
+        ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
         messages: &mut Vec<solx_standard_json::OutputError>,
     ) -> Self {
         Self {
             results,
+            ast_jsons,
             messages: std::mem::take(messages),
         }
     }
@@ -51,6 +57,7 @@ impl Build {
             .into_iter()
             .map(|(path, result)| (path, result.expect("Cannot link a project with errors")))
             .collect();
+        let ast_jsons = self.ast_jsons.take();
 
         loop {
             let assembled_objects_data = {
@@ -89,7 +96,7 @@ impl Build {
                                     .push(solx_standard_json::OutputError::new_error(
                                         None, &error, None, None,
                                     ));
-                                return Self::new(BTreeMap::new(), &mut self.messages);
+                                return Self::new(BTreeMap::new(), ast_jsons, &mut self.messages);
                             }
                         };
                     assembled_objects_data.push((
@@ -132,7 +139,7 @@ impl Build {
                         .push(solx_standard_json::OutputError::new_error(
                             None, &error, None, None,
                         ));
-                    return Self::new(BTreeMap::new(), &mut self.messages);
+                    return Self::new(BTreeMap::new(), ast_jsons, &mut self.messages);
                 }
             }
         }
@@ -142,6 +149,7 @@ impl Build {
                 .into_iter()
                 .map(|(path, contract)| (path, Ok(contract)))
                 .collect(),
+            ast_jsons,
             &mut self.messages,
         )
     }
@@ -156,10 +164,24 @@ impl Build {
         self.take_and_write_warnings();
         self.exit_on_error();
 
+        for (path, ast) in self.ast_jsons.unwrap_or_default().into_iter() {
+            if output_selection.check_selection(
+                path.as_str(),
+                None,
+                solx_standard_json::InputSelector::AST,
+            ) {
+                writeln!(std::io::stdout(), "\n======= {path} =======",)?;
+                writeln!(
+                    std::io::stdout(),
+                    "JSON AST:\n{}",
+                    ast.expect("Always exists")
+                )?;
+            }
+        }
+
         for build in self.results.into_values() {
-            build
-                .expect("Always valid")
-                .write_to_terminal(output_selection)?;
+            let contract = build.expect("Always valid");
+            contract.write_to_terminal(output_selection)?;
         }
 
         Ok(())
@@ -178,6 +200,30 @@ impl Build {
         self.exit_on_error();
 
         std::fs::create_dir_all(output_directory)?;
+
+        for (path, ast_json) in self.ast_jsons.into_iter().flatten() {
+            if output_selection.check_selection(
+                path.as_str(),
+                None,
+                solx_standard_json::InputSelector::AST,
+            ) {
+                let path = PathBuf::from(path).normalize()?;
+                let path = if path.starts_with(std::env::current_dir()?) {
+                    path.as_path().strip_prefix(std::env::current_dir()?)?
+                } else {
+                    path.as_path()
+                }
+                .to_string_lossy()
+                .replace(['\\', '/'], "_");
+
+                let output_name = format!("{path}_{}.ast", era_compiler_common::EXTENSION_JSON);
+                let mut output_path = output_directory.to_owned();
+                output_path.push(output_name.as_str());
+
+                let ast_json = ast_json.expect("Always exists").to_string();
+                Contract::write_to_file(output_path.as_path(), ast_json, overwrite)?;
+            }
+        }
 
         for build in self.results.into_values() {
             build.expect("Always valid").write_to_directory(
@@ -202,6 +248,18 @@ impl Build {
         standard_json: &mut solx_standard_json::Output,
         output_selection: &solx_standard_json::InputSelection,
     ) -> anyhow::Result<()> {
+        for (path, ast_json) in self.ast_jsons.into_iter().flatten() {
+            if let Some(source) = standard_json.sources.get_mut(path.as_str()) {
+                source.ast = ast_json.filter(|_| {
+                    output_selection.check_selection(
+                        path.as_str(),
+                        None,
+                        solx_standard_json::InputSelector::AST,
+                    )
+                });
+            }
+        }
+
         let mut errors = Vec::with_capacity(self.results.len());
         for result in self.results.into_values() {
             let build = match result {

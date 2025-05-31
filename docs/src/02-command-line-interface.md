@@ -26,7 +26,7 @@ The rest of this section describes the available CLI options and their usage. Yo
 
 ### `--bin`
 
-Enables the output of compiled bytecode.
+Emits the full bytecode.
 
 ```bash
 solx 'Simple.sol' --bin
@@ -42,9 +42,27 @@ Binary:
 
 
 
+### `--bin`
+
+Emits the runtime part of the bytecode.
+
+```bash
+solx 'Simple.sol' --bin-runtime
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Binary of the runtime part:
+5b60806040525f34141560145760...
+```
+
+
+
 ### `--asm`
 
-Enables the output of text assembly produced by LLVM.
+Emits the text assembly produced by LLVM.
 
 ```bash
 solx 'Simple.sol' --asm
@@ -54,9 +72,9 @@ Output:
 
 ```text
 ======= Simple.sol:Simple =======
-Deploy assembly:
+Deploy LLVM EVM assembly:
         .text
-        .file   "Simple.sol:Test"
+        .file   "Simple.sol:Simple"
 main:
 .func_begin0:
         JUMPDEST
@@ -64,9 +82,9 @@ main:
         PUSH1 64
 ...
 
-Runtime assembly:
+Runtime LLVM EVM assembly:
         .text
-        .file   "Simple.sol:Test.runtime"
+        .file   "Simple.sol:Simple.runtime"
 main:
 .func_begin0:
         JUMPDEST
@@ -74,6 +92,233 @@ main:
         PUSH1 64
 ...
 ```
+
+
+
+### `--metadata`
+
+Emits the contract metadata. The metadata is a JSON object that contains information about the contract, such as its name, source code hash, the list of dependencies, compiler versions, and so on.
+
+The **solx** metadata format is compatible with the [Solidity metadata format](https://docs.soliditylang.org/en/latest/metadata.html#contract-metadata). This means that the metadata output can be used with other tools that support Solidity metadata. Extra **solx** data is inserted into **solc** metadata with this JSON object:
+
+```javascript
+{
+  "solx": {
+    "llvm_options": [],
+    "optimizer_settings": {
+      "is_debug_logging_enabled": false,
+      "is_fallback_to_size_enabled": false,
+      "is_verify_each_enabled": false,
+      "level_back_end": "Aggressive",
+      "level_middle_end": "Aggressive",
+      "level_middle_end_size": "Zero"
+    },
+    "solc_llvm_revision": "1.0.2",
+    "solc_version": "0.8.30",
+    "solx_version": "0.1.0"
+  }
+}
+```
+
+Usage:
+
+```bash
+solx 'Simple.sol' --metadata
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Metadata:
+{"compiler":{"version":"0.8.30+commit.89ae86f4"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"first","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"second","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"pure","type":"function"}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"compilationTarget":{"Simple.sol":"Simple"},"evmVersion":"cancun","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[]},"solx":{"llvm_options":[],"optimizer_settings":{"is_debug_logging_enabled":false,"is_fallback_to_size_enabled":false,"is_verify_each_enabled":false,"level_back_end":"Aggressive","level_middle_end":"Aggressive","level_middle_end_size":"Zero"},"solc_llvm_revision":"1.0.2","solc_version":"0.8.30","solx_version":"0.1.0"},"sources":{"Simple.sol":{"keccak256":"0x1145e81d58e9fd0859036aac4ba16cfcfbe11045e3dfd5105a2dca469f31db89","license":"MIT","urls":["bzz-raw://9d97789b5c14a95fac1e7586de6712119f4606f79d6771324c9d24417ebab0db","dweb:/ipfs/QmSZ3HNGZom6N6eb8d74Y7UQAKAGRkXgbinwVVLaiuGb3S"]}},"version":1}
+```
+
+
+
+### `--ast-json`
+
+Emits the AST of each Solidity file.
+
+```bash
+solx 'Simple.sol' --ast-json
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+JSON AST:
+{"absolutePath":".../Simple.sol","exportedSymbols":{"Test":[26]},"id":27,"license":"MIT","nodeType":"SourceUnit","nodes":[ ... ],"src":"506:265:0"}
+```
+
+> Since **solx** communicates with **solc** only via standard JSON under the hood, full JSON AST instead is emitted instead of the compact one.
+
+
+
+### `--abi`
+
+Emits the contract ABI specification.
+
+```bash
+solx 'Simple.sol' --abi
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Contract JSON ABI:
+[{"inputs":[],"name":"first","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"second","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"pure","type":"function"}]
+```
+
+
+
+### `--hashes`
+
+Emits the contract function signatures.
+
+```bash
+solx 'Simple.sol' --hashes
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Function signatures:
+3df4ddf4: first()
+5a8ac02d: second()
+```
+
+
+
+### `--storage-layout`
+
+Emits the contract storage layout.
+
+```bash
+solx 'Simple.sol' --storage-layout
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Contract Storage Layout:
+{"storage":[{"astId":3,"contract":"Simple.sol:Simple","label":"field_1","offset":0,"slot":"0","type":"t_uint256"},{"astId":5,"contract":"Simple.sol:Simple","label":"field_2","offset":0,"slot":"1","type":"t_uint256"},{"astId":7,"contract":"Simple.sol:Simple","label":"field_3","offset":0,"slot":"2","type":"t_uint256"}],"types":{"t_uint256":{"encoding":"inplace","label":"uint256","numberOfBytes":"32"}}}
+```
+
+
+
+### `--transient-storage-layout`
+
+Emits the contract transient storage layout.
+
+```bash
+solx 'Simple.sol' --transient-storage-layout
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Contract Transient Storage Layout:
+{"storage":[{"astId":3,"contract":"Simple.sol:Simple","label":"field_1","offset":0,"slot":"0","type":"t_uint256"},{"astId":5,"contract":"Simple.sol:Simple","label":"field_2","offset":0,"slot":"1","type":"t_uint256"},{"astId":7,"contract":"Simple.sol:Simple","label":"field_3","offset":0,"slot":"2","type":"t_uint256"}],"types":{"t_uint256":{"encoding":"inplace","label":"uint256","numberOfBytes":"32"}}}
+```
+
+
+
+### `--userdoc`
+
+Emits the contract user documentation.
+
+```bash
+solx 'Simple.sol' --userdoc
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+User Documentation:
+{"kind":"user","methods":{ ... },"version":1}
+```
+
+
+
+### `--devdoc`
+
+Emits the contract developer documentation.
+
+```bash
+solx 'Simple.sol' --devdoc
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Developer Documentation:
+{"kind":"dev","methods":{ ... },"version":1}
+```
+
+
+
+### `--asm-solc-json`
+
+Emits the **solc** EVM assembly in JSON format.
+
+```bash
+solx 'Simple.sol' --asm-solc-json
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+EVM assembly:
+{".auxdata":null,".code":[ ... ],".data":{"0":{".auxdata":"a26469706673582212202644e52ba9ffa2e1d55713f314f19bc59467d1342b170ca4ce0e2d6d0e7afda664736f6c634300081e0033",".code":[ ... ],".data":null}},"full_path":"Simple.sol:Simple"}
+```
+
+> This is the **solc** EVM assembly output that is translated to LLVM IR by **solx**. For **solx**'s own EVM assembly output emitted by LLVM, use the [`--asm`](#--asm) option instead.
+
+
+
+### `--ir-optimized`
+
+Emits the optimized **solc** Yul IR.
+
+```bash
+solx 'Simple.sol' --ir-optimized
+```
+
+Output:
+
+```text
+======= Simple.sol:Simple =======
+Optimized IR:
+/// @use-src 0:"Simple.sol:Simple"
+object "Test_26" {
+    code {
+        {
+            ...
+        }
+    }
+    /// @use-src 0:"Simple.sol:Simple"
+    object "Test_26_deployed" {
+        code {
+            {
+                ...
+            }
+        }
+        data ".metadata" hex"a2646970667358221220ccbacddd0734a08eedf3a12f841c7e8c7127e2457a91f6e68f5fac6df7b9c88a64736f6c634300081e0033"
+    }
+}
+```
+
+> **solx** always requests optimized Yul IR from **solc** to ensure that all inlineable libraries are always inlined.
+> For the sake of consistency, **solx** does not support the unoptimized Yul IR output, as it is not used in practice.
 
 
 
@@ -115,44 +360,6 @@ solx 'Simple.sol' --bin --libraries 'Simple.sol:Test=0x1234567890abcdef123456789
 These options are used to specify Solidity import resolution settings. They are not used by **solx** and only passed through to **solc** like import remappings.
 
 Visit [the **solc** documentation](https://docs.soliditylang.org/en/latest/path-resolution.html) to learn more about the processing of these options.
-
-
-
-### `--metadata`
-
-Enables the output of contract metadata. The metadata is a JSON object that contains information about the contract, such as its name, source code hash, the list of dependencies, compiler versions, and so on.
-
-The **solx** metadata format is compatible with the [Solidity metadata format](https://docs.soliditylang.org/en/latest/metadata.html#contract-metadata). This means that the metadata output can be used with other tools that support Solidity metadata. Extra **solx** data is included in **solc** metadata under `solx` object:
-
-```javascript
-{
-  "solx": {
-    "llvm_options": [],
-    "optimizer_settings": {
-      "is_debug_logging_enabled": false,
-      "is_fallback_to_size_enabled": false,
-      "is_verify_each_enabled": false,
-      "level_back_end": "Aggressive",
-      "level_middle_end": "Aggressive",
-      "level_middle_end_size": "Zero"
-    }
-  }
-}
-```
-
-Usage:
-
-```bash
-solx 'Simple.sol' --metadata
-```
-
-Output:
-
-```text
-======= Simple.sol:Simple =======
-Metadata:
-{"compiler":{"version":"0.8.29+commit.c6ba0c29"},"language":"Solidity","output":{"abi":[{"inputs":[],"name":"first","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"second","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"pure","type":"function"}],"devdoc":{"kind":"dev","methods":{},"version":1},"userdoc":{"kind":"user","methods":{},"version":1}},"settings":{"compilationTarget":{"Simple.sol":"Simple"},"evmVersion":"cancun","libraries":{},"metadata":{"bytecodeHash":"ipfs"},"optimizer":{"enabled":true,"runs":200},"remappings":[]},"solx":{"llvm_options":[],"optimizer_settings":{"is_debug_logging_enabled":false,"is_fallback_to_size_enabled":false,"is_verify_each_enabled":false,"level_back_end":"Aggressive","level_middle_end":"Aggressive","level_middle_end_size":"Zero"},"solc_llvm_revision":"1.0.2","solc_version":"0.8.29","solx_version":"1.0.0"},"sources":{"Simple.sol":{"keccak256":"0x1145e81d58e9fd0859036aac4ba16cfcfbe11045e3dfd5105a2dca469f31db89","license":"MIT","urls":["bzz-raw://9d97789b5c14a95fac1e7586de6712119f4606f79d6771324c9d24417ebab0db","dweb:/ipfs/QmSZ3HNGZom6N6eb8d74Y7UQAKAGRkXgbinwVVLaiuGb3S"]}},"version":1}
-```
 
 
 
@@ -249,7 +456,7 @@ Sets the optimization level of the LLVM optimizer. Available values are:
 
 | Level | Meaning                      | Hints                                            |
 |:------|:-----------------------------|:-------------------------------------------------|
-| 0     | No optimization              | Currently not supported
+| 0     | No optimization              | For fast compilation during development
 | 1     | Performance: basic           | For optimization research
 | 2     | Performance: default         | For optimization research
 | 3     | Performance: aggressive      | Best performance for production
@@ -307,7 +514,7 @@ JSON representation of the CBOR payload:
     // `solx:<version>` is always included.
     // `solc:<version>;llvm:<version>` is only included for Solidity and Yul contracts, but not included for LLVM IR ones.
     // `llvm` stands for the revision of Matter Labs fork of solc, that solx is statically linked with.
-    "solc": "solx:0.1.0;solc:0.8.29;llvm:1.0.2"
+    "solc": "solx:0.1.0;solc:0.8.30;llvm:1.0.2"
 }
 ```
 
