@@ -26,16 +26,56 @@ pub struct Contract {
     pub name: era_compiler_common::ContractName,
     /// The IR source code data.
     pub ir: IR,
-    /// The original `solc` metadata.
+    /// The solc metadata.
     pub metadata: Option<String>,
+    /// The solc ABI.
+    pub abi: Option<serde_json::Value>,
+    /// The solc method identifiers.
+    pub method_identifiers: Option<BTreeMap<String, String>>,
+    /// The solc user documentation.
+    pub userdoc: Option<serde_json::Value>,
+    /// The solc developer documentation.
+    pub devdoc: Option<serde_json::Value>,
+    /// The solc storage layout.
+    pub storage_layout: Option<serde_json::Value>,
+    /// The solc transient storage layout.
+    pub transient_storage_layout: Option<serde_json::Value>,
+    /// the solc EVM legacy assembly.
+    pub legacy_assembly: Option<serde_json::Value>,
+    /// the solc optimized Yul IR assembly.
+    pub ir_optimized: Option<String>,
 }
 
 impl Contract {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(name: era_compiler_common::ContractName, ir: IR, metadata: Option<String>) -> Self {
-        Self { name, ir, metadata }
+    pub fn new(
+        name: era_compiler_common::ContractName,
+        ir: IR,
+        metadata: Option<String>,
+        abi: Option<serde_json::Value>,
+        method_identifiers: Option<BTreeMap<String, String>>,
+        userdoc: Option<serde_json::Value>,
+        devdoc: Option<serde_json::Value>,
+        storage_layout: Option<serde_json::Value>,
+        transient_storage_layout: Option<serde_json::Value>,
+        legacy_assembly: Option<serde_json::Value>,
+        ir_optimized: Option<String>,
+    ) -> Self {
+        Self {
+            name,
+            ir,
+            metadata,
+            abi,
+            method_identifiers,
+            userdoc,
+            devdoc,
+            storage_layout,
+            transient_storage_layout,
+            legacy_assembly,
+            ir_optimized,
+        }
     }
 
     ///
@@ -47,7 +87,7 @@ impl Contract {
     pub fn identifier(&self) -> &str {
         match self.ir {
             IR::Yul(ref yul) => yul.object.0.identifier.as_str(),
-            IR::EVMLA(ref evm) => evm.assembly.full_path(),
+            IR::EVMLegacyAssembly(ref evm) => evm.assembly.full_path(),
             IR::LLVMIR(ref llvm_ir) => llvm_ir.path.as_str(),
         }
     }
@@ -198,7 +238,7 @@ impl Contract {
                     metadata,
                 ))
             }
-            IR::EVMLA(mut deploy_code) => {
+            IR::EVMLegacyAssembly(mut deploy_code) => {
                 let mut runtime_code_assembly = deploy_code.assembly.runtime_code()?.to_owned();
                 runtime_code_assembly.set_full_path(deploy_code.assembly.full_path().to_owned());
 

@@ -16,7 +16,7 @@ use crate::evmla::assembly::Assembly;
 use crate::process::input::Input as EVMProcessInput;
 use crate::process::output::Output as EVMOutput;
 
-use self::contract::ir::evmla::EVMLA as ContractEVMLA;
+use self::contract::ir::evmla::EVMLegacyAssembly as ContractEVMLegacyAssembly;
 use self::contract::ir::llvm_ir::LLVMIR as ContractLLVMIR;
 use self::contract::ir::yul::Yul as ContractYul;
 use self::contract::ir::IR as ContractIR;
@@ -76,34 +76,70 @@ impl Project {
         }
 
         let mut input_contracts = Vec::with_capacity(solc_output.contracts.len());
-        for (path, file) in solc_output.contracts.iter() {
-            for (name, contract) in file.iter() {
-                let name = era_compiler_common::ContractName::new(
-                    (*path).to_owned(),
-                    Some((*name).to_owned()),
-                );
+        for path in solc_output
+            .contracts
+            .keys()
+            .cloned()
+            .collect::<Vec<_>>()
+            .into_iter()
+        {
+            let file = solc_output
+                .contracts
+                .remove(path.as_str())
+                .expect("Always exists");
+            for (name, contract) in file.into_iter() {
+                let name = era_compiler_common::ContractName::new(path.clone(), Some(name));
                 input_contracts.push((name, contract));
             }
         }
 
         let results = input_contracts
             .into_par_iter()
-            .filter_map(|(name, contract)| {
+            .filter_map(|(name, mut contract)| {
+                let method_identifiers = contract
+                    .evm
+                    .as_mut()
+                    .and_then(|evm| evm.method_identifiers.take());
+                let legacy_assembly = contract
+                    .evm
+                    .as_mut()
+                    .and_then(|evm| evm.legacy_assembly.take());
+                let extra_metadata = contract
+                    .evm
+                    .as_mut()
+                    .and_then(|evm| evm.extra_metadata.take());
+
                 let result = if via_ir {
                     ContractYul::try_from_source(
                         name.full_path.as_str(),
-                        contract.ir_optimized.as_ref()?.as_str(),
+                        contract.ir_optimized.clone()?,
                         debug_config,
                     )
                     .map(|yul| yul.map(ContractIR::from))
                 } else {
-                    Ok(ContractEVMLA::try_from_contract(contract).map(ContractIR::from))
+                    Ok(ContractEVMLegacyAssembly::try_from_contract(
+                        legacy_assembly.clone()?,
+                        extra_metadata,
+                    )
+                    .map(ContractIR::from))
                 };
                 let ir = match result {
                     Ok(ir) => ir?,
                     Err(error) => return Some((name.full_path, Err(error))),
                 };
-                let contract = Contract::new(name.clone(), ir, contract.metadata.clone());
+                let contract = Contract::new(
+                    name.clone(),
+                    ir,
+                    contract.metadata,
+                    contract.abi,
+                    method_identifiers,
+                    contract.userdoc,
+                    contract.devdoc,
+                    contract.storage_layout,
+                    contract.transient_storage_layout,
+                    legacy_assembly,
+                    contract.ir_optimized,
+                );
                 Some((name.full_path, Ok(contract)))
             })
             .collect::<BTreeMap<String, anyhow::Result<Contract>>>();
@@ -175,14 +211,6 @@ impl Project {
                     Ok(()) => source.take_content().expect("Always exists"),
                     Err(error) => return Some((path, Err(error))),
                 };
-                let ir = match ContractYul::try_from_source(
-                    path.as_str(),
-                    source_code.as_str(),
-                    debug_config,
-                ) {
-                    Ok(ir) => ir?,
-                    Err(error) => return Some((path, Err(error))),
-                };
 
                 let metadata = if output_selection.check_selection(
                     path.as_str(),
@@ -200,12 +228,39 @@ impl Project {
                     None
                 };
 
+                let ir_optimized = if output_selection.check_selection(
+                    path.as_str(),
+                    None,
+                    solx_standard_json::InputSelector::Yul,
+                ) {
+                    Some(source_code.clone())
+                } else {
+                    None
+                };
+                let ir =
+                    match ContractYul::try_from_source(path.as_str(), source_code, debug_config) {
+                        Ok(ir) => ir?,
+                        Err(error) => return Some((path, Err(error))),
+                    };
+
                 let name = era_compiler_common::ContractName::new(
                     path.clone(),
                     Some(ir.object.0.identifier.clone()),
                 );
                 let full_path = name.full_path.clone();
-                let contract = Contract::new(name, ir.into(), metadata);
+                let contract = Contract::new(
+                    name,
+                    ir.into(),
+                    metadata,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    ir_optimized,
+                );
                 Some((full_path, Ok(contract)))
             })
             .collect::<BTreeMap<String, anyhow::Result<Contract>>>();
@@ -293,6 +348,14 @@ impl Project {
                     era_compiler_common::ContractName::new(path.clone(), None),
                     ContractLLVMIR::new(path.clone(), source_code).into(),
                     metadata,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
                 );
 
                 (path, Ok(contract))
@@ -333,7 +396,16 @@ impl Project {
         let results = self
             .contracts
             .into_par_iter()
-            .map(|(path, contract)| {
+            .map(|(path, mut contract)| {
+                let abi = contract.abi.take();
+                let method_identifiers = contract.method_identifiers.take();
+                let userdoc = contract.userdoc.take();
+                let devdoc = contract.devdoc.take();
+                let storage_layout = contract.storage_layout.take();
+                let transient_storage_layout = contract.transient_storage_layout.take();
+                let legacy_assembly = contract.legacy_assembly.take();
+                let ir_optimized = contract.ir_optimized.take();
+
                 let input = EVMProcessInput::new(
                     contract,
                     self.identifier_paths.clone(),
@@ -344,7 +416,17 @@ impl Project {
                     debug_config.clone(),
                 );
                 let result: crate::Result<EVMOutput> = crate::process::call(path.as_str(), input);
-                let result = result.map(|output| output.build);
+                let result = result.map(|mut output| {
+                    output.build.abi = abi;
+                    output.build.method_identifiers = method_identifiers;
+                    output.build.userdoc = userdoc;
+                    output.build.devdoc = devdoc;
+                    output.build.storage_layout = storage_layout;
+                    output.build.transient_storage_layout = transient_storage_layout;
+                    output.build.legacy_assembly = legacy_assembly;
+                    output.build.ir_optimized = ir_optimized;
+                    output.build
+                });
                 (path, result)
             })
             .collect::<BTreeMap<String, Result<EVMContractBuild, solx_standard_json::OutputError>>>(

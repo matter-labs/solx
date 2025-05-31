@@ -29,7 +29,7 @@ pub struct EVM {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub method_identifiers: Option<BTreeMap<String, String>>,
 
-    /// The extra EVMLA metadata.
+    /// The extra EVM legacy assembly metadata.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub extra_metadata: Option<ExtraMetadata>,
 }
