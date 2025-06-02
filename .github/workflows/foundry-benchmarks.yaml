@@ -18,87 +18,116 @@ defaults:
 
 jobs:
 
-  build-solx:
-    runs-on: matterlabs-ci-runner-high-performance
-    container:
-      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#  build-solx:
+#    runs-on: matterlabs-ci-runner-high-performance
+#    container:
+#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#    steps:
+#      - name: Checkout source
+#        uses: actions/checkout@v4
+#        with:
+#          submodules: 'recursive'
+#
+#      # This step is required to checkout submodules
+#      # that are disabled in .gitmodules config
+#      - name: Checkout submodules
+#        run: |
+#          git config --global --add safe.directory '*'
+#          git submodule update --force --depth=1 --recursive --checkout
+#
+#      - name: Building solc
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+#        with:
+#          cmake-build-type: 'Release'
+#          working-dir: 'era-solidity'
+#
+#      - name: Build LLVM
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+#        with:
+#          clone-llvm: 'false'
+#          build-type: Release
+#          enable-assertions: 'false'
+#          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+#
+#      - name: Build solx
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+#        env:
+#          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+#          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+#        with:
+#          exec_name: 'solx'
+#          target: 'x86_64-unknown-linux-gnu'
+#          release-suffix: test
+
+  # Special job to separate projects by chunks
+  # and execute chunks in parallel later.
+  prepare-projects:
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.projects.outputs.projects }}
+    env:
+      MAX_RUNNERS: 6 # how many max runners we can occupy in parallel
     steps:
-      - name: Checkout source
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
-      # This step is required to checkout submodules
-      # that are disabled in .gitmodules config
-      - name: Checkout submodules
+      - name: Prepare projects
+        id: projects
         run: |
-          git config --global --add safe.directory '*'
-          git submodule update --force --depth=1 --recursive --checkout
-
-      - name: Building solc
-        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
-        with:
-          cmake-build-type: 'Release'
-          working-dir: 'era-solidity'
-
-      - name: Build LLVM
-        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
-        with:
-          clone-llvm: 'false'
-          build-type: Release
-          enable-assertions: 'false'
-          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
-
-      - name: Build solx
-        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
-        env:
-          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
-        with:
-          exec_name: 'solx'
-          target: 'x86_64-unknown-linux-gnu'
-          release-suffix: test
-
+          # Filter huge projects in PRs
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            projects=$(yq 'to_entries | map(select(.value.category != "huge")) | .[].key' forge-benchmarks.toml | tr '\n' ' ')
+            projects_len=$(yq 'to_entries | map(select(.value.category != "huge")) | length' forge-benchmarks.toml)
+          else
+            projects=$(yq '. as $root | keys[]' forge-benchmarks.toml | tr '\n' ' ')
+            projects_len=$(yq '. | keys | length' forge-benchmarks.toml)
+          fi
+          read -a arr <<< "${projects}"
+          chunk_size="$(( (projects_len + MAX_RUNNERS - 1) / MAX_RUNNERS ))"
+          groups=()
+          for ((i=0; i<${#arr[@]}; i+=chunk_size)); do
+            group="${arr[@]:i:chunk_size}"
+            groups+=("$group")
+          done
+          JSON=$(jq -cn --argjson g "$(printf '%s\n' "${groups[@]}" | jq -R . | jq -s .)" '$g')
+          echo "projects=${JSON}" >> ${GITHUB_OUTPUT}
 
   test:
-    needs: build-solx
+#    needs: build-solx
+    needs: prepare-projects
     runs-on: matterlabs-ci-runner-high-performance
-    container:
-      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#    container:
+#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     outputs:
       solx-version: ${{ steps.solx.outputs.solx-version }}
       solx-llvm-version: ${{ steps.solx.outputs.solx-llvm-version }}
       solc-base-version: ${{ steps.solx.outputs.solc-base-version }}
+      compilation_json: ${{ steps.tests.outputs.compilation_json }}
     strategy:
       fail-fast: false
       matrix:
-        # 'aave-v3' 'uniswap-v4'
-        project: [
-          'solmate openzeppelin',
-          'solady forge-std',
-          'lil-web3 maple-erc20'
-        ]
-        compiler: [ 'solc', 'solx' ]
-        via_ir: [ 'true', 'false' ]
+        project: ${{ fromJSON(needs.prepare-projects.outputs.projects) }}
+        # compiler: [ 'solc', 'solx' ]
+        # via_ir: [ 'true', 'false' ]
     steps:
-      - name: Checkout test suites
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: 'antonbaliasnikov/solidity-test-suite'
-          submodules: 'recursive'
+          sparse-checkout: forge-benchmarks.toml
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: release*
-          path: .
+#      - name: Download artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          pattern: release*
+#          path: .
 
       - name: Setup solx
         id: solx
         run: |
           mkdir -p compilers
-          mv release-test/test/solx* ./compilers/solx
           cd compilers
+          wget https://github.com/matter-labs/solx/releases/download/0.1.0-alpha.4/solx-linux-amd64-gnu-v0.1.0-alpha.4
+          mv ./solx-linux-amd64-gnu-v0.1.0-alpha.4 ./solx
           chmod a+x ./solx
           SOLX_VERSION=$(./solx --version | head -n 1)
           SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
@@ -106,6 +135,20 @@ jobs:
           echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
           echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
           echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
+
+#      - name: Setup solx
+#        id: solx
+#        run: |
+#          mkdir -p compilers
+#          mv release-test/test/solx* ./compilers/solx
+#          cd compilers
+#          chmod a+x ./solx
+#          SOLX_VERSION=$(./solx --version | head -n 1)
+#          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+#          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
+#          echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
+#          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
+#          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
 
       - name: Install foundry
         run: |
@@ -121,41 +164,90 @@ jobs:
           wget "${YQ_DOWNLOAD_URL}"
           mv yq_linux_amd64 yq
           chmod +x yq
+        
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Git https settings
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git config --global url."https://".insteadOf git://
 
       - name: Run tests
+        id: tests
         run: |
+          mkdir -p projects
+          compilation_json='{}'
           for PROJECT in ${{ matrix.project }}; do
-            for COMPILER in ${{ matrix.compiler }}; do
-              for VIA_IR in ${{ matrix.via_ir }}; do
-                (
-                  cd "projects/${PROJECT}"
-                  echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
-                  # Replace solidity version in all .sol files
-                  find . -name "*.sol" -type f -exec \
-                    sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
-                  # Fix config if required
-                  forge config --fix
-                  sed -i '/evm_version =.*/d' foundry.toml
-                  sed -i '/via_ir =.*/d' foundry.toml
-                  sed -i 's/solc = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
-                  sed -i 's/solc_version = .*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
-                  # Build project
-                  [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/compilers/solx"
-                  [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-via-ir"
-                  [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir"
-                  mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
-                  BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
-                  forge build ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>&1 || true
-                  FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
-                  echo FAILED_TESTS_TO_SKIP=${FAILED_TESTS_TO_SKIP} | tee -a ${GITHUB_ENV}
-                  # Run tests
-                  DEFAULT_SKIP=$(${GITHUB_WORKSPACE}/yq '.profile.default.skip[]' foundry.toml)
-                  if [[ -n "${DEFAULT_SKIP}" ]] || [[ -n "${FAILED_TESTS_TO_SKIP}" ]]; then
-                    SKIP_TESTS="--skip ${DEFAULT_SKIP} ${FAILED_TESTS_TO_SKIP}"
-                  fi
-                  TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
-                  forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
-                )
+            DISABLED=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.disabled" ${GITHUB_WORKSPACE}/forge-benchmarks.toml)
+            if [[ "${DISABLED}" == "true" ]]; then
+              echo "Skipping ${PROJECT} as it is disabled"
+              continue
+            fi
+            for COMPILER in solc solx; do
+              for VIA_IR in true false; do
+                REPO=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.repo" ${GITHUB_WORKSPACE}/forge-benchmarks.toml)
+                if [ ! -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then
+                  git clone --depth 1 "${REPO}" "${GITHUB_WORKSPACE}/projects/${PROJECT}" --recurse-submodules
+                else
+                  echo "Project ${PROJECT} already exists, cleaning up"
+                  forge clean
+                fi
+                cd "${GITHUB_WORKSPACE}/projects/${PROJECT}"
+                echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
+          
+                REQUIRES_YARN=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.requires_yarn" ${GITHUB_WORKSPACE}/forge-benchmarks.toml)
+                if [[ "${REQUIRES_YARN}" == "true" ]]; then
+                  echo "Installing yarn dependencies for ${PROJECT}"
+                  yarn install
+                fi
+          
+                # Replace solidity version in all .sol files
+                find . -name "*.sol" -type f -exec \
+                  sed -i 's/pragma solidity [0-9]\+\.[0-9]\+\.[0-9]\+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
+                # Fix config if required
+                forge config --fix
+                sed -i '/evm_version.*/d' foundry.toml
+                sed -i '/via_ir.*/d' foundry.toml
+                sed -i 's/solc.*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+                sed -i 's/solc_version.*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
+                # Build project
+                [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/compilers/solx"
+                [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-via-ir" || VIA_IR_SUFFIX=""
+                [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir" || VIA_IR_OPTION=""
+                mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
+                BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
+                  
+                start_ms=$(date +%s%3N)
+                forge build ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>&1 || true
+          
+                end_ms=$(date +%s%3N)
+                elapsed_ms=$(( end_ms - start_ms ))
+                COMPILE_TIME=$(awk -v ms="${elapsed_ms}" 'BEGIN { printf "%.3f\n", ms / 1000 }')
+                jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
+                mv tmp.json "${BUILD_JSON}"
+          
+                COMPILE_ONLY=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.compile_only" ${GITHUB_WORKSPACE}/forge-benchmarks.toml)
+                if [[ "${COMPILE_ONLY}" == "true" ]]; then
+                  echo "Skipping tests for ${PROJECT} as compile_only is set to true"
+                  continue
+                fi
+          
+                FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
+                # Run tests
+                DEFAULT_SKIP=$(${GITHUB_WORKSPACE}/yq '.profile.default.skip[]' foundry.toml)
+                if [[ -n "${DEFAULT_SKIP}" ]] || [[ -n "${FAILED_TESTS_TO_SKIP}" ]]; then
+                  SKIP_TESTS="--skip ${DEFAULT_SKIP} ${FAILED_TESTS_TO_SKIP}"
+                else
+                  SKIP_TESTS=""
+                fi
+                TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
+                # forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1
+                forge test ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} | tee -a "${TEST_JSON}" 2>&1 || true
               done
             done
           done
@@ -170,6 +262,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
@@ -178,26 +273,64 @@ jobs:
 
       - name: Prepare compatibility table
         run: |
-          echo "| Project     | Passed / Total | Progress       |" > report.md
-          echo "|-------------|----------------|----------------|" >> report.md
+          echo "| Project     | Mode     | Compiled / Total | Passed / Total   | Progress       | Compile time (s)|" > report.md
+          echo "|-------------|----------|------------------|------------------|----------------|-----------------|" >> report.md
+  
+          PROJECTS=$(yq '. as $root | keys[]' forge-benchmarks.toml | tr '\n' ' ')
+          for PROJECT in ${PROJECTS}; do
+            for MODE in "default" "viaIR"; do
+              if [ "${MODE}" = "default" ]; then
+                JSON="data/solx/build_${PROJECT}.json"
+                RUN_JSON="data/solx/${PROJECT}.json"
+              else
+                JSON="data/solx-via-ir/build_${PROJECT}.json"
+                RUN_JSON="data/solx-via-ir/${PROJECT}.json"
+              fi
+          
+              TEST_TOTAL=0
+              TEST_PASSED=0
+              TEST_FAILED=0
+              if jq empty "${RUN_JSON}" > /dev/null 2>&1; then
+                TEST_RESULTS_JSON=$(
+                jq '
+                  reduce to_entries[] as $contract (
+                    {total: 0, success: 0};
+                    reduce ($contract.value.test_results | to_entries)[] as $test (
+                      .;
+                      .total += 1 |
+                      .success += (if $test.value.status == "Success" then 1 else 0 end)
+                    )
+                  )' "${RUN_JSON}"
+                )
+                TEST_TOTAL=$(echo "${TEST_RESULTS_JSON}" | jq -r '.total')
+                TEST_PASSED=$(echo "${TEST_RESULTS_JSON}" | jq -r '.success')
+                TEST_FAILED=$((TEST_TOTAL - TEST_PASSED))
+              fi
 
-          # aave-v3
-          for PROJECT in solmate solady lil-web3 maple-erc20 openzeppelin forge-std uniswap-v4; do
-            JSON=data/solx/build_${PROJECT}.json
-            if [ ! -s "$JSON" ]; then
-              echo "No data for ${PROJECT}"
-              continue
-            fi
-            TOTAL=$(jq -r '.build_infos[0].source_id_to_path | length' "$JSON")
-            FAILURES=$(jq -r '[.errors[] | select(.type == "Error")] | length' "$JSON")
-            PASSED=$((TOTAL - FAILURES))
-            PERCENT=$((PASSED * 100 / TOTAL))
-            FILLED=$((PERCENT / 10))
-            BAR=""
-            for i in $(seq 1 10); do
-              [ "$i" -le "$FILLED" ] && BAR+="🟩" || BAR+="⬜"
+              if [ ! -s "$JSON" ]; then
+                echo "No data for ${PROJECT} [$MODE]"
+                continue
+              fi
+  
+              TOTAL=$(jq -r '.build_infos[0].source_id_to_path | length' "$JSON")
+              FAILURES=$(jq -r '[.errors[] | select(.type == "Error")] | length' "$JSON")
+              PASSED=$((TOTAL - FAILURES))
+              PERCENT=$((PASSED * 100 / TOTAL))
+              FILLED=$((PERCENT / 10))
+
+              COMPILE_TIME=$(jq -r '.compile_time' "${JSON}")
+  
+              BAR=""
+              for i in $(seq 1 10); do
+                [ "$i" -le "$FILLED" ] && BAR+="🟩" || BAR+="⬜"
+              done
+              # Only show project name for the first row
+              if [ "$MODE" = "default" ]; then
+                printf "| %-11s | %-8s | %4d / %4d   | %4d / %4d   | %s %3d%% | %8.3f |\n" "${PROJECT}" "${MODE}" "${PASSED}" "${TOTAL}" "${TEST_PASSED}" "${TEST_TOTAL}" "${BAR}" "${PERCENT}" "${COMPILE_TIME}" >> report.md
+              else
+                printf "| %-11s | %-8s | %4d / %4d   | %4d / %4d   | %s %3d%% | %8.3f |\n" "" "${MODE}" "${PASSED}" "${TOTAL}" "${TEST_PASSED}" "${TEST_TOTAL}" "${BAR}" "${PERCENT}" "${COMPILE_TIME}" >> report.md
+              fi
             done
-            printf "| %-11s | %4d / %4d   | %s %3d%% |\n" "${PROJECT}" "${PASSED}" "${TOTAL}" "${BAR}" "${PERCENT}" >> report.md
           done
 
       - name: Upload report
@@ -207,117 +340,117 @@ jobs:
           message-id: 'compatibility-matrix'
 
 
-  analyze-results:
-    runs-on: matterlabs-ci-runner-high-performance
-    container:
-      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-    needs: test
-    env:
-      LNT_SERVER_URL: http://llvm-lnt.infra.matterlabs.corp
-      LNT_TEST_SUITE: zksync
-      CONFIG_FILE: lntadmin.yaml
-      DEV_PREFIX: DEV__
-      LNT_RESULTS_FILE: lnt_results.txt
-      CONTEXT_FILE: context.json
-      COMPARISON_FILE: comparison_links.txt
-    steps:
-
-      - name: Checkout LNT
-        uses: actions/checkout@v4
-        with:
-          repository: llvm/llvm-lnt
-          path: lnt
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-
-      - name: Install LNT
-        run: cd lnt && pip install .
-
-      - name: Download reports
-        uses: actions/download-artifact@v4
-        with:
-          path: data
-          merge-multiple: 'true'
-
-      - name: Install LNT benchmark-converter
-        run: |
-          cargo install benchmark-analyzer --bin benchmark-converter \
-            --git https://github.com/matter-labs/era-compiler-tester
-
-      - name: Check data directory
-        run: |
-          ls -la ./data
-          find ./data
-
-      - name: Generate context.json
-        run: |
-          if [[ "${{ github.event_name }}" != "push" ]]; then
-            DEV_MACHINE_PREFIX="${DEV_PREFIX}"
-          fi
-          for COMPILER in solx solx-via-ir solc solc-via-ir; do
-            [[ ${COMPILER} == "solx"* ]] && TOOLCHAIN="ir-llvm" || TOOLCHAIN="evm"
-            [[ ${COMPILER} == "solx"* ]] && VERSION="${{ needs.test.outputs.solx-version }}" || VERSION="${{ needs.test.outputs.solc-base-version }}"
-            [[ ${COMPILER} == *"via-ir" ]] && CODEGEN="via-ir" || CODEGEN="evmla"
-            echo "{
-              \"machine\": \"${DEV_MACHINE_PREFIX}forge-benchmarks-${COMPILER}\",
-              \"target\": \"evm\",
-              \"toolchain\": \"${TOOLCHAIN}\",
-              \"compiler_version\": \"${VERSION}\",
-              \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\",
-              \"codegen\": \"${CODEGEN}\",
-              \"optimization\": \"Default\"
-            }" > ${CONTEXT_FILE}
-            INPUTS=""
-            rm -f ./data/${COMPILER}/build*.json
-            JSONS=$(ls ./data/${COMPILER}/*.json)
-            for JSON in ${JSONS}; do
-              if [ ! -s "${JSON}" ]; then
-                echo "${JSON} is empty. Skipping..."
-                continue
-              fi
-              INPUTS+=" --input-paths ${JSON}"
-            done
-            benchmark-converter ${INPUTS} \
-              --benchmark-format json-lnt \
-              --benchmark-context ${CONTEXT_FILE} \
-              --output-path ./${COMPILER}
-            mv ./${COMPILER}/* ./lnt-report-${COMPILER}.json
-          done
-
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: lnt-reports
-          path: lnt-report*.json
-
-      - name: Submit LNT results
-        shell: bash -ex {0}
-        run: |
-          SUBMIT_URL="${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/submitRun"
-          echo SOLX_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx.json) | tee -a ${GITHUB_ENV}
-          echo SOLX_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx-via-ir.json) | tee -a ${GITHUB_ENV}
-          echo SOLC_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc.json) | tee -a ${GITHUB_ENV}
-          echo SOLC_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc-via-ir.json) | tee -a ${GITHUB_ENV}
-
-      - name: Publish comparison links
-        if: ${{ github.event_name == 'pull_request' }}
-        shell: bash -ex {0}
-        run: |
-          # Initialize the Markdown table
-          echo '|  Mode   | Link |' > "${COMPARISON_FILE}"
-          echo '|---------|------|' >> "${COMPARISON_FILE}"
-          COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_LINK##*/}?compare_to=${SOLC_LINK##*/})"
-          VIA_IR_COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_VIA_IR_LINK##*/}?compare_to=${SOLC_VIA_IR_LINK##*/})"
-          echo "| default | ${COMPARISON} |" >> "${COMPARISON_FILE}"
-          echo "| via-ir | ${VIA_IR_COMPARISON} |" >> "${COMPARISON_FILE}"
-          cat "${COMPARISON_FILE}"
-
-      - name: Posting LNT comparison
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: mshick/add-pr-comment@v2
-        with:
-          message-path: ${{ env.COMPARISON_FILE }}
-          message-id: comparison_links
+#  analyze-results:
+#    runs-on: matterlabs-ci-runner-high-performance
+#    container:
+#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#    needs: test
+#    env:
+#      LNT_SERVER_URL: http://llvm-lnt.infra.matterlabs.corp
+#      LNT_TEST_SUITE: zksync
+#      CONFIG_FILE: lntadmin.yaml
+#      DEV_PREFIX: DEV__
+#      LNT_RESULTS_FILE: lnt_results.txt
+#      CONTEXT_FILE: context.json
+#      COMPARISON_FILE: comparison_links.txt
+#    steps:
+#
+#      - name: Checkout LNT
+#        uses: actions/checkout@v4
+#        with:
+#          repository: llvm/llvm-lnt
+#          path: lnt
+#
+#      - name: Setup Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: '3.9'
+#
+#      - name: Install LNT
+#        run: cd lnt && pip install .
+#
+#      - name: Download reports
+#        uses: actions/download-artifact@v4
+#        with:
+#          path: data
+#          merge-multiple: 'true'
+#
+#      - name: Install LNT benchmark-converter
+#        run: |
+#          cargo install benchmark-analyzer --bin benchmark-converter \
+#            --git https://github.com/matter-labs/era-compiler-tester
+#
+#      - name: Check data directory
+#        run: |
+#          ls -la ./data
+#          find ./data
+#
+#      - name: Generate context.json
+#        run: |
+#          if [[ "${{ github.event_name }}" != "push" ]]; then
+#            DEV_MACHINE_PREFIX="${DEV_PREFIX}"
+#          fi
+#          for COMPILER in solx solx-via-ir solc solc-via-ir; do
+#            [[ ${COMPILER} == "solx"* ]] && TOOLCHAIN="ir-llvm" || TOOLCHAIN="evm"
+#            [[ ${COMPILER} == "solx"* ]] && VERSION="${{ needs.test.outputs.solx-version }}" || VERSION="${{ needs.test.outputs.solc-base-version }}"
+#            [[ ${COMPILER} == *"via-ir" ]] && CODEGEN="via-ir" || CODEGEN="evmla"
+#            echo "{
+#              \"machine\": \"${DEV_MACHINE_PREFIX}forge-benchmarks-${COMPILER}\",
+#              \"target\": \"evm\",
+#              \"toolchain\": \"${TOOLCHAIN}\",
+#              \"compiler_version\": \"${VERSION}\",
+#              \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\",
+#              \"codegen\": \"${CODEGEN}\",
+#              \"optimization\": \"Default\"
+#            }" > ${CONTEXT_FILE}
+#            INPUTS=""
+#            rm -f ./data/${COMPILER}/build*.json
+#            JSONS=$(ls ./data/${COMPILER}/*.json)
+#            for JSON in ${JSONS}; do
+#              if [ ! -s "${JSON}" ]; then
+#                echo "${JSON} is empty. Skipping..."
+#                continue
+#              fi
+#              INPUTS+=" --input-paths ${JSON}"
+#            done
+#            benchmark-converter ${INPUTS} \
+#              --benchmark-format json-lnt \
+#              --benchmark-context ${CONTEXT_FILE} \
+#              --output-path ./${COMPILER}
+#            mv ./${COMPILER}/* ./lnt-report-${COMPILER}.json
+#          done
+#
+#      - name: Upload results
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: lnt-reports
+#          path: lnt-report*.json
+#
+#      - name: Submit LNT results
+#        shell: bash -ex {0}
+#        run: |
+#          SUBMIT_URL="${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/submitRun"
+#          echo SOLX_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx.json) | tee -a ${GITHUB_ENV}
+#          echo SOLX_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx-via-ir.json) | tee -a ${GITHUB_ENV}
+#          echo SOLC_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc.json) | tee -a ${GITHUB_ENV}
+#          echo SOLC_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc-via-ir.json) | tee -a ${GITHUB_ENV}
+#
+#      - name: Publish comparison links
+#        if: ${{ github.event_name == 'pull_request' }}
+#        shell: bash -ex {0}
+#        run: |
+#          # Initialize the Markdown table
+#          echo '|  Mode   | Link |' > "${COMPARISON_FILE}"
+#          echo '|---------|------|' >> "${COMPARISON_FILE}"
+#          COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_LINK##*/}?compare_to=${SOLC_LINK##*/})"
+#          VIA_IR_COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_VIA_IR_LINK##*/}?compare_to=${SOLC_VIA_IR_LINK##*/})"
+#          echo "| default | ${COMPARISON} |" >> "${COMPARISON_FILE}"
+#          echo "| via-ir | ${VIA_IR_COMPARISON} |" >> "${COMPARISON_FILE}"
+#          cat "${COMPARISON_FILE}"
+#
+#      - name: Posting LNT comparison
+#        if: ${{ github.event_name == 'pull_request' }}
+#        uses: mshick/add-pr-comment@v2
+#        with:
+#          message-path: ${{ env.COMPARISON_FILE }}
+#          message-id: comparison_links

@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'docs/**'
-      - '.github/workflows/deploy-docs.yaml'
+      - 'deploy-docs.yaml'
   workflow_call:
   workflow_dispatch:
     inputs:

@@ -1,0 +1,112 @@
+### Template ###
+# [project_name] # mandatory
+# repo = "https://github.com/.../..." # mandatory
+# description = "A brief description of the project." # optional, but recommended
+# compile_only = true # optional, set to true if you only want to compile the project without running tests
+# requires_yarn = true # optional, set to true if the project requires yarn install before building
+# # category = "huge" # optional, use huge to indicate a large project that may take longer to compile or run tests
+###
+
+[solady]
+repo = "https://github.com/Vectorized/solady"
+description = "Gas optimized Solidity snippets."
+
+[openzeppelin]
+repo = "https://github.com/OpenZeppelin/openzeppelin-contracts"
+description = "A library for secure smart contract development."
+
+[forge-std]
+repo = "https://github.com/foundry-rs/forge-std"
+description = "Forge Standard Library is a collection of helpful contracts and libraries for use with Forge and Foundry."
+
+[lil-web3]
+repo = "https://github.com/m1guelpf/lil-web3"
+description = "lil web3 aims to build really simple, intentionally-limited versions of web3 protocols & apps."
+
+[maple-erc20]
+repo = "https://github.com/maple-labs/erc20"
+description = "Basic ERC-20 contract designed to be inherited and extended."
+
+[diamonds]
+repo = "https://github.com/Timidan/Foundry-Hardhat-Diamonds"
+description = "A minimal template for Diamonds EIP-2535."
+compile_only = true
+
+[rollcall]
+repo = "https://github.com/withtally/rollcall"
+description = "A set of cross chain governance solutions."
+
+[playpen]
+repo = "https://github.com/ZeframLou/playpen"
+description = "A set of modern, gas optimized staking pool contracts."
+
+[solmate]
+repo = "https://github.com/transmissions11/solmate"
+description = "Modern, opinionated, and gas optimized building blocks for smart contract development."
+
+[prb-math]
+repo = "https://github.com/paulrberg/prb-math"
+description = "Solidity library for advanced fixed-point math operations."
+requires_yarn = true
+
+[unix]
+repo = "https://github.com/refcell/unix"
+description = "A lightweight, extensible foundry library for shell scripting."
+compile_only = true
+
+[foundry-upgrades]
+repo = "https://github.com/odyslam/foundry-upgrades"
+description = "Helper smart contracts to deploy and manage upgradeable contracts."
+
+[art-gobblers]
+repo = "https://github.com/artgobblers/art-gobblers"
+description = "A decentralized art factory and marketplace."
+
+[aave-v3]
+repo = "https://github.com/aave-dao/aave-v3-origin"
+description = "A non-custodial liquidity protocol on Ethereum."
+# category = "huge"
+
+[balance-snapshot]
+repo = "https://github.com/pilagod/balance-snapshot"
+description = "A Solidity library to improve balance change check in Foundry tests."
+
+[diamond-foundry]
+repo = "https://github.com/FydeTreasury/Diamond-Foundry"
+description = "a reference implementation for EIP-2535 Diamonds."
+
+[fixed-term-loan]
+repo = "https://github.com/maple-labs/fixed-term-loan"
+description = "A set of contracts to facilitate on-chain loans."
+disabled = true
+
+[tokenlon]
+repo = "https://github.com/consenlabs/tokenlon-contracts"
+description = "A decentralized exchange and payment settlement protocol."
+
+[uniswap-v4]
+repo = "https://github.com/Uniswap/v4-core"
+description = "A new automated market maker protocol."
+# category = "huge"
+
+[beefy]
+repo = "https://github.com/beefyfinance/beefy-contracts"
+description = "Official repo for strategies and vaults from Beefy."
+requires_yarn = true
+compile_only = true # tests are failing with solc, just compilation
+
+[gov-of-venice]
+repo = "https://github.com/pentagonxyz/gov-of-venice"
+description = "A new paradigm in DAO governance."
+
+[seaport]
+repo = "https://github.com/ProjectOpenSea/seaport"
+description = "A marketplace protocol for safely and efficiently buying and selling NFTs."
+# category = "huge"
+disabled = true # compilation hangs, required to disable fuzzing tests
+
+[lens]
+repo = "https://github.com/lens-protocol/core"
+description = "Lens protocol, non-custodial social graph."
+# category = "huge"
+disabled = true # compilation is too long
