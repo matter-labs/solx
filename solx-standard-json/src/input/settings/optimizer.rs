@@ -60,7 +60,7 @@ impl Optimizer {
     /// The default flag to enable the size fallback.
     ///
     pub fn default_size_fallback() -> Option<bool> {
-        Some(true)
+        Some(false)
     }
 
     ///

@@ -174,6 +174,7 @@ impl Contract {
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    false,
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
@@ -218,6 +219,7 @@ impl Contract {
                         solx_standard_json::InputSelector::BytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    false,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -280,6 +282,7 @@ impl Contract {
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    false,
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
@@ -322,6 +325,7 @@ impl Contract {
                         solx_standard_json::InputSelector::BytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    false,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -395,6 +399,7 @@ impl Contract {
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    false,
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
@@ -427,6 +432,7 @@ impl Contract {
                         solx_standard_json::InputSelector::BytecodeLLVMAssembly,
                     ),
                     output_bytecode,
+                    false,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
