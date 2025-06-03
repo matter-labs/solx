@@ -2,8 +2,10 @@
 //! The CLI/e2e tests entry module.
 //!
 
+use std::io::Write;
 use std::process::Command;
 
+use assert_cmd::assert::Assert;
 use assert_cmd::assert::OutputAssertExt;
 use assert_cmd::cargo::CommandCargoExt;
 
@@ -48,6 +50,39 @@ mod yul;
 /// Execute `solx` with the given arguments and assert the result.
 ///
 pub fn execute_solx(args: &[&str]) -> anyhow::Result<assert_cmd::assert::Assert> {
-    let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
-    Ok(cmd.args(args).assert())
+    let mut command = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
+    Ok(command.args(args).assert())
+}
+
+///
+/// Execute `solx` with the given arguments and stdin input, and assert the result.
+///
+pub fn execute_solx_with_stdin(
+    args: &[&str],
+    path: &str,
+) -> anyhow::Result<assert_cmd::assert::Assert> {
+    let content = std::fs::read_to_string(path)
+        .map_err(|error| anyhow::anyhow!("Failed to read file {path}: {error}"))?;
+
+    let mut command = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
+    command.stdin(std::process::Stdio::piped());
+    command.stdout(std::process::Stdio::piped());
+    command.stderr(std::process::Stdio::piped());
+    command.args(args);
+
+    let mut process = command
+        .spawn()
+        .map_err(|error| anyhow::anyhow!("Subprocess spawning: {error:?}"))?;
+    let stdin = process
+        .stdin
+        .as_mut()
+        .ok_or_else(|| anyhow::anyhow!("Subprocess stdin getting error"))?;
+    stdin
+        .write_all(content.as_bytes())
+        .map_err(|error| anyhow::anyhow!("Subprocess stdin writing: {error:?}"))?;
+
+    let output = process
+        .wait_with_output()
+        .map_err(|error| anyhow::anyhow!("Subprocess output reading: {error:?}"))?;
+    Ok(Assert::new(output).append_context("command", format!("{command:?}")))
 }

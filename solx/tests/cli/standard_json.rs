@@ -17,7 +17,24 @@ fn default() -> anyhow::Result<()> {
     let result = crate::cli::execute_solx(args)?;
     result
         .success()
-        .stdout(predicate::str::contains("bytecode"));
+        .stdout(predicate::str::contains("bytecode"))
+        .stdout(predicate::str::contains("object"));
+
+    Ok(())
+}
+
+#[test]
+fn stdin() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &["--standard-json"];
+
+    let result =
+        crate::cli::execute_solx_with_stdin(args, crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"))
+        .stdout(predicate::str::contains("object"));
 
     Ok(())
 }

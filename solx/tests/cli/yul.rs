@@ -18,6 +18,25 @@ fn bin() -> anyhow::Result<()> {
 }
 
 #[test]
+fn stdin() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--yul",
+        "--bin",
+        solx_standard_json::InputSource::STDIN_INPUT_IDENTIFIER,
+    ];
+
+    let result = crate::cli::execute_solx_with_stdin(args, crate::common::TEST_YUL_CONTRACT_PATH)?;
+
+    result
+        .success()
+        .stdout(predicate::str::contains("Binary").count(1));
+
+    Ok(())
+}
+
+#[test]
 fn asm() -> anyhow::Result<()> {
     crate::common::setup()?;
 
