@@ -112,7 +112,7 @@ object "Test" {
 }
     "#;
 
-        let mut lexer = Lexer::new(input.to_owned());
+        let mut lexer = Lexer::new(input);
         let result = Object::<DefaultDialect>::parse(
             &mut lexer,
             None,

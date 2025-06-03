@@ -72,7 +72,7 @@ object "Test" {
 }
     "#;
 
-    let mut lexer = Lexer::new(input.to_owned());
+    let mut lexer = Lexer::new(input);
     loop {
         match lexer.next() {
             Ok(token) => assert_ne!(token.lexeme, Lexeme::EndOfFile),

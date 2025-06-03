@@ -25,7 +25,7 @@ impl Yul {
     ///
     pub fn try_from_source(
         path: &str,
-        source_code: String,
+        source_code: &str,
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Option<Self>> {
         if source_code.is_empty() {
@@ -33,7 +33,7 @@ impl Yul {
         };
 
         if let Some(debug_config) = debug_config {
-            debug_config.dump_yul(path, source_code.as_str())?;
+            debug_config.dump_yul(path, source_code)?;
         }
 
         let mut lexer = Lexer::new(source_code);

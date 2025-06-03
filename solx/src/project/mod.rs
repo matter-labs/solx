@@ -143,7 +143,7 @@ impl Project {
                 let result = if via_ir {
                     ContractYul::try_from_source(
                         name.full_path.as_str(),
-                        contract.ir_optimized.clone()?,
+                        contract.ir_optimized.as_deref()?,
                         debug_config,
                     )
                     .map(|yul| yul.map(ContractIR::from))
@@ -260,11 +260,14 @@ impl Project {
                     None
                 };
 
-                let ir =
-                    match ContractYul::try_from_source(path.as_str(), source_code, debug_config) {
-                        Ok(ir) => ir?,
-                        Err(error) => return Some((path, Err(error))),
-                    };
+                let ir = match ContractYul::try_from_source(
+                    path.as_str(),
+                    source_code.as_str(),
+                    debug_config,
+                ) {
+                    Ok(ir) => ir?,
+                    Err(error) => return Some((path, Err(error))),
+                };
 
                 let name = era_compiler_common::ContractName::new(
                     path.clone(),

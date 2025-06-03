@@ -21,9 +21,9 @@ use self::token::Token;
 ///
 /// The compiler lexer.
 ///
-pub struct Lexer {
+pub struct Lexer<'a> {
     /// The input source code.
-    input: String,
+    input: &'a str,
     /// The number of characters processed so far.
     offset: usize,
     /// The current location.
@@ -32,13 +32,11 @@ pub struct Lexer {
     peeked: Option<Token>,
 }
 
-impl Lexer {
+impl<'a> Lexer<'a> {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(mut input: String) -> Self {
-        input.push('\n');
-
+    pub fn new(input: &'a str) -> Self {
         Self {
             input,
             offset: 0,

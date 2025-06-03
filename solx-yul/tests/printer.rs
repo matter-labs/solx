@@ -12,8 +12,8 @@ use solx_yul::yul::parser::statement::Statement;
 use solx_yul::yul::visitor::Visitor;
 
 fn print_expression(input: &str) -> String {
-    let mut lexer = Lexer::new(input.to_string());
-    let expression = Expression::parse(&mut lexer, None).unwrap();
+    let mut lexer = Lexer::new(input);
+    let expression = Expression::parse(&mut lexer, None).expect("Always valid");
     let mut result = String::new();
     let mut writer = WritePrinter::<&mut String>::new(&mut result);
     Visitor::<DefaultDialect>::visit_expression(&mut writer, &expression);
@@ -21,7 +21,7 @@ fn print_expression(input: &str) -> String {
 }
 
 fn print_statement(input: &str) -> String {
-    let mut lexer = Lexer::new(input.to_string());
+    let mut lexer = Lexer::new(input);
     let statement = Statement::<DefaultDialect>::parse(&mut lexer, None)
         .unwrap()
         .0;

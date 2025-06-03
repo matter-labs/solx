@@ -34,11 +34,11 @@ impl Symbol {
     /// Parses the symbol, returning it as a token.
     ///
     pub fn parse(input: &str) -> Option<Token> {
-        let (symbol, length) = match &input[..2] {
+        let (symbol, length) = match &input[..std::cmp::min(input.len(), 2)] {
             ":=" => (Self::Assignment, 2),
             "->" => (Self::Arrow, 2),
 
-            _ => match &input[..1] {
+            _ => match &input[..std::cmp::min(input.len(), 1)] {
                 "{" => (Self::BracketCurlyLeft, 1),
                 "}" => (Self::BracketCurlyRight, 1),
                 "(" => (Self::ParenthesisLeft, 1),

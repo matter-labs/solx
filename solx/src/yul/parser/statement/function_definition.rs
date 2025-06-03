@@ -177,7 +177,7 @@ object "Test" {
         let mut invalid_attributes = BTreeSet::new();
         invalid_attributes.insert("UnknownAttribute".to_owned());
 
-        let mut lexer = Lexer::new(input.to_owned());
+        let mut lexer = Lexer::new(input);
         let result =
             Object::<EraDialect>::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy);
         assert_eq!(
@@ -216,7 +216,7 @@ object "Test" {
         invalid_attributes.insert("UnknownAttribute1".to_owned());
         invalid_attributes.insert("UnknownAttribute2".to_owned());
 
-        let mut lexer = Lexer::new(input.to_owned());
+        let mut lexer = Lexer::new(input);
         let result =
             Object::<EraDialect>::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy);
         assert_eq!(
