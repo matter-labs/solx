@@ -11,7 +11,8 @@ use std::collections::HashMap;
 
 use era_compiler_llvm_context::IContext;
 
-use crate::evmla::assembly::instruction::Instruction;
+use crate::assembly::instruction::Instruction;
+use crate::extra_metadata::ExtraMetadata;
 
 use self::function::block::Block;
 use self::function::r#type::Type as FunctionType;
@@ -49,7 +50,7 @@ impl EtherealIR {
     ///
     pub fn new(
         solc_version: semver::Version,
-        extra_metadata: solx_standard_json::OutputContractEVMExtraMetadata,
+        extra_metadata: ExtraMetadata,
         code_segment: Option<era_compiler_common::CodeSegment>,
         blocks: HashMap<era_compiler_llvm_context::BlockKey, Block>,
     ) -> anyhow::Result<Self> {

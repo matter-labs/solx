@@ -41,7 +41,7 @@ pub struct Contract {
     /// The solc transient storage layout.
     pub transient_storage_layout: Option<serde_json::Value>,
     /// the solc EVM legacy assembly.
-    pub legacy_assembly: Option<serde_json::Value>,
+    pub legacy_assembly: Option<solx_evm_assembly::Assembly>,
     /// the solc optimized Yul IR assembly.
     pub ir_optimized: Option<String>,
 }
@@ -60,7 +60,7 @@ impl Contract {
         devdoc: Option<serde_json::Value>,
         storage_layout: Option<serde_json::Value>,
         transient_storage_layout: Option<serde_json::Value>,
-        legacy_assembly: Option<serde_json::Value>,
+        legacy_assembly: Option<solx_evm_assembly::Assembly>,
         ir_optimized: Option<String>,
     ) -> Self {
         Self {

@@ -7,7 +7,7 @@
 **solx** is a new optimizing compiler for EVM developed by [Matter Labs](https://matter-labs.io/).
 
 > [!WARNING]  
-> The project is in pre-alpha state and not suitable for production use.
+> The project is in alpha state and not suitable for production use.
 
 **solx** passes [our test suite](https://github.com/matter-labs/era-compiler-tester), which includes:
 
@@ -39,7 +39,7 @@ We recommend using **solx** via [Foundry](https://github.com/foundry-rs/foundry)
 solc_version = "/path/to/solx"
 ```
 
-It might work with **Hardhat** as well, but it has not been tested yet.
+**solx** works with **Hardhat** as well, but requires some additional configuration.
 
 Otherwise, the interface is mostly compatible with **solc**, so you can use it via CLI or standard JSON.
 
@@ -51,7 +51,7 @@ Check out [this repository](https://github.com/popzxc/solx_demo) to see a demo o
 
 **solx** consists of three main parts:
 
-1. **solx** executable from this repository. The repository also contains parts of the compiler front end: Yul and EVM assembly lowering.
+1. **solx** executable from this repository. The repository also contains parts of the compiler front end: Yul and EVM assembly translators.
 2. [era-solidity](https://github.com/matter-labs/era-solidity/), an LLVM-friendly fork of [the Solidity compiler](https://github.com/ethereum/solidity),
   that emits Yul and EVM assembly for **solx**. Despite the repository name, it is not directly related to either ZKsync or ZKsync Era.
 3. [era-compiler-llvm](https://github.com/matter-labs/era-compiler-llvm), a fork of [the LLVM project](https://github.com/llvm/llvm-project)
@@ -61,8 +61,12 @@ The most important part of the project is the EVM target in LLVM. You can find i
 
 ## Documentation
 
+For the detailed usage guide, see the [comprehensive documentation](https://matter-labs.github.io/solx/latest/).
+
 **solx** documentation is provided as an [mdBook](https://github.com/rust-lang/mdBook), and its sources available in the `docs/` directory.
 To build the book, follow the [instructions](./docs/README.md).
+
+Alternatively, you may check out its Markdown representation in [this repository](./docs/src/).
 
 See also:
 
@@ -90,7 +94,7 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 ## License
 
 - Crates **solx** and **solx-solc** are licensed under [GNU General Public License v3.0](./solx/LICENSE.txt)
-- Crates **solx-standard-json** and **solx-yul** are licensed under the terms of either
+- Crates **solx-standard-json**, **solx-evm-assembly**, **solx-yul** are licensed under the terms of either
   - Apache License, Version 2.0 ([LICENSE-APACHE](./solx-standard-json/LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
   - MIT license ([LICENSE-MIT](./solx-standard-json/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 - [`era-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.30/LICENSE.txt)

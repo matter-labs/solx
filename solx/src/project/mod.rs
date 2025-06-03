@@ -12,7 +12,6 @@ use rayon::iter::ParallelIterator;
 
 use crate::build::contract::Contract as EVMContractBuild;
 use crate::build::Build as EVMBuild;
-use crate::evmla::assembly::Assembly;
 use crate::process::input::Input as EVMProcessInput;
 use crate::process::output::Output as EVMOutput;
 
@@ -76,7 +75,29 @@ impl Project {
         debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<Self> {
         if !via_ir {
-            Assembly::preprocess_dependencies(&mut solc_output.contracts)?;
+            let legacy_assemblies: BTreeMap<
+                String,
+                BTreeMap<String, &mut solx_evm_assembly::Assembly>,
+            > = solc_output
+                .contracts
+                .iter_mut()
+                .map(|(path, file)| {
+                    let legacy_assemblies: BTreeMap<String, &mut solx_evm_assembly::Assembly> =
+                        file.iter_mut()
+                            .filter_map(|(name, contract)| {
+                                Some((
+                                    name.to_owned(),
+                                    contract
+                                        .evm
+                                        .as_mut()
+                                        .and_then(|evm| evm.legacy_assembly.as_mut())?,
+                                ))
+                            })
+                            .collect();
+                    (path.to_owned(), legacy_assemblies)
+                })
+                .collect();
+            solx_evm_assembly::Assembly::preprocess_dependencies(legacy_assemblies)?;
         }
 
         let ast_jsons = solc_output

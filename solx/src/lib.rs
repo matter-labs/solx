@@ -11,7 +11,6 @@
 
 pub mod build;
 pub mod r#const;
-pub mod evmla;
 pub mod process;
 pub mod project;
 pub mod yul;

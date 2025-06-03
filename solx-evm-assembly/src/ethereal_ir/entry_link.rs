@@ -4,7 +4,7 @@
 
 use era_compiler_llvm_context::IContext;
 
-use crate::evmla::ethereal_ir::EtherealIR;
+use crate::ethereal_ir::EtherealIR;
 
 ///
 /// The Ethereal IR entry function link.

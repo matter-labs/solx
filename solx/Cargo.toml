@@ -33,6 +33,7 @@ era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-commo
 
 solx-solc = { path = "../solx-solc" }
 solx-standard-json = { path = "../solx-standard-json" }
+solx-evm-assembly = { path = "../solx-evm-assembly" }
 solx-yul = { path = "../solx-yul" }
 
 [dev-dependencies]

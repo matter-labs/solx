@@ -1528,12 +1528,29 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "solx-evm-assembly",
  "solx-solc",
  "solx-standard-json",
  "solx-yul",
  "tempfile",
  "test-case",
  "thiserror 2.0.12",
+]
+
+[[package]]
+name = "solx-evm-assembly"
+version = "0.1.0-alpha.4"
+dependencies = [
+ "anyhow",
+ "era-compiler-common",
+ "era-compiler-llvm-context",
+ "inkwell",
+ "num",
+ "rayon",
+ "semver",
+ "serde",
+ "serde_json",
+ "solx-yul",
 ]
 
 [[package]]
@@ -1560,6 +1577,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "solx-evm-assembly",
 ]
 
 [[package]]

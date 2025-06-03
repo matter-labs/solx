@@ -2,7 +2,7 @@
 //! The Ethereal IR block queue element.
 //!
 
-use crate::evmla::ethereal_ir::function::block::element::stack::Stack;
+use crate::ethereal_ir::function::block::element::stack::Stack;
 
 ///
 /// The Ethereal IR block queue element.

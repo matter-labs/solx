@@ -22,8 +22,6 @@ pub use self::input::settings::Settings as InputSettings;
 pub use self::input::source::Source as InputSource;
 pub use self::input::Input;
 pub use self::output::contract::evm::bytecode::Bytecode as OutputContractEVMBytecode;
-pub use self::output::contract::evm::extra_metadata::recursive_function::RecursiveFunction as OutputContractEVMExtraMetadataRecursiveFunction;
-pub use self::output::contract::evm::extra_metadata::ExtraMetadata as OutputContractEVMExtraMetadata;
 pub use self::output::contract::evm::EVM as OutputContractEVM;
 pub use self::output::contract::Contract as OutputContract;
 pub use self::output::error::collectable::Collectable as CollectableError;

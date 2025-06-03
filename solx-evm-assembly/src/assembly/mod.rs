@@ -14,8 +14,9 @@ use rayon::iter::ParallelIterator;
 
 use era_compiler_llvm_context::IContext;
 
-use crate::evmla::ethereal_ir::entry_link::EntryLink;
-use crate::evmla::ethereal_ir::EtherealIR;
+use crate::ethereal_ir::entry_link::EntryLink;
+use crate::ethereal_ir::EtherealIR;
+use crate::extra_metadata::ExtraMetadata;
 
 use self::data::Data;
 use self::instruction::name::Name as InstructionName;
@@ -44,7 +45,7 @@ pub struct Assembly {
     pub factory_dependencies: HashSet<String>,
     /// The EVM legacy assembly extra metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub extra_metadata: Option<solx_standard_json::OutputContractEVMExtraMetadata>,
+    pub extra_metadata: Option<ExtraMetadata>,
 }
 
 impl Assembly {
@@ -164,23 +165,13 @@ impl Assembly {
     /// Replaces with dependency indexes with actual data.
     ///
     pub fn preprocess_dependencies(
-        contracts: &mut BTreeMap<String, BTreeMap<String, solx_standard_json::OutputContract>>,
+        contracts: BTreeMap<String, BTreeMap<String, &mut Self>>,
     ) -> anyhow::Result<()> {
         let mut hash_path_mapping = BTreeMap::new();
 
         for (path, file) in contracts.iter() {
-            for (name, contract) in file.iter() {
+            for (name, deploy_code_assembly) in file.iter() {
                 let deploy_code_path = format!("{path}:{name}");
-                let deploy_code_assembly = match contract
-                    .evm
-                    .as_ref()
-                    .and_then(|evm| evm.legacy_assembly.as_ref())
-                    .filter(|json| json.is_object())
-                {
-                    Some(assembly) => serde_json::from_value::<Assembly>(assembly.to_owned())
-                        .expect("Always valid"),
-                    None => continue,
-                };
                 let deploy_code_hash = deploy_code_assembly.keccak256();
 
                 let runtime_code_path = format!(
@@ -196,32 +187,20 @@ impl Assembly {
         }
 
         let mut assemblies = BTreeMap::new();
-        for (path, file) in contracts.iter_mut() {
-            for (name, contract) in file.iter_mut() {
+        for (path, file) in contracts.into_iter() {
+            for (name, assembly) in file.into_iter() {
                 let full_path = format!("{path}:{name}");
-                let assembly = match contract
-                    .evm
-                    .as_mut()
-                    .and_then(|evm| evm.legacy_assembly.as_mut())
-                    .filter(|json| json.is_object())
-                {
-                    Some(assembly) => assembly,
-                    None => continue,
-                };
                 assemblies.insert(full_path, assembly);
             }
         }
         assemblies
             .into_par_iter()
-            .map(|(full_path, assembly_json)| {
-                let mut assembly: Assembly =
-                    serde_json::from_value(assembly_json.to_owned()).expect("Always valid");
+            .map(|(full_path, assembly)| {
                 Self::preprocess_dependency_level(
                     full_path.as_str(),
-                    &mut assembly,
+                    assembly,
                     &hash_path_mapping,
                 )?;
-                *assembly_json = serde_json::to_value(&assembly).expect("Always valid");
                 Ok(())
             })
             .collect::<anyhow::Result<()>>()?;

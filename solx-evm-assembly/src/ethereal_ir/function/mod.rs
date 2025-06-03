@@ -25,11 +25,13 @@ use num::Zero;
 use era_compiler_llvm_context::IContext;
 use era_compiler_llvm_context::IEVMLAFunction;
 
-use crate::evmla::assembly::instruction::name::Name as InstructionName;
-use crate::evmla::assembly::instruction::Instruction;
-use crate::evmla::ethereal_ir::function::block::element::stack::element::Element;
-use crate::evmla::ethereal_ir::function::block::element::stack::Stack;
-use crate::evmla::ethereal_ir::EtherealIR;
+use crate::assembly::instruction::name::Name as InstructionName;
+use crate::assembly::instruction::Instruction;
+use crate::ethereal_ir::function::block::element::stack::element::Element;
+use crate::ethereal_ir::function::block::element::stack::Stack;
+use crate::ethereal_ir::EtherealIR;
+use crate::extra_metadata::recursive_function::RecursiveFunction as ExtraMetadataRecursiveFunction;
+use crate::extra_metadata::ExtraMetadata;
 
 use self::block::element::stack::element::Element as StackElement;
 use self::block::element::Element as BlockElement;
@@ -92,7 +94,7 @@ impl Function {
         &mut self,
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
+        extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
     ) -> anyhow::Result<()> {
         let mut visited_blocks = BTreeSet::new();
@@ -163,7 +165,7 @@ impl Function {
         &mut self,
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
+        extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         visited_blocks: &mut BTreeSet<VisitedElement>,
         mut queue_element: QueueElement,
@@ -241,7 +243,7 @@ impl Function {
     fn handle_instruction(
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
+        extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         code_segment: era_compiler_common::CodeSegment,
         instance: usize,
@@ -1029,10 +1031,10 @@ impl Function {
     /// Handles the recursive function call.
     ///
     fn handle_recursive_function_call(
-        recursive_function: &solx_standard_json::OutputContractEVMExtraMetadataRecursiveFunction,
+        recursive_function: &ExtraMetadataRecursiveFunction,
         blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
         functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
-        extra_metadata: &solx_standard_json::OutputContractEVMExtraMetadata,
+        extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         block_key: era_compiler_llvm_context::BlockKey,
         block_stack: &mut Stack,

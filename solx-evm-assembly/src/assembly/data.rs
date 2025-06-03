@@ -4,7 +4,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::evmla::assembly::Assembly;
+use crate::assembly::Assembly;
 
 ///
 /// The inner JSON legacy assembly code element.

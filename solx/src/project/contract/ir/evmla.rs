@@ -4,15 +4,13 @@
 
 use std::collections::BTreeSet;
 
-use crate::evmla::assembly::Assembly;
-
 ///
 /// The contract EVM legacy assembly source code.
 ///
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EVMLegacyAssembly {
     /// The EVM legacy assembly source code.
-    pub assembly: Assembly,
+    pub assembly: solx_evm_assembly::Assembly,
 }
 
 impl EVMLegacyAssembly {
@@ -20,10 +18,9 @@ impl EVMLegacyAssembly {
     /// Transforms the `solc` standard JSON output contract into an EVM legacy assembly object.
     ///
     pub fn try_from_contract(
-        legacy_assembly: serde_json::Value,
-        extra_metadata: Option<solx_standard_json::OutputContractEVMExtraMetadata>,
+        mut assembly: solx_evm_assembly::Assembly,
+        extra_metadata: Option<solx_evm_assembly::ExtraMetadata>,
     ) -> Option<Self> {
-        let mut assembly: Assembly = serde_json::from_value(legacy_assembly).ok()?;
         assembly.extra_metadata = extra_metadata.clone();
         if let Ok(runtime_code) = assembly.runtime_code_mut() {
             runtime_code.extra_metadata = extra_metadata;

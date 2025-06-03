@@ -8,8 +8,8 @@ use std::collections::HashSet;
 
 use num::Zero;
 
-use crate::evmla::assembly::instruction::name::Name as InstructionName;
-use crate::evmla::assembly::instruction::Instruction;
+use crate::assembly::instruction::name::Name as InstructionName;
+use crate::assembly::instruction::Instruction;
 
 use self::element::stack::Stack as ElementStack;
 use self::element::Element;

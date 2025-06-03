@@ -9,8 +9,8 @@ use inkwell::values::BasicValue;
 use era_compiler_llvm_context::IContext;
 use era_compiler_llvm_context::IEVMLAFunction;
 
-use crate::evmla::assembly::instruction::name::Name as InstructionName;
-use crate::evmla::assembly::instruction::Instruction;
+use crate::assembly::instruction::name::Name as InstructionName;
+use crate::assembly::instruction::Instruction;
 
 use self::stack::element::Element as StackElement;
 use self::stack::Stack;
@@ -113,14 +113,14 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             | InstructionName::PUSH29
             | InstructionName::PUSH30
             | InstructionName::PUSH31
-            | InstructionName::PUSH32 => crate::evmla::assembly::instruction::stack::push(
+            | InstructionName::PUSH32 => crate::assembly::instruction::stack::push(
                 context,
                 self.instruction
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?,
             )
             .map(Some),
-            InstructionName::PUSH_Tag => crate::evmla::assembly::instruction::stack::push_tag(
+            InstructionName::PUSH_Tag => crate::assembly::instruction::stack::push_tag(
                 context,
                 self.instruction
                     .value
@@ -160,7 +160,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 if value.len() > era_compiler_common::BYTE_LENGTH_FIELD * 2 {
                     Ok(Some(context.field_const(0).as_basic_value_enum()))
                 } else {
-                    crate::evmla::assembly::instruction::stack::push(context, value).map(Some)
+                    crate::assembly::instruction::stack::push(context, value).map(Some)
                 }
             }
             InstructionName::PUSHDEPLOYADDRESS => context.build_call(
@@ -169,112 +169,112 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 "library_deploy_address",
             ),
 
-            InstructionName::DUP1 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP1 => crate::assembly::instruction::stack::dup(
                 context,
                 1,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP2 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP2 => crate::assembly::instruction::stack::dup(
                 context,
                 2,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP3 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP3 => crate::assembly::instruction::stack::dup(
                 context,
                 3,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP4 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP4 => crate::assembly::instruction::stack::dup(
                 context,
                 4,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP5 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP5 => crate::assembly::instruction::stack::dup(
                 context,
                 5,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP6 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP6 => crate::assembly::instruction::stack::dup(
                 context,
                 6,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP7 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP7 => crate::assembly::instruction::stack::dup(
                 context,
                 7,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP8 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP8 => crate::assembly::instruction::stack::dup(
                 context,
                 8,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP9 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP9 => crate::assembly::instruction::stack::dup(
                 context,
                 9,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP10 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP10 => crate::assembly::instruction::stack::dup(
                 context,
                 10,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP11 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP11 => crate::assembly::instruction::stack::dup(
                 context,
                 11,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP12 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP12 => crate::assembly::instruction::stack::dup(
                 context,
                 12,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP13 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP13 => crate::assembly::instruction::stack::dup(
                 context,
                 13,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP14 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP14 => crate::assembly::instruction::stack::dup(
                 context,
                 14,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP15 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP15 => crate::assembly::instruction::stack::dup(
                 context,
                 15,
                 self.stack.elements.len(),
                 &mut original,
             )
             .map(Some),
-            InstructionName::DUP16 => crate::evmla::assembly::instruction::stack::dup(
+            InstructionName::DUP16 => crate::assembly::instruction::stack::dup(
                 context,
                 16,
                 self.stack.elements.len(),
@@ -282,106 +282,72 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             )
             .map(Some),
 
-            InstructionName::SWAP1 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                1,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP2 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                2,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP3 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                3,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP4 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                4,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP5 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                5,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP6 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                6,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP7 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                7,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP8 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                8,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP9 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                9,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP10 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                10,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP11 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                11,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP12 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                12,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP13 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                13,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP14 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                14,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP15 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                15,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-            InstructionName::SWAP16 => crate::evmla::assembly::instruction::stack::swap(
-                context,
-                16,
-                self.stack.elements.len(),
-            )
-            .map(|_| None),
-
-            InstructionName::POP => {
-                crate::evmla::assembly::instruction::stack::pop(context).map(|_| None)
+            InstructionName::SWAP1 => {
+                crate::assembly::instruction::stack::swap(context, 1, self.stack.elements.len())
+                    .map(|_| None)
             }
+            InstructionName::SWAP2 => {
+                crate::assembly::instruction::stack::swap(context, 2, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP3 => {
+                crate::assembly::instruction::stack::swap(context, 3, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP4 => {
+                crate::assembly::instruction::stack::swap(context, 4, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP5 => {
+                crate::assembly::instruction::stack::swap(context, 5, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP6 => {
+                crate::assembly::instruction::stack::swap(context, 6, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP7 => {
+                crate::assembly::instruction::stack::swap(context, 7, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP8 => {
+                crate::assembly::instruction::stack::swap(context, 8, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP9 => {
+                crate::assembly::instruction::stack::swap(context, 9, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP10 => {
+                crate::assembly::instruction::stack::swap(context, 10, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP11 => {
+                crate::assembly::instruction::stack::swap(context, 11, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP12 => {
+                crate::assembly::instruction::stack::swap(context, 12, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP13 => {
+                crate::assembly::instruction::stack::swap(context, 13, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP14 => {
+                crate::assembly::instruction::stack::swap(context, 14, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP15 => {
+                crate::assembly::instruction::stack::swap(context, 15, self.stack.elements.len())
+                    .map(|_| None)
+            }
+            InstructionName::SWAP16 => {
+                crate::assembly::instruction::stack::swap(context, 16, self.stack.elements.len())
+                    .map(|_| None)
+            }
+
+            InstructionName::POP => crate::assembly::instruction::stack::pop(context).map(|_| None),
 
             InstructionName::Tag => {
                 let destination: num::BigUint = self
@@ -391,7 +357,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     .parse()
                     .expect("Always valid");
 
-                crate::evmla::assembly::instruction::jump::unconditional(
+                crate::assembly::instruction::jump::unconditional(
                     context,
                     destination,
                     self.stack.hash(),
@@ -401,7 +367,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             InstructionName::JUMP => {
                 let destination = self.stack_input.pop_tag()?;
 
-                crate::evmla::assembly::instruction::jump::unconditional(
+                crate::assembly::instruction::jump::unconditional(
                     context,
                     destination,
                     self.stack.hash(),
@@ -412,7 +378,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 let destination = self.stack_input.pop_tag()?;
                 let _condition = self.stack_input.pop();
 
-                crate::evmla::assembly::instruction::jump::conditional(
+                crate::assembly::instruction::jump::conditional(
                     context,
                     destination,
                     self.stack.hash(),
@@ -805,7 +771,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
                 match &self.stack_input.elements[1] {
                     StackElement::Data(data) => {
-                        crate::evmla::assembly::instruction::codecopy::static_data(
+                        crate::assembly::instruction::codecopy::static_data(
                             context,
                             arguments[0].into_int_value(),
                             data.as_str(),
