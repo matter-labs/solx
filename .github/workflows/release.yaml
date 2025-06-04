@@ -205,7 +205,7 @@ jobs:
           generate_release_notes: true
           tag_name: ${{ steps.release.outputs.version_or_sha }}
           target_commitish: ${{ steps.release.outputs.full_sha }}
-          make_latest: true
+          make_latest: ${{ github.ref_type == 'tag' }}
           files: releases/**/**
 
   deploy-docs:
