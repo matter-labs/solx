@@ -4,12 +4,13 @@
 # description = "A brief description of the project." # optional, but recommended
 # compile_only = true # optional, set to true if you only want to compile the project without running tests
 # requires_yarn = true # optional, set to true if the project requires yarn install before building
-# # category = "huge" # optional, use huge to indicate a large project that may take longer to compile or run tests
+# category = "huge" # optional, use huge to indicate a large project that may take longer to compile or run tests
 ###
 
 [solady]
 repo = "https://github.com/Vectorized/solady"
 description = "Gas optimized Solidity snippets."
+category = "huge"
 
 [openzeppelin]
 repo = "https://github.com/OpenZeppelin/openzeppelin-contracts"
@@ -65,7 +66,7 @@ description = "A decentralized art factory and marketplace."
 [aave-v3]
 repo = "https://github.com/aave-dao/aave-v3-origin"
 description = "A non-custodial liquidity protocol on Ethereum."
-# category = "huge"
+category = "huge"
 
 [balance-snapshot]
 repo = "https://github.com/pilagod/balance-snapshot"
@@ -87,7 +88,7 @@ description = "A decentralized exchange and payment settlement protocol."
 [uniswap-v4]
 repo = "https://github.com/Uniswap/v4-core"
 description = "A new automated market maker protocol."
-# category = "huge"
+category = "huge"
 
 [beefy]
 repo = "https://github.com/beefyfinance/beefy-contracts"
@@ -102,11 +103,11 @@ description = "A new paradigm in DAO governance."
 [seaport]
 repo = "https://github.com/ProjectOpenSea/seaport"
 description = "A marketplace protocol for safely and efficiently buying and selling NFTs."
-# category = "huge"
+category = "huge"
 disabled = true # compilation hangs, required to disable fuzzing tests
 
 [lens]
 repo = "https://github.com/lens-protocol/core"
 description = "Lens protocol, non-custodial social graph."
-# category = "huge"
+category = "huge"
 disabled = true # compilation is too long
