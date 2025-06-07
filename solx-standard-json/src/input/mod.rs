@@ -25,7 +25,7 @@ use self::source::Source;
 ///
 /// The `solc --standard-json` input.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Input {
     /// The input language.

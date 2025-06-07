@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 ///
 /// Can be either deploy and runtime code.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Object {
     /// Object identifier.
     pub identifier: String,

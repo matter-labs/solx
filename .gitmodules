@@ -1,10 +1,10 @@
 [submodule "llvm"]
 	path = llvm
 	url = https://github.com/matter-labs/era-compiler-llvm
-	branch = main
+	branch = evm_spills_reloads_with_api
 	update = none
 [submodule "era-solidity"]
 	path = era-solidity
 	url = https://github.com/matter-labs/era-solidity
-	branch = 0.8.30
+	branch = app-spill
 	update = none

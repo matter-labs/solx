@@ -28,7 +28,7 @@ semver = { version = "1.0", features = [ "serde" ] }
 hex = "0.4"
 num = "0.4"
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "az-stack-never-too-deep" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 
 solx-solc = { path = "../solx-solc" }
@@ -44,6 +44,6 @@ test-case = "3.3"
 
 [dependencies.inkwell]
 git = "https://github.com/matter-labs-forks/inkwell"
-branch = "llvm-19"
+branch = "az-stack-never-too-deep"
 default-features = false
 features = ["llvm19-1", "serde", "no-libffi-linking", "target-evm"]

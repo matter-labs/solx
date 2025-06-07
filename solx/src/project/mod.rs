@@ -457,8 +457,7 @@ impl Project {
                 });
                 (path, result)
             })
-            .collect::<BTreeMap<String, Result<EVMContractBuild, solx_standard_json::OutputError>>>(
-            );
+            .collect::<BTreeMap<String, crate::Result<EVMContractBuild>>>();
 
         Ok(EVMBuild::new(results, self.ast_jsons, messages))
     }

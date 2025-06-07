@@ -2,6 +2,10 @@
 //! The `solc --standard-json` input settings optimizer.
 //!
 
+pub mod details;
+
+use self::details::Details;
+
 ///
 /// The `solc --standard-json` input settings optimizer.
 ///
@@ -21,10 +25,13 @@ pub struct Optimizer {
     )]
     pub size_fallback: Option<bool>,
 
-    /// Enable the solc optimizer.
+    /// Enable the `solc` optimizer.
     /// Always `true` in order to allow library inlining.
     #[serde(default = "Optimizer::default_enabled")]
     pub enabled: bool,
+    /// `solc` optimizer details.
+    #[serde(default)]
+    pub details: Details,
 }
 
 impl Default for Optimizer {
@@ -46,6 +53,7 @@ impl Optimizer {
             size_fallback: Some(size_fallback),
 
             enabled: Self::default_enabled(),
+            details: Details::default(),
         }
     }
 

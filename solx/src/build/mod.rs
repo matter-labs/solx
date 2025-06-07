@@ -10,7 +10,11 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use normpath::PathExt;
+
 use solx_standard_json::CollectableError;
+
+use crate::error::stack_too_deep::StackTooDeep as StackTooDeepError;
+use crate::error::Error;
 
 use self::contract::object::Object as ContractObject;
 use self::contract::Contract;
@@ -21,7 +25,7 @@ use self::contract::Contract;
 #[derive(Debug, Default)]
 pub struct Build {
     /// The contract data,
-    pub results: BTreeMap<String, Result<Contract, solx_standard_json::OutputError>>,
+    pub results: BTreeMap<String, crate::Result<Contract>>,
     /// The Solidity AST JSONs of the source files.
     pub ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
     /// The additional message to output.
@@ -33,7 +37,7 @@ impl Build {
     /// A shortcut constructor.
     ///
     pub fn new(
-        results: BTreeMap<String, Result<Contract, solx_standard_json::OutputError>>,
+        results: BTreeMap<String, crate::Result<Contract>>,
         ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
         messages: &mut Vec<solx_standard_json::OutputError>,
     ) -> Self {
@@ -42,6 +46,21 @@ impl Build {
             ast_jsons,
             messages: std::mem::take(messages),
         }
+    }
+
+    ///
+    /// Extends the build with another one, e.g. from a subsequent compilation run.
+    ///
+    pub fn extend(&mut self, other: Self) {
+        self.results.extend(other.results);
+        if let Some(ast_jsons) = other.ast_jsons {
+            if let Some(existing_ast_jsons) = &mut self.ast_jsons {
+                existing_ast_jsons.extend(ast_jsons);
+            } else {
+                self.ast_jsons = Some(ast_jsons);
+            }
+        }
+        self.messages.extend(other.messages);
     }
 
     ///
@@ -244,24 +263,27 @@ impl Build {
     /// Writes all contracts assembly and bytecode to the standard JSON.
     ///
     pub fn write_to_standard_json(
-        self,
+        &mut self,
         standard_json: &mut solx_standard_json::Output,
         output_selection: &solx_standard_json::InputSelection,
+        is_bytecode_linked: bool,
     ) -> anyhow::Result<()> {
-        for (path, ast_json) in self.ast_jsons.into_iter().flatten() {
+        for (path, ast_json) in self.ast_jsons.iter_mut().flatten() {
             if let Some(source) = standard_json.sources.get_mut(path.as_str()) {
-                source.ast = ast_json.filter(|_| {
+                if let Some(ast_json) = ast_json.take().filter(|_| {
                     output_selection.check_selection(
                         path.as_str(),
                         None,
                         solx_standard_json::InputSelector::AST,
                     )
-                });
+                }) {
+                    source.ast = Some(ast_json);
+                }
             }
         }
 
         let mut errors = Vec::with_capacity(self.results.len());
-        for result in self.results.into_values() {
+        for result in self.results.values_mut() {
             let build = match result {
                 Ok(contract) => {
                     errors.extend(
@@ -277,7 +299,7 @@ impl Build {
                     contract
                 }
                 Err(error) => {
-                    errors.push(error);
+                    errors.push(error.to_owned().unwrap_standard_json());
                     continue;
                 }
             };
@@ -290,7 +312,7 @@ impl Build {
                     contracts.get_mut(name.name.as_deref().unwrap_or(name.path.as_str()))
                 }) {
                 Some(contract) => {
-                    build.write_to_standard_json(contract, output_selection);
+                    build.write_to_standard_json(contract, output_selection, is_bytecode_linked);
                 }
                 None => {
                     let contracts = standard_json
@@ -298,14 +320,33 @@ impl Build {
                         .entry(name.path.clone())
                         .or_default();
                     let mut contract = solx_standard_json::OutputContract::default();
-                    build.write_to_standard_json(&mut contract, output_selection);
+                    build.write_to_standard_json(
+                        &mut contract,
+                        output_selection,
+                        is_bytecode_linked,
+                    );
                     contracts.insert(name.name.unwrap_or(name.path), contract);
                 }
             }
         }
-
+        self.results.retain(|_, result| result.is_ok()); // TODO: replace with `extract_if` when stabilized
         standard_json.errors.extend(errors);
         Ok(())
+    }
+
+    ///
+    /// Extracts stack-too-deep errors from the build.
+    ///
+    pub fn take_stack_too_deep_errors(&mut self) -> Vec<StackTooDeepError> {
+        let mut stack_too_deep_errors = Vec::new();
+        for result in self.results.values() {
+            if let Err(Error::StackTooDeep(stack_too_deep_error)) = result {
+                stack_too_deep_errors.push(stack_too_deep_error.to_owned());
+            }
+        }
+        self.results
+            .retain(|_, result| !matches!(result, Err(Error::StackTooDeep(_))));
+        stack_too_deep_errors
     }
 }
 
@@ -315,6 +356,7 @@ impl solx_standard_json::CollectableError for Build {
             .results
             .values()
             .filter_map(|build| build.as_ref().err())
+            .map(|error| error.unwrap_standard_json_ref())
             .collect();
         errors.extend(
             self.messages

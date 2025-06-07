@@ -34,6 +34,29 @@ pub struct EVM {
 
 impl EVM {
     ///
+    /// Extends the object with data from the other object.
+    ///
+    pub fn extend(&mut self, other: Self) {
+        if let Some(bytecode) = other.bytecode {
+            if let Some(existing_bytecode) = &mut self.bytecode {
+                existing_bytecode.extend(bytecode);
+            } else {
+                self.bytecode = Some(bytecode);
+            }
+        }
+        if let Some(deployed_bytecode) = other.deployed_bytecode {
+            if let Some(existing_deployed_bytecode) = &mut self.deployed_bytecode {
+                existing_deployed_bytecode.extend(deployed_bytecode);
+            } else {
+                self.deployed_bytecode = Some(deployed_bytecode);
+            }
+        }
+        self.legacy_assembly = self.legacy_assembly.take().or(other.legacy_assembly);
+        self.method_identifiers = self.method_identifiers.take().or(other.method_identifiers);
+        self.extra_metadata = self.extra_metadata.take().or(other.extra_metadata);
+    }
+
+    ///
     /// Checks if all fields are `None`.
     ///
     pub fn is_empty(&self) -> bool {

@@ -19,6 +19,7 @@ pub struct Instruction {
     /// The opcode or tag identifier.
     pub name: Name,
     /// The optional value argument.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
 
     /// The source code identifier.

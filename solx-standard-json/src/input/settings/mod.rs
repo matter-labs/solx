@@ -15,7 +15,7 @@ use self::selection::Selection;
 ///
 /// The `solc --standard-json` input settings.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
     /// The optimizer settings.
