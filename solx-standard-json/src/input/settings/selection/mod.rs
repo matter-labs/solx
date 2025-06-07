@@ -158,6 +158,36 @@ impl Selection {
     }
 
     ///
+    /// Creates a selection for the second `solc` run, that must set spill areas for the specified contracts.
+    ///
+    pub fn from_contract_names(
+        contract_names: Vec<&era_compiler_common::ContractName>,
+        via_ir: bool,
+    ) -> Self {
+        let mut selection = Self::default();
+        for contract_name in contract_names.iter() {
+            let file = contract_name.path.to_owned();
+            let name = contract_name
+                .name
+                .as_deref()
+                .unwrap_or(Self::ANY_CONTRACT)
+                .to_owned();
+            let mut selectors = BTreeSet::new();
+            if via_ir {
+                selectors.insert(Selector::Yul);
+            } else {
+                selectors.insert(Selector::EVMLegacyAssembly);
+            }
+            selection
+                .inner
+                .entry(file)
+                .or_default()
+                .insert(name, selectors);
+        }
+        selection
+    }
+
+    ///
     /// Checks if the bytecode is requested for at least one contract.
     ///
     pub fn is_bytecode_set_for_any(&self) -> bool {

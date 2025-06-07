@@ -24,4 +24,13 @@ impl Source {
     pub fn new(id: usize) -> Self {
         Self { id, ast: None }
     }
+
+    ///
+    /// Extends the object with data from the other object.
+    ///
+    pub fn extend(&mut self, other: Self) {
+        if let Some(ast) = other.ast {
+            self.ast = Some(ast);
+        }
+    }
 }

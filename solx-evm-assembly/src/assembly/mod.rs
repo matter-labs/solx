@@ -28,23 +28,23 @@ use self::instruction::Instruction;
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Assembly {
     /// The metadata string.
-    #[serde(rename = ".auxdata")]
+    #[serde(rename = ".auxdata", default, skip_serializing_if = "Option::is_none")]
     pub auxdata: Option<String>,
     /// The deploy code instructions.
-    #[serde(rename = ".code")]
+    #[serde(rename = ".code", default, skip_serializing_if = "Option::is_none")]
     pub code: Option<Vec<Instruction>>,
     /// The runtime code.
-    #[serde(rename = ".data")]
+    #[serde(rename = ".data", default, skip_serializing_if = "Option::is_none")]
     pub data: Option<BTreeMap<String, Data>>,
 
     /// The full contract path.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub full_path: Option<String>,
     /// The factory dependency paths.
     #[serde(default, skip_serializing_if = "HashSet::is_empty")]
     pub factory_dependencies: HashSet<String>,
     /// The EVM legacy assembly extra metadata.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub extra_metadata: Option<ExtraMetadata>,
 }
 

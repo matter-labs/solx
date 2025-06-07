@@ -11,6 +11,8 @@ use std::process::Command;
 use std::sync::OnceLock;
 use std::thread::Builder;
 
+use crate::error::Error;
+
 use self::input::Input as EVMInput;
 use self::output::Output as EVMOutput;
 
@@ -43,13 +45,15 @@ pub fn run() -> anyhow::Result<()> {
                     input.debug_config,
                 )
                 .map(EVMOutput::new)
-                .map_err(|error| {
-                    solx_standard_json::OutputError::new_error(
+                .map_err(|error| match error {
+                    Error::Generic(error) => solx_standard_json::OutputError::new_error(
                         None,
                         error,
                         Some(source_location),
                         None,
                     )
+                    .into(),
+                    error => error,
                 })
         })
         .expect("Threading error")
@@ -109,14 +113,14 @@ where
             String::from_utf8_lossy(result.stdout.as_slice()),
             String::from_utf8_lossy(result.stderr.as_slice()),
         );
-        return Err(solx_standard_json::OutputError::new_error(
+        Err(solx_standard_json::OutputError::new_error(
             None,
             message,
             Some(solx_standard_json::OutputErrorSourceLocation::new(
                 path.to_owned(),
             )),
             None,
-        ));
+        ))?;
     }
 
     match era_compiler_common::deserialize_from_slice(result.stdout.as_slice()) {
