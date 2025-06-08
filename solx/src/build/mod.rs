@@ -49,21 +49,6 @@ impl Build {
     }
 
     ///
-    /// Extends the build with another one, e.g. from a subsequent compilation run.
-    ///
-    pub fn extend(&mut self, other: Self) {
-        self.results.extend(other.results);
-        if let Some(ast_jsons) = other.ast_jsons {
-            if let Some(existing_ast_jsons) = &mut self.ast_jsons {
-                existing_ast_jsons.extend(ast_jsons);
-            } else {
-                self.ast_jsons = Some(ast_jsons);
-            }
-        }
-        self.messages.extend(other.messages);
-    }
-
-    ///
     /// Links the EVM build.
     ///
     pub fn link(

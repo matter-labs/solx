@@ -418,6 +418,7 @@ impl Project {
         output_selection: &solx_standard_json::InputSelection,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+        spill_area_size: Option<BTreeMap<String, solx_standard_json::InputOptimizerSpillAreaSize>>,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<EVMBuild> {
@@ -434,12 +435,21 @@ impl Project {
                 let legacy_assembly = contract.legacy_assembly.take();
                 let ir_optimized = contract.ir_optimized.take();
 
+                let spill_area_size = spill_area_size
+                    .as_ref()
+                    .and_then(|sizes| sizes.get(contract.name.full_path.as_str()));
+                let mut optimizer_settings = optimizer_settings.clone();
+                if let Some(spill_area_size) = spill_area_size {
+                    optimizer_settings.set_deploy_code_spill_area_size(spill_area_size.creation);
+                    optimizer_settings.set_runtime_code_spill_area_size(spill_area_size.runtime);
+                }
+
                 let input = EVMProcessInput::new(
                     contract,
                     self.identifier_paths.clone(),
                     output_selection.to_owned(),
                     metadata_hash_type,
-                    optimizer_settings.clone(),
+                    optimizer_settings,
                     llvm_options.clone(),
                     debug_config.clone(),
                 );

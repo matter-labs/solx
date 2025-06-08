@@ -441,6 +441,13 @@ impl std::fmt::Display for Assembly {
             }
         }
 
+        writeln!(f)?;
+        if let Some(data) = self.data.as_ref() {
+            for data in data.values() {
+                writeln!(f, "{data}")?;
+            }
+        }
+
         Ok(())
     }
 }

@@ -3,8 +3,12 @@
 //!
 
 pub mod details;
+pub mod spill_area_size;
+
+use std::collections::BTreeMap;
 
 use self::details::Details;
+use self::spill_area_size::SpillAreaSize;
 
 ///
 /// The `solc --standard-json` input settings optimizer.
@@ -32,6 +36,10 @@ pub struct Optimizer {
     /// `solc` optimizer details.
     #[serde(default)]
     pub details: Details,
+    /// Spill area size for the LLVM stack-too-deep avoidance algorithm.
+    /// It is specified per-contract using its fully qualified name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spill_area_size: Option<BTreeMap<String, SpillAreaSize>>,
 }
 
 impl Default for Optimizer {
@@ -39,6 +47,7 @@ impl Default for Optimizer {
         Self::new(
             Self::default_mode().expect("Always exists"),
             Self::default_size_fallback().expect("Always exists"),
+            None,
         )
     }
 }
@@ -47,13 +56,18 @@ impl Optimizer {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(mode: char, size_fallback: bool) -> Self {
+    pub fn new(
+        mode: char,
+        size_fallback: bool,
+        spill_area_size: Option<BTreeMap<String, SpillAreaSize>>,
+    ) -> Self {
         Self {
             mode: Some(mode),
             size_fallback: Some(size_fallback),
 
             enabled: Self::default_enabled(),
             details: Details::default(),
+            spill_area_size,
         }
     }
 
