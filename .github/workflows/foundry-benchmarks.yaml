@@ -219,7 +219,7 @@ jobs:
                 sed -i 's/solc.*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                 sed -i 's/solc_version.*/solc_version = "${{ steps.solx.outputs.solc-base-version }}"/' foundry.toml
                 # Build project
-                [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/compilers/solx"
+                [ ${COMPILER} == 'solx' ] && USE_SOLX="--use ${GITHUB_WORKSPACE}/compilers/solx" || USE_SOLX=""
                 [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-via-ir" || VIA_IR_SUFFIX=""
                 [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir" || VIA_IR_OPTION=""
                 mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
