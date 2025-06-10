@@ -409,12 +409,12 @@ pub fn standard_json_evm(
     )?;
     let stack_too_deep_errors = build.take_stack_too_deep_errors();
     let output_selection = solc_input.settings.output_selection.clone();
-    build.write_to_standard_json(
-        &mut solc_output,
-        &solc_input.settings.output_selection,
-        false,
-    )?;
     if build.has_errors() && stack_too_deep_errors.is_empty() {
+        build.write_to_standard_json(
+            &mut solc_output,
+            &solc_input.settings.output_selection,
+            false,
+        )?;
         solc_output.write_and_exit(&solc_input.settings.output_selection);
     }
     let (build, mut solc_output) = if language == solx_standard_json::InputLanguage::Solidity
@@ -440,8 +440,7 @@ pub fn standard_json_evm(
             )?;
             solc_output_second_pass.write_and_exit(&output_selection);
         }
-        solc_output.extend(solc_output_second_pass);
-        (build_second_pass, solc_output)
+        (build_second_pass, solc_output_second_pass)
     } else {
         (build, solc_output)
     };

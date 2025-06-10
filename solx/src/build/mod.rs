@@ -314,8 +314,10 @@ impl Build {
                 }
             }
         }
-        self.results.retain(|_, result| result.is_ok()); // TODO: replace with `extract_if` when stabilized
         standard_json.errors.extend(errors);
+        if standard_json.has_errors() {
+            standard_json.contracts.clear();
+        }
         Ok(())
     }
 
@@ -330,7 +332,7 @@ impl Build {
             }
         }
         self.results
-            .retain(|_, result| !matches!(result, Err(Error::StackTooDeep(_))));
+            .retain(|_, result| !matches!(result, Err(Error::StackTooDeep(_)))); // TODO: replace with `extract_if` when stabilized
         stack_too_deep_errors
     }
 }
