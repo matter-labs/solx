@@ -322,17 +322,29 @@ jobs:
                 continue
               fi
           
-              COMPILE_TIME=$(jq -r '.compile_time' "${JSON}")
-              RUN_TIME=$(jq -r '.exec_time' "${JSON}")
-              if [[ "${RUN_TIME}" == null ]]; then
-                RUN_TIME=0
+              COMPILE_TIME=0
+              RUN_TIME=0
+              TOTAL=0
+              FAILURES=0
+              PASSED=0
+              PERCENT=0
+              FILLED=0
+              if jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]; then
+                COMPILE_TIME=$(jq -r '.compile_time' "${JSON}")
+                RUN_TIME=$(jq -r '.exec_time' "${JSON}")
+                if [[ "${RUN_TIME}" == null ]]; then
+                  RUN_TIME=0
+                fi
+                TOTAL=$(jq -r '.build_infos[0].source_id_to_path | length' "$JSON")
+                FAILURES=$(jq -r '[.errors[] | select(.type == "Error")] | length' "$JSON")
+                PASSED=$((TOTAL - FAILURES))
+                if [[ "${TOTAL}" -eq 0 ]]; then
+                  PERCENT=0
+                else
+                  PERCENT=$((PASSED * 100 / TOTAL))
+                fi
+                FILLED=$(( (PERCENT + 9) / 20 ))  # Round to nearest of 5 bars (each 20%)
               fi
-  
-              TOTAL=$(jq -r '.build_infos[0].source_id_to_path | length' "$JSON")
-              FAILURES=$(jq -r '[.errors[] | select(.type == "Error")] | length' "$JSON")
-              PASSED=$((TOTAL - FAILURES))
-              PERCENT=$((PASSED * 100 / TOTAL))
-              FILLED=$(( (PERCENT + 9) / 20 ))  # Round to nearest of 5 bars (each 20%)
   
               BAR=""
               for i in $(seq 1 5); do
