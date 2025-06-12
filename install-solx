@@ -1,0 +1,140 @@
+#!/bin/bash -e
+
+cat << "EOF"
+ .oooooo..o           oooo
+d8P'    `Y8           `888
+Y88bo.       .ooooo.   888  oooo    ooo
+ `"Y8888o.  d88' `88b  888   `88b..8P'
+     `"Y88b 888   888  888     Y888'
+oo     .d8P 888   888  888   .o8"'88b
+8""88888P'  `Y8bod8P' o888o o88'   888o
+
+           S O L X  Installer
+EOF
+
+# Default values
+REPO="matter-labs/solx"
+DEFAULT_INSTALL_DIR="${HOME}/.local/bin"
+BINARY_NAME="solx"
+
+# Parse optional install directory
+if [[ "$1" =~ ^--install-dir= ]]; then
+  INSTALL_DIR="${1#--install-dir=}"
+elif [[ -n "$1" ]]; then
+  INSTALL_DIR="$1"
+else
+  INSTALL_DIR="${DEFAULT_INSTALL_DIR}"
+fi
+
+# Detect OS and architecture
+OS=$(uname -s)
+ARCH=$(uname -m)
+
+case "$OS" in
+  Darwin)
+    PLATFORM="macosx"
+    ;;
+  Linux)
+    if [[ "${ARCH}" == "x86_64" ]]; then
+      PLATFORM="linux-amd64-gnu"
+    elif [[ "${ARCH}" == "aarch64" || "${ARCH}" == "arm64" ]]; then
+      PLATFORM="linux-arm64-gnu"
+    else
+      echo "❌ Unsupported architecture: ${ARCH}"
+      exit 1
+    fi
+    ;;
+  *)
+    echo "❌ Unsupported OS: $OS"
+    exit 1
+    ;;
+esac
+
+# Get latest release tag from GitHub
+echo "🔍 Fetching latest solx release..."
+if ! command -v curl >/dev/null 2>&1; then
+  echo "❌ curl is not installed. Please install curl to proceed."
+  exit 1
+fi
+
+# Check for GITHUB_TOKEN to bypass rate limits
+if [[ -n ${GITHUB_TOKEN} ]]; then
+  # Use GITHUB_TOKEN if set
+  AUTH_HEADER="--header \"Authorization: token ${GITHUB_TOKEN}\""
+else
+  AUTH_HEADER=""
+fi
+
+LATEST_TAG=$(curl -s ${AUTH_HEADER} "https://api.github.com/repos/${REPO}/releases/latest" | \
+  sed -n 's/.*"tag_name": *"\(.*\)".*/\1/p')
+
+if [ -z "${LATEST_TAG}" ]; then
+  echo "❌ Failed to get latest solx release."
+  exit 1
+fi
+
+echo "✅ Latest version: ${LATEST_TAG}"
+
+# Construct the download URL
+ASSET_NAME="solx-${PLATFORM}-v${LATEST_TAG}"
+DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${ASSET_NAME}"
+
+# Download the binary
+TMP_DIR=$(mktemp -d)
+echo "⬇️  Downloading solx from ${DOWNLOAD_URL}..."
+curl -L "${DOWNLOAD_URL}" -o "${TMP_DIR}/${BINARY_NAME}"
+
+# Make it executable
+chmod +x "${TMP_DIR}/${BINARY_NAME}"
+
+# Create install directory if needed
+if [ ! -d "${INSTALL_DIR}" ]; then
+  echo "📁 Creating installation directory: ${INSTALL_DIR}"
+  mkdir -p "${INSTALL_DIR}"
+fi
+
+# Move to install directory
+if [ -w "${INSTALL_DIR}" ]; then
+  mv "${TMP_DIR}/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
+else
+  echo "❌ Installing to ${INSTALL_DIR} requires write permissions."
+  echo "Please check your permissions or run with sudo."
+  exit 1
+fi
+
+# Ensure solx is in PATH
+if ! command -v "${BINARY_NAME}" >/dev/null 2>&1; then
+  echo "🔧 Adding ${INSTALL_DIR} to PATH..."
+
+  SHELL_NAME=$(basename "${SHELL}")
+  case "${SHELL_NAME}" in
+    bash)
+      PROFILE_FILE="${HOME}/.bashrc"
+      ;;
+    zsh)
+      PROFILE_FILE="${HOME}/.zshrc"
+      ;;
+    fish)
+      PROFILE_FILE="${HOME}/.config/fish/config.fish"
+      ;;
+    *)
+      PROFILE_FILE="${HOME}/.profile"
+      ;;
+  esac
+
+  if ! grep -q "${INSTALL_DIR}" "$PROFILE_FILE" 2>/dev/null; then
+    echo "export PATH=\"${INSTALL_DIR}:\$PATH\"" >> "${PROFILE_FILE}"
+    echo "✅ Added ${INSTALL_DIR} to PATH in ${PROFILE_FILE}"
+  fi
+
+  export PATH="${INSTALL_DIR}:${PATH}"
+fi
+
+# Verify installation
+echo "🧪 Verifying installation..."
+if "${BINARY_NAME}" --version 2>/dev/null; then
+  echo "🎉 solx installed successfully."
+else
+  echo "⚠️ solx installed but could not run \`solx --version\`"
+  echo "Please check your installation in ${INSTALL_DIR}."
+fi

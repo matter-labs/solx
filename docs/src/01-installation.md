@@ -2,8 +2,17 @@
 
 You can start using **solx** in the following ways:
 
-1. Download [stable releases](https://github.com/matter-labs/solx/releases). See [Static Executables](#static-executables).
-2. Build **solx** from sources. See [Building from Source](#building-from-source).
+1. Using the installation script.
+   ```shell
+   curl -L https://raw.githubusercontent.com/matter-labs/solx/main/install-solx | sh
+   ```
+
+   The script will download the latest stable release of **solx** and install it in your `PATH`.
+   > ⚠️ The script requires `curl` to be installed on your system.<br>
+   > This is the recommended way to install **solx** for macOS users to bypass gatekeeper checks.
+
+2. Download [stable releases](https://github.com/matter-labs/solx/releases). See [Static Executables](#static-executables).
+3. Build **solx** from sources. See [Building from Source](#building-from-source).
 
 
 
