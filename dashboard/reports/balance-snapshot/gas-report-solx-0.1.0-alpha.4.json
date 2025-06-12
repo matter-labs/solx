@@ -1,0 +1,2 @@
+[{"contract":"test/utils/ERC20.sol:ERC20","deployment":{"gas":519015,"size":2322},"functions":{"balanceOf(address)":{"calls":17,"min":2436,"mean":2436,"median":2436,"max":2436}}}]
+
