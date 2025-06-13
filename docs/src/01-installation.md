@@ -26,6 +26,8 @@ We recommend using **solx** via [Foundry](https://github.com/foundry-rs/foundry)
 solc_version = "/path/to/solx"
 ```
 
+As a shortcut, you may also use `forge --use /path/to/solx` instead.
+
 **solx** works with **Hardhat** as well, but requires additional configuration.
 
 
