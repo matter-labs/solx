@@ -8,7 +8,8 @@ use std::collections::BTreeSet;
 
 #[test]
 fn evmla() {
-    let sources = crate::common::read_sources(&[crate::common::TEST_SOLIDITY_CONTRACT_PATH]);
+    let sources =
+        crate::common::read_sources(&[crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH]);
 
     let build = crate::common::build_solidity_standard_json(
         sources,
@@ -22,9 +23,9 @@ fn evmla() {
     assert!(
         build
             .contracts
-            .get(crate::common::TEST_SOLIDITY_CONTRACT_PATH)
+            .get(crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH)
             .expect("Always exists")
-            .get("Test")
+            .get("SimpleContract")
             .expect("Always exists")
             .evm
             .as_ref()
@@ -36,9 +37,9 @@ fn evmla() {
     assert!(
         build
             .contracts
-            .get(crate::common::TEST_SOLIDITY_CONTRACT_PATH)
+            .get(crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH)
             .expect("Always exists")
-            .get("Test")
+            .get("SimpleContract")
             .expect("Always exists")
             .ir_optimized
             .is_none(),
@@ -48,7 +49,8 @@ fn evmla() {
 
 #[test]
 fn yul() {
-    let sources = crate::common::read_sources(&[crate::common::TEST_SOLIDITY_CONTRACT_PATH]);
+    let sources =
+        crate::common::read_sources(&[crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH]);
 
     let build = crate::common::build_solidity_standard_json(
         sources,
@@ -63,9 +65,9 @@ fn yul() {
     assert!(
         build
             .contracts
-            .get(crate::common::TEST_SOLIDITY_CONTRACT_PATH)
+            .get(crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH)
             .expect("Always exists")
-            .get("Test")
+            .get("SimpleContract")
             .expect("Always exists")
             .ir_optimized
             .is_some(),
@@ -74,9 +76,9 @@ fn yul() {
     assert!(
         build
             .contracts
-            .get(crate::common::TEST_SOLIDITY_CONTRACT_PATH)
+            .get(crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH)
             .expect("Always exists")
-            .get("Test")
+            .get("SimpleContract")
             .expect("Always exists")
             .evm
             .as_ref()

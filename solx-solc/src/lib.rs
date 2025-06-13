@@ -74,9 +74,9 @@ impl Compiler {
         input_json: &mut solx_standard_json::Input,
         messages: &mut Vec<solx_standard_json::OutputError>,
         use_import_callback: bool,
-        base_path: Option<String>,
-        include_paths: Vec<String>,
-        allow_paths: Option<String>,
+        base_path: Option<&str>,
+        include_paths: &[String],
+        allow_paths: Option<&str>,
     ) -> anyhow::Result<solx_standard_json::Output> {
         let original_output_selection = input_json.settings.output_selection.to_owned();
         input_json.settings.output_selection.normalize();
@@ -104,8 +104,8 @@ impl Compiler {
         };
 
         let include_paths: Vec<CString> = include_paths
-            .into_iter()
-            .map(|path| CString::new(path).expect("Always valid"))
+            .iter()
+            .map(|path| CString::new(path.as_str()).expect("Always valid"))
             .collect();
         let include_paths: Vec<*const ::libc::c_char> =
             include_paths.iter().map(|path| path.as_ptr()).collect();
@@ -213,7 +213,7 @@ impl Compiler {
             .settings
             .output_selection
             .set_selector(solx_standard_json::InputSelector::Yul);
-        let solc_output = self.standard_json(solc_input, messages, true, None, vec![], None)?;
+        let solc_output = self.standard_json(solc_input, messages, true, None, &[], None)?;
         Ok(solc_output)
     }
 

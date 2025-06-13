@@ -117,7 +117,7 @@ pub fn build_solidity_standard_json(
 
     let mut output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.standard_json(&mut input, &mut vec![], true, None, vec![], None)
+        solc_compiler.standard_json(&mut input, &mut vec![], true, None, &[], None)
     }?;
     output.check_errors()?;
 
@@ -131,6 +131,7 @@ pub fn build_solidity_standard_json(
         &input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings,
+        None,
         vec![],
         None,
     )?;
@@ -151,12 +152,12 @@ pub fn build_solidity_standard_json(
         ),
     ];
 
-    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
+    let mut build = if input.settings.output_selection.is_bytecode_set_for_any() {
         build.link(linker_symbols, Some(cbor_data))
     } else {
         build
     };
-    build.write_to_standard_json(&mut output, &input.settings.output_selection)?;
+    build.write_to_standard_json(&mut output, &input.settings.output_selection, true)?;
     output.check_errors()?;
     Ok(output)
 }
@@ -198,6 +199,7 @@ pub fn build_yul_standard_json(
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
+        None,
         vec![],
         None,
     )?;
@@ -218,12 +220,12 @@ pub fn build_yul_standard_json(
         ),
     ];
 
-    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
+    let mut build = if input.settings.output_selection.is_bytecode_set_for_any() {
         build.link(BTreeMap::new(), Some(cbor_data))
     } else {
         build
     };
-    build.write_to_standard_json(&mut solc_output, &input.settings.output_selection)?;
+    build.write_to_standard_json(&mut solc_output, &input.settings.output_selection, true)?;
     solc_output.check_errors()?;
     Ok(solc_output)
 }
@@ -257,6 +259,7 @@ pub fn build_llvm_ir_standard_json(
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
+        None,
         vec![],
         None,
     )?;
@@ -267,12 +270,12 @@ pub fn build_llvm_ir_standard_json(
         solx::version().parse().expect("Always valid"),
     )];
 
-    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
+    let mut build = if input.settings.output_selection.is_bytecode_set_for_any() {
         build.link(BTreeMap::new(), Some(cbor_data))
     } else {
         build
     };
-    build.write_to_standard_json(&mut output, &input.settings.output_selection)?;
+    build.write_to_standard_json(&mut output, &input.settings.output_selection, true)?;
     output.check_errors()?;
     Ok(output)
 }

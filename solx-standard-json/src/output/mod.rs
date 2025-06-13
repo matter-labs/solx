@@ -71,6 +71,44 @@ impl Output {
     }
 
     ///
+    /// Extends the output JSON with another one, e.g. from a subsequent compilation run.
+    ///
+    pub fn extend(&mut self, mut other: Self) {
+        for (path, file) in self.contracts.iter_mut() {
+            for (name, contract) in file.iter_mut() {
+                if let Some(other_contract) = other
+                    .contracts
+                    .get_mut(path)
+                    .and_then(|file| file.remove(name))
+                {
+                    contract.extend(other_contract);
+                }
+            }
+        }
+        for (path, file) in other.contracts.into_iter() {
+            if let Some(existing_file) = self.contracts.get_mut(path.as_str()) {
+                for (name, contract) in file.into_iter() {
+                    if let Some(existing_contract) = existing_file.get_mut(name.as_str()) {
+                        existing_contract.extend(contract);
+                    } else {
+                        existing_file.insert(name, contract);
+                    }
+                }
+            } else {
+                self.contracts.insert(path, file);
+            }
+        }
+        for (path, source) in other.sources.into_iter() {
+            if let Some(existing_source) = self.sources.get_mut(path.as_str()) {
+                existing_source.extend(source);
+            } else {
+                self.sources.insert(path, source);
+            }
+        }
+        self.errors.extend(other.errors);
+    }
+
+    ///
     /// Prunes the output JSON and prints it to stdout.
     ///
     pub fn write_and_exit(mut self, output_selection: &InputSettingsSelection) -> ! {

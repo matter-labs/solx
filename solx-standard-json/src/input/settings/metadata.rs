@@ -5,7 +5,7 @@
 ///
 /// The `solc --standard-json` input settings metadata.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
     /// Whether to use literal content.
