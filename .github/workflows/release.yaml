@@ -262,3 +262,25 @@ jobs:
     needs: prepare-release
     uses: ./.github/workflows/deploy-docs.yaml
     secrets: inherit
+
+  check-install-script:
+    if: github.ref_type == 'tag'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "MacOS x86"
+            runner: macos-latest-large
+          - name: "MacOS arm64"
+            runner: macos-latest-xlarge
+          - name: "Linux x86 gnu"
+            runner: ubuntu-latest
+          - name: "Linux ARM64 gnu"
+            runner: matterlabs-ci-runner-arm
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.name }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Run installation script
+        run: curl -L https://raw.githubusercontent.com/matter-labs/solx/${{ github.ref_name }}/install-solx | sh
