@@ -27,21 +27,7 @@ Our mid-term goals:
 
 ## Installation
 
-You can download the existing pre-releases from the [Releases](https://github.com/matter-labs/solx/releases) GitHub page.
-
-## Usage
-
-We recommend using **solx** via [Foundry](https://github.com/foundry-rs/foundry). It behaves in the same way as
-**solc** v0.8.30, so you can download the executable and specify:
-
-```toml
-[profile.solx]
-solc_version = "/path/to/solx"
-```
-
-**solx** works with **Hardhat** as well, but requires some additional configuration.
-
-Otherwise, the interface is mostly compatible with **solc**, so you can use it via CLI or standard JSON.
+For the detailed installation and usage guide, visit [our comprehensive documentation](https://matter-labs.github.io/solx/latest/#installation).
 
 ## Demo
 
@@ -61,7 +47,7 @@ The most important part of the project is the EVM target in LLVM. You can find i
 
 ## Documentation
 
-For the detailed usage guide, see the [comprehensive documentation](https://matter-labs.github.io/solx/latest/).
+The **solx** documentation is powered by [GitHub Pages](https://matter-labs.github.io/solx/latest/).
 
 **solx** documentation is provided as an [mdBook](https://github.com/rust-lang/mdBook), and its sources available in the `docs/` directory.
 To build the book, follow the [instructions](./docs/README.md).

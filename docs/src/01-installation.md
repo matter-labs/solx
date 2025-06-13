@@ -1,4 +1,4 @@
-# Installing **solx**
+# Installation
 
 You can start using **solx** in the following ways:
 
@@ -7,12 +7,28 @@ You can start using **solx** in the following ways:
    curl -L https://raw.githubusercontent.com/matter-labs/solx/main/install-solx | sh
    ```
 
-   The script will download the latest stable release of **solx** and install it in your `$PATH`.
-   > ⚠️ The script requires `curl` to be installed in your system.<br>
+   The script will download the latest stable release of **solx** and install it in your `PATH`.
+   > ⚠️ The script requires `curl` to be installed on your system.<br>
    > This is the recommended way to install **solx** for MacOS users to bypass gatekeeper checks.
 
 2. Download [stable releases](https://github.com/matter-labs/solx/releases). See [Static Executables](#static-executables).
 3. Build **solx** from sources. See [Building from Source](#building-from-source).
+
+
+
+## Usage
+
+We recommend using **solx** via [Foundry](https://github.com/foundry-rs/foundry). It behaves in the same way as
+**solc** v0.8.30, so you can install **solx** executable as described in the section above and specify:
+
+```toml
+[profile.solx]
+solc_version = "/path/to/solx"
+```
+
+As a shortcut, you may also use `forge --use /path/to/solx` instead.
+
+**solx** works with **Hardhat** as well, but requires additional configuration.
 
 
 

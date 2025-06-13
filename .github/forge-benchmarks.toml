@@ -93,6 +93,7 @@ description = "A new paradigm in DAO governance."
 [aave-v3]
 repo = "https://github.com/aave-dao/aave-v3-origin"
 description = "A non-custodial liquidity protocol on Ethereum."
+requires_yarn = true
 
 [seaport]
 repo = "https://github.com/ProjectOpenSea/seaport"
