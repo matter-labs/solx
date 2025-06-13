@@ -27,7 +27,7 @@ Our mid-term goals:
 
 ## Installation
 
-For the detailed installation and usage guide, visit [our comprehensive documentation](https://matter-labs.github.io/solx/latest/#installing-solx).
+For the detailed installation and usage guide, visit [our comprehensive documentation](https://matter-labs.github.io/solx/latest/#installation).
 
 ## Demo
 
