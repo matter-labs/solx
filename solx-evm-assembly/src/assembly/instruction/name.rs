@@ -119,6 +119,8 @@ pub enum Name {
     DUP15,
     /// The eponymous EVM instruction.
     DUP16,
+    /// The eponymous EVM instruction.
+    DUPX,
 
     /// The eponymous EVM instruction.
     SWAP1,
@@ -152,6 +154,8 @@ pub enum Name {
     SWAP15,
     /// The eponymous EVM instruction.
     SWAP16,
+    /// The eponymous EVM instruction.
+    SWAPX,
 
     /// The eponymous EVM instruction.
     POP,

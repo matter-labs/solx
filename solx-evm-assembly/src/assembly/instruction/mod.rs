@@ -42,6 +42,9 @@ impl Instruction {
             Name::JUMP => 1,
             Name::JUMPI => 2,
 
+            Name::DUPX => 1,
+            Name::SWAPX => 1,
+
             Name::ADD => 2,
             Name::SUB => 2,
             Name::MUL => 2,
@@ -192,6 +195,7 @@ impl Instruction {
             Name::DUP14 => 1,
             Name::DUP15 => 1,
             Name::DUP16 => 1,
+            Name::DUPX => 1,
 
             Name::ADD => 1,
             Name::SUB => 1,

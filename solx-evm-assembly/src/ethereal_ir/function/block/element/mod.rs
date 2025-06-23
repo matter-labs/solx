@@ -5,6 +5,7 @@
 pub mod stack;
 
 use inkwell::values::BasicValue;
+use num::ToPrimitive;
 
 use era_compiler_llvm_context::IContext;
 use era_compiler_llvm_context::IEVMLAFunction;
@@ -281,6 +282,20 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 &mut original,
             )
             .map(Some),
+            InstructionName::DUPX => {
+                let offset = self
+                    .stack_input
+                    .pop_constant()?
+                    .to_usize()
+                    .expect("Always valid");
+                crate::assembly::instruction::stack::dup(
+                    context,
+                    offset,
+                    self.stack.elements.len(),
+                    &mut original,
+                )
+                .map(Some)
+            }
 
             InstructionName::SWAP1 => {
                 crate::assembly::instruction::stack::swap(context, 1, self.stack.elements.len())
@@ -345,6 +360,19 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             InstructionName::SWAP16 => {
                 crate::assembly::instruction::stack::swap(context, 16, self.stack.elements.len())
                     .map(|_| None)
+            }
+            InstructionName::SWAPX => {
+                let offset = self
+                    .stack_input
+                    .pop_constant()?
+                    .to_usize()
+                    .expect("Always valid");
+                crate::assembly::instruction::stack::swap(
+                    context,
+                    offset,
+                    self.stack.elements.len(),
+                )
+                .map(|_| None)
             }
 
             InstructionName::POP => crate::assembly::instruction::stack::pop(context).map(|_| None),

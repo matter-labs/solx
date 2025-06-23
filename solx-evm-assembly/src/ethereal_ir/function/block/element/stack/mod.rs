@@ -98,6 +98,17 @@ impl Stack {
     }
 
     ///
+    /// Pops the constant from the top.
+    ///
+    pub fn pop_constant(&mut self) -> anyhow::Result<num::BigUint> {
+        match self.elements.pop() {
+            Some(Element::Constant(constant)) => Ok(constant),
+            Some(element) => anyhow::bail!("Expected constant, found {element}"),
+            None => anyhow::bail!("Stack underflow"),
+        }
+    }
+
+    ///
     /// Swaps two stack elements.
     ///
     pub fn swap(&mut self, index: usize) -> anyhow::Result<()> {

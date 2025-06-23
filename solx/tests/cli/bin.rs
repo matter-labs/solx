@@ -58,6 +58,24 @@ fn deploy_time_linking() -> anyhow::Result<()> {
 }
 
 #[test]
+fn stack_too_deep() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        crate::common::TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_PATH,
+        "--bin",
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+
+    result
+        .success()
+        .stdout(predicate::str::contains("Binary").count(1));
+
+    Ok(())
+}
+
+#[test]
 fn invalid_input() -> anyhow::Result<()> {
     crate::common::setup()?;
 
