@@ -165,7 +165,7 @@ jobs:
           wget "${YQ_DOWNLOAD_URL}"
           mv yq_linux_amd64 yq
           chmod +x yq
-        
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -224,7 +224,7 @@ jobs:
                 [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir" || VIA_IR_OPTION=""
                 mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
                 BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
-                  
+          
                 start_ms=$(date +%s%3N)
                 forge build ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>&1 || true
                 end_ms=$(date +%s%3N)
@@ -385,8 +385,77 @@ jobs:
             done
           done
 
+      - name: Prepare compilation and run time table
+        run: |
+          echo "| Project     | Mode     | Compile (solx / solc / Δs / Δ%) | Run (solx / solc / Δs / Δ%) |" > time_report.md
+          echo "|-------------|----------|----------------------------------|------------------------------|" >> time_report.md
+          
+          PROJECTS=$(yq '. as $root | keys[]' .github/forge-benchmarks.toml | tr '\n' ' ')
+          for PROJECT in ${PROJECTS}; do
+            for MODE in "default" "viaIR"; do
+              [ "${MODE}" = "viaIR" ] && SUFFIX="-via-ir" || SUFFIX=""
+              JSON="data/solx${SUFFIX}/build_${PROJECT}.json"
+              REF_JSON="data/solc${SUFFIX}/build_${PROJECT}.json"
+          
+              if [ ! -s "$JSON" ] || [ ! -s "$REF_JSON" ]; then
+                echo "No data for ${PROJECT} [$MODE]"
+                continue
+              fi
+          
+              COMPILE_SOLX=$(jq -r '.compile_time // 0' "${JSON}")
+              COMPILE_SOLC=$(jq -r '.compile_time // 0' "${REF_JSON}")
+              RUN_SOLX=$(jq -r '.exec_time // 0' "${JSON}")
+              RUN_SOLC=$(jq -r '.exec_time // 0' "${REF_JSON}")
+          
+              # Compute differences
+              COMPILE_DIFF=$(awk "BEGIN { printf \"%.2f\", ${COMPILE_SOLX} - ${COMPILE_SOLC} }")
+              COMPILE_PCT=$(awk "BEGIN { 
+                if (${COMPILE_SOLC} == 0) print \"∞\"; 
+                else printf \"%+.0f%%\", ((${COMPILE_SOLX} - ${COMPILE_SOLC}) / ${COMPILE_SOLC}) * 100 
+              }")
+          
+              RUN_DIFF=$(awk "BEGIN { printf \"%.2f\", ${RUN_SOLX} - ${RUN_SOLC} }")
+              RUN_PCT=$(awk "BEGIN { 
+                if (${RUN_SOLC} == 0) print \"∞\"; 
+                else printf \"%+.0f%%\", ((${RUN_SOLX} - ${RUN_SOLC}) / ${RUN_SOLC}) * 100 
+              }")
+
+              # Compile emoji
+              COMPILE_EMOJI=$(awk "BEGIN {
+                diff = ${COMPILE_SOLX} - ${COMPILE_SOLC};
+                pct = ((${COMPILE_SOLC} > 0) ? (diff / ${COMPILE_SOLC}) * 100 : 0);
+                if (pct > 5) print \"📈\";
+                else if (pct < -5) print \"📉\";
+                else print \"➖\";
+              }")
+          
+              # Run emoji
+              RUN_EMOJI=$(awk "BEGIN {
+                diff = ${RUN_SOLX} - ${RUN_SOLC};
+                pct = ((${RUN_SOLC} > 0) ? (diff / ${RUN_SOLC}) * 100 : 0);
+                if (pct > 5) print \"📈\";
+                else if (pct < -5) print \"📉\";
+                else print \"➖\";
+              }")
+
+              COMPILE_COLUMN=$(printf "%.2fs / %.2fs / %+0.2fs / %s %s" "$COMPILE_SOLX" "$COMPILE_SOLC" "$COMPILE_DIFF" "$COMPILE_PCT" "$COMPILE_EMOJI")
+              RUN_COLUMN=$(printf "%.2fs / %.2fs / %+0.2fs / %s %s" "$RUN_SOLX" "$RUN_SOLC" "$RUN_DIFF" "$RUN_PCT" "$RUN_EMOJI")
+          
+              if [ "$MODE" = "default" ]; then
+                printf "| %-11s | %-8s | %-32s | %-28s |\n" \
+                  "${PROJECT}" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" >> time_report.md
+              else
+                printf "| %-11s | %-8s | %-32s | %-28s |\n" \
+                  "" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" >> time_report.md
+              fi
+            done
+          done
+
       - name: Update job summary
         run: cat report.md >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Update job summary with time report
+        run: cat time_report.md >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload report
         if: ${{ github.event_name == 'pull_request' }}
@@ -394,6 +463,13 @@ jobs:
         with:
           message-path: report.md
           message-id: 'compatibility-matrix'
+
+      - name: Upload time report
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-path: time_report.md
+          message-id: 'time-report-table'
 
   analyze-results:
     runs-on: matterlabs-ci-runner-high-performance
