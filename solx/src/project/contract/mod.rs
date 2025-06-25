@@ -160,6 +160,9 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
+                inkwell::context::Context::install_stack_error_handler(
+                    crate::process::runtime_code_stack_handler,
+                );
                 runtime_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths.clone(),
                 ));
@@ -169,8 +172,7 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let mut runtime_spill_area_size = None;
-                let runtime_build = match runtime_context.build(
+                let runtime_build = runtime_context.build(
                     output_selection.check_selection(
                         self.name.path.as_str(),
                         self.name.name.as_deref(),
@@ -178,18 +180,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
-                ) {
-                    Ok(build) => build,
-                    Err(error) => {
-                        let spill_area_size = runtime_context.spill_area_size();
-                        if spill_area_size > 0 {
-                            runtime_spill_area_size = Some(spill_area_size);
-                            era_compiler_llvm_context::EVMBuild::default()
-                        } else {
-                            return Err(error)?;
-                        }
-                    }
-                };
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -214,6 +205,9 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
+                inkwell::context::Context::install_stack_error_handler(
+                    crate::process::deploy_code_stack_handler,
+                );
                 deploy_context.set_solidity_data(
                     era_compiler_llvm_context::EVMContextSolidityData::new(immutables_map),
                 );
@@ -226,8 +220,7 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let mut deploy_spill_area_size = None;
-                let deploy_build = match deploy_context.build(
+                let deploy_build = deploy_context.build(
                     output_selection.check_selection(
                         self.name.path.as_str(),
                         self.name.name.as_deref(),
@@ -235,25 +228,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
-                ) {
-                    Ok(build) => build,
-                    Err(error) => {
-                        let spill_area_size = deploy_context.spill_area_size();
-                        if spill_area_size > 0 {
-                            deploy_spill_area_size = Some(spill_area_size);
-                            era_compiler_llvm_context::EVMBuild::default()
-                        } else {
-                            return Err(error)?;
-                        }
-                    }
-                };
-                if deploy_spill_area_size.is_some() || runtime_spill_area_size.is_some() {
-                    return Err(Error::stack_too_deep(
-                        self.name,
-                        deploy_spill_area_size,
-                        runtime_spill_area_size,
-                    ));
-                }
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -301,6 +276,9 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
+                inkwell::context::Context::install_stack_error_handler(
+                    crate::process::runtime_code_stack_handler,
+                );
                 runtime_context.set_evmla_data(evmla_data.clone());
                 runtime_code_assembly.declare(&mut runtime_context)?;
                 runtime_code_assembly
@@ -308,8 +286,7 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{runtime_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let mut runtime_spill_area_size = None;
-                let runtime_build = match runtime_context.build(
+                let runtime_build = runtime_context.build(
                     output_selection.check_selection(
                         self.name.path.as_str(),
                         self.name.name.as_deref(),
@@ -317,18 +294,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
-                ) {
-                    Ok(build) => build,
-                    Err(error) => {
-                        let spill_area_size = runtime_context.spill_area_size();
-                        if spill_area_size > 0 {
-                            runtime_spill_area_size = Some(spill_area_size);
-                            era_compiler_llvm_context::EVMBuild::default()
-                        } else {
-                            return Err(error)?;
-                        }
-                    }
-                };
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -353,6 +319,9 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
+                inkwell::context::Context::install_stack_error_handler(
+                    crate::process::deploy_code_stack_handler,
+                );
                 deploy_context.set_solidity_data(
                     era_compiler_llvm_context::EVMContextSolidityData::new(immutables_map),
                 );
@@ -363,8 +332,7 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{deploy_code_segment} code LLVM IR generator: {error}")
                     })?;
-                let mut deploy_spill_area_size = None;
-                let deploy_build = match deploy_context.build(
+                let deploy_build = deploy_context.build(
                     output_selection.check_selection(
                         self.name.path.as_str(),
                         self.name.name.as_deref(),
@@ -372,25 +340,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
-                ) {
-                    Ok(build) => build,
-                    Err(error) => {
-                        let spill_area_size = deploy_context.spill_area_size();
-                        if spill_area_size > 0 {
-                            deploy_spill_area_size = Some(spill_area_size);
-                            era_compiler_llvm_context::EVMBuild::default()
-                        } else {
-                            return Err(error)?;
-                        }
-                    }
-                };
-                if deploy_spill_area_size.is_some() || runtime_spill_area_size.is_some() {
-                    return Err(Error::stack_too_deep(
-                        self.name,
-                        deploy_spill_area_size,
-                        runtime_spill_area_size,
-                    ));
-                }
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),
@@ -456,8 +406,10 @@ impl Contract {
                     optimizer.clone(),
                     debug_config.clone(),
                 );
-                let mut runtime_spill_area_size = None;
-                let runtime_build = match runtime_context.build(
+                inkwell::context::Context::install_stack_error_handler(
+                    crate::process::runtime_code_stack_handler,
+                );
+                let runtime_build = runtime_context.build(
                     output_selection.check_selection(
                         self.name.path.as_str(),
                         self.name.name.as_deref(),
@@ -465,18 +417,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
-                ) {
-                    Ok(build) => build,
-                    Err(error) => {
-                        let spill_area_size = runtime_context.spill_area_size();
-                        if spill_area_size > 0 {
-                            runtime_spill_area_size = Some(spill_area_size);
-                            era_compiler_llvm_context::EVMBuild::default()
-                        } else {
-                            return Err(error)?;
-                        }
-                    }
-                };
+                )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
                     self.name.clone(),
@@ -501,8 +442,10 @@ impl Contract {
                     optimizer,
                     debug_config,
                 );
-                let mut deploy_spill_area_size = None;
-                let deploy_build = match deploy_context.build(
+                inkwell::context::Context::install_stack_error_handler(
+                    crate::process::deploy_code_stack_handler,
+                );
+                let deploy_build = deploy_context.build(
                     output_selection.check_selection(
                         self.name.path.as_str(),
                         self.name.name.as_deref(),
@@ -510,25 +453,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
-                ) {
-                    Ok(build) => build,
-                    Err(error) => {
-                        let spill_area_size = deploy_context.spill_area_size();
-                        if spill_area_size > 0 {
-                            deploy_spill_area_size = Some(spill_area_size);
-                            era_compiler_llvm_context::EVMBuild::default()
-                        } else {
-                            return Err(error)?;
-                        }
-                    }
-                };
-                if deploy_spill_area_size.is_some() || runtime_spill_area_size.is_some() {
-                    return Err(Error::stack_too_deep(
-                        self.name,
-                        deploy_spill_area_size,
-                        runtime_spill_area_size,
-                    ));
-                }
+                )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
                     self.name.clone(),

@@ -324,11 +324,11 @@ impl Build {
     ///
     /// Extracts stack-too-deep errors from the build.
     ///
-    pub fn take_stack_too_deep_errors(&mut self) -> Vec<StackTooDeepError> {
+    pub fn take_stack_too_deep_errors(&mut self) -> Vec<(String, StackTooDeepError)> {
         let mut stack_too_deep_errors = Vec::new();
-        for result in self.results.values() {
+        for (path, result) in self.results.iter() {
             if let Err(Error::StackTooDeep(stack_too_deep_error)) = result {
-                stack_too_deep_errors.push(stack_too_deep_error.to_owned());
+                stack_too_deep_errors.push((path.to_owned(), stack_too_deep_error.to_owned()));
             }
         }
         self.results
