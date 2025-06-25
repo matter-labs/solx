@@ -375,7 +375,12 @@ impl Project {
 
                 let contract = Contract::new(
                     era_compiler_common::ContractName::new(path.clone(), None),
-                    ContractLLVMIR::new(path.clone(), source_code).into(),
+                    ContractLLVMIR::new(
+                        path.clone(),
+                        era_compiler_common::CodeSegment::Runtime,
+                        source_code,
+                    )
+                    .into(),
                     metadata,
                     None,
                     None,
@@ -440,6 +445,37 @@ impl Project {
                 let legacy_assembly = contract.legacy_assembly.take();
                 let ir_optimized = contract.ir_optimized.take();
 
+                let (deploy_code_ir, runtime_code_ir): (ContractIR, ContractIR) = match contract.ir
+                {
+                    ContractIR::Yul(mut deploy_code) => {
+                        let runtime_code: ContractYul =
+                            *deploy_code.runtime_code.take().expect("Always exists");
+                        (deploy_code.into(), runtime_code.into())
+                    }
+                    ContractIR::EVMLegacyAssembly(mut deploy_code) => {
+                        let runtime_code: ContractEVMLegacyAssembly =
+                            *deploy_code.runtime_code.take().expect("Always exists");
+                        (deploy_code.into(), runtime_code.into())
+                    }
+                    ContractIR::LLVMIR(runtime_code) => {
+                        let deploy_code_identifier = contract.name.full_path.to_owned();
+                        let runtime_code_identifier = format!(
+                            "{deploy_code_identifier}.{}",
+                            era_compiler_common::CodeSegment::Runtime
+                        );
+
+                        let deploy_code = ContractLLVMIR::new(
+                            deploy_code_identifier.clone(),
+                            era_compiler_common::CodeSegment::Deploy,
+                            era_compiler_llvm_context::evm_minimal_deploy_code(
+                                deploy_code_identifier.as_str(),
+                                runtime_code_identifier.as_str(),
+                            ),
+                        );
+                        (deploy_code.into(), runtime_code.into())
+                    }
+                };
+
                 let (runtime_object_result, metadata) = {
                     let metadata = metadata.map(|metadata| {
                         ContractMetadata::new(optimizer_settings.clone(), llvm_options.as_slice())
@@ -464,7 +500,8 @@ impl Project {
                         optimizer_settings.set_spill_area_size(spill_area_size.runtime);
                     }
                     let input = EVMProcessInput::new(
-                        contract.clone(), // TODO: split the contract into deploy and runtime parts
+                        contract_name.clone(),
+                        runtime_code_ir,
                         era_compiler_common::CodeSegment::Runtime,
                         self.identifier_paths.clone(),
                         output_selection.to_owned(),
@@ -495,7 +532,8 @@ impl Project {
                         }
 
                         let input = EVMProcessInput::new(
-                            contract,
+                            contract_name.clone(),
+                            deploy_code_ir,
                             era_compiler_common::CodeSegment::Deploy,
                             self.identifier_paths.clone(),
                             output_selection.to_owned(),

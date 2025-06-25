@@ -7,15 +7,17 @@
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
-use crate::project::contract::Contract;
+use crate::project::contract::ir::IR as ContractIR;
 
 ///
 /// The EVM input data.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Input {
-    /// The input contract.
-    pub contract: Contract,
+    /// The input contract name.
+    pub contract_name: era_compiler_common::ContractName,
+    /// The input contract IR.
+    pub contract_ir: ContractIR,
     /// The code segment.
     pub code_segment: era_compiler_common::CodeSegment,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
@@ -39,7 +41,8 @@ impl Input {
     /// A shortcut constructor.
     ///
     pub fn new(
-        contract: Contract,
+        contract_name: era_compiler_common::ContractName,
+        contract_ir: ContractIR,
         code_segment: era_compiler_common::CodeSegment,
         identifier_paths: BTreeMap<String, String>,
         output_selection: solx_standard_json::InputSelection,
@@ -50,7 +53,8 @@ impl Input {
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> Self {
         Self {
-            contract,
+            contract_name,
+            contract_ir,
             code_segment,
             identifier_paths,
             output_selection,
