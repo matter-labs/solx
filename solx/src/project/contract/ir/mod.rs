@@ -13,7 +13,7 @@ use self::yul::Yul;
 ///
 /// The contract source code.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub enum IR {
     /// The Yul source code.
     Yul(Yul),

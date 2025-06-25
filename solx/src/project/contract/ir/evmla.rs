@@ -7,10 +7,14 @@ use std::collections::BTreeSet;
 ///
 /// The contract EVM legacy assembly source code.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct EVMLegacyAssembly {
     /// The EVM legacy assembly source code.
     pub assembly: solx_evm_assembly::Assembly,
+    /// Dependencies of the EVM assembly object.
+    pub dependencies: solx_yul::Dependencies,
+    /// Runtime code object that is only set in deploy code.
+    pub runtime_code: Option<Box<Self>>,
 }
 
 impl EVMLegacyAssembly {
@@ -25,8 +29,29 @@ impl EVMLegacyAssembly {
         if let Ok(runtime_code) = assembly.runtime_code_mut() {
             runtime_code.extra_metadata = extra_metadata;
         }
+        let full_path = assembly.full_path().to_owned();
 
-        Some(Self { assembly })
+        let mut runtime_code_assembly = assembly.runtime_code().expect("Always exists").to_owned();
+        runtime_code_assembly.set_full_path(full_path.clone());
+        let runtime_code_identifier =
+            format!("{full_path}.{}", era_compiler_common::CodeSegment::Runtime);
+        let mut runtime_code_dependencies =
+            solx_yul::Dependencies::new(runtime_code_identifier.as_str());
+        runtime_code_assembly.accumulate_evm_dependencies(&mut runtime_code_dependencies);
+        let runtime_code = Some(Box::new(Self {
+            assembly: runtime_code_assembly,
+            dependencies: runtime_code_dependencies,
+            runtime_code: None,
+        }));
+
+        let mut deploy_code_dependencies = solx_yul::Dependencies::new(full_path.as_str());
+        assembly.accumulate_evm_dependencies(&mut deploy_code_dependencies);
+
+        Some(Self {
+            assembly,
+            dependencies: deploy_code_dependencies,
+            runtime_code,
+        })
     }
 
     ///
@@ -41,18 +66,5 @@ impl EVMLegacyAssembly {
     ///
     pub fn accumulate_evm_dependencies(&self, dependencies: &mut solx_yul::Dependencies) {
         self.assembly.accumulate_evm_dependencies(dependencies);
-    }
-}
-
-impl era_compiler_llvm_context::EVMWriteLLVM for EVMLegacyAssembly {
-    fn declare(
-        &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
-        self.assembly.declare(context)
-    }
-
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
-        self.assembly.into_llvm(context)
     }
 }

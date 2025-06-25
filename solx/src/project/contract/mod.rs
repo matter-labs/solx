@@ -12,15 +12,13 @@ use era_compiler_llvm_context::IContext;
 
 use crate::build::contract::object::Object as EVMContractObject;
 use crate::error::Error;
-use crate::yul::parser::wrapper::Wrap;
 
-use self::ir::llvm_ir::LLVMIR;
 use self::ir::IR;
 
 ///
 /// The contract data.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Contract {
     /// The contract name.
     pub name: era_compiler_common::ContractName,
@@ -96,7 +94,8 @@ impl Contract {
     /// Compiles the specified contract to EVM, returning its build artifacts.
     ///
     pub fn compile_to_evm(
-        self,
+        contract_name: era_compiler_common::ContractName,
+        contract_ir: IR,
         code_segment: era_compiler_common::CodeSegment,
         identifier_paths: BTreeMap<String, String>,
         output_selection: solx_standard_json::InputSelection,
@@ -109,21 +108,15 @@ impl Contract {
         use era_compiler_llvm_context::EVMWriteLLVM;
 
         let solc_version = solx_solc::Compiler::default().version;
-        let identifier = self.identifier().to_owned();
         let optimizer = era_compiler_llvm_context::Optimizer::new(optimizer_settings);
         let output_bytecode = output_selection.is_bytecode_set_for_any();
 
-        match (self.ir, code_segment) {
-            (IR::Yul(mut deploy_code), era_compiler_common::CodeSegment::Deploy) => {
-                let runtime_code = deploy_code.take_runtime_code().ok_or_else(|| {
-                    anyhow::anyhow!("Contract `{identifier}` has no runtime code")
-                })?;
-                let deploy_code_dependencies =
-                    deploy_code.get_evm_dependencies(Some(&runtime_code));
-                let deploy_code_identifier = deploy_code.object.0.identifier.clone();
+        match (contract_ir, code_segment) {
+            (IR::Yul(mut yul), era_compiler_common::CodeSegment::Deploy) => {
+                let deploy_code_identifier = yul.object.0.identifier.clone();
 
                 let deploy_llvm = inkwell::context::Context::create();
-                let deploy_module = deploy_llvm.create_module(self.name.full_path.as_str());
+                let deploy_module = deploy_llvm.create_module(contract_name.full_path.as_str());
                 let mut deploy_context = era_compiler_llvm_context::EVMContext::new(
                     &deploy_llvm,
                     deploy_module,
@@ -143,16 +136,14 @@ impl Contract {
                 deploy_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths,
                 ));
-                deploy_code.declare(&mut deploy_context)?;
-                deploy_code
-                    .into_llvm(&mut deploy_context)
-                    .map_err(|error| {
-                        anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
-                    })?;
+                yul.object.declare(&mut deploy_context)?;
+                yul.object.into_llvm(&mut deploy_context).map_err(|error| {
+                    anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
+                })?;
                 let deploy_build = deploy_context.build(
                     output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
+                        contract_name.path.as_str(),
+                        contract_name.name.as_deref(),
                         solx_standard_json::InputSelector::BytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -160,29 +151,24 @@ impl Contract {
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
-                    self.name.clone(),
+                    contract_name.clone(),
                     deploy_build.assembly,
                     deploy_build.bytecode,
                     true,
                     code_segment,
                     None,
                     None,
-                    deploy_code_dependencies,
+                    yul.dependencies,
                     deploy_build.warnings,
                 );
                 Ok(deploy_object)
             }
-            (IR::Yul(mut deploy_code), era_compiler_common::CodeSegment::Runtime) => {
-                let runtime_code = deploy_code.take_runtime_code().ok_or_else(|| {
-                    anyhow::anyhow!("Contract `{identifier}` has no runtime code")
-                })?;
-                let runtime_code_dependencies = runtime_code.get_evm_dependencies(None);
-                let mut runtime_code = runtime_code.wrap();
-                let runtime_code_identifier = runtime_code.0.identifier.clone();
+            (IR::Yul(mut yul), era_compiler_common::CodeSegment::Runtime) => {
+                let runtime_code_identifier = yul.object.0.identifier.clone();
 
                 let runtime_llvm = inkwell::context::Context::create();
                 let runtime_module = runtime_llvm
-                    .create_module(format!("{}.{code_segment}", self.name.full_path).as_str());
+                    .create_module(format!("{}.{code_segment}", contract_name.full_path).as_str());
                 let mut runtime_context = era_compiler_llvm_context::EVMContext::new(
                     &runtime_llvm,
                     runtime_module,
@@ -197,16 +183,16 @@ impl Contract {
                 runtime_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths.clone(),
                 ));
-                runtime_code.declare(&mut runtime_context)?;
-                runtime_code
+                yul.object.declare(&mut runtime_context)?;
+                yul.object
                     .into_llvm(&mut runtime_context)
                     .map_err(|error| {
                         anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
                     })?;
                 let runtime_build = runtime_context.build(
                     output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
+                        contract_name.path.as_str(),
+                        contract_name.name.as_deref(),
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -215,14 +201,14 @@ impl Contract {
                 let immutables = runtime_build.immutables.unwrap_or_default();
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
-                    self.name.clone(),
+                    contract_name.clone(),
                     runtime_build.assembly,
                     runtime_build.bytecode,
                     true,
                     code_segment,
                     Some(immutables),
                     metadata_bytes,
-                    runtime_code_dependencies,
+                    yul.dependencies,
                     runtime_build.warnings,
                 );
                 Ok(runtime_object)
@@ -230,7 +216,7 @@ impl Contract {
             (IR::EVMLegacyAssembly(mut deploy_code), era_compiler_common::CodeSegment::Deploy) => {
                 let evmla_data =
                     era_compiler_llvm_context::EVMContextEVMLAData::new(solc_version.default);
-                let deploy_code_identifier = self.name.full_path.to_owned();
+                let deploy_code_identifier = contract_name.full_path.to_owned();
                 let mut deploy_code_dependencies =
                     solx_yul::Dependencies::new(deploy_code_identifier.as_str());
                 deploy_code.accumulate_evm_dependencies(&mut deploy_code_dependencies);
@@ -254,16 +240,17 @@ impl Contract {
                     ),
                 );
                 deploy_context.set_evmla_data(evmla_data);
-                deploy_code.declare(&mut deploy_context)?;
+                deploy_code.assembly.declare(&mut deploy_context)?;
                 deploy_code
+                    .assembly
                     .into_llvm(&mut deploy_context)
                     .map_err(|error| {
                         anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
                     })?;
                 let deploy_build = deploy_context.build(
                     output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
+                        contract_name.path.as_str(),
+                        contract_name.name.as_deref(),
                         solx_standard_json::InputSelector::BytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -271,7 +258,7 @@ impl Contract {
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
-                    self.name.clone(),
+                    contract_name.clone(),
                     deploy_build.assembly,
                     deploy_build.bytecode,
                     false,
@@ -283,15 +270,13 @@ impl Contract {
                 );
                 Ok(deploy_object)
             }
-            (IR::EVMLegacyAssembly(deploy_code), era_compiler_common::CodeSegment::Runtime) => {
+            (
+                IR::EVMLegacyAssembly(mut runtime_code),
+                era_compiler_common::CodeSegment::Runtime,
+            ) => {
+                let runtime_code_identifier = format!("{}.{code_segment}", contract_name.full_path);
                 let evmla_data =
                     era_compiler_llvm_context::EVMContextEVMLAData::new(solc_version.default);
-                let mut runtime_code_assembly = deploy_code.assembly.runtime_code()?.to_owned();
-                runtime_code_assembly.set_full_path(deploy_code.assembly.full_path().to_owned());
-                let runtime_code_identifier = format!("{}.{code_segment}", self.name.full_path);
-                let mut runtime_code_dependencies =
-                    solx_yul::Dependencies::new(runtime_code_identifier.as_str());
-                runtime_code_assembly.accumulate_evm_dependencies(&mut runtime_code_dependencies);
 
                 let runtime_llvm = inkwell::context::Context::create();
                 let runtime_module = runtime_llvm.create_module(runtime_code_identifier.as_str());
@@ -307,16 +292,17 @@ impl Contract {
                     crate::process::evm_stack_error_handler,
                 );
                 runtime_context.set_evmla_data(evmla_data.clone());
-                runtime_code_assembly.declare(&mut runtime_context)?;
-                runtime_code_assembly
+                runtime_code.assembly.declare(&mut runtime_context)?;
+                runtime_code
+                    .assembly
                     .into_llvm(&mut runtime_context)
                     .map_err(|error| {
                         anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
                     })?;
                 let runtime_build = runtime_context.build(
                     output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
+                        contract_name.path.as_str(),
+                        contract_name.name.as_deref(),
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -325,42 +311,26 @@ impl Contract {
                 let immutables = runtime_build.immutables.unwrap_or_default();
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
-                    self.name.clone(),
+                    contract_name.clone(),
                     runtime_build.assembly,
                     runtime_build.bytecode,
                     false,
                     code_segment,
                     Some(immutables),
                     metadata_bytes,
-                    runtime_code_dependencies,
+                    runtime_code.dependencies,
                     runtime_build.warnings,
                 );
                 Ok(runtime_object)
             }
-            (IR::LLVMIR(_), era_compiler_common::CodeSegment::Deploy) => {
-                let deploy_code_identifier = self.name.full_path.to_owned();
-                let runtime_code_identifier = format!(
-                    "{}.{}",
-                    self.name.full_path,
-                    era_compiler_common::CodeSegment::Runtime
-                );
-                let mut deploy_llvm_ir = LLVMIR::new(
-                    deploy_code_identifier.clone(),
-                    era_compiler_llvm_context::evm_minimal_deploy_code(
-                        deploy_code_identifier.as_str(),
-                        runtime_code_identifier.as_str(),
-                    ),
-                );
-                deploy_llvm_ir.source.push(char::from(0));
+            (IR::LLVMIR(deploy_llvm_ir), era_compiler_common::CodeSegment::Deploy) => {
+                let deploy_code_identifier = contract_name.full_path.to_owned();
                 let deploy_memory_buffer =
                     inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
                         &deploy_llvm_ir.source.as_bytes()[..deploy_llvm_ir.source.len() - 1],
                         deploy_code_identifier.as_str(),
                         true,
                     );
-                let mut deploy_code_dependencies =
-                    solx_yul::Dependencies::new(deploy_code_identifier.as_str());
-                deploy_code_dependencies.push(runtime_code_identifier.to_owned(), true);
 
                 let deploy_llvm = inkwell::context::Context::create();
                 let deploy_module = deploy_llvm
@@ -379,8 +349,8 @@ impl Contract {
                 );
                 let deploy_build = deploy_context.build(
                     output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
+                        contract_name.path.as_str(),
+                        contract_name.name.as_deref(),
                         solx_standard_json::InputSelector::BytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -388,29 +358,26 @@ impl Contract {
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
-                    self.name.clone(),
+                    contract_name.clone(),
                     deploy_build.assembly,
                     deploy_build.bytecode,
                     false,
                     code_segment,
                     None,
                     None,
-                    deploy_code_dependencies,
+                    deploy_llvm_ir.dependencies,
                     deploy_build.warnings,
                 );
                 Ok(deploy_object)
             }
-            (IR::LLVMIR(mut runtime_llvm_ir), era_compiler_common::CodeSegment::Runtime) => {
-                let runtime_code_identifier = format!("{}.{code_segment}", self.name.full_path);
-                runtime_llvm_ir.source.push(char::from(0));
+            (IR::LLVMIR(runtime_llvm_ir), era_compiler_common::CodeSegment::Runtime) => {
+                let runtime_code_identifier = format!("{}.{code_segment}", contract_name.full_path);
                 let runtime_memory_buffer =
                     inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
                         &runtime_llvm_ir.source.as_bytes()[..runtime_llvm_ir.source.len() - 1],
                         runtime_code_identifier.as_str(),
                         true,
                     );
-                let runtime_code_dependencies =
-                    solx_yul::Dependencies::new(runtime_code_identifier.as_str());
 
                 let runtime_llvm = inkwell::context::Context::create();
                 let runtime_module = runtime_llvm
@@ -429,8 +396,8 @@ impl Contract {
                 );
                 let runtime_build = runtime_context.build(
                     output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
+                        contract_name.path.as_str(),
+                        contract_name.name.as_deref(),
                         solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
                     ),
                     output_bytecode,
@@ -438,14 +405,14 @@ impl Contract {
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
-                    self.name.clone(),
+                    contract_name.clone(),
                     runtime_build.assembly,
                     runtime_build.bytecode,
                     false,
                     code_segment,
                     Some(BTreeMap::new()),
                     metadata_bytes,
-                    runtime_code_dependencies,
+                    runtime_llvm_ir.dependencies,
                     runtime_build.warnings,
                 );
                 Ok(runtime_object)

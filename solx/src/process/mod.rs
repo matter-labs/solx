@@ -12,6 +12,7 @@ use std::sync::OnceLock;
 use std::thread::Builder;
 
 use crate::error::Error;
+use crate::project::contract::Contract;
 
 use self::input::Input as EVMInput;
 use self::output::Output as EVMOutput;
@@ -29,34 +30,34 @@ pub fn run() -> anyhow::Result<()> {
         .map_err(|error| anyhow::anyhow!("Stdin parsing error: {error}"))?;
 
     let source_location =
-        solx_standard_json::OutputErrorSourceLocation::new(input.contract.name.path.clone());
+        solx_standard_json::OutputErrorSourceLocation::new(input.contract_name.path.clone());
 
     let result = Builder::new()
         .stack_size(crate::WORKER_THREAD_STACK_SIZE)
         .spawn(move || {
-            input
-                .contract
-                .compile_to_evm(
-                    input.code_segment,
-                    input.identifier_paths,
-                    input.output_selection,
-                    input.immutables,
-                    input.metadata_bytes,
-                    input.optimizer_settings,
-                    input.llvm_options,
-                    input.debug_config,
+            Contract::compile_to_evm(
+                input.contract_name,
+                input.contract_ir,
+                input.code_segment,
+                input.identifier_paths,
+                input.output_selection,
+                input.immutables,
+                input.metadata_bytes,
+                input.optimizer_settings,
+                input.llvm_options,
+                input.debug_config,
+            )
+            .map(EVMOutput::new)
+            .map_err(|error| match error {
+                Error::Generic(error) => solx_standard_json::OutputError::new_error(
+                    None,
+                    error,
+                    Some(source_location),
+                    None,
                 )
-                .map(EVMOutput::new)
-                .map_err(|error| match error {
-                    Error::Generic(error) => solx_standard_json::OutputError::new_error(
-                        None,
-                        error,
-                        Some(source_location),
-                        None,
-                    )
-                    .into(),
-                    error => error,
-                })
+                .into(),
+                error => error,
+            })
         })
         .expect("Threading error")
         .join()

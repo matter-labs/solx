@@ -13,10 +13,14 @@ use crate::yul::parser::wrapper::Wrap;
 ///
 /// The contract Yul source code.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Yul {
-    /// The Yul AST object.
+    /// Yul AST object.
     pub object: crate::yul::parser::statement::object::Object,
+    /// Dependencies of the Yul object.
+    pub dependencies: solx_yul::Dependencies,
+    /// Runtime code object that is only set in deploy code.
+    pub runtime_code: Option<Box<Self>>,
 }
 
 impl Yul {
@@ -37,19 +41,28 @@ impl Yul {
         }
 
         let mut lexer = Lexer::new(source_code);
-        let object = Object::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy)
+        let mut object = Object::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy)
             .map_err(|error| anyhow::anyhow!("Yul parsing: {error:?}"))?;
+
+        let runtime_code = object.inner_object.take().map(|object| {
+            let dependencies = object.get_evm_dependencies(None);
+            Self {
+                object: object.wrap(),
+                dependencies,
+                runtime_code: None,
+            }
+        });
+        let dependencies = object.get_evm_dependencies(
+            runtime_code
+                .as_ref()
+                .map(|runtime_code| &runtime_code.object.0),
+        );
 
         Ok(Some(Self {
             object: object.wrap(),
+            dependencies,
+            runtime_code: runtime_code.map(Box::new),
         }))
-    }
-
-    ///
-    /// Extracts the runtime code from the Yul object.
-    ///
-    pub fn take_runtime_code(&mut self) -> Option<Object<EraDialect>> {
-        self.object.0.inner_object.take().map(|object| *object)
     }
 
     ///
@@ -67,18 +80,5 @@ impl Yul {
         runtime_code: Option<&solx_yul::yul::parser::statement::object::Object<EraDialect>>,
     ) -> solx_yul::Dependencies {
         self.object.0.get_evm_dependencies(runtime_code)
-    }
-}
-
-impl era_compiler_llvm_context::EVMWriteLLVM for Yul {
-    fn declare(
-        &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
-        self.object.declare(context)
-    }
-
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
-        self.object.into_llvm(context)
     }
 }
