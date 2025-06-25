@@ -5,6 +5,7 @@
 //!
 
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
 use crate::project::contract::Contract;
 
@@ -15,12 +16,16 @@ use crate::project::contract::Contract;
 pub struct Input {
     /// The input contract.
     pub contract: Contract,
+    /// The code segment.
+    pub code_segment: era_compiler_common::CodeSegment,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
     /// Output selection for the compilation.
     pub output_selection: solx_standard_json::InputSelection,
-    /// The metadata hash type.
-    pub metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+    /// Immutables produced by the runtime code run.
+    pub immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
+    /// The metadata bytes.
+    pub metadata_bytes: Option<Vec<u8>>,
     /// The optimizer settings.
     pub optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
     /// The extra LLVM arguments.
@@ -35,18 +40,22 @@ impl Input {
     ///
     pub fn new(
         contract: Contract,
+        code_segment: era_compiler_common::CodeSegment,
         identifier_paths: BTreeMap<String, String>,
         output_selection: solx_standard_json::InputSelection,
-        metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+        immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
+        metadata_bytes: Option<Vec<u8>>,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> Self {
         Self {
             contract,
+            code_segment,
             identifier_paths,
             output_selection,
-            metadata_hash_type,
+            immutables,
+            metadata_bytes,
             optimizer_settings,
             llvm_options,
             debug_config,

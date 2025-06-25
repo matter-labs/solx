@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-stack-never-too-deep#1c10bae23536018c23642ed9e79b9f5fe89761d9"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-stack-never-too-deep#6bf090fd2aaeedde901db8dcedf29d629601cc0a"
 dependencies = [
  "anyhow",
  "era-compiler-common",

@@ -24,8 +24,8 @@ use self::contract::Contract;
 ///
 #[derive(Debug, Default)]
 pub struct Build {
-    /// The contract data,
-    pub results: BTreeMap<String, crate::Result<Contract>>,
+    /// The contract builds,
+    pub contracts: BTreeMap<String, Contract>,
     /// The Solidity AST JSONs of the source files.
     pub ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
     /// The additional message to output.
@@ -37,12 +37,12 @@ impl Build {
     /// A shortcut constructor.
     ///
     pub fn new(
-        results: BTreeMap<String, crate::Result<Contract>>,
+        contracts: BTreeMap<String, Contract>,
         ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
         messages: &mut Vec<solx_standard_json::OutputError>,
     ) -> Self {
         Self {
-            results,
+            contracts,
             ast_jsons,
             messages: std::mem::take(messages),
         }
@@ -56,18 +56,25 @@ impl Build {
         linker_symbols: BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
         cbor_data: Option<Vec<(String, semver::Version)>>,
     ) -> Self {
-        let mut contracts: BTreeMap<String, Contract> = self
-            .results
-            .into_iter()
-            .map(|(path, result)| (path, result.expect("Cannot link a project with errors")))
-            .collect();
         let ast_jsons = self.ast_jsons.take();
 
         loop {
             let assembled_objects_data = {
-                let all_objects = contracts
+                let all_objects = self
+                    .contracts
                     .values()
-                    .flat_map(|contract| vec![&contract.deploy_object, &contract.runtime_object])
+                    .flat_map(|contract| {
+                        vec![
+                            contract
+                                .deploy_object_result
+                                .as_ref()
+                                .expect("Always exists"),
+                            contract
+                                .runtime_object_result
+                                .as_ref()
+                                .expect("Always exists"),
+                        ]
+                    })
                     .collect::<Vec<&ContractObject>>();
 
                 let assembleable_objects = all_objects
@@ -113,12 +120,19 @@ impl Build {
             };
 
             for (full_path, code_segment, assembled_object) in assembled_objects_data.into_iter() {
-                let contract = contracts
+                let contract = self
+                    .contracts
                     .get_mut(full_path.as_str())
                     .expect("Always exists");
                 let object = match code_segment {
-                    era_compiler_common::CodeSegment::Deploy => &mut contract.deploy_object,
-                    era_compiler_common::CodeSegment::Runtime => &mut contract.runtime_object,
+                    era_compiler_common::CodeSegment::Deploy => contract
+                        .deploy_object_result
+                        .as_mut()
+                        .expect("Always exists"),
+                    era_compiler_common::CodeSegment::Runtime => contract
+                        .runtime_object_result
+                        .as_mut()
+                        .expect("Always exists"),
                 };
                 object.bytecode = Some(assembled_object.as_slice().to_owned());
                 for undefined_reference in assembled_object
@@ -136,8 +150,19 @@ impl Build {
             }
         }
 
-        for contract in contracts.values_mut() {
-            for object in [&mut contract.deploy_object, &mut contract.runtime_object].into_iter() {
+        for contract in self.contracts.values_mut() {
+            for object in [
+                contract
+                    .deploy_object_result
+                    .as_mut()
+                    .expect("Always exists"),
+                contract
+                    .runtime_object_result
+                    .as_mut()
+                    .expect("Always exists"),
+            ]
+            .into_iter()
+            {
                 if let Err(error) = object.link(&linker_symbols) {
                     self.messages
                         .push(solx_standard_json::OutputError::new_error(
@@ -148,14 +173,7 @@ impl Build {
             }
         }
 
-        Self::new(
-            contracts
-                .into_iter()
-                .map(|(path, contract)| (path, Ok(contract)))
-                .collect(),
-            ast_jsons,
-            &mut self.messages,
-        )
+        Self::new(self.contracts, ast_jsons, &mut self.messages)
     }
 
     ///
@@ -183,8 +201,7 @@ impl Build {
             }
         }
 
-        for build in self.results.into_values() {
-            let contract = build.expect("Always valid");
+        for contract in self.contracts.into_values() {
             contract.write_to_terminal(output_selection)?;
         }
 
@@ -229,12 +246,8 @@ impl Build {
             }
         }
 
-        for build in self.results.into_values() {
-            build.expect("Always valid").write_to_directory(
-                output_directory,
-                output_selection,
-                overwrite,
-            )?;
+        for contract in self.contracts.into_values() {
+            contract.write_to_directory(output_directory, output_selection, overwrite)?;
         }
 
         writeln!(
@@ -267,28 +280,33 @@ impl Build {
             }
         }
 
-        let mut errors = Vec::with_capacity(self.results.len());
-        for result in self.results.values_mut() {
-            let build = match result {
-                Ok(contract) => {
-                    errors.extend(
-                        contract
-                            .deploy_object
-                            .warnings_standard_json(contract.name.full_path.as_str()),
-                    );
-                    errors.extend(
-                        contract
-                            .runtime_object
-                            .warnings_standard_json(contract.name.full_path.as_str()),
-                    );
-                    contract
-                }
-                Err(error) => {
-                    errors.push(error.to_owned().unwrap_standard_json());
-                    continue;
-                }
-            };
-            let name = build.name.clone();
+        let mut errors = Vec::with_capacity(self.contracts.len());
+        for contract in self.contracts.values_mut() {
+            errors.extend(
+                contract
+                    .deploy_object_result
+                    .as_ref()
+                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .unwrap_or_default(),
+            );
+            if let Err(ref error) = contract.deploy_object_result {
+                errors.push(error.to_owned().unwrap_standard_json());
+            }
+            errors.extend(
+                contract
+                    .runtime_object_result
+                    .as_ref()
+                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .unwrap_or_default(),
+            );
+            if let Err(ref error) = contract.runtime_object_result {
+                errors.push(error.to_owned().unwrap_standard_json());
+            }
+            if contract.deploy_object_result.is_err() || contract.runtime_object_result.is_err() {
+                continue;
+            }
+
+            let name = contract.name.clone();
 
             match standard_json
                 .contracts
@@ -296,21 +314,25 @@ impl Build {
                 .and_then(|contracts| {
                     contracts.get_mut(name.name.as_deref().unwrap_or(name.path.as_str()))
                 }) {
-                Some(contract) => {
-                    build.write_to_standard_json(contract, output_selection, is_bytecode_linked);
+                Some(standard_json_contract) => {
+                    contract.write_to_standard_json(
+                        standard_json_contract,
+                        output_selection,
+                        is_bytecode_linked,
+                    );
                 }
                 None => {
                     let contracts = standard_json
                         .contracts
                         .entry(name.path.clone())
                         .or_default();
-                    let mut contract = solx_standard_json::OutputContract::default();
-                    build.write_to_standard_json(
-                        &mut contract,
+                    let mut standard_json_contract = solx_standard_json::OutputContract::default();
+                    contract.write_to_standard_json(
+                        &mut standard_json_contract,
                         output_selection,
                         is_bytecode_linked,
                     );
-                    contracts.insert(name.name.unwrap_or(name.path), contract);
+                    contracts.insert(name.name.unwrap_or(name.path), standard_json_contract);
                 }
             }
         }
@@ -324,15 +346,30 @@ impl Build {
     ///
     /// Extracts stack-too-deep errors from the build.
     ///
-    pub fn take_stack_too_deep_errors(&mut self) -> Vec<(String, StackTooDeepError)> {
+    pub fn take_stack_too_deep_errors(&mut self) -> Vec<StackTooDeepError> {
         let mut stack_too_deep_errors = Vec::new();
-        for (path, result) in self.results.iter() {
-            if let Err(Error::StackTooDeep(stack_too_deep_error)) = result {
-                stack_too_deep_errors.push((path.to_owned(), stack_too_deep_error.to_owned()));
+        for contract in self.contracts.values() {
+            if let Err(Error::StackTooDeep(stack_too_deep_error)) =
+                contract.deploy_object_result.as_ref()
+            {
+                let mut error = stack_too_deep_error.to_owned();
+                error.contract_name = Some(contract.name.to_owned());
+                error.code_segment = Some(era_compiler_common::CodeSegment::Deploy);
+                stack_too_deep_errors.push(error);
+            }
+            if let Err(Error::StackTooDeep(stack_too_deep_error)) =
+                contract.runtime_object_result.as_ref()
+            {
+                let mut error = stack_too_deep_error.to_owned();
+                error.contract_name = Some(contract.name.to_owned());
+                error.code_segment = Some(era_compiler_common::CodeSegment::Runtime);
+                stack_too_deep_errors.push(error);
             }
         }
-        self.results
-            .retain(|_, result| !matches!(result, Err(Error::StackTooDeep(_)))); // TODO: replace with `extract_if` when stabilized
+        self.contracts.retain(|_, contract| {
+            !matches!(contract.deploy_object_result, Err(Error::StackTooDeep(_)))
+                && !matches!(contract.runtime_object_result, Err(Error::StackTooDeep(_)))
+        }); // TODO: replace with `extract_if` when stabilized
         stack_too_deep_errors
     }
 }
@@ -340,9 +377,15 @@ impl Build {
 impl solx_standard_json::CollectableError for Build {
     fn errors(&self) -> Vec<&solx_standard_json::OutputError> {
         let mut errors: Vec<&solx_standard_json::OutputError> = self
-            .results
+            .contracts
             .values()
-            .filter_map(|build| build.as_ref().err())
+            .flat_map(|contract| {
+                vec![
+                    contract.deploy_object_result.as_ref().err(),
+                    contract.runtime_object_result.as_ref().err(),
+                ]
+            })
+            .flatten()
             .map(|error| error.unwrap_standard_json_ref())
             .collect();
         errors.extend(
@@ -360,16 +403,20 @@ impl solx_standard_json::CollectableError for Build {
             .filter(|message| message.severity == "warning")
             .cloned()
             .collect();
-        for contract in self.results.values_mut().flatten() {
+        for contract in self.contracts.values_mut() {
             warnings.extend(
                 contract
-                    .deploy_object
-                    .warnings_standard_json(contract.name.full_path.as_str()),
+                    .deploy_object_result
+                    .as_ref()
+                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .unwrap_or_default(),
             );
             warnings.extend(
                 contract
-                    .runtime_object
-                    .warnings_standard_json(contract.name.full_path.as_str()),
+                    .runtime_object_result
+                    .as_ref()
+                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .unwrap_or_default(),
             );
         }
         self.messages

@@ -20,10 +20,10 @@ use self::object::Object;
 pub struct Contract {
     /// The contract name.
     pub name: era_compiler_common::ContractName,
-    /// The deploy code object.
-    pub deploy_object: Object,
+    /// The deploy code object compilation result.
+    pub deploy_object_result: crate::Result<Object>,
     /// The runtime code object.
-    pub runtime_object: Object,
+    pub runtime_object_result: crate::Result<Object>,
     /// The combined `solc` and `solx` metadata.
     pub metadata: Option<String>,
     /// The solc ABI.
@@ -50,23 +50,31 @@ impl Contract {
     ///
     pub fn new(
         name: era_compiler_common::ContractName,
-        deploy_object: Object,
-        runtime_object: Object,
+        deploy_object_result: crate::Result<Object>,
+        runtime_object_result: crate::Result<Object>,
         metadata: Option<String>,
+        abi: Option<serde_json::Value>,
+        method_identifiers: Option<BTreeMap<String, String>>,
+        userdoc: Option<serde_json::Value>,
+        devdoc: Option<serde_json::Value>,
+        storage_layout: Option<serde_json::Value>,
+        transient_storage_layout: Option<serde_json::Value>,
+        legacy_assembly: Option<solx_evm_assembly::Assembly>,
+        ir_optimized: Option<String>,
     ) -> Self {
         Self {
             name,
-            deploy_object,
-            runtime_object,
+            deploy_object_result,
+            runtime_object_result,
             metadata,
-            abi: None,
-            method_identifiers: None,
-            userdoc: None,
-            devdoc: None,
-            storage_layout: None,
-            transient_storage_layout: None,
-            legacy_assembly: None,
-            ir_optimized: None,
+            abi,
+            method_identifiers,
+            userdoc,
+            devdoc,
+            storage_layout,
+            transient_storage_layout,
+            legacy_assembly,
+            ir_optimized,
         }
     }
 
@@ -97,7 +105,13 @@ impl Contract {
             self.name.name.as_deref(),
             solx_standard_json::InputSelector::BytecodeLLVMAssembly,
         ) {
-            let deploy_assembly = self.deploy_object.assembly.take().expect("Always exists");
+            let deploy_assembly = self
+                .deploy_object_result
+                .as_mut()
+                .expect("Always exists")
+                .assembly
+                .take()
+                .expect("Always exists");
             writeln!(
                 std::io::stdout(),
                 "Deploy LLVM EVM assembly:\n{deploy_assembly}"
@@ -108,7 +122,13 @@ impl Contract {
             self.name.name.as_deref(),
             solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
         ) {
-            let runtime_assembly = self.runtime_object.assembly.take().expect("Always exists");
+            let runtime_assembly = self
+                .runtime_object_result
+                .as_mut()
+                .expect("Always exists")
+                .assembly
+                .take()
+                .expect("Always exists");
             writeln!(
                 std::io::stdout(),
                 "Runtime LLVM EVM assembly:\n{runtime_assembly}"
@@ -121,7 +141,9 @@ impl Contract {
             solx_standard_json::InputSelector::BytecodeObject,
         ) {
             let bytecode_hex = self
-                .deploy_object
+                .deploy_object_result
+                .as_mut()
+                .expect("Always exists")
                 .bytecode_hex
                 .take()
                 .expect("Always exists");
@@ -133,7 +155,9 @@ impl Contract {
             solx_standard_json::InputSelector::RuntimeBytecodeObject,
         ) {
             let bytecode_hex = self
-                .runtime_object
+                .runtime_object_result
+                .as_mut()
+                .expect("Always exists")
                 .bytecode_hex
                 .take()
                 .expect("Always exists");
@@ -278,7 +302,9 @@ impl Contract {
             output_path.push(output_name.as_str());
 
             let bytecode_hex = self
-                .deploy_object
+                .deploy_object_result
+                .as_mut()
+                .expect("Always exists")
                 .bytecode_hex
                 .take()
                 .expect("Always exists");
@@ -299,7 +325,9 @@ impl Contract {
             output_path.push(output_name.as_str());
 
             let bytecode_hex = self
-                .runtime_object
+                .runtime_object_result
+                .as_mut()
+                .expect("Always exists")
                 .bytecode_hex
                 .take()
                 .expect("Always exists");
@@ -311,13 +339,15 @@ impl Contract {
             self.name.name.as_deref(),
             solx_standard_json::InputSelector::BytecodeLLVMAssembly,
         ) {
-            for (object, code_segment) in [&mut self.deploy_object, &mut self.runtime_object]
-                .iter_mut()
-                .zip([
-                    era_compiler_common::CodeSegment::Deploy,
-                    era_compiler_common::CodeSegment::Runtime,
-                ])
-            {
+            for (object, code_segment) in [
+                &mut self.deploy_object_result?,
+                &mut self.runtime_object_result?,
+            ]
+            .iter_mut()
+            .zip([
+                era_compiler_common::CodeSegment::Deploy,
+                era_compiler_common::CodeSegment::Runtime,
+            ]) {
                 let output_name = format!(
                     "{contract_path}_{}_llvm.{}{}",
                     self.name.name.as_deref().unwrap_or(contract_name),
@@ -590,23 +620,33 @@ impl Contract {
 
         let bytecode = solx_standard_json::OutputContractEVMBytecode::new(
             if is_bytecode_linked {
-                self.deploy_object.bytecode_hex.take().filter(|_| {
-                    output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
-                        solx_standard_json::InputSelector::BytecodeObject,
-                    )
-                })
+                self.deploy_object_result
+                    .as_mut()
+                    .expect("Always exists")
+                    .bytecode_hex
+                    .take()
+                    .filter(|_| {
+                        output_selection.check_selection(
+                            self.name.path.as_str(),
+                            self.name.name.as_deref(),
+                            solx_standard_json::InputSelector::BytecodeObject,
+                        )
+                    })
             } else {
                 None
             },
-            self.deploy_object.assembly.take().filter(|_| {
-                output_selection.check_selection(
-                    self.name.path.as_str(),
-                    self.name.name.as_deref(),
-                    solx_standard_json::InputSelector::BytecodeLLVMAssembly,
-                )
-            }),
+            self.deploy_object_result
+                .as_mut()
+                .expect("Always exists")
+                .assembly
+                .take()
+                .filter(|_| {
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
+                        solx_standard_json::InputSelector::BytecodeLLVMAssembly,
+                    )
+                }),
             if is_bytecode_linked
                 && output_selection.check_selection(
                     self.name.path.as_str(),
@@ -614,7 +654,13 @@ impl Contract {
                     solx_standard_json::InputSelector::BytecodeLinkReferences,
                 )
             {
-                Some(std::mem::take(&mut self.deploy_object.unlinked_symbols))
+                Some(std::mem::take(
+                    &mut self
+                        .deploy_object_result
+                        .as_mut()
+                        .expect("Always exists")
+                        .unlinked_symbols,
+                ))
             } else {
                 None
             },
@@ -666,23 +712,33 @@ impl Contract {
 
         let deployed_bytecode = solx_standard_json::OutputContractEVMBytecode::new(
             if is_bytecode_linked {
-                self.runtime_object.bytecode_hex.take().filter(|_| {
-                    output_selection.check_selection(
-                        self.name.path.as_str(),
-                        self.name.name.as_deref(),
-                        solx_standard_json::InputSelector::RuntimeBytecodeObject,
-                    )
-                })
+                self.runtime_object_result
+                    .as_mut()
+                    .expect("Always exists")
+                    .bytecode_hex
+                    .take()
+                    .filter(|_| {
+                        output_selection.check_selection(
+                            self.name.path.as_str(),
+                            self.name.name.as_deref(),
+                            solx_standard_json::InputSelector::RuntimeBytecodeObject,
+                        )
+                    })
             } else {
                 None
             },
-            self.runtime_object.assembly.take().filter(|_| {
-                output_selection.check_selection(
-                    self.name.path.as_str(),
-                    self.name.name.as_deref(),
-                    solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
-                )
-            }),
+            self.runtime_object_result
+                .as_mut()
+                .expect("Always exists")
+                .assembly
+                .take()
+                .filter(|_| {
+                    output_selection.check_selection(
+                        self.name.path.as_str(),
+                        self.name.name.as_deref(),
+                        solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly,
+                    )
+                }),
             if is_bytecode_linked
                 && output_selection.check_selection(
                     self.name.path.as_str(),
@@ -690,7 +746,13 @@ impl Contract {
                     solx_standard_json::InputSelector::RuntimeBytecodeLinkReferences,
                 )
             {
-                Some(std::mem::take(&mut self.runtime_object.unlinked_symbols))
+                Some(std::mem::take(
+                    &mut self
+                        .runtime_object_result
+                        .as_mut()
+                        .expect("Always exists")
+                        .unlinked_symbols,
+                ))
             } else {
                 None
             },

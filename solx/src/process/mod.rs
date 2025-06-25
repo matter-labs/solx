@@ -11,7 +11,6 @@ use std::process::Command;
 use std::sync::OnceLock;
 use std::thread::Builder;
 
-use crate::build::contract::Contract as EVMContractBuild;
 use crate::error::Error;
 
 use self::input::Input as EVMInput;
@@ -38,9 +37,11 @@ pub fn run() -> anyhow::Result<()> {
             input
                 .contract
                 .compile_to_evm(
+                    input.code_segment,
                     input.identifier_paths,
                     input.output_selection,
-                    input.metadata_hash_type,
+                    input.immutables,
+                    input.metadata_bytes,
                     input.optimizer_settings,
                     input.llvm_options,
                     input.debug_config,
@@ -137,37 +138,15 @@ where
 }
 
 ///
-/// Handles LLVM stack-too-deep errors in deploy code.
+/// Handles LLVM stack-too-deep errors.
 ///
 /// # Safety
 ///
 /// This function is unsafe because it is called from LLVM C API.
 /// The function must terminate the process after handling the error.
 ///
-pub unsafe extern "C" fn deploy_code_stack_handler(spill_area_size: u64) {
-    let result: Result<EVMContractBuild, Error> = Err(Error::stack_too_deep(
-        era_compiler_common::CodeSegment::Deploy,
-        spill_area_size,
-    ));
-    serde_json::to_writer(std::io::stdout(), &result)
-        .unwrap_or_else(|error| panic!("Stdout writing error: {error}"));
-    unsafe { inkwell::support::shutdown_llvm() };
-    std::process::exit(era_compiler_common::EXIT_CODE_SUCCESS);
-}
-
-///
-/// Handles LLVM stack-too-deep errors in runtime code.
-///
-/// # Safety
-///
-/// This function is unsafe because it is called from LLVM C API.
-/// The function must terminate the process after handling the error.
-///
-pub unsafe extern "C" fn runtime_code_stack_handler(spill_area_size: u64) {
-    let result: Result<EVMContractBuild, Error> = Err(Error::stack_too_deep(
-        era_compiler_common::CodeSegment::Runtime,
-        spill_area_size,
-    ));
+pub unsafe extern "C" fn evm_stack_error_handler(spill_area_size: u64) {
+    let result: Result<EVMOutput, Error> = Err(Error::stack_too_deep(spill_area_size));
     serde_json::to_writer(std::io::stdout(), &result)
         .unwrap_or_else(|error| panic!("Stdout writing error: {error}"));
     unsafe { inkwell::support::shutdown_llvm() };

@@ -460,7 +460,7 @@ fn standard_json_second_pass(
     solc_compiler: &solx_solc::Compiler,
     mut solc_input: solx_standard_json::Input,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
-    stack_too_deep_errors: Vec<(String, StackTooDeepError)>,
+    stack_too_deep_errors: Vec<StackTooDeepError>,
     messages: &mut Vec<solx_standard_json::OutputError>,
     base_path: Option<&str>,
     include_paths: &[String],
@@ -476,13 +476,14 @@ fn standard_json_second_pass(
     solc_input.settings.optimizer.spill_area_size = Some(
         stack_too_deep_errors
             .into_iter()
-            .map(|(path, error)| {
-                let (deploy_spill_area_size, runtime_spill_area_size) = match error.code_segment {
-                    era_compiler_common::CodeSegment::Deploy => (error.spill_area_size, 0),
-                    era_compiler_common::CodeSegment::Runtime => (0, error.spill_area_size),
-                };
+            .map(|error| {
+                let (deploy_spill_area_size, runtime_spill_area_size) =
+                    match error.code_segment.expect("Always exists") {
+                        era_compiler_common::CodeSegment::Deploy => (error.spill_area_size, 0),
+                        era_compiler_common::CodeSegment::Runtime => (0, error.spill_area_size),
+                    };
                 (
-                    path,
+                    error.contract_name.expect("Always exists").full_path,
                     solx_standard_json::InputOptimizerSpillAreaSize::new(
                         deploy_spill_area_size,
                         runtime_spill_area_size,

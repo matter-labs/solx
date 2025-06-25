@@ -26,13 +26,11 @@ impl Error {
     ///
     /// A shortcut constructor for a `StackTooDeep` error.
     ///
-    pub fn stack_too_deep(
-        code_segment: era_compiler_common::CodeSegment,
-        spill_area_size: u64,
-    ) -> Self {
+    pub fn stack_too_deep(spill_area_size: u64) -> Self {
         Error::StackTooDeep(StackTooDeep {
-            code_segment,
             spill_area_size,
+            contract_name: None,
+            code_segment: None,
         })
     }
 
