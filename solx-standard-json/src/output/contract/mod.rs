@@ -40,29 +40,6 @@ pub struct Contract {
 
 impl Contract {
     ///
-    /// Extends the object with data from the other object.
-    ///
-    pub fn extend(&mut self, other: Self) {
-        self.abi = self.abi.take().or(other.abi);
-        self.storage_layout = self.storage_layout.take().or(other.storage_layout);
-        self.transient_storage_layout = self
-            .transient_storage_layout
-            .take()
-            .or(other.transient_storage_layout);
-        self.metadata = self.metadata.take().or(other.metadata);
-        self.devdoc = self.devdoc.take().or(other.devdoc);
-        self.userdoc = self.userdoc.take().or(other.userdoc);
-        self.ir_optimized = self.ir_optimized.take().or(other.ir_optimized);
-        if let Some(evm) = other.evm {
-            if let Some(existing_evm) = &mut self.evm {
-                existing_evm.extend(evm);
-            } else {
-                self.evm = Some(evm);
-            }
-        }
-    }
-
-    ///
     /// Checks if all fields are unset or empty.
     ///
     pub fn is_empty(&self) -> bool {

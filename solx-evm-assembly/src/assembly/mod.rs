@@ -69,26 +69,6 @@ impl Assembly {
     }
 
     ///
-    /// Extracts the runtime code from the deploy code assembly.
-    ///
-    pub fn take_runtime_code(&mut self) -> anyhow::Result<Assembly> {
-        match self
-            .data
-            .as_mut()
-            .and_then(|data| data.remove("0"))
-            .ok_or_else(|| anyhow::anyhow!("Runtime code data not found"))?
-        {
-            Data::Assembly(assembly) => Ok(assembly),
-            Data::Hash(hash) => {
-                anyhow::bail!("Expected runtime code, found hash `{hash}`");
-            }
-            Data::Path(path) => {
-                anyhow::bail!("Expected runtime code, found path `{path}`");
-            }
-        }
-    }
-
-    ///
     /// Returns a runtime code reference from the deploy code assembly.
     ///
     pub fn runtime_code(&self) -> anyhow::Result<&Assembly> {

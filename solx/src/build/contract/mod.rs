@@ -618,7 +618,7 @@ impl Contract {
             evm.legacy_assembly = Some(value);
         }
 
-        let bytecode = solx_standard_json::OutputContractEVMBytecode::new(
+        evm.bytecode = Some(solx_standard_json::OutputContractEVMBytecode::new(
             if is_bytecode_linked {
                 self.deploy_object_result
                     .as_mut()
@@ -701,16 +701,9 @@ impl Contract {
                 None
             },
             None,
-        );
-        evm.bytecode = match evm.bytecode.take() {
-            Some(mut existing_bytecode) => {
-                existing_bytecode.extend(bytecode);
-                Some(existing_bytecode)
-            }
-            None => Some(bytecode),
-        };
+        ));
 
-        let deployed_bytecode = solx_standard_json::OutputContractEVMBytecode::new(
+        evm.deployed_bytecode = Some(solx_standard_json::OutputContractEVMBytecode::new(
             if is_bytecode_linked {
                 self.runtime_object_result
                     .as_mut()
@@ -725,7 +718,7 @@ impl Contract {
                         )
                     })
             } else {
-                None
+                panic!()
             },
             self.runtime_object_result
                 .as_mut()
@@ -801,14 +794,7 @@ impl Contract {
             } else {
                 None
             },
-        );
-        evm.deployed_bytecode = match evm.deployed_bytecode.take() {
-            Some(mut existing_deployed_bytecode) => {
-                existing_deployed_bytecode.extend(deployed_bytecode);
-                Some(existing_deployed_bytecode)
-            }
-            None => Some(deployed_bytecode),
-        };
+        ));
     }
 
     ///
