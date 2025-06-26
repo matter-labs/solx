@@ -131,7 +131,7 @@ impl std::fmt::Display for EtherealIR {
         writeln!(f, "{}", self.entry_function)?;
 
         for (_key, function) in self.recursive_functions.iter() {
-            writeln!(f, "{}", function)?;
+            writeln!(f, "{function}")?;
         }
 
         Ok(())

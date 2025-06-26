@@ -381,8 +381,8 @@ impl std::fmt::Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let name = self.name.to_string();
         match self.name {
-            Name::Tag => write!(f, "{:4}", name),
-            _ => write!(f, "{:20}", name),
+            Name::Tag => write!(f, "{name:4}"),
+            _ => write!(f, "{name:20}"),
         }?;
         match self.value {
             Some(ref value) if value.len() <= 64 => write!(f, "{value}")?,

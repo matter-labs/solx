@@ -129,9 +129,7 @@ impl Contract {
                     crate::process::evm_stack_error_handler,
                 );
                 deploy_context.set_solidity_data(
-                    era_compiler_llvm_context::EVMContextSolidityData::new(
-                        immutables.expect("Always exists"),
-                    ),
+                    era_compiler_llvm_context::EVMContextSolidityData::new(immutables),
                 );
                 deploy_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths,
@@ -235,9 +233,7 @@ impl Contract {
                     crate::process::evm_stack_error_handler,
                 );
                 deploy_context.set_solidity_data(
-                    era_compiler_llvm_context::EVMContextSolidityData::new(
-                        immutables.expect("Always exists"),
-                    ),
+                    era_compiler_llvm_context::EVMContextSolidityData::new(immutables),
                 );
                 deploy_context.set_evmla_data(evmla_data);
                 deploy_code.assembly.declare(&mut deploy_context)?;

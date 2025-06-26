@@ -414,7 +414,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
         if let Some(debug_config) = context.debug_config() {
             let mut path = full_path.to_owned();
             if let era_compiler_common::CodeSegment::Runtime = code_segment {
-                path.push_str(format!(".{}", code_segment).as_str());
+                path.push_str(format!(".{code_segment}").as_str());
             }
             debug_config.dump_ethir(path.as_str(), ethereal_ir.to_string().as_str())?;
         }

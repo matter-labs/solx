@@ -524,8 +524,7 @@ impl Project {
                 let immutables = runtime_object_result
                     .as_ref()
                     .ok()
-                    .and_then(|output| output.object.immutables.to_owned())
-                    .unwrap_or_default();
+                    .and_then(|output| output.object.immutables.to_owned());
                 let deploy_object_result = {
                     let spill_area_size = spill_area_size
                         .as_ref()
@@ -541,7 +540,7 @@ impl Project {
                         era_compiler_common::CodeSegment::Deploy,
                         self.identifier_paths.clone(),
                         output_selection.to_owned(),
-                        Some(immutables),
+                        immutables,
                         None,
                         optimizer_settings,
                         llvm_options.clone(),

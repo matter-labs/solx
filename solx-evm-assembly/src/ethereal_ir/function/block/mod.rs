@@ -142,7 +142,7 @@ impl std::fmt::Display for Block {
                     "(predecessors: {})",
                     self.predecessors
                         .iter()
-                        .map(|(key, instance)| format!("{}/{}", key, instance))
+                        .map(|(key, instance)| format!("{key}/{instance}"))
                         .collect::<Vec<String>>()
                         .join(", ")
                 )

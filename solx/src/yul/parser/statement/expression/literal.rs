@@ -132,7 +132,7 @@ impl Literal {
                                 unicode_char.encode_utf8(&mut unicode_bytes);
 
                                 for byte in unicode_bytes.into_iter() {
-                                    hex_string.push_str(format!("{:02x}", byte).as_str());
+                                    hex_string.push_str(format!("{byte:02x}").as_str());
                                 }
                                 index += 5;
                             } else if string[index..].starts_with('t') {

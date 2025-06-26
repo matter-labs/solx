@@ -12,7 +12,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed={}", env!("SOLC_PREFIX"));
     // Re-run if the `solc` directory contents are changed.
     if let Ok(path) = std::env::var("SOLC_PREFIX") {
-        println!("cargo:rerun-if-changed={}", path);
+        println!("cargo:rerun-if-changed={path}");
     }
 
     // Where to find Boost libraries.

@@ -374,9 +374,9 @@ checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
 
 [[package]]
 name = "crunchy"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43da5946c66ffcc7745f48db692ffbb10a83bfe0afd96235c5c2a4fb23994929"
+checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
 
 [[package]]
 name = "crypto-bigint"
@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-stack-never-too-deep#6bf090fd2aaeedde901db8dcedf29d629601cc0a"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-stack-never-too-deep#e689c05e7ea55045f46fad689742f79354719dad"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -753,9 +753,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.9.0"
+version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e"
+checksum = "fe4cd85333e22411419a0bcae1297d25e58c9443848b11dc6a86fefe8c78a661"
 dependencies = [
  "equivalent",
  "hashbrown",
@@ -764,7 +764,7 @@ dependencies = [
 [[package]]
 name = "inkwell"
 version = "0.5.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=az-stack-never-too-deep#346eecc66b00bbe74f669dc7e04865c0e97ee019"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#2d1dfcf5f375f16f72734dcae432fa48782409b8"
 dependencies = [
  "either",
  "inkwell_internals",
@@ -778,7 +778,7 @@ dependencies = [
 [[package]]
 name = "inkwell_internals"
 version = "0.10.0"
-source = "git+https://github.com/matter-labs-forks/inkwell?branch=az-stack-never-too-deep#346eecc66b00bbe74f669dc7e04865c0e97ee019"
+source = "git+https://github.com/matter-labs-forks/inkwell?branch=llvm-19#2d1dfcf5f375f16f72734dcae432fa48782409b8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -866,9 +866,9 @@ checksum = "1171693293099992e19cddea4e8b849964e9846f4acee11b3948bcc337be8776"
 
 [[package]]
 name = "libredox"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0ff37bd590ca25063e35af745c343cb7a0271906fb7b37e4813e8f79f00268d"
+checksum = "1580801010e535496706ba011c15f8532df6b42297d2e471fec38ceadd8c0638"
 dependencies = [
  "bitflags",
  "libc",
@@ -884,7 +884,7 @@ checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
 [[package]]
 name = "llvm-sys"
 version = "191.0.0"
-source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=az-stack-never-too-deep#73b0dd5f33b22e684fa60d8dcb229a6cc3f18b40"
+source = "git+https://github.com/matter-labs-forks/llvm-sys.rs?branch=llvm-19#9c2dd8ae67e6a233b60e94699bfc6b96566484d4"
 dependencies = [
  "anyhow",
  "cc",

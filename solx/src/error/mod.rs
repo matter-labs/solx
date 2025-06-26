@@ -40,12 +40,11 @@ impl Error {
     pub fn unwrap_standard_json(self) -> solx_standard_json::OutputError {
         match self {
             Error::StandardJson(error) => error,
-            Error::Generic(error) => panic!(
-                "Expected a StandardJson error, but got a Generic error: {}",
-                error
-            ),
-            Error::StackTooDeep { .. } => {
-                panic!("Expected a StandardJson error, but got a StackTooDeep error")
+            Error::Generic(error) => {
+                panic!("Expected a StandardJson error, but got a Generic error: {error}")
+            }
+            Error::StackTooDeep(error) => {
+                panic!("Expected a StandardJson error, but got a StackTooDeep error: {error}")
             }
         }
     }

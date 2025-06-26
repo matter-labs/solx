@@ -45,14 +45,14 @@ impl<W: std::fmt::Write> WritePrinter<W> {
 }
 
 impl<W: std::fmt::Write> IPrinter for WritePrinter<W> {
-    fn print(&mut self, s: &str) -> Result<()> {
+    fn print(&mut self, string: &str) -> Result<()> {
         self.indent()?;
-        write!(&mut self.writer, "{}", s)?;
+        write!(&mut self.writer, "{string}")?;
         Ok(())
     }
 
-    fn println(&mut self, s: &str) -> Result<()> {
-        self.print(s)?;
+    fn println(&mut self, string: &str) -> Result<()> {
+        self.print(string)?;
         self.print("\n")?;
         self.indent_reset();
         Ok(())
