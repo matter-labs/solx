@@ -521,46 +521,40 @@ impl Project {
                     (result, metadata)
                 };
 
-                let deploy_object_result = match runtime_object_result {
-                    Ok(ref runtime_code_output) => {
-                        let spill_area_size = spill_area_size
-                            .as_ref()
-                            .and_then(|sizes| sizes.get(contract_name.full_path.as_str()));
-                        let mut optimizer_settings = optimizer_settings.clone();
-                        if let Some(spill_area_size) = spill_area_size {
-                            optimizer_settings.set_spill_area_size(spill_area_size.creation);
-                        }
-
-                        let input = EVMProcessInput::new(
-                            contract_name.clone(),
-                            deploy_code_ir,
-                            era_compiler_common::CodeSegment::Deploy,
-                            self.identifier_paths.clone(),
-                            output_selection.to_owned(),
-                            runtime_code_output.object.immutables.to_owned(),
-                            None,
-                            optimizer_settings,
-                            llvm_options.clone(),
-                            debug_config.clone(),
-                        );
-                        let mut result: crate::Result<EVMProcessOutput> =
-                            crate::process::call(path.as_str(), input);
-                        if let Err(Error::StackTooDeep(ref mut stack_too_deep)) = result {
-                            stack_too_deep.contract_name = Some(contract_name.clone());
-                            stack_too_deep.code_segment =
-                                Some(era_compiler_common::CodeSegment::Deploy);
-                        }
-                        result
+                let immutables = runtime_object_result
+                    .as_ref()
+                    .ok()
+                    .and_then(|output| output.object.immutables.to_owned())
+                    .unwrap_or_default();
+                let deploy_object_result = {
+                    let spill_area_size = spill_area_size
+                        .as_ref()
+                        .and_then(|sizes| sizes.get(contract_name.full_path.as_str()));
+                    let mut optimizer_settings = optimizer_settings.clone();
+                    if let Some(spill_area_size) = spill_area_size {
+                        optimizer_settings.set_spill_area_size(spill_area_size.creation);
                     }
-                    Err(ref error) => Err(solx_standard_json::OutputError::new_error(
+
+                    let input = EVMProcessInput::new(
+                        contract_name.clone(),
+                        deploy_code_ir,
+                        era_compiler_common::CodeSegment::Deploy,
+                        self.identifier_paths.clone(),
+                        output_selection.to_owned(),
+                        Some(immutables),
                         None,
-                        error,
-                        Some(solx_standard_json::OutputErrorSourceLocation::new(
-                            path.clone(),
-                        )),
-                        None,
-                    )
-                    .into()),
+                        optimizer_settings,
+                        llvm_options.clone(),
+                        debug_config.clone(),
+                    );
+                    let mut result: crate::Result<EVMProcessOutput> =
+                        crate::process::call(path.as_str(), input);
+                    if let Err(Error::StackTooDeep(ref mut stack_too_deep)) = result {
+                        stack_too_deep.contract_name = Some(contract_name.clone());
+                        stack_too_deep.code_segment =
+                            Some(era_compiler_common::CodeSegment::Deploy);
+                    }
+                    result
                 };
 
                 let build = EVMContractBuild::new(
