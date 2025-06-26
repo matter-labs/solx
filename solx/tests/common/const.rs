@@ -33,8 +33,12 @@ pub const TEST_SOLIDITY_CONTRACT_OPTIMIZED_PATH: &str =
     "tests/data/contracts/solidity/Optimized.sol";
 
 /// A test input file.
-pub const TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_PATH: &str =
-    "tests/data/contracts/solidity/StackTooDeep.sol";
+pub const TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_SOLC_PATH: &str =
+    "tests/data/contracts/solidity/StackTooDeepSolc.sol";
+
+/// A test input file.
+pub const TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_LLVM_PATH: &str =
+    "tests/data/contracts/solidity/StackTooDeepLLVM.sol";
 
 /// A test input file.
 pub const TEST_SOLIDITY_CONTRACT_INTERFACE_EMPTY_YUL_PATH: &str =

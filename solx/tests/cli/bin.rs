@@ -58,12 +58,31 @@ fn deploy_time_linking(path: &str, placeholders: Vec<&str>) -> anyhow::Result<()
 }
 
 #[test]
-fn stack_too_deep() -> anyhow::Result<()> {
+fn stack_too_deep_solc() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_PATH,
+        crate::common::TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_SOLC_PATH,
         "--bin",
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+
+    result
+        .success()
+        .stdout(predicate::str::contains("Binary").count(1));
+
+    Ok(())
+}
+
+#[test]
+fn stack_too_deep_llvm() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        crate::common::TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_LLVM_PATH,
+        "--bin",
+        "-Oz",
     ];
 
     let result = crate::cli::execute_solx(args)?;
