@@ -381,8 +381,8 @@ jobs:
 
       - name: Prepare compilation and run time table
         run: |
-          echo "| Project     | Mode     | Compile (solx / solc / Δs / Δ%)  | Run (solx / solc / Δs / Δ%)  | Bytecode warnings (solx / solc) |" > time_report.md
-          echo "|-------------|----------|----------------------------------|------------------------------|---------------------------------|" >> time_report.md
+          echo "| Project     | Mode     | Compile (solx/solc/Δs/Δ%)  | Run (solx/solc/Δs/Δ%)  | Size warnings (solx/solc) |" > time_report.md
+          echo "|-------------|----------|----------------------------|------------------------|---------------------------|" >> time_report.md
           
           PROJECTS=$(yq '. as $root | keys[]' .github/forge-benchmarks.toml | tr '\n' ' ')
           for PROJECT in ${PROJECTS}; do
@@ -441,10 +441,10 @@ jobs:
               RUN_COLUMN=$(printf "%.2fs / %.2fs / %+0.2fs / %s %s" "$RUN_SOLX" "$RUN_SOLC" "$RUN_DIFF" "$RUN_PCT" "$RUN_EMOJI")
           
               if [ "$MODE" = "default" ]; then
-                printf "| %-11s | %-8s | %-32s | %-28s | %-33s |\n" \
+                printf "| %-11s | %-8s | %-28s | %-24s | %-27s |\n" \
                   "${PROJECT}" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" "${BYTECODE_COLUMN}" >> time_report.md
               else
-                printf "| %-11s | %-8s | %-32s | %-28s | %-33s |\n" \
+                printf "| %-11s | %-8s | %-28s | %-24s | %-27s |\n" \
                   "" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" "${BYTECODE_COLUMN}" >> time_report.md
               fi
             done
