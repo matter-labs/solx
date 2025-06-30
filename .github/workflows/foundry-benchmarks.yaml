@@ -283,8 +283,8 @@ jobs:
 
       - name: Prepare compatibility table
         run: |
-          echo "| Project     | Mode     | Compiled / Total       | Passed / Total         | Compile (s) | Run (s) |" > report.md
-          echo "|-------------|----------|------------------------|-------------------------|-------------|---------|" >> report.md
+          echo "| Project     | Mode     | Compiled / Total       | Passed / Total         |" > report.md
+          echo "|-------------|----------|------------------------|------------------------|" >> report.md
           
           PROJECTS=$(yq '. as $root | keys[]' .github/forge-benchmarks.toml | tr '\n' ' ')
           for PROJECT in ${PROJECTS}; do
@@ -333,14 +333,10 @@ jobs:
                 echo "No data for ${PROJECT} [$MODE]"
                 continue
               fi
-          
-              COMPILE_TIME=0
-              RUN_TIME=0
+
               TOTAL=0
               PASSED=0
               if jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]; then
-                COMPILE_TIME=$(jq -r '.compile_time' "${JSON}")
-                RUN_TIME=$(jq -r '.exec_time' "${JSON}")
                 if [[ "${RUN_TIME}" == null ]]; then RUN_TIME=0; fi
                 TOTAL=$(jq -r '.build_infos[0].source_id_to_path | length' "$JSON")
                 FAILURES=$(jq -r '[.errors[] | select(.type == "Error")] | length' "$JSON")
@@ -353,8 +349,8 @@ jobs:
               if [[ "$TOTAL" -gt 0 ]]; then
                 COMPILE_PERCENT=$((PASSED * 100 / TOTAL))
               fi
-              FILLED=$(( COMPILE_PERCENT / 20 ))
-              for i in $(seq 1 5); do
+              FILLED=$(( COMPILE_PERCENT / 10 ))
+              for i in $(seq 1 10); do
                 [ "$i" -le "$FILLED" ] && COMPILE_BAR+="🟩" || COMPILE_BAR+="⬜"
               done
           
@@ -364,31 +360,29 @@ jobs:
               if [[ "$TEST_TOTAL" -gt 0 ]]; then
                 TEST_PERCENT=$((TEST_PASSED * 100 / TEST_TOTAL))
               fi
-              FILLED=$(( TEST_PERCENT / 20 ))
-              for i in $(seq 1 5); do
+              FILLED=$(( TEST_PERCENT / 10 ))
+              for i in $(seq 1 10); do
                 [ "$i" -le "$FILLED" ] && TEST_BAR+="🟩" || TEST_BAR+="⬜"
               done
               if [[ "$TEST_TOTAL" -eq 0 ]]; then
-                TEST_BAR="🟩🟩🟩🟩🟩"
+                TEST_BAR="🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩"
               fi
               TEST_COLUMN=$(printf "%-10s %4d / %4d" "${TEST_BAR}" "${TEST_PASSED}" "${TEST_TOTAL}")
           
               if [ "$MODE" = "default" ]; then
-                printf "| %-11s | %-8s | %-10s %4d / %4d | %s | %6.1f     | %6.1f |\n" \
-                  "${PROJECT}" "${MODE}" "${COMPILE_BAR}" "${PASSED}" "${TOTAL}" \
-                  "${TEST_COLUMN}" "${COMPILE_TIME}" "${RUN_TIME}" >> report.md
+                printf "| %-11s | %-8s | %-10s %4d / %4d | %s |\n" \
+                  "${PROJECT}" "${MODE}" "${COMPILE_BAR}" "${PASSED}" "${TOTAL}" "${TEST_COLUMN}" >> report.md
               else
-                printf "| %-11s | %-8s | %-10s %4d / %4d | %s | %6.1f     | %6.1f |\n" \
-                  "" "${MODE}" "${COMPILE_BAR}" "${PASSED}" "${TOTAL}" \
-                  "${TEST_COLUMN}" "${COMPILE_TIME}" "${RUN_TIME}" >> report.md
+                printf "| %-11s | %-8s | %-10s %4d / %4d | %s |\n" \
+                  "" "${MODE}" "${COMPILE_BAR}" "${PASSED}" "${TOTAL}" "${TEST_COLUMN}" >> report.md
               fi
             done
           done
 
       - name: Prepare compilation and run time table
         run: |
-          echo "| Project     | Mode     | Compile (solx / solc / Δs / Δ%) | Run (solx / solc / Δs / Δ%) |" > time_report.md
-          echo "|-------------|----------|----------------------------------|------------------------------|" >> time_report.md
+          echo "| Project     | Mode     | Compile (solx / solc / Δs / Δ%)  | Run (solx / solc / Δs / Δ%)  | Bytecode warnings (solx / solc) |" > time_report.md
+          echo "|-------------|----------|----------------------------------|------------------------------|---------------------------------|" >> time_report.md
           
           PROJECTS=$(yq '. as $root | keys[]' .github/forge-benchmarks.toml | tr '\n' ' ')
           for PROJECT in ${PROJECTS}; do
@@ -401,6 +395,11 @@ jobs:
                 echo "No data for ${PROJECT} [$MODE]"
                 continue
               fi
+          
+              # Bytecode size exceeds limit
+              BYTECODE_WARN_SOLX=$(jq '[.errors[] | select(.errorCode == "5574" or .errorCode == "3860")] | length' "${JSON}")
+              BYTECODE_WARN_SOLC=$(jq '[.errors[] | select(.errorCode == "5574" or .errorCode == "3860")] | length' "${REF_JSON}")
+              BYTECODE_COLUMN=$(printf "%d / %d" "${BYTECODE_WARN_SOLX}" "${BYTECODE_WARN_SOLC}")
           
               COMPILE_SOLX=$(jq -r '.compile_time // 0' "${JSON}")
               COMPILE_SOLC=$(jq -r '.compile_time // 0' "${REF_JSON}")
@@ -442,11 +441,11 @@ jobs:
               RUN_COLUMN=$(printf "%.2fs / %.2fs / %+0.2fs / %s %s" "$RUN_SOLX" "$RUN_SOLC" "$RUN_DIFF" "$RUN_PCT" "$RUN_EMOJI")
           
               if [ "$MODE" = "default" ]; then
-                printf "| %-11s | %-8s | %-32s | %-28s |\n" \
-                  "${PROJECT}" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" >> time_report.md
+                printf "| %-11s | %-8s | %-32s | %-28s | %-33s |\n" \
+                  "${PROJECT}" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" "${BYTECODE_COLUMN}" >> time_report.md
               else
-                printf "| %-11s | %-8s | %-32s | %-28s |\n" \
-                  "" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" >> time_report.md
+                printf "| %-11s | %-8s | %-32s | %-28s | %-33s |\n" \
+                  "" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" "${BYTECODE_COLUMN}" >> time_report.md
               fi
             done
           done
