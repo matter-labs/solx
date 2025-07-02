@@ -1,0 +1,2 @@
+[{"contract":"src/extensions/SimpleL1Governor.sol:SimpleL1Governor","deployment":{"gas":2096414,"size":10906},"functions":{"name()":{"calls":1,"min":2628,"mean":2628,"median":2628,"max":2628},"quorum(uint256)":{"calls":1,"min":239,"mean":239,"median":239,"max":239},"slots()":{"calls":1,"min":4704,"mean":4704,"median":4704,"max":4704},"sources()":{"calls":1,"min":4761,"mean":4761,"median":4761,"max":4761},"version()":{"calls":1,"min":265,"mean":265,"median":265,"max":265},"votingPeriod()":{"calls":1,"min":234,"mean":234,"median":234,"max":234}}}]
+
