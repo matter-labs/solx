@@ -423,6 +423,11 @@ jobs:
                 continue
               fi
           
+              if ! (jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]); then
+                echo "Invalid JSON for ${PROJECT} [${MODE}]: ${JSON}"
+                continue
+              fi
+          
               # Bytecode size exceeds limit
               BYTECODE_WARN_SOLX=$(jq '[.errors[] | select(.errorCode == "5574" or .errorCode == "3860")] | length' "${JSON}")
               BYTECODE_WARN_SOLC=$(jq '[.errors[] | select(.errorCode == "5574" or .errorCode == "3860")] | length' "${REF_JSON}")
