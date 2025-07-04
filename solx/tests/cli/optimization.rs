@@ -60,6 +60,21 @@ fn invalid() -> anyhow::Result<()> {
 }
 
 #[test]
+fn invalid_with_env_var() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[crate::common::TEST_SOLIDITY_CONTRACT_PATH];
+    let env_vars = vec![("SOLX_OPTIMIZATION", "99".to_string())];
+
+    let result = crate::cli::execute_solx_with_env_vars(args, env_vars)?;
+    result.failure().stderr(
+        predicate::str::contains("Error: Invalid value \'99\' for environment variable \'SOLX_OPTIMIZATION\': values 1, 2, 3, s, z are supported.")
+    );
+
+    Ok(())
+}
+
+#[test]
 fn standard_json() -> anyhow::Result<()> {
     crate::common::setup()?;
 
@@ -74,6 +89,24 @@ fn standard_json() -> anyhow::Result<()> {
     result.success().stdout(predicate::str::contains(
         "LLVM optimizations must be specified in standard JSON input settings.",
     ));
+
+    Ok(())
+}
+
+#[test]
+fn standard_json_invalid_env_var() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
+    ];
+    let env_vars = vec![("SOLX_OPTIMIZATION", "99".to_string())];
+
+    let result = crate::cli::execute_solx_with_env_vars(args, env_vars)?;
+    result.success().stdout(
+    predicate::str::contains("Error: Invalid value \'99\' for environment variable \'SOLX_OPTIMIZATION\': values 1, 2, 3, s, z are supported.")
+    );
 
     Ok(())
 }

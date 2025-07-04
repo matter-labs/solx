@@ -102,11 +102,22 @@ fn main_inner(
 
     let (input_files, remappings) = arguments.split_input_files_and_remappings()?;
 
-    let mut optimizer_settings = match arguments.optimization.or(std::env::var("SOLX_OPTIMIZATION")
-        .ok()
-        .and_then(|string| string.chars().next()))
-    {
+    let mut optimizer_settings = match arguments.optimization {
         Some(mode) => era_compiler_llvm_context::OptimizerSettings::try_from_cli(mode)?,
+        None if arguments.standard_json.is_none() => {
+            if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
+                if optimization.len() != 1 {
+                    anyhow::bail!(
+                        "Invalid value '99' for environment variable 'SOLX_OPTIMIZATION': values 1, 2, 3, s, z are supported."
+                    );
+                }
+                era_compiler_llvm_context::OptimizerSettings::try_from_cli(
+                    optimization.chars().next().expect("Always exists"),
+                )?
+            } else {
+                era_compiler_llvm_context::OptimizerSettings::cycles()
+            }
+        }
         None => era_compiler_llvm_context::OptimizerSettings::cycles(),
     };
     if arguments.size_fallback || std::env::var("SOLX_OPTIMIZATION_SIZE_FALLBACK").is_ok() {

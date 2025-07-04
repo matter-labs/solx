@@ -70,8 +70,9 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
       "mode": "3",
       // Optional, solx-only: Re-run the compilation with "mode": "z" if the initial compilation exceeds the EVM bytecode size limit.
       // Used on a per-contract basis and applied automatically, so some contracts will end up compiled in the initial mode, and others with "mode": "z".
-      // Default: false.
-      "sizeFallback": false
+      // Only activated if "mode" is set to "3", which is the default optimization mode.
+      // Default: true.
+      "sizeFallback": true
     },
 
     // Optional: Sorted list of remappings.
