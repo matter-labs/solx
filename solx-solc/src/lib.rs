@@ -180,7 +180,13 @@ impl Compiler {
             .errors
             .into_iter()
             .map(|error| {
-                if std::env::var("EVM_DISABLE_MEMORY_SAFE_ASM_CHECK").is_ok() {
+                if std::env::var("EVM_DISABLE_MEMORY_SAFE_ASM_CHECK").is_ok()
+                    && error.error_code
+                        == Some(
+                            solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_ERROR_CODE
+                                .to_string(),
+                        )
+                {
                     error.into_warning()
                 } else {
                     error
