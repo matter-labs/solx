@@ -289,8 +289,8 @@ impl Build {
                     .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
                     .unwrap_or_default(),
             );
-            if let Err(ref error) = contract.deploy_object_result {
-                errors.push(error.to_owned().unwrap_standard_json());
+            if let Err(Error::StandardJson(ref error)) = contract.deploy_object_result {
+                errors.push(error.to_owned());
             }
             errors.extend(
                 contract
@@ -299,8 +299,8 @@ impl Build {
                     .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
                     .unwrap_or_default(),
             );
-            if let Err(ref error) = contract.runtime_object_result {
-                errors.push(error.to_owned().unwrap_standard_json());
+            if let Err(Error::StandardJson(ref error)) = contract.runtime_object_result {
+                errors.push(error.to_owned());
             }
             if contract.deploy_object_result.is_err() || contract.runtime_object_result.is_err() {
                 continue;
