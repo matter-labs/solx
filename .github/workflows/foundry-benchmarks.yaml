@@ -193,6 +193,16 @@ jobs:
               echo "Skipping ${PROJECT} as it is disabled"
               continue
             fi
+            # Set env variables for a project if any
+            while IFS='=' read -r key value; do
+              if [[ -n "${key}" ]]; then
+                export "${key}=${value}"
+                echo "Exported env variable: ${key}=${value} for ${PROJECT}."
+              fi
+            done < <(
+              yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" |
+                jq -r 'select(.key != null) | .key + "=" + (.value | tostring)'
+            )
             for COMPILER in solc solx; do
               for VIA_IR in true false; do
                 REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
@@ -210,17 +220,6 @@ jobs:
                   echo "Installing yarn dependencies for ${PROJECT}"
                   yarn install
                 fi
-          
-                # Set env variables for a project if any
-                while IFS='=' read -r key value; do
-                  if [[ -n "${key}" ]]; then
-                    export "${key}=${value}"
-                    echo "Exported env variable: ${key}=${value} for ${PROJECT}."
-                  fi
-                done < <(
-                  yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" |
-                    jq -r 'select(.key != null) | .key + "=" + (.value | tostring)'
-                )
           
                 # Replace solidity version in all .sol files
                 find . -name "*.sol" -type f -exec \
@@ -243,8 +242,15 @@ jobs:
                 end_ms=$(date +%s%3N)
                 elapsed_ms=$(( end_ms - start_ms ))
                 COMPILE_TIME=$(awk -v ms="${elapsed_ms}" 'BEGIN { printf "%.3f\n", ms / 1000 }')
-                jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
-                mv tmp.json "${BUILD_JSON}"
+                
+                if jq empty "${BUILD_JSON}" > /dev/null 2>&1 && [ -s "${BUILD_JSON}" ]; then
+                  jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
+                  mv tmp.json "${BUILD_JSON}"
+                else
+                  echo "Build failed for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}:"
+                  cat "${BUILD_JSON}"
+                  continue
+                fi
           
                 COMPILE_ONLY=$(yq ".${PROJECT}.compile_only" "${TOML_CONFIG}")
                 if [[ "${COMPILE_ONLY}" == "true" ]]; then
@@ -271,17 +277,16 @@ jobs:
                 mv tmp.json "${BUILD_JSON}"
           
                 forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON}" 2>/dev/null || true
-          
-                # Clean-up environment variables
-                while IFS= read -r key; do
-                  unset "${key}"
-                  echo "Unset environment variable ${key} for ${PROJECT}."
-                done < <(
-                  yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" | jq -r '.key'
-                )
 
               done
             done
+            # Clean-up environment variables for the project
+            while IFS= read -r key; do
+              unset "${key}"
+              echo "Unset environment variable ${key} for ${PROJECT}."
+            done < <(
+              yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" | jq -r '.key'
+            )
           done
 
       - name: Upload json
