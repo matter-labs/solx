@@ -176,6 +176,17 @@ impl Compiler {
                 }
                 None => true,
             });
+        solc_output.errors = solc_output
+            .errors
+            .into_iter()
+            .map(|error| {
+                if std::env::var("EVM_DISABLE_MEMORY_SAFE_ASM_CHECK").is_ok() {
+                    error.into_warning()
+                } else {
+                    error
+                }
+            })
+            .collect();
         solc_output.errors.append(messages);
 
         Ok(solc_output)

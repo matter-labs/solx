@@ -6,5 +6,5 @@
 [submodule "era-solidity"]
 	path = era-solidity
 	url = https://github.com/matter-labs/era-solidity
-	branch = 0.8.30
+	branch = app-unsafe-asm
 	update = none

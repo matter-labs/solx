@@ -41,6 +41,9 @@ impl Error {
     /// The list of ignored `solc` warnings that are strictly EVM-related.
     pub const IGNORED_WARNING_CODES: [&'static str; 5] = ["1699", "3860", "5159", "5574", "6417"];
 
+    /// The memory-unsafe assembly check error code.
+    pub const MEMORY_UNSAFE_ASSEMBLY_ERROR_CODE: isize = 5726;
+
     ///
     /// A shortcut constructor.
     ///
@@ -114,6 +117,17 @@ impl Error {
         S: std::fmt::Display,
     {
         Self::new("Warning", error_code, message, source_location, sources)
+    }
+
+    ///
+    /// Changes this message to a warning.
+    ///
+    /// It is useful when the user is confident that the error is not critical and can be ignored.
+    ///
+    pub fn into_warning(mut self) -> Self {
+        self.severity = "warning".to_owned();
+        self.r#type = "Warning".to_owned();
+        self
     }
 }
 

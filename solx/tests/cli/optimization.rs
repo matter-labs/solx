@@ -26,6 +26,24 @@ fn all(level: char) -> anyhow::Result<()> {
     Ok(())
 }
 
+// TODO: #[test_case('0')] when -O0 is supported
+#[test_case('1')]
+#[test_case('2')]
+#[test_case('3')]
+#[test_case('s')]
+#[test_case('z')]
+fn all_with_env_var(level: char) -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[crate::common::TEST_SOLIDITY_CONTRACT_PATH, "--bin"];
+    let env_vars = vec![("SOLX_OPTIMIZATION", level.to_string())];
+
+    let result = crate::cli::execute_solx_with_env_vars(args, env_vars)?;
+    result.success().stdout(predicate::str::contains("Binary"));
+
+    Ok(())
+}
+
 #[test]
 fn invalid() -> anyhow::Result<()> {
     crate::common::setup()?;

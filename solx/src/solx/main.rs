@@ -102,11 +102,14 @@ fn main_inner(
 
     let (input_files, remappings) = arguments.split_input_files_and_remappings()?;
 
-    let mut optimizer_settings = match arguments.optimization {
+    let mut optimizer_settings = match arguments.optimization.or(std::env::var("SOLX_OPTIMIZATION")
+        .ok()
+        .and_then(|string| string.chars().next()))
+    {
         Some(mode) => era_compiler_llvm_context::OptimizerSettings::try_from_cli(mode)?,
         None => era_compiler_llvm_context::OptimizerSettings::cycles(),
     };
-    if arguments.size_fallback {
+    if arguments.size_fallback || std::env::var("SOLX_OPTIMIZATION_SIZE_FALLBACK").is_ok() {
         optimizer_settings.enable_fallback_to_size();
     }
     optimizer_settings.is_verify_each_enabled = arguments.llvm_verify_each;
@@ -166,7 +169,12 @@ fn main_inner(
         })
         .unwrap_or_default();
 
-    let debug_config = match arguments.debug_output_dir {
+    let debug_config = match arguments
+        .debug_output_dir
+        .or(std::env::var("SOLX_DEBUG_OUTPUT_DIR")
+            .ok()
+            .map(PathBuf::from))
+    {
         Some(ref debug_output_directory) => {
             std::fs::create_dir_all(debug_output_directory.as_path())?;
             Some(era_compiler_llvm_context::DebugConfig::new(
