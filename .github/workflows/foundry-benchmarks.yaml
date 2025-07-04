@@ -185,15 +185,17 @@ jobs:
         run: |
           mkdir -p projects
           compilation_json='{}'
+          TOML_CONFIG="${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml"
+          export PATH="${GITHUB_WORKSPACE}:${PATH}"
           for PROJECT in ${{ matrix.project }}; do
-            DISABLED=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.disabled" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+            DISABLED=$(yq ".${PROJECT}.disabled" "${TOML_CONFIG}")
             if [[ "${DISABLED}" == "true" ]]; then
               echo "Skipping ${PROJECT} as it is disabled"
               continue
             fi
             for COMPILER in solc solx; do
               for VIA_IR in true false; do
-                REPO=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.repo" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+                REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
                 if [ ! -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then
                   git clone --depth 1 "${REPO}" "${GITHUB_WORKSPACE}/projects/${PROJECT}" --recurse-submodules
                 else
@@ -203,11 +205,22 @@ jobs:
                 cd "${GITHUB_WORKSPACE}/projects/${PROJECT}"
                 echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
           
-                REQUIRES_YARN=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.requires_yarn" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+                REQUIRES_YARN=$(yq ".${PROJECT}.requires_yarn" "${TOML_CONFIG}")
                 if [[ "${REQUIRES_YARN}" == "true" ]]; then
                   echo "Installing yarn dependencies for ${PROJECT}"
                   yarn install
                 fi
+          
+                # Set env variables for a project if any
+                while IFS='=' read -r key value; do
+                  if [[ -n "${key}" ]]; then
+                    export "${key}=${value}"
+                    echo "Exported env variable: ${key}=${value} for ${PROJECT}."
+                  fi
+                done < <(
+                  yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" |
+                    jq -r 'select(.key != null) | .key + "=" + (.value | tostring)'
+                )
           
                 # Replace solidity version in all .sol files
                 find . -name "*.sol" -type f -exec \
@@ -233,7 +246,7 @@ jobs:
                 jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
                 mv tmp.json "${BUILD_JSON}"
           
-                COMPILE_ONLY=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.compile_only" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+                COMPILE_ONLY=$(yq ".${PROJECT}.compile_only" "${TOML_CONFIG}")
                 if [[ "${COMPILE_ONLY}" == "true" ]]; then
                   echo "Skipping tests for ${PROJECT} as compile_only is set to true"
                   continue
@@ -241,7 +254,7 @@ jobs:
           
                 FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
                 # Run tests
-                DEFAULT_SKIP=$(${GITHUB_WORKSPACE}/yq '.profile.default.skip[]' foundry.toml)
+                DEFAULT_SKIP=$(yq '.profile.default.skip[]' foundry.toml)
                 if [[ -n "${DEFAULT_SKIP}" ]] || [[ -n "${FAILED_TESTS_TO_SKIP}" ]]; then
                   SKIP_TESTS="--skip ${DEFAULT_SKIP} ${FAILED_TESTS_TO_SKIP}"
                 else
@@ -258,6 +271,15 @@ jobs:
                 mv tmp.json "${BUILD_JSON}"
           
                 forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON}" 2>/dev/null || true
+          
+                # Clean-up environment variables
+                while IFS= read -r key; do
+                  unset "${key}"
+                  echo "Unset environment variable ${key} for ${PROJECT}."
+                done < <(
+                  yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" | jq -r '.key'
+                )
+
               done
             done
           done

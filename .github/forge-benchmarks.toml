@@ -5,6 +5,13 @@
 # compile_only = true # optional, set to true if you only want to compile the project without running tests
 # requires_yarn = true # optional, set to true if the project requires yarn install before building
 # category = "huge" # optional, use huge to indicate a large project that may take longer to compile or run tests
+
+# Environment variables
+# You can set environment variables for the project.
+# They will be set during the compilation and testing phases.
+## [beefy.env]
+## TEST_ENV = "123"
+## ANOTHER_ENV = "321"
 ###
 
 [solady]
