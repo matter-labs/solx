@@ -252,6 +252,19 @@ jobs:
                   continue
                 fi
           
+                if jq -e 'has("errors") and (.errors | type == "array") and (.errors | length > 0)' ${BUILD_JSON} > /dev/null; then
+                  echo "Errors found in ${BUILD_JSON} for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}:"
+                  jq -r '
+                    .errors[] |
+                    "🔍 File: \(.sourceLocation.file // "N/A")\n" +
+                    "   🔹 Type: \(.type)\n" +
+                    "   🔹 Severity: \(.severity)\n" +
+                    "   🔹 Error Code: \(.errorCode)\n" +
+                    "   🔹 Message:\n     \(.message | gsub("\n"; "\n     "))\n" +
+                    "------------------------------------------------------------"
+                    ' "${BUILD_JSON}"
+                fi
+          
                 COMPILE_ONLY=$(yq ".${PROJECT}.compile_only" "${TOML_CONFIG}")
                 if [[ "${COMPILE_ONLY}" == "true" ]]; then
                   echo "Skipping tests for ${PROJECT} as compile_only is set to true"
