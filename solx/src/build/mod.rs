@@ -366,13 +366,10 @@ impl Build {
                 stack_too_deep_errors.push(error);
             }
         }
-        // TODO: replace with `extract_if` when stabilized
         self.contracts.retain(|_, contract| {
             !matches!(contract.deploy_object_result, Err(Error::StackTooDeep(_)))
-        });
-        self.contracts.retain(|_, contract| {
-            !matches!(contract.runtime_object_result, Err(Error::StackTooDeep(_)))
-        });
+                && !matches!(contract.runtime_object_result, Err(Error::StackTooDeep(_)))
+        }); // TODO: replace with `extract_if` when stabilized
         stack_too_deep_errors
     }
 }

@@ -6,7 +6,7 @@
 /// Stack-too-deep compilation error.
 ///
 #[derive(Debug, Clone, thiserror::Error, serde::Serialize, serde::Deserialize)]
-#[error("Stack-too-deep error detected. Required spill area: {spill_area_size:?} bytes")]
+#[error("Stack-too-deep error detected in {code_segment:?} code of {contract_name:?}. Required spill area: {spill_area_size:?} bytes")]
 pub struct StackTooDeep {
     /// Spill area size in bytes.
     pub spill_area_size: u64,

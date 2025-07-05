@@ -484,7 +484,10 @@ SOLX_OPTIMIZATION='3' solx 'Simple.sol' --bin
 
 ### `--optimization-size-fallback`
 
-Sets the optimization level to `z` for contracts that failed to compile due to overrunning the bytecode size constraints. This mode is enabled by default, but it is only activated when the `--optimization` option is set to `3`, which is the default optimization level.
+Sets the optimization level to `z` for contracts that failed to compile due to overrunning the bytecode size constraints.
+
+> This option can cause stack-too-deep errors that solx cannot resolve yet. It will be fixed soon.
+> If you encounter such errors in your project, please temporarily refrain from using this option.
 
 Under the hood, this option automatically triggers recompilation of contracts with level `z`. Contracts that were successfully compiled with [the original `--optimization` setting](#--optimization---o) are not recompiled.
 
