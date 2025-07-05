@@ -16,101 +16,146 @@
 [solady]
 repo = "https://github.com/Vectorized/solady"
 description = "Gas optimized Solidity snippets."
+[solady.env]
+RUST_BACKTRACE = "1"
 
 [openzeppelin]
 repo = "https://github.com/OpenZeppelin/openzeppelin-contracts"
 description = "A library for secure smart contract development."
+[openzeppelin.env]
+RUST_BACKTRACE = "1"
 
 [forge-std]
 repo = "https://github.com/foundry-rs/forge-std"
 description = "Forge Standard Library is a collection of helpful contracts and libraries for use with Forge and Foundry."
+[forge-std.env]
+RUST_BACKTRACE = "1"
 
 [lil-web3]
 repo = "https://github.com/m1guelpf/lil-web3"
 description = "lil web3 aims to build really simple, intentionally-limited versions of web3 protocols & apps."
+[lil-web3.env]
+RUST_BACKTRACE = "1"
 
 [maple-erc20]
 repo = "https://github.com/maple-labs/erc20"
 description = "Basic ERC-20 contract designed to be inherited and extended."
+[maple-erc20.env]
+RUST_BACKTRACE = "1"
 
 [diamonds]
 repo = "https://github.com/Timidan/Foundry-Hardhat-Diamonds"
 description = "A minimal template for Diamonds EIP-2535."
+[diamonds.env]
+RUST_BACKTRACE = "1"
 
 [rollcall]
 repo = "https://github.com/withtally/rollcall"
 description = "A set of cross chain governance solutions."
+[rollcall.env]
+RUST_BACKTRACE = "1"
 
 [playpen]
 repo = "https://github.com/ZeframLou/playpen"
 description = "A set of modern, gas optimized staking pool contracts."
+[playpen.env]
+RUST_BACKTRACE = "1"
 
 [solmate]
 repo = "https://github.com/transmissions11/solmate"
 description = "Modern, opinionated, and gas optimized building blocks for smart contract development."
+[solmate.env]
+RUST_BACKTRACE = "1"
 
 [prb-math]
 repo = "https://github.com/paulrberg/prb-math"
 description = "Solidity library for advanced fixed-point math operations."
 requires_yarn = true
+[prb-math.env]
+RUST_BACKTRACE = "1"
 
 [unix]
 repo = "https://github.com/refcell/unix"
 description = "A lightweight, extensible foundry library for shell scripting."
+[unix.env]
+RUST_BACKTRACE = "1"
 
 [foundry-upgrades]
 repo = "https://github.com/odyslam/foundry-upgrades"
 description = "Helper smart contracts to deploy and manage upgradeable contracts."
+[foundry-upgrades.env]
+RUST_BACKTRACE = "1"
 
 [art-gobblers]
 repo = "https://github.com/artgobblers/art-gobblers"
 description = "A decentralized art factory and marketplace."
+[art-gobblers.env]
+RUST_BACKTRACE = "1"
 
 [balance-snapshot]
 repo = "https://github.com/pilagod/balance-snapshot"
 description = "A Solidity library to improve balance change check in Foundry tests."
+[balance-snapshot.env]
+RUST_BACKTRACE = "1"
 
 [diamond-foundry]
 repo = "https://github.com/FydeTreasury/Diamond-Foundry"
 description = "a reference implementation for EIP-2535 Diamonds."
+[diamond-foundry.env]
+RUST_BACKTRACE = "1"
 
 [fixed-term-loan]
 repo = "https://github.com/maple-labs/fixed-term-loan"
 description = "A set of contracts to facilitate on-chain loans."
 disabled = true
+[fixed-term-loan.env]
+RUST_BACKTRACE = "1"
 
 [tokenlon]
 repo = "https://github.com/consenlabs/tokenlon-contracts"
 description = "A decentralized exchange and payment settlement protocol."
+[tokenlon.env]
+RUST_BACKTRACE = "1"
 
 [uniswap-v4]
 repo = "https://github.com/Uniswap/v4-core"
 description = "A new automated market maker protocol."
+[uniswap-v4.env]
+RUST_BACKTRACE = "1"
 
 [beefy]
 repo = "https://github.com/beefyfinance/beefy-contracts"
 description = "Official repo for strategies and vaults from Beefy."
 requires_yarn = true
 [beefy.env]
+RUST_BACKTRACE = "1"
 EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [gov-of-venice]
 repo = "https://github.com/pentagonxyz/gov-of-venice"
 description = "A new paradigm in DAO governance."
+[gov-of-venice.env]
+RUST_BACKTRACE = "1"
 
 [aave-v3]
 repo = "https://github.com/aave-dao/aave-v3-origin"
 description = "A non-custodial liquidity protocol on Ethereum."
 requires_yarn = true
+[aave-v3.env]
+RUST_BACKTRACE = "1"
 
 [seaport]
 repo = "https://github.com/ProjectOpenSea/seaport"
 description = "A marketplace protocol for safely and efficiently buying and selling NFTs."
 category = "huge"
 disabled = true # compilation hangs, required to disable fuzzing tests
+[seaport.env]
+RUST_BACKTRACE = "1"
 
 [lens]
 repo = "https://github.com/lens-protocol/core"
 description = "Lens protocol, non-custodial social graph."
 category = "huge"
 disabled = true # compilation is too long
+[lens.env]
+RUST_BACKTRACE = "1"
