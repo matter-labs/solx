@@ -41,9 +41,6 @@ impl Error {
     /// The list of ignored `solc` warnings that are strictly EVM-related.
     pub const IGNORED_WARNING_CODES: [&'static str; 5] = ["1699", "3860", "5159", "5574", "6417"];
 
-    /// The memory-unsafe assembly check error code.
-    pub const MEMORY_UNSAFE_ASSEMBLY_ERROR_CODE: isize = 5726;
-
     ///
     /// A shortcut constructor.
     ///
