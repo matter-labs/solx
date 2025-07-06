@@ -456,7 +456,7 @@ Sets the optimization level of the LLVM optimizer. Available values are:
 
 | Level | Meaning                      | Hints                                            |
 |:------|:-----------------------------|:-------------------------------------------------|
-| 0     | No optimization              | For fast compilation during development
+| 0     | No optimization              | For fast compilation during development (unsupported, but coming soon)
 | 1     | Performance: basic           | For optimization research
 | 2     | Performance: default         | For optimization research
 | 3     | Performance: aggressive      | Best performance for production
@@ -467,16 +467,45 @@ For most cases, it is fine to keep the default value of `3`. You should only use
 
 > Large contracts may hit the EVM bytecode size limit. In this case, it is recommended using the [`--optimization-size-fallback`](#--optimization-size-fallback) option rather than setting the level to `z`.
 
+Usage:
+
+```bash
+solx 'Simple.sol' --bin -O3
+```
+
+This option can also be set with an environment variable `SOLX_OPTIMIZATION`, which is useful for toolkits
+where arbitrary solx-specific options are not supported:
+
+```bash
+SOLX_OPTIMIZATION='3' solx 'Simple.sol' --bin
+```
+
 
 
 ### `--optimization-size-fallback`
 
 Sets the optimization level to `z` for contracts that failed to compile due to overrunning the bytecode size constraints.
 
+> This option can cause stack-too-deep errors that solx cannot resolve yet. It will be fixed soon.
+> If you encounter such errors in your project, please temporarily refrain from using this option.
+
 Under the hood, this option automatically triggers recompilation of contracts with level `z`. Contracts that were successfully compiled with [the original `--optimization` setting](#--optimization---o) are not recompiled.
 
-> For deployment, it is recommended to have this option always enabled to reduce issues with bytecode size constraints.
-> If your environment does not have bytecode size limitations, it is better to keep this option disabled to prevent unnecessary recompilations.
+> For deployment, it is recommended not to disable this option in order to mitigate potential issues with EVM bytecode size constraints.
+> If your environment does not have bytecode size limitations, it is better to disable it to prevent unnecessary recompilations.
+
+Usage:
+
+```bash
+solx 'Simple.sol' --bin -O3 --optimization-size-fallback
+```
+
+This option can also be set with an environment variable `SOLX_OPTIMIZATION_SIZE_FALLBACK`, which is useful for toolkits
+where arbitrary solx-specific options are not supported:
+
+```bash
+SOLX_OPTIMIZATION_SIZE_FALLBACK= solx 'Simple.sol' --bin -O3
+```
 
 
 
@@ -698,17 +727,25 @@ The directory is created if it does not exist. If artifacts are already present 
 
 The intermediate build artifacts can be:
 
-| Name          | Via IR | Extension   |
-|:--------------|:-------|:------------|
-| EVM Assembly  | no     | *evmla*     |
-| EthIR         | no     | *ethir*     |  
-| Yul           | yes    | *yul*       |
-| LLVM IR       | any    | *ll*        |
+| Name          | Extension   |
+|:--------------|:------------|
+| EVM Assembly  | *evmla*     |
+| EthIR         | *ethir*     |  
+| Yul           | *yul*       |
+| LLVM IR       | *ll*        |
 
 Usage:
 
 ```bash
 solx 'Simple.sol' --bin --debug-output-dir './debug/'
+ls './debug/'
+```
+
+This option can also be set with an environment variable `SOLX_DEBUG_OUTPUT_DIR`, which is useful for toolkits
+where arbitrary solx-specific options are not supported:
+
+```bash
+SOLX_DEBUG_OUTPUT_DIR='./debug/' solx 'Simple.sol' --bin
 ls './debug/'
 ```
 

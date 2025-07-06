@@ -294,16 +294,24 @@ pub fn standard_json_evm(
     let via_ir = solc_input.settings.via_ir;
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
-    let mut optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
-        solc_input.settings.optimizer.mode.unwrap_or_else(|| {
-            solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
-        }),
-    )?;
+    let optimization_mode = if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
+        if optimization.len() != 1 {
+            anyhow::bail!(
+                "Invalid value '99' for environment variable 'SOLX_OPTIMIZATION': values 1, 2, 3, s, z are supported."
+            );
+        }
+        optimization.chars().next().expect("Always exists")
+    } else {
+        solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
+    };
+    let mut optimizer_settings =
+        era_compiler_llvm_context::OptimizerSettings::try_from_cli(optimization_mode)?;
     if solc_input
         .settings
         .optimizer
         .size_fallback
         .unwrap_or_default()
+        || std::env::var("SOLX_OPTIMIZATION_SIZE_FALLBACK").is_ok()
     {
         optimizer_settings.enable_fallback_to_size();
     }

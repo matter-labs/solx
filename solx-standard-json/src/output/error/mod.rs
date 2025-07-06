@@ -115,6 +115,17 @@ impl Error {
     {
         Self::new("Warning", error_code, message, source_location, sources)
     }
+
+    ///
+    /// Changes this message to a warning.
+    ///
+    /// It is useful when the user is confident that the error is not critical and can be ignored.
+    ///
+    pub fn into_warning(mut self) -> Self {
+        self.severity = "warning".to_owned();
+        self.r#type = "Warning".to_owned();
+        self
+    }
 }
 
 impl std::fmt::Display for Error {

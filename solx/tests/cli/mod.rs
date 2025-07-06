@@ -55,6 +55,20 @@ pub fn execute_solx(args: &[&str]) -> anyhow::Result<assert_cmd::assert::Assert>
 }
 
 ///
+/// Execute `solx` with the given arguments and environment variables, and assert the result.
+///
+pub fn execute_solx_with_env_vars(
+    args: &[&str],
+    env_vars: Vec<(&str, String)>,
+) -> anyhow::Result<assert_cmd::assert::Assert> {
+    let mut command = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
+    for (key, value) in env_vars.into_iter() {
+        command.env(key, value);
+    }
+    Ok(command.args(args).assert())
+}
+
+///
 /// Execute `solx` with the given arguments and stdin input, and assert the result.
 ///
 pub fn execute_solx_with_stdin(

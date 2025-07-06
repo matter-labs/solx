@@ -5,7 +5,13 @@
 # compile_only = true # optional, set to true if you only want to compile the project without running tests
 # requires_yarn = true # optional, set to true if the project requires yarn install before building
 # category = "huge" # optional, use huge to indicate a large project that may take longer to compile or run tests
-###
+
+# Environment variables
+# You can set environment variables for the project.
+# They will be set during the compilation and testing phases.
+# [beefy.env]
+# TEST_ENV = "123"
+# ANOTHER_ENV = "321"
 
 [solady]
 repo = "https://github.com/Vectorized/solady"
@@ -85,6 +91,8 @@ description = "A new automated market maker protocol."
 repo = "https://github.com/beefyfinance/beefy-contracts"
 description = "Official repo for strategies and vaults from Beefy."
 requires_yarn = true
+[beefy.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [gov-of-venice]
 repo = "https://github.com/pentagonxyz/gov-of-venice"

@@ -185,15 +185,27 @@ jobs:
         run: |
           mkdir -p projects
           compilation_json='{}'
+          TOML_CONFIG="${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml"
+          export PATH="${GITHUB_WORKSPACE}:${PATH}"
           for PROJECT in ${{ matrix.project }}; do
-            DISABLED=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.disabled" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+            DISABLED=$(yq ".${PROJECT}.disabled" "${TOML_CONFIG}")
             if [[ "${DISABLED}" == "true" ]]; then
               echo "Skipping ${PROJECT} as it is disabled"
               continue
             fi
+            # Set env variables for a project if any
+            while IFS='=' read -r key value; do
+              if [[ -n "${key}" ]]; then
+                export "${key}=${value}"
+                echo "Exported env variable: ${key}=${value} for ${PROJECT}."
+              fi
+            done < <(
+              yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" |
+                jq -r 'select(.key != null) | .key + "=" + (.value | tostring)'
+            )
             for COMPILER in solc solx; do
               for VIA_IR in true false; do
-                REPO=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.repo" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+                REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
                 if [ ! -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then
                   git clone --depth 1 "${REPO}" "${GITHUB_WORKSPACE}/projects/${PROJECT}" --recurse-submodules
                 else
@@ -203,7 +215,7 @@ jobs:
                 cd "${GITHUB_WORKSPACE}/projects/${PROJECT}"
                 echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
           
-                REQUIRES_YARN=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.requires_yarn" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+                REQUIRES_YARN=$(yq ".${PROJECT}.requires_yarn" "${TOML_CONFIG}")
                 if [[ "${REQUIRES_YARN}" == "true" ]]; then
                   echo "Installing yarn dependencies for ${PROJECT}"
                   yarn install
@@ -230,10 +242,30 @@ jobs:
                 end_ms=$(date +%s%3N)
                 elapsed_ms=$(( end_ms - start_ms ))
                 COMPILE_TIME=$(awk -v ms="${elapsed_ms}" 'BEGIN { printf "%.3f\n", ms / 1000 }')
-                jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
-                mv tmp.json "${BUILD_JSON}"
+                
+                if jq empty "${BUILD_JSON}" > /dev/null 2>&1 && [ -s "${BUILD_JSON}" ]; then
+                  jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
+                  mv tmp.json "${BUILD_JSON}"
+                else
+                  echo "Build failed for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}:"
+                  cat "${BUILD_JSON}"
+                  continue
+                fi
           
-                COMPILE_ONLY=$(${GITHUB_WORKSPACE}/yq ".${PROJECT}.compile_only" ${GITHUB_WORKSPACE}/.github/forge-benchmarks.toml)
+                if jq -e 'has("errors") and (.errors | type == "array") and (.errors | length > 0)' ${BUILD_JSON} > /dev/null; then
+                  echo "Errors found in ${BUILD_JSON} for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}:"
+                  jq -r '
+                    .errors[] |
+                    "🔍 File: \(.sourceLocation.file // "N/A")\n" +
+                    "   🔹 Type: \(.type)\n" +
+                    "   🔹 Severity: \(.severity)\n" +
+                    "   🔹 Error Code: \(.errorCode)\n" +
+                    "   🔹 Message:\n     \(.message | gsub("\n"; "\n     "))\n" +
+                    "------------------------------------------------------------"
+                    ' "${BUILD_JSON}"
+                fi
+          
+                COMPILE_ONLY=$(yq ".${PROJECT}.compile_only" "${TOML_CONFIG}")
                 if [[ "${COMPILE_ONLY}" == "true" ]]; then
                   echo "Skipping tests for ${PROJECT} as compile_only is set to true"
                   continue
@@ -241,7 +273,7 @@ jobs:
           
                 FAILED_TESTS_TO_SKIP=$(jq -r '.errors[] | select(.type == "Error") | .sourceLocation.file' ${BUILD_JSON} | sed -E 's/:([^ ]+)//g')
                 # Run tests
-                DEFAULT_SKIP=$(${GITHUB_WORKSPACE}/yq '.profile.default.skip[]' foundry.toml)
+                DEFAULT_SKIP=$(yq '.profile.default.skip[]' foundry.toml)
                 if [[ -n "${DEFAULT_SKIP}" ]] || [[ -n "${FAILED_TESTS_TO_SKIP}" ]]; then
                   SKIP_TESTS="--skip ${DEFAULT_SKIP} ${FAILED_TESTS_TO_SKIP}"
                 else
@@ -258,8 +290,16 @@ jobs:
                 mv tmp.json "${BUILD_JSON}"
           
                 forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON}" 2>/dev/null || true
+
               done
             done
+            # Clean-up environment variables for the project
+            while IFS= read -r key; do
+              unset "${key}"
+              echo "Unset environment variable ${key} for ${PROJECT}."
+            done < <(
+              yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" | jq -r '.key'
+            )
           done
 
       - name: Upload json
@@ -393,6 +433,11 @@ jobs:
           
               if [ ! -s "$JSON" ] || [ ! -s "$REF_JSON" ]; then
                 echo "No data for ${PROJECT} [$MODE]"
+                continue
+              fi
+          
+              if ! (jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]); then
+                echo "Invalid JSON for ${PROJECT} [${MODE}]: ${JSON}"
                 continue
               fi
           
