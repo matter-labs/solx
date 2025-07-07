@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>gov-of-venice viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>gov-of-venice viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>FixedPointMathLib</code></td>
+        <td><span class="mono">85 → 116</span> <span style="color:#e74c3c">⬆️ +36.5%</span></td>
+        <td><span class="mono">135 → 178</span> <span style="color:#e74c3c">⬆️ +31.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeCastLib</code></td>
+        <td><span class="mono">85 → 116</span> <span style="color:#e74c3c">⬆️ +36.5%</span></td>
+        <td><span class="mono">135 → 178</span> <span style="color:#e74c3c">⬆️ +31.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Constitution</code></td>
+        <td><span class="mono">5245 → 5517</span> <span style="color:#e74c3c">⬆️ +5.2%</span></td>
+        <td><span class="mono">5291 → 5615</span> <span style="color:#e74c3c">⬆️ +6.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockConstitution</code></td>
+        <td><span class="mono">6524 → 6638</span> <span style="color:#e74c3c">⬆️ +1.7%</span></td>
+        <td><span class="mono">6673 → 6835</span> <span style="color:#e74c3c">⬆️ +2.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MerchantRepublic</code></td>
+        <td><span class="mono">20957 → 21189</span> <span style="color:#e74c3c">⬆️ +1.1%</span></td>
+        <td><span class="mono">21092 → 21322</span> <span style="color:#e74c3c">⬆️ +1.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Guild</code></td>
+        <td><span class="mono">18840 → 17245</span> <span style="color:#2ecc71">⬇️ -8.5%</span></td>
+        <td><span class="mono">20292 → 18649</span> <span style="color:#2ecc71">⬇️ -8.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC20</code></td>
+        <td><span class="mono">7155 → 6270</span> <span style="color:#2ecc71">⬇️ -12.4%</span></td>
+        <td><span class="mono">9461 → 8848</span> <span style="color:#2ecc71">⬇️ -6.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Ducats</code></td>
+        <td><span class="mono">7155 → 6270</span> <span style="color:#2ecc71">⬇️ -12.4%</span></td>
+        <td><span class="mono">9242 → 8521</span> <span style="color:#2ecc71">⬇️ -7.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ProposalTarget</code></td>
+        <td><span class="mono">273 → 231</span> <span style="color:#2ecc71">⬇️ -15.4%</span></td>
+        <td><span class="mono">313 → 276</span> <span style="color:#2ecc71">⬇️ -11.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GuildCouncil</code></td>
+        <td><span class="mono">8499 → 7249</span> <span style="color:#2ecc71">⬇️ -14.7%</span></td>
+        <td><span class="mono">8731 → 7532</span> <span style="color:#2ecc71">⬇️ -13.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockGuildCouncil</code></td>
+        <td><span class="mono">9006 → 7666</span> <span style="color:#2ecc71">⬇️ -14.9%</span></td>
+        <td><span class="mono">9264 → 7981</span> <span style="color:#2ecc71">⬇️ -13.8%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

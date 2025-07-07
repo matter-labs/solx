@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>unix viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>unix viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>strings</code></td>
+        <td><span class="mono">85 → 116</span> <span style="color:#e74c3c">⬆️ +36.5%</span></td>
+        <td><span class="mono">160 → 178</span> <span style="color:#e74c3c">⬆️ +11.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Rm</code></td>
+        <td><span class="mono">7336 → 7036</span> <span style="color:#2ecc71">⬇️ -4.1%</span></td>
+        <td><span class="mono">7452 → 7083</span> <span style="color:#2ecc71">⬇️ -5.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Echo</code></td>
+        <td><span class="mono">6353 → 5449</span> <span style="color:#2ecc71">⬇️ -14.2%</span></td>
+        <td><span class="mono">6468 → 5493</span> <span style="color:#2ecc71">⬇️ -15.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Unix</code></td>
+        <td><span class="mono">42779 → 32805</span> <span style="color:#2ecc71">⬇️ -23.3%</span></td>
+        <td><span class="mono">42856 → 32867</span> <span style="color:#2ecc71">⬇️ -23.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Runner</code></td>
+        <td><span class="mono">9273 → 6545</span> <span style="color:#2ecc71">⬇️ -29.4%</span></td>
+        <td><span class="mono">9301 → 6579</span> <span style="color:#2ecc71">⬇️ -29.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Sed</code></td>
+        <td><span class="mono">5826 → 4078</span> <span style="color:#2ecc71">⬇️ -30.0%</span></td>
+        <td><span class="mono">5942 → 4125</span> <span style="color:#2ecc71">⬇️ -30.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Command</code></td>
+        <td><span class="mono">5622 → 3846</span> <span style="color:#2ecc71">⬇️ -31.6%</span></td>
+        <td><span class="mono">5650 → 3880</span> <span style="color:#2ecc71">⬇️ -31.3%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

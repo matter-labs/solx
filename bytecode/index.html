@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bytecode HTML Reports</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 2em 3em;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1em;
+      color: #333;
+    }
+
+    select {
+      font-size: 1rem;
+      padding: 0.5em 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    button {
+      margin-top: 1em;
+      padding: 0.5em 1.5em;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #007acc;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005ea3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Bytecode HTML Reports</h1>
+    <form onsubmit="openReport(); return false;">
+      <select id="reportSelect">
+        <option disabled selected value="">Select a report</option>
+        <option value="art-gobblers.html">art-gobblers</option>
+        <option value="balance-snapshot.html">balance-snapshot</option>
+        <option value="beefy.html">beefy</option>
+        <option value="diamond-foundry.html">diamond-foundry</option>
+        <option value="diamonds.html">diamonds</option>
+        <option value="forge-std.html">forge-std</option>
+        <option value="foundry-upgrades.html">foundry-upgrades</option>
+        <option value="gov-of-venice.html">gov-of-venice</option>
+        <option value="lil-web3.html">lil-web3</option>
+        <option value="maple-erc20.html">maple-erc20</option>
+        <option value="openzeppelin.html">openzeppelin</option>
+        <option value="playpen.html">playpen</option>
+        <option value="prb-math.html">prb-math</option>
+        <option value="rollcall.html">rollcall</option>
+        <option value="solady.html">solady</option>
+        <option value="solmate.html">solmate</option>
+        <option value="tokenlon.html">tokenlon</option>
+        <option value="uniswap-v4.html">uniswap-v4</option>
+        <option value="unix.html">unix</option>
+      </select>
+      <br />
+      <button type="submit">Open Report</button>
+    </form>
+  </div>
+
+  <script>
+    function openReport() {
+      const selected = document.getElementById('reportSelect').value;
+      if (selected) {
+        window.location.href = selected;
+      }
+    }
+  </script>
+</body>
+</html>
+
