@@ -206,12 +206,11 @@ jobs:
             for COMPILER in solc solx; do
               for VIA_IR in true false; do
                 REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
-                if [ ! -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then
-                  git clone --depth 1 "${REPO}" "${GITHUB_WORKSPACE}/projects/${PROJECT}" --recurse-submodules
-                else
-                  echo "Project ${PROJECT} already exists, cleaning up"
-                  forge clean
+                if [ -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then
+                  cd ${GITHUB_WORKSPACE}/projects
+                  rm -rf "${GITHUB_WORKSPACE}/projects/${PROJECT}"
                 fi
+                git clone --depth 1 "${REPO}" "${GITHUB_WORKSPACE}/projects/${PROJECT}" --recurse-submodules
                 cd "${GITHUB_WORKSPACE}/projects/${PROJECT}"
                 echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
           
@@ -236,12 +235,16 @@ jobs:
                 [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir" || VIA_IR_OPTION=""
                 mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
                 BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
+                BUILD_SIZES_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_sizes_${PROJECT}.json"
           
                 start_ms=$(date +%s%3N)
-                forge build ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>&1 || true
+                forge build --force ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>&1 || true
                 end_ms=$(date +%s%3N)
                 elapsed_ms=$(( end_ms - start_ms ))
                 COMPILE_TIME=$(awk -v ms="${elapsed_ms}" 'BEGIN { printf "%.3f\n", ms / 1000 }')
+          
+                # Get build size report
+                forge build --sizes ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_SIZES_JSON} 2>&1 || true
                 
                 if jq empty "${BUILD_JSON}" > /dev/null 2>&1 && [ -s "${BUILD_JSON}" ]; then
                   jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
