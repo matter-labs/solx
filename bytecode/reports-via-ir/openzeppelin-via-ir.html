@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>openzeppelin viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>openzeppelin viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>SampleMother</code></td>
+        <td><span class="mono">838 → 697</span> <span style="color:#2ecc71">⬇️ -16.8%</span></td>
+        <td><span class="mono">864 → 730</span> <span style="color:#2ecc71">⬇️ -15.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ChildConstructorInitializableMock</code></td>
+        <td><span class="mono">882 → 840</span> <span style="color:#2ecc71">⬇️ -4.8%</span></td>
+        <td><span class="mono">2107 → 1750</span> <span style="color:#2ecc71">⬇️ -16.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ConstructorInitializableMock</code></td>
+        <td><span class="mono">611 → 629</span> <span style="color:#e74c3c">⬆️ +2.9%</span></td>
+        <td><span class="mono">1292 → 1111</span> <span style="color:#2ecc71">⬇️ -14.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UpgradeableBeaconReentrantMock</code></td>
+        <td><span class="mono">284 → 265</span> <span style="color:#2ecc71">⬇️ -6.7%</span></td>
+        <td><span class="mono">310 → 298</span> <span style="color:#2ecc71">⬇️ -3.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>InitializableMock</code></td>
+        <td><span class="mono">1826 → 1776</span> <span style="color:#2ecc71">⬇️ -2.7%</span></td>
+        <td><span class="mono">1852 → 1809</span> <span style="color:#2ecc71">⬇️ -2.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SampleHuman</code></td>
+        <td><span class="mono">539 → 522</span> <span style="color:#2ecc71">⬇️ -3.2%</span></td>
+        <td><span class="mono">565 → 555</span> <span style="color:#2ecc71">⬇️ -1.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MigratableMockV1</code></td>
+        <td><span class="mono">465 → 457</span> <span style="color:#2ecc71">⬇️ -1.7%</span></td>
+        <td><span class="mono">491 → 490</span> <span style="color:#2ecc71">⬇️ -0.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Implementation4</code></td>
+        <td><span class="mono">510 → 506</span> <span style="color:#2ecc71">⬇️ -0.8%</span></td>
+        <td><span class="mono">536 → 539</span> <span style="color:#e74c3c">⬆️ +0.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MigratableMockV2</code></td>
+        <td><span class="mono">563 → 559</span> <span style="color:#2ecc71">⬇️ -0.7%</span></td>
+        <td><span class="mono">589 → 592</span> <span style="color:#e74c3c">⬆️ +0.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MigratableMockV3</code></td>
+        <td><span class="mono">620 → 617</span> <span style="color:#2ecc71">⬇️ -0.5%</span></td>
+        <td><span class="mono">646 → 650</span> <span style="color:#e74c3c">⬆️ +0.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Implementation2</code></td>
+        <td><span class="mono">499 → 498</span> <span style="color:#2ecc71">⬇️ -0.2%</span></td>
+        <td><span class="mono">525 → 531</span> <span style="color:#e74c3c">⬆️ +1.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Implementation3</code></td>
+        <td><span class="mono">533 → 535</span> <span style="color:#e74c3c">⬆️ +0.4%</span></td>
+        <td><span class="mono">559 → 568</span> <span style="color:#e74c3c">⬆️ +1.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Implementation1</code></td>
+        <td><span class="mono">459 → 461</span> <span style="color:#e74c3c">⬆️ +0.4%</span></td>
+        <td><span class="mono">485 → 494</span> <span style="color:#e74c3c">⬆️ +1.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReinitializerMock</code></td>
+        <td><span class="mono">1693 → 1719</span> <span style="color:#e74c3c">⬆️ +1.5%</span></td>
+        <td><span class="mono">1719 → 1752</span> <span style="color:#e74c3c">⬆️ +1.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20GetterHelper</code></td>
+        <td><span class="mono">1647 → 1683</span> <span style="color:#e74c3c">⬆️ +2.2%</span></td>
+        <td><span class="mono">1673 → 1716</span> <span style="color:#e74c3c">⬆️ +2.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AuthorityObserveIsConsuming</code></td>
+        <td><span class="mono">667 → 689</span> <span style="color:#e74c3c">⬆️ +3.3%</span></td>
+        <td><span class="mono">693 → 722</span> <span style="color:#e74c3c">⬆️ +4.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20Mock</code></td>
+        <td><span class="mono">1864 → 2093</span> <span style="color:#e74c3c">⬆️ +12.3%</span></td>
+        <td><span class="mono">2656 → 2558</span> <span style="color:#2ecc71">⬇️ -3.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ContextMockCaller</code></td>
+        <td><span class="mono">562 → 590</span> <span style="color:#e74c3c">⬆️ +5.0%</span></td>
+        <td><span class="mono">588 → 623</span> <span style="color:#e74c3c">⬆️ +6.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ContextMock</code></td>
+        <td><span class="mono">550 → 581</span> <span style="color:#e74c3c">⬆️ +5.6%</span></td>
+        <td><span class="mono">576 → 614</span> <span style="color:#e74c3c">⬆️ +6.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccessControlERC20MintMissing</code></td>
+        <td><span class="mono">3066 → 3420</span> <span style="color:#e74c3c">⬆️ +11.5%</span></td>
+        <td><span class="mono">4034 → 4066</span> <span style="color:#e74c3c">⬆️ +0.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20WithAutoMinerReward</code></td>
+        <td><span class="mono">1755 → 2022</span> <span style="color:#e74c3c">⬆️ +15.2%</span></td>
+        <td><span class="mono">2672 → 2611</span> <span style="color:#2ecc71">⬇️ -2.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>PausableMock</code></td>
+        <td><span class="mono">571 → 607</span> <span style="color:#e74c3c">⬆️ +6.3%</span></td>
+        <td><span class="mono">610 → 653</span> <span style="color:#e74c3c">⬆️ +7.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1155ReceiverMock</code></td>
+        <td><span class="mono">1430 → 1523</span> <span style="color:#e74c3c">⬆️ +6.5%</span></td>
+        <td><span class="mono">1646 → 1776</span> <span style="color:#e74c3c">⬆️ +7.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BytesArraysMock</code></td>
+        <td><span class="mono">497 → 490</span> <span style="color:#2ecc71">⬇️ -1.4%</span></td>
+        <td><span class="mono">1403 → 1636</span> <span style="color:#e74c3c">⬆️ +16.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StringArraysMock</code></td>
+        <td><span class="mono">497 → 490</span> <span style="color:#2ecc71">⬇️ -1.4%</span></td>
+        <td><span class="mono">1403 → 1636</span> <span style="color:#e74c3c">⬆️ +16.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeaconProxy</code></td>
+        <td><span class="mono">291 → 291</span> <span style="color:#999">→ +0.0%</span></td>
+        <td><span class="mono">1146 → 1331</span> <span style="color:#e74c3c">⬆️ +16.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bytes32ArraysMock</code></td>
+        <td><span class="mono">802 → 856</span> <span style="color:#e74c3c">⬆️ +6.7%</span></td>
+        <td><span class="mono">1213 → 1339</span> <span style="color:#e74c3c">⬆️ +10.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TokenMock</code></td>
+        <td><span class="mono">7398 → 8177</span> <span style="color:#e74c3c">⬆️ +10.5%</span></td>
+        <td><span class="mono">9209 → 9877</span> <span style="color:#e74c3c">⬆️ +7.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721ReceiverMock</code></td>
+        <td><span class="mono">706 → 765</span> <span style="color:#e74c3c">⬆️ +8.4%</span></td>
+        <td><span class="mono">871 → 955</span> <span style="color:#e74c3c">⬆️ +9.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CallReceiverMock</code></td>
+        <td><span class="mono">949 → 1034</span> <span style="color:#e74c3c">⬆️ +9.0%</span></td>
+        <td><span class="mono">975 → 1067</span> <span style="color:#e74c3c">⬆️ +9.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC3156FlashBorrowerMock</code></td>
+        <td><span class="mono">1141 → 1257</span> <span style="color:#e74c3c">⬆️ +10.2%</span></td>
+        <td><span class="mono">1292 → 1414</span> <span style="color:#e74c3c">⬆️ +9.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TransientSlotMock</code></td>
+        <td><span class="mono">1421 → 1575</span> <span style="color:#e74c3c">⬆️ +10.8%</span></td>
+        <td><span class="mono">1447 → 1608</span> <span style="color:#e74c3c">⬆️ +11.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC6909ContentURI</code></td>
+        <td><span class="mono">2070 → 2301</span> <span style="color:#e74c3c">⬆️ +11.2%</span></td>
+        <td><span class="mono">2096 → 2334</span> <span style="color:#e74c3c">⬆️ +11.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Box</code></td>
+        <td><span class="mono">889 → 990</span> <span style="color:#e74c3c">⬆️ +11.4%</span></td>
+        <td><span class="mono">915 → 1023</span> <span style="color:#e74c3c">⬆️ +11.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CallReceiverMockTrustingForwarder</code></td>
+        <td><span class="mono">1021 → 1129</span> <span style="color:#e74c3c">⬆️ +10.6%</span></td>
+        <td><span class="mono">1158 → 1310</span> <span style="color:#e74c3c">⬆️ +13.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StorageSlotMock</code></td>
+        <td><span class="mono">2541 → 2845</span> <span style="color:#e74c3c">⬆️ +12.0%</span></td>
+        <td><span class="mono">2567 → 2878</span> <span style="color:#e74c3c">⬆️ +12.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MyNFT</code></td>
+        <td><span class="mono">2759 → 3293</span> <span style="color:#e74c3c">⬆️ +19.4%</span></td>
+        <td><span class="mono">3542 → 3718</span> <span style="color:#e74c3c">⬆️ +5.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC6909Metadata</code></td>
+        <td><span class="mono">1949 → 2189</span> <span style="color:#e74c3c">⬆️ +12.3%</span></td>
+        <td><span class="mono">1975 → 2222</span> <span style="color:#e74c3c">⬆️ +12.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UUPSUnsupportedProxiableUUID</code></td>
+        <td><span class="mono">1175 → 1322</span> <span style="color:#e74c3c">⬆️ +12.5%</span></td>
+        <td><span class="mono">1214 → 1366</span> <span style="color:#e74c3c">⬆️ +12.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccountERC7702MockConstructor</code></td>
+        <td><span class="mono">5102 → 5770</span> <span style="color:#e74c3c">⬆️ +13.1%</span></td>
+        <td><span class="mono">6177 → 7006</span> <span style="color:#e74c3c">⬆️ +13.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccessManagedERC20Mint</code></td>
+        <td><span class="mono">2437 → 2650</span> <span style="color:#e74c3c">⬆️ +8.7%</span></td>
+        <td><span class="mono">3378 → 4013</span> <span style="color:#e74c3c">⬆️ +18.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MyTokenTimestampBased</code></td>
+        <td><span class="mono">6671 → 7761</span> <span style="color:#e74c3c">⬆️ +16.3%</span></td>
+        <td><span class="mono">8521 → 9531</span> <span style="color:#e74c3c">⬆️ +11.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AuthorityDelayMock</code></td>
+        <td><span class="mono">293 → 333</span> <span style="color:#e74c3c">⬆️ +13.7%</span></td>
+        <td><span class="mono">319 → 366</span> <span style="color:#e74c3c">⬆️ +14.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MyToken</code></td>
+        <td><span class="mono">6766 → 7881</span> <span style="color:#e74c3c">⬆️ +16.5%</span></td>
+        <td><span class="mono">8572 → 9605</span> <span style="color:#e74c3c">⬆️ +12.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccessControlERC20Mint</code></td>
+        <td><span class="mono">3066 → 3420</span> <span style="color:#e74c3c">⬆️ +11.5%</span></td>
+        <td><span class="mono">4362 → 5106</span> <span style="color:#e74c3c">⬆️ +17.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SampleGramps</code></td>
+        <td><span class="mono">1579 → 1804</span> <span style="color:#e74c3c">⬆️ +14.2%</span></td>
+        <td><span class="mono">1605 → 1837</span> <span style="color:#e74c3c">⬆️ +14.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReentrancyMock</code></td>
+        <td><span class="mono">1001 → 1145</span> <span style="color:#e74c3c">⬆️ +14.4%</span></td>
+        <td><span class="mono">1035 → 1186</span> <span style="color:#e74c3c">⬆️ +14.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC6909TokenSupply</code></td>
+        <td><span class="mono">1546 → 1770</span> <span style="color:#e74c3c">⬆️ +14.5%</span></td>
+        <td><span class="mono">1572 → 1803</span> <span style="color:#e74c3c">⬆️ +14.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BatchCaller</code></td>
+        <td><span class="mono">926 → 1062</span> <span style="color:#e74c3c">⬆️ +14.7%</span></td>
+        <td><span class="mono">952 → 1095</span> <span style="color:#e74c3c">⬆️ +15.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReentrancyAttack</code></td>
+        <td><span class="mono">373 → 427</span> <span style="color:#e74c3c">⬆️ +14.5%</span></td>
+        <td><span class="mono">399 → 460</span> <span style="color:#e74c3c">⬆️ +15.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AddressArraysMock</code></td>
+        <td><span class="mono">859 → 976</span> <span style="color:#e74c3c">⬆️ +13.6%</span></td>
+        <td><span class="mono">1294 → 1515</span> <span style="color:#e74c3c">⬆️ +17.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC6909</code></td>
+        <td><span class="mono">1493 → 1725</span> <span style="color:#e74c3c">⬆️ +15.5%</span></td>
+        <td><span class="mono">1519 → 1758</span> <span style="color:#e74c3c">⬆️ +15.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccessControlERC20MintBase</code></td>
+        <td><span class="mono">2684 → 3035</span> <span style="color:#e74c3c">⬆️ +13.1%</span></td>
+        <td><span class="mono">3748 → 4464</span> <span style="color:#e74c3c">⬆️ +19.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CompTimelock</code></td>
+        <td><span class="mono">3274 → 3827</span> <span style="color:#e74c3c">⬆️ +16.9%</span></td>
+        <td><span class="mono">3657 → 4231</span> <span style="color:#e74c3c">⬆️ +15.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>NonUpgradeableMock</code></td>
+        <td><span class="mono">178 → 205</span> <span style="color:#e74c3c">⬆️ +15.2%</span></td>
+        <td><span class="mono">202 → 238</span> <span style="color:#e74c3c">⬆️ +17.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC6909GameItems</code></td>
+        <td><span class="mono">2138 → 2383</span> <span style="color:#e74c3c">⬆️ +11.5%</span></td>
+        <td><span class="mono">2928 → 3563</span> <span style="color:#e74c3c">⬆️ +21.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Base64NFT</code></td>
+        <td><span class="mono">3598 → 4420</span> <span style="color:#e74c3c">⬆️ +22.8%</span></td>
+        <td><span class="mono">4384 → 4848</span> <span style="color:#e74c3c">⬆️ +10.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>NotAuthorityMock</code></td>
+        <td><span class="mono">262 → 305</span> <span style="color:#e74c3c">⬆️ +16.4%</span></td>
+        <td><span class="mono">288 → 338</span> <span style="color:#e74c3c">⬆️ +17.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccessControlModified</code></td>
+        <td><span class="mono">872 → 1018</span> <span style="color:#e74c3c">⬆️ +16.7%</span></td>
+        <td><span class="mono">898 → 1051</span> <span style="color:#e74c3c">⬆️ +17.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GLDToken</code></td>
+        <td><span class="mono">1543 → 1736</span> <span style="color:#e74c3c">⬆️ +12.5%</span></td>
+        <td><span class="mono">2493 → 3027</span> <span style="color:#e74c3c">⬆️ +21.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UUPSUpgradeableMock</code></td>
+        <td><span class="mono">1179 → 1385</span> <span style="color:#e74c3c">⬆️ +17.5%</span></td>
+        <td><span class="mono">1225 → 1433</span> <span style="color:#e74c3c">⬆️ +17.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DummyImplementationV2</code></td>
+        <td><span class="mono">1831 → 2148</span> <span style="color:#e74c3c">⬆️ +17.3%</span></td>
+        <td><span class="mono">1857 → 2181</span> <span style="color:#e74c3c">⬆️ +17.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MyERC115HolderContract</code></td>
+        <td><span class="mono">723 → 848</span> <span style="color:#e74c3c">⬆️ +17.3%</span></td>
+        <td><span class="mono">749 → 881</span> <span style="color:#e74c3c">⬆️ +17.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DummyImplementation</code></td>
+        <td><span class="mono">1815 → 2132</span> <span style="color:#e74c3c">⬆️ +17.5%</span></td>
+        <td><span class="mono">1841 → 2165</span> <span style="color:#e74c3c">⬆️ +17.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AuthorityNoDelayMock</code></td>
+        <td><span class="mono">249 → 291</span> <span style="color:#e74c3c">⬆️ +16.9%</span></td>
+        <td><span class="mono">274 → 324</span> <span style="color:#e74c3c">⬆️ +18.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GameItem</code></td>
+        <td><span class="mono">3587 → 4474</span> <span style="color:#e74c3c">⬆️ +24.7%</span></td>
+        <td><span class="mono">4372 → 4901</span> <span style="color:#e74c3c">⬆️ +12.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1271WalletMock</code></td>
+        <td><span class="mono">984 → 1150</span> <span style="color:#e74c3c">⬆️ +16.9%</span></td>
+        <td><span class="mono">1193 → 1435</span> <span style="color:#e74c3c">⬆️ +20.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1271MaliciousMock</code></td>
+        <td><span class="mono">258 → 305</span> <span style="color:#e74c3c">⬆️ +18.2%</span></td>
+        <td><span class="mono">284 → 338</span> <span style="color:#e74c3c">⬆️ +19.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC2771Forwarder</code></td>
+        <td><span class="mono">3590 → 4275</span> <span style="color:#e74c3c">⬆️ +19.1%</span></td>
+        <td><span class="mono">4761 → 5721</span> <span style="color:#e74c3c">⬆️ +20.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC2771ContextMock</code></td>
+        <td><span class="mono">1759 → 2119</span> <span style="color:#e74c3c">⬆️ +20.5%</span></td>
+        <td><span class="mono">2030 → 2426</span> <span style="color:#e74c3c">⬆️ +19.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TimelockReentrant</code></td>
+        <td><span class="mono">1086 → 1303</span> <span style="color:#e74c3c">⬆️ +20.0%</span></td>
+        <td><span class="mono">1112 → 1336</span> <span style="color:#e74c3c">⬆️ +20.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SampleChild</code></td>
+        <td><span class="mono">3185 → 3825</span> <span style="color:#e74c3c">⬆️ +20.1%</span></td>
+        <td><span class="mono">3211 → 3858</span> <span style="color:#e74c3c">⬆️ +20.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721ConsecutiveMock</code></td>
+        <td><span class="mono">7709 → 9364</span> <span style="color:#e74c3c">⬆️ +21.5%</span></td>
+        <td><span class="mono">12403 → 14756</span> <span style="color:#e74c3c">⬆️ +19.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ClashingImplementation</code></td>
+        <td><span class="mono">248 → 298</span> <span style="color:#e74c3c">⬆️ +20.2%</span></td>
+        <td><span class="mono">273 → 331</span> <span style="color:#e74c3c">⬆️ +21.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SampleAccount</code></td>
+        <td><span class="mono">3587 → 4341</span> <span style="color:#e74c3c">⬆️ +21.0%</span></td>
+        <td><span class="mono">3796 → 4626</span> <span style="color:#e74c3c">⬆️ +21.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>EtherReceiverMock</code></td>
+        <td><span class="mono">143 → 173</span> <span style="color:#e74c3c">⬆️ +21.0%</span></td>
+        <td><span class="mono">167 → 206</span> <span style="color:#e74c3c">⬆️ +23.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SampleFather</code></td>
+        <td><span class="mono">2225 → 2720</span> <span style="color:#e74c3c">⬆️ +22.2%</span></td>
+        <td><span class="mono">2251 → 2753</span> <span style="color:#e74c3c">⬆️ +22.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721ConsecutiveEnumerableMock</code></td>
+        <td><span class="mono">4086 → 5054</span> <span style="color:#e74c3c">⬆️ +23.7%</span></td>
+        <td><span class="mono">6337 → 7679</span> <span style="color:#e74c3c">⬆️ +21.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MulticallHelper</code></td>
+        <td><span class="mono">1059 → 1300</span> <span style="color:#e74c3c">⬆️ +22.8%</span></td>
+        <td><span class="mono">1085 → 1333</span> <span style="color:#e74c3c">⬆️ +22.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC7913RSAVerifier</code></td>
+        <td><span class="mono">1272 → 1563</span> <span style="color:#e74c3c">⬆️ +22.9%</span></td>
+        <td><span class="mono">1298 → 1596</span> <span style="color:#e74c3c">⬆️ +23.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721ConsecutiveTarget</code></td>
+        <td><span class="mono">3939 → 5100</span> <span style="color:#e74c3c">⬆️ +29.5%</span></td>
+        <td><span class="mono">6817 → 7976</span> <span style="color:#e74c3c">⬆️ +17.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SupportsInterfaceWithLookupMock</code></td>
+        <td><span class="mono">194 → 234</span> <span style="color:#e74c3c">⬆️ +20.6%</span></td>
+        <td><span class="mono">280 → 356</span> <span style="color:#e74c3c">⬆️ +27.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC165InterfacesSupported</code></td>
+        <td><span class="mono">194 → 234</span> <span style="color:#e74c3c">⬆️ +20.6%</span></td>
+        <td><span class="mono">663 → 846</span> <span style="color:#e74c3c">⬆️ +27.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TransparentUpgradeableProxy</code></td>
+        <td><span class="mono">793 → 962</span> <span style="color:#e74c3c">⬆️ +21.3%</span></td>
+        <td><span class="mono">2711 → 3519</span> <span style="color:#e74c3c">⬆️ +29.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Uint256ArraysMock</code></td>
+        <td><span class="mono">1627 → 2078</span> <span style="color:#e74c3c">⬆️ +27.7%</span></td>
+        <td><span class="mono">2038 → 2561</span> <span style="color:#e74c3c">⬆️ +25.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Base64Dirty</code></td>
+        <td><span class="mono">747 → 948</span> <span style="color:#e74c3c">⬆️ +26.9%</span></td>
+        <td><span class="mono">773 → 981</span> <span style="color:#e74c3c">⬆️ +26.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UUPSUpgradeableUnsafeMock</code></td>
+        <td><span class="mono">931 → 1186</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+        <td><span class="mono">970 → 1229</span> <span style="color:#e74c3c">⬆️ +26.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DisableBad2</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">547 → 551</span> <span style="color:#e74c3c">⬆️ +0.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AuthorityNoResponse</code></td>
+        <td><span class="mono">183 → 235</span> <span style="color:#e74c3c">⬆️ +28.4%</span></td>
+        <td><span class="mono">207 → 268</span> <span style="color:#e74c3c">⬆️ +29.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TimelockController</code></td>
+        <td><span class="mono">5450 → 7029</span> <span style="color:#e74c3c">⬆️ +29.0%</span></td>
+        <td><span class="mono">6755 → 8716</span> <span style="color:#e74c3c">⬆️ +29.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BadBeaconNotContract</code></td>
+        <td><span class="mono">116 → 149</span> <span style="color:#e74c3c">⬆️ +28.4%</span></td>
+        <td><span class="mono">140 → 182</span> <span style="color:#e74c3c">⬆️ +30.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20ExcessDecimalsMock</code></td>
+        <td><span class="mono">116 → 149</span> <span style="color:#e74c3c">⬆️ +28.4%</span></td>
+        <td><span class="mono">140 → 182</span> <span style="color:#e74c3c">⬆️ +30.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721ConsecutiveNoConstructorMintMock</code></td>
+        <td><span class="mono">3378 → 4333</span> <span style="color:#e74c3c">⬆️ +28.3%</span></td>
+        <td><span class="mono">5006 → 6528</span> <span style="color:#e74c3c">⬆️ +30.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DisableOld</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">399 → 410</span> <span style="color:#e74c3c">⬆️ +2.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DisableBad1</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">546 → 573</span> <span style="color:#e74c3c">⬆️ +4.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC165ReturnBombMock</code></td>
+        <td><span class="mono">154 → 202</span> <span style="color:#e74c3c">⬆️ +31.2%</span></td>
+        <td><span class="mono">178 → 235</span> <span style="color:#e74c3c">⬆️ +32.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DisableOk</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">547 → 587</span> <span style="color:#e74c3c">⬆️ +7.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>VestingWallet</code></td>
+        <td><span class="mono">2081 → 2766</span> <span style="color:#e74c3c">⬆️ +32.9%</span></td>
+        <td><span class="mono">2389 → 3164</span> <span style="color:#e74c3c">⬆️ +32.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ConstructorMock</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">320 → 360</span> <span style="color:#e74c3c">⬆️ +12.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccessManagerMock</code></td>
+        <td><span class="mono">9120 → 12413</span> <span style="color:#e74c3c">⬆️ +36.1%</span></td>
+        <td><span class="mono">9931 → 13212</span> <span style="color:#e74c3c">⬆️ +33.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MyTokenWrapped</code></td>
+        <td><span class="mono">8034 → 10811</span> <span style="color:#e74c3c">⬆️ +34.6%</span></td>
+        <td><span class="mono">9964 → 13442</span> <span style="color:#e74c3c">⬆️ +34.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AccessManager</code></td>
+        <td><span class="mono">8966 → 12226</span> <span style="color:#e74c3c">⬆️ +36.4%</span></td>
+        <td><span class="mono">9777 → 13025</span> <span style="color:#e74c3c">⬆️ +33.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ProxyAdmin</code></td>
+        <td><span class="mono">879 → 1190</span> <span style="color:#e74c3c">⬆️ +35.4%</span></td>
+        <td><span class="mono">1088 → 1475</span> <span style="color:#e74c3c">⬆️ +35.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20Reentrant</code></td>
+        <td><span class="mono">2666 → 3878</span> <span style="color:#e74c3c">⬆️ +45.5%</span></td>
+        <td><span class="mono">3452 → 4337</span> <span style="color:#e74c3c">⬆️ +25.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UpgradeableBeaconMock</code></td>
+        <td><span class="mono">125 → 171</span> <span style="color:#e74c3c">⬆️ +36.8%</span></td>
+        <td><span class="mono">260 → 350</span> <span style="color:#e74c3c">⬆️ +34.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1967Proxy</code></td>
+        <td><span class="mono">130 → 172</span> <span style="color:#e74c3c">⬆️ +32.3%</span></td>
+        <td><span class="mono">669 → 938</span> <span style="color:#e74c3c">⬆️ +40.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MyContract</code></td>
+        <td><span class="mono">483 → 663</span> <span style="color:#e74c3c">⬆️ +37.3%</span></td>
+        <td><span class="mono">692 → 948</span> <span style="color:#e74c3c">⬆️ +37.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MyGovernor</code></td>
+        <td><span class="mono">14108 → 19603</span> <span style="color:#e74c3c">⬆️ +38.9%</span></td>
+        <td><span class="mono">16464 → 22411</span> <span style="color:#e74c3c">⬆️ +36.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DisableNew</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">263 → 313</span> <span style="color:#e74c3c">⬆️ +19.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReentrancyTransientMock</code></td>
+        <td><span class="mono">1146 → 1583</span> <span style="color:#e74c3c">⬆️ +38.1%</span></td>
+        <td><span class="mono">1175 → 1619</span> <span style="color:#e74c3c">⬆️ +37.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UpgradeableBeacon</code></td>
+        <td><span class="mono">605 → 870</span> <span style="color:#e74c3c">⬆️ +43.8%</span></td>
+        <td><span class="mono">958 → 1274</span> <span style="color:#e74c3c">⬆️ +33.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC165MaliciousData</code></td>
+        <td><span class="mono">129 → 179</span> <span style="color:#e74c3c">⬆️ +38.8%</span></td>
+        <td><span class="mono">153 → 212</span> <span style="color:#e74c3c">⬆️ +38.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GovernorHandler</code></td>
+        <td><span class="mono">14413 → 20280</span> <span style="color:#e74c3c">⬆️ +40.7%</span></td>
+        <td><span class="mono">17703 → 24212</span> <span style="color:#e74c3c">⬆️ +36.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC2771ForwarderMock</code></td>
+        <td><span class="mono">3800 → 5390</span> <span style="color:#e74c3c">⬆️ +41.8%</span></td>
+        <td><span class="mono">4971 → 6869</span> <span style="color:#e74c3c">⬆️ +38.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC165MissingData</code></td>
+        <td><span class="mono">122 → 174</span> <span style="color:#e74c3c">⬆️ +42.6%</span></td>
+        <td><span class="mono">146 → 207</span> <span style="color:#e74c3c">⬆️ +41.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GameItems</code></td>
+        <td><span class="mono">3709 → 4889</span> <span style="color:#e74c3c">⬆️ +31.8%</span></td>
+        <td><span class="mono">6028 → 9327</span> <span style="color:#e74c3c">⬆️ +54.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Address</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Arrays</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AuthorityUtils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Base64</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BitMaps</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Blockhash</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bytes</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CAIP10</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CAIP2</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Calldata</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Checkpoints</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CircularBuffer</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Clones</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Comparators</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Create2</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DoubleEndedQueue</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ECDSA</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>EIP7702Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1155Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1363Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC165Checker</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1967Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC4337Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC7579Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC7739Utils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>EnumerableMap</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>EnumerableSet</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Errors</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Hashes</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Heap</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>InteroperableAddress</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Math</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MerkleProof</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MerkleTree</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MessageHashUtils</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>P256</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Packing</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Panic</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>RSA</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeCast</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeERC20</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ShortStrings</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SignatureChecker</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SignedMath</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SlotDerivation</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StorageSlot</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Strings</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Time</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TransientSlot</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC4626VaultOffsetMock</code></td>
+        <td><span class="mono">3943 → 5960</span> <span style="color:#e74c3c">⬆️ +51.2%</span></td>
+        <td><span class="mono">5116 → 7639</span> <span style="color:#e74c3c">⬆️ +49.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BadBeaconNoImpl</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">81 → 122</span> <span style="color:#e74c3c">⬆️ +50.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Dummy1234</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">81 → 122</span> <span style="color:#e74c3c">⬆️ +50.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC165NotSupported</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">81 → 122</span> <span style="color:#e74c3c">⬆️ +50.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC7579UtilsGlobalMock</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">81 → 122</span> <span style="color:#e74c3c">⬆️ +50.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC4626Mock</code></td>
+        <td><span class="mono">3900 → 6468</span> <span style="color:#e74c3c">⬆️ +65.8%</span></td>
+        <td><span class="mono">5000 → 8099</span> <span style="color:#e74c3c">⬆️ +62.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC7913P256Verifier</code></td>
+        <td><span class="mono">3141 → 6242</span> <span style="color:#e74c3c">⬆️ +98.7%</span></td>
+        <td><span class="mono">3167 → 6275</span> <span style="color:#e74c3c">⬆️ +98.1%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">238518 → 299121</span></strong> <span style="color:#e74c3c">⬆️ +25.4%</span></td>
+        <td><strong><span class="mono">301913 → 372238</span></strong> <span style="color:#e74c3c">⬆️ +23.3%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>diamond-foundry viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>diamond-foundry viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>DiamondMultiInit</code></td>
+        <td><span class="mono">1845 → 853</span> <span style="color:#2ecc71">⬇️ -53.8%</span></td>
+        <td><span class="mono">1873 → 887</span> <span style="color:#2ecc71">⬇️ -52.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Diamond</code></td>
+        <td><span class="mono">518 → 233</span> <span style="color:#2ecc71">⬇️ -55.0%</span></td>
+        <td><span class="mono">7491 → 4580</span> <span style="color:#2ecc71">⬇️ -38.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DiamondLoupeFacet</code></td>
+        <td><span class="mono">4345 → 2472</span> <span style="color:#2ecc71">⬇️ -43.1%</span></td>
+        <td><span class="mono">4373 → 2506</span> <span style="color:#2ecc71">⬇️ -42.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>OwnershipFacet</code></td>
+        <td><span class="mono">922 → 539</span> <span style="color:#2ecc71">⬇️ -41.5%</span></td>
+        <td><span class="mono">950 → 573</span> <span style="color:#2ecc71">⬇️ -39.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DiamondCutFacet</code></td>
+        <td><span class="mono">6956 → 4300</span> <span style="color:#2ecc71">⬇️ -38.2%</span></td>
+        <td><span class="mono">6984 → 4334</span> <span style="color:#2ecc71">⬇️ -37.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DiamondInit</code></td>
+        <td><span class="mono">715 → 489</span> <span style="color:#2ecc71">⬇️ -31.6%</span></td>
+        <td><span class="mono">743 → 523</span> <span style="color:#2ecc71">⬇️ -29.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LibDiamond</code></td>
+        <td><span class="mono">85 → 116</span> <span style="color:#e74c3c">⬆️ +36.5%</span></td>
+        <td><span class="mono">160 → 178</span> <span style="color:#e74c3c">⬆️ +11.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestLib</code></td>
+        <td><span class="mono">85 → 116</span> <span style="color:#e74c3c">⬆️ +36.5%</span></td>
+        <td><span class="mono">160 → 178</span> <span style="color:#e74c3c">⬆️ +11.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>strings</code></td>
+        <td><span class="mono">85 → 116</span> <span style="color:#e74c3c">⬆️ +36.5%</span></td>
+        <td><span class="mono">160 → 178</span> <span style="color:#e74c3c">⬆️ +11.2%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">15556 → 9234</span></strong> <span style="color:#2ecc71">⬇️ -40.6%</span></td>
+        <td><strong><span class="mono">22894 → 13937</span></strong> <span style="color:#2ecc71">⬇️ -39.1%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

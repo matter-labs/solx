@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>foundry-upgrades viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>foundry-upgrades viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>ERC1967Proxy</code></td>
+        <td><span class="mono">225 → 184</span> <span style="color:#2ecc71">⬇️ -18.2%</span></td>
+        <td><span class="mono">1037 → 1194</span> <span style="color:#e74c3c">⬆️ +15.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeaconProxy</code></td>
+        <td><span class="mono">572 → 537</span> <span style="color:#2ecc71">⬇️ -6.1%</span></td>
+        <td><span class="mono">1787 → 1913</span> <span style="color:#e74c3c">⬆️ +7.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestImplementation</code></td>
+        <td><span class="mono">399 → 423</span> <span style="color:#e74c3c">⬆️ +6.0%</span></td>
+        <td><span class="mono">589 → 616</span> <span style="color:#e74c3c">⬆️ +4.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UpgradeableBeaconProxy</code></td>
+        <td><span class="mono">1600 → 1871</span> <span style="color:#e74c3c">⬆️ +16.9%</span></td>
+        <td><span class="mono">2820 → 3246</span> <span style="color:#e74c3c">⬆️ +15.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ProxyTester</code></td>
+        <td><span class="mono">15041 → 17987</span> <span style="color:#e74c3c">⬆️ +19.6%</span></td>
+        <td><span class="mono">15067 → 18020</span> <span style="color:#e74c3c">⬆️ +19.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UpgradeProxy</code></td>
+        <td><span class="mono">14419 → 17301</span> <span style="color:#e74c3c">⬆️ +20.0%</span></td>
+        <td><span class="mono">14445 → 17334</span> <span style="color:#e74c3c">⬆️ +20.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UpgradeableBeacon</code></td>
+        <td><span class="mono">888 → 1067</span> <span style="color:#e74c3c">⬆️ +20.2%</span></td>
+        <td><span class="mono">1212 → 1466</span> <span style="color:#e74c3c">⬆️ +21.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DeployProxy</code></td>
+        <td><span class="mono">12228 → 15137</span> <span style="color:#e74c3c">⬆️ +23.8%</span></td>
+        <td><span class="mono">12254 → 15170</span> <span style="color:#e74c3c">⬆️ +23.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TransparentUpgradeableProxy</code></td>
+        <td><span class="mono">2275 → 2873</span> <span style="color:#e74c3c">⬆️ +26.3%</span></td>
+        <td><span class="mono">3396 → 4199</span> <span style="color:#e74c3c">⬆️ +23.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Address</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StorageSlot</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">47761 → 57558</span></strong> <span style="color:#e74c3c">⬆️ +20.5%</span></td>
+        <td><strong><span class="mono">52777 → 63402</span></strong> <span style="color:#e74c3c">⬆️ +20.1%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>
