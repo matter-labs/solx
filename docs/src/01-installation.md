@@ -4,7 +4,7 @@ You can start using **solx** in the following ways:
 
 1. Use the installation script.
    ```shell
-   curl -L https://raw.githubusercontent.com/matter-labs/solx/main/install-solx | sh
+   curl -L https://raw.githubusercontent.com/matter-labs/solx/main/install-solx | bash
    ```
 
    The script will download the latest stable release of **solx** and install it in your `PATH`.
