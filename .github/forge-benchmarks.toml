@@ -63,8 +63,8 @@ repo = "https://github.com/odyslam/foundry-upgrades"
 description = "Helper smart contracts to deploy and manage upgradeable contracts."
 
 [art-gobblers]
-repo = "https://github.com/artgobblers/art-gobblers"
-description = "A decentralized art factory and marketplace."
+repo = "https://github.com/antonbaliasnikov/art-gobblers"
+description = "A decentralized art factory and marketplace. Fork with fixed tests."
 
 [balance-snapshot]
 repo = "https://github.com/pilagod/balance-snapshot"
