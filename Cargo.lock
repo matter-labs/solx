@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-fix-bytecode-size-check#dcabcf798c6947fab47419937f74acd1b4ceabb0"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#1dd5c4406071615fdc62ac924751b92e43906b4c"
 dependencies = [
  "anyhow",
  "era-compiler-common",
