@@ -236,7 +236,10 @@ function updateChart(data) {
 
     // Create sections for each contract
     data.forEach((contractData, index) => {
-        // Create and append container for this contract
+        // Check if contractData is null or undefined
+        if (!contractData) {
+            return; // Skip this iteration if contractData is null or undefined
+        }
         const contractSection = createChartContainer(contractData.contractName, index);
         container.appendChild(contractSection);
 
