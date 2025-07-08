@@ -294,7 +294,7 @@ pub fn standard_json_evm(
     let via_ir = solc_input.settings.via_ir;
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
-    let optimization_mode = if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
+    let optimizer_mode = if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
         if optimization.len() != 1 {
             anyhow::bail!(
                 "Invalid value '99' for environment variable 'SOLX_OPTIMIZATION': values 1, 2, 3, s, z are supported."
@@ -302,10 +302,14 @@ pub fn standard_json_evm(
         }
         optimization.chars().next().expect("Always exists")
     } else {
-        solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
+        solc_input
+            .settings
+            .optimizer
+            .mode
+            .unwrap_or(solx_standard_json::InputOptimizer::default_mode().expect("Always exists"))
     };
     let mut optimizer_settings =
-        era_compiler_llvm_context::OptimizerSettings::try_from_cli(optimization_mode)?;
+        era_compiler_llvm_context::OptimizerSettings::try_from_cli(optimizer_mode)?;
     if solc_input
         .settings
         .optimizer
