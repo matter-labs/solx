@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>balance-snapshot viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>balance-snapshot viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>ERC20</code></td>
+        <td><span class="mono">3192 → 3160</span> <span style="color:#2ecc71">⬇️ -1.0%</span></td>
+        <td><span class="mono">3787 → 1016</span> <span style="color:#2ecc71">⬇️ -73.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BalanceSnapshotLib</code></td>
+        <td><span class="mono">62 → 352</span> <span style="color:#e74c3c">⬆️ +467.7%</span></td>
+        <td><span class="mono">106 → 632</span> <span style="color:#e74c3c">⬆️ +496.2%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">3254 → 3512</span></strong> <span style="color:#e74c3c">⬆️ +7.9%</span></td>
+        <td><strong><span class="mono">3893 → 1648</span></strong> <span style="color:#2ecc71">⬇️ -57.7%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

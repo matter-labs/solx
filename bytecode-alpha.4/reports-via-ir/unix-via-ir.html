@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>unix viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>unix viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>Unix</code></td>
+        <td><span class="mono">47141 → 9240</span> <span style="color:#2ecc71">⬇️ -80.4%</span></td>
+        <td><span class="mono">47190 → 612</span> <span style="color:#2ecc71">⬇️ -98.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Runner</code></td>
+        <td><span class="mono">9674 → 4092</span> <span style="color:#2ecc71">⬇️ -57.7%</span></td>
+        <td><span class="mono">9717 → 612</span> <span style="color:#2ecc71">⬇️ -93.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Command</code></td>
+        <td><span class="mono">6102 → 5700</span> <span style="color:#2ecc71">⬇️ -6.6%</span></td>
+        <td><span class="mono">6145 → 612</span> <span style="color:#2ecc71">⬇️ -90.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Sed</code></td>
+        <td><span class="mono">6385 → 6052</span> <span style="color:#2ecc71">⬇️ -5.2%</span></td>
+        <td><span class="mono">6553 → 616</span> <span style="color:#2ecc71">⬇️ -90.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Echo</code></td>
+        <td><span class="mono">7192 → 6944</span> <span style="color:#2ecc71">⬇️ -3.4%</span></td>
+        <td><span class="mono">7359 → 620</span> <span style="color:#2ecc71">⬇️ -91.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Rm</code></td>
+        <td><span class="mono">8183 → 9072</span> <span style="color:#e74c3c">⬆️ +10.9%</span></td>
+        <td><span class="mono">8351 → 616</span> <span style="color:#2ecc71">⬇️ -92.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>strings</code></td>
+        <td><span class="mono">62 → 332</span> <span style="color:#e74c3c">⬆️ +435.5%</span></td>
+        <td><span class="mono">106 → 612</span> <span style="color:#e74c3c">⬆️ +477.4%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">84739 → 41432</span></strong> <span style="color:#2ecc71">⬇️ -51.1%</span></td>
+        <td><strong><span class="mono">85421 → 4300</span></strong> <span style="color:#2ecc71">⬇️ -95.0%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

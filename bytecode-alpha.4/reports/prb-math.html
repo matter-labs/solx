@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>prb-math viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>prb-math viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>PRBMathAssertions</code></td>
+        <td><span class="mono">314 → 684</span> <span style="color:#e74c3c">⬆️ +117.8%</span></td>
+        <td><span class="mono">342 → 652</span> <span style="color:#e74c3c">⬆️ +90.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>PRBMathCastingUint40</code></td>
+        <td><span class="mono">44 → 364</span> <span style="color:#e74c3c">⬆️ +727.3%</span></td>
+        <td><span class="mono">94 → 700</span> <span style="color:#e74c3c">⬆️ +644.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>PRBMathCastingUint128</code></td>
+        <td><span class="mono">44 → 368</span> <span style="color:#e74c3c">⬆️ +736.4%</span></td>
+        <td><span class="mono">94 → 700</span> <span style="color:#e74c3c">⬆️ +644.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>PRBMathCastingUint256</code></td>
+        <td><span class="mono">44 → 368</span> <span style="color:#e74c3c">⬆️ +736.4%</span></td>
+        <td><span class="mono">94 → 700</span> <span style="color:#e74c3c">⬆️ +644.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>PRBMathUtils</code></td>
+        <td><span class="mono">21 → 336</span> <span style="color:#e74c3c">⬆️ +1500.0%</span></td>
+        <td><span class="mono">47 → 640</span> <span style="color:#e74c3c">⬆️ +1261.7%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">467 → 2120</span></strong> <span style="color:#e74c3c">⬆️ +354.0%</span></td>
+        <td><strong><span class="mono">671 → 3392</span></strong> <span style="color:#e74c3c">⬆️ +405.5%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

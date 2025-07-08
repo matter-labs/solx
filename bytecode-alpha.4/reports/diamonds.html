@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>diamonds viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>diamonds viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>DiamondLoupeFacet</code></td>
+        <td><span class="mono">2855 → 2172</span> <span style="color:#2ecc71">⬇️ -23.9%</span></td>
+        <td><span class="mono">2883 → 660</span> <span style="color:#2ecc71">⬇️ -77.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>OwnershipFacet</code></td>
+        <td><span class="mono">828 → 872</span> <span style="color:#e74c3c">⬆️ +5.3%</span></td>
+        <td><span class="mono">856 → 652</span> <span style="color:#2ecc71">⬇️ -23.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DiamondInit</code></td>
+        <td><span class="mono">715 → 824</span> <span style="color:#e74c3c">⬆️ +15.2%</span></td>
+        <td><span class="mono">743 → 648</span> <span style="color:#2ecc71">⬇️ -12.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LibDiamond</code></td>
+        <td><span class="mono">85 → 360</span> <span style="color:#e74c3c">⬆️ +323.5%</span></td>
+        <td><span class="mono">160 → 692</span> <span style="color:#e74c3c">⬆️ +332.5%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">4483 → 4228</span></strong> <span style="color:#2ecc71">⬇️ -5.7%</span></td>
+        <td><strong><span class="mono">4642 → 2652</span></strong> <span style="color:#2ecc71">⬇️ -42.9%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

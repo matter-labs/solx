@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bytecode Size Comparison Summary</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 1100px;
+        margin: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+    .mono {
+        font-family: monospace;
+    }
+    a {
+        color: #3498db;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bytecode Size Comparison Summary (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Project</th>
+        <th>via-ir</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+        <th>Report</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+            <tr>
+                <td><strong>aave-v3</strong></td>
+                <td>false</td>
+                <td><span class="mono">541042 → 1221036</span> <span style="color:#e74c3c">⬆️ +125.7%</span></td>
+                <td><span class="mono">922602 → 252184</span> <span style="color:#2ecc71">⬇️ -72.7%</span></td>
+                <td><a href="reports/aave-v3.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">533329 → 949824</span> <span style="color:#e74c3c">⬆️ +78.1%</span></td>
+                <td><span class="mono">905352 → 269468</span> <span style="color:#2ecc71">⬇️ -70.2%</span></td>
+                <td><a href="reports-via-ir/aave-v3-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>art-gobblers</strong></td>
+                <td>false</td>
+                <td><span class="mono">47566 → 61121</span> <span style="color:#e74c3c">⬆️ +28.5%</span></td>
+                <td><span class="mono">54908 → 70792</span> <span style="color:#e74c3c">⬆️ +28.9%</span></td>
+                <td><a href="reports/art-gobblers.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">46733 → 46363</span> <span style="color:#2ecc71">⬇️ -0.8%</span></td>
+                <td><span class="mono">54857 → 56291</span> <span style="color:#e74c3c">⬆️ +2.6%</span></td>
+                <td><a href="reports-via-ir/art-gobblers-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>balance-snapshot</strong></td>
+                <td>false</td>
+                <td><span class="mono">3400 → 1953</span> <span style="color:#2ecc71">⬇️ -42.6%</span></td>
+                <td><span class="mono">4454 → 2534</span> <span style="color:#2ecc71">⬇️ -43.1%</span></td>
+                <td><a href="reports/balance-snapshot.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">3254 → 3512</span> <span style="color:#e74c3c">⬆️ +7.9%</span></td>
+                <td><span class="mono">3893 → 1648</span> <span style="color:#2ecc71">⬇️ -57.7%</span></td>
+                <td><a href="reports-via-ir/balance-snapshot-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>beefy</strong></td>
+                <td>false</td>
+                <td><span class="mono">360879 → 1090860</span> <span style="color:#e74c3c">⬆️ +202.3%</span></td>
+                <td><span class="mono">376606 → 52152</span> <span style="color:#2ecc71">⬇️ -86.2%</span></td>
+                <td><a href="reports/beefy.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">472376 → 856340</span> <span style="color:#e74c3c">⬆️ +81.3%</span></td>
+                <td><span class="mono">490585 → 58304</span> <span style="color:#2ecc71">⬇️ -88.1%</span></td>
+                <td><a href="reports-via-ir/beefy-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>diamond-foundry</strong></td>
+                <td>false</td>
+                <td><span class="mono">8082 → 7092</span> <span style="color:#2ecc71">⬇️ -12.2%</span></td>
+                <td><span class="mono">8419 → 4684</span> <span style="color:#2ecc71">⬇️ -44.4%</span></td>
+                <td><a href="reports/diamond-foundry.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">14080 → 11264</span> <span style="color:#2ecc71">⬇️ -20.0%</span></td>
+                <td><span class="mono">20479 → 16786</span> <span style="color:#2ecc71">⬇️ -18.0%</span></td>
+                <td><a href="reports-via-ir/diamond-foundry-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>diamonds</strong></td>
+                <td>false</td>
+                <td><span class="mono">4483 → 4228</span> <span style="color:#2ecc71">⬇️ -5.7%</span></td>
+                <td><span class="mono">4642 → 2652</span> <span style="color:#2ecc71">⬇️ -42.9%</span></td>
+                <td><a href="reports/diamonds.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">12569 → 12844</span> <span style="color:#e74c3c">⬆️ +2.2%</span></td>
+                <td><span class="mono">19206 → 8900</span> <span style="color:#2ecc71">⬇️ -53.7%</span></td>
+                <td><a href="reports-via-ir/diamonds-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>forge-std</strong></td>
+                <td>false</td>
+                <td><span class="mono">11694 → 17324</span> <span style="color:#e74c3c">⬆️ +48.1%</span></td>
+                <td><span class="mono">13436 → 12308</span> <span style="color:#2ecc71">⬇️ -8.4%</span></td>
+                <td><a href="reports/forge-std.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">10288 → 18660</span> <span style="color:#e74c3c">⬆️ +81.4%</span></td>
+                <td><span class="mono">12019 → 12032</span> <span style="color:#e74c3c">⬆️ +0.1%</span></td>
+                <td><a href="reports-via-ir/forge-std-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>foundry-upgrades</strong></td>
+                <td>false</td>
+                <td><span class="mono">51388 → 66166</span> <span style="color:#e74c3c">⬆️ +28.8%</span></td>
+                <td><span class="mono">57997 → 72240</span> <span style="color:#e74c3c">⬆️ +24.6%</span></td>
+                <td><a href="reports/foundry-upgrades.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">47761 → 66914</span> <span style="color:#e74c3c">⬆️ +40.1%</span></td>
+                <td><span class="mono">52777 → 73735</span> <span style="color:#e74c3c">⬆️ +39.7%</span></td>
+                <td><a href="reports-via-ir/foundry-upgrades-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>gov-of-venice</strong></td>
+                <td>false</td>
+                <td><span class="mono">62867 → 70812</span> <span style="color:#e74c3c">⬆️ +12.6%</span></td>
+                <td><span class="mono">69537 → 14024</span> <span style="color:#2ecc71">⬇️ -79.8%</span></td>
+                <td><a href="reports/gov-of-venice.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">73443 → 89176</span> <span style="color:#e74c3c">⬆️ +21.4%</span></td>
+                <td><span class="mono">79537 → 15044</span> <span style="color:#2ecc71">⬇️ -81.1%</span></td>
+                <td><a href="reports-via-ir/gov-of-venice-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>lil-web3</strong></td>
+                <td>false</td>
+                <td><span class="mono">40291 → 44840</span> <span style="color:#e74c3c">⬆️ +11.3%</span></td>
+                <td><span class="mono">51275 → 58785</span> <span style="color:#e74c3c">⬆️ +14.6%</span></td>
+                <td><a href="reports/lil-web3.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">35714 → 44327</span> <span style="color:#e74c3c">⬆️ +24.1%</span></td>
+                <td><span class="mono">48029 → 59035</span> <span style="color:#e74c3c">⬆️ +22.9%</span></td>
+                <td><a href="reports-via-ir/lil-web3-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>maple-erc20</strong></td>
+                <td>false</td>
+                <td><span class="mono">7939 → 9891</span> <span style="color:#e74c3c">⬆️ +24.6%</span></td>
+                <td><span class="mono">13316 → 18188</span> <span style="color:#e74c3c">⬆️ +36.6%</span></td>
+                <td><a href="reports/maple-erc20.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">7652 → 9935</span> <span style="color:#e74c3c">⬆️ +29.8%</span></td>
+                <td><span class="mono">13616 → 18695</span> <span style="color:#e74c3c">⬆️ +37.3%</span></td>
+                <td><a href="reports-via-ir/maple-erc20-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>openzeppelin</strong></td>
+                <td>false</td>
+                <td><span class="mono">234337 → 411328</span> <span style="color:#e74c3c">⬆️ +75.5%</span></td>
+                <td><span class="mono">286560 → 178136</span> <span style="color:#2ecc71">⬇️ -37.8%</span></td>
+                <td><a href="reports/openzeppelin.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">238518 → 341953</span> <span style="color:#e74c3c">⬆️ +43.4%</span></td>
+                <td><span class="mono">301913 → 422538</span> <span style="color:#e74c3c">⬆️ +40.0%</span></td>
+                <td><a href="reports-via-ir/openzeppelin-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>playpen</strong></td>
+                <td>false</td>
+                <td><span class="mono">34423 → 37789</span> <span style="color:#e74c3c">⬆️ +9.8%</span></td>
+                <td><span class="mono">36254 → 39790</span> <span style="color:#e74c3c">⬆️ +9.8%</span></td>
+                <td><a href="reports/playpen.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">36085 → 35935</span> <span style="color:#2ecc71">⬇️ -0.4%</span></td>
+                <td><span class="mono">38438 → 37796</span> <span style="color:#2ecc71">⬇️ -1.7%</span></td>
+                <td><a href="reports-via-ir/playpen-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>prb-math</strong></td>
+                <td>false</td>
+                <td><span class="mono">467 → 2120</span> <span style="color:#e74c3c">⬆️ +354.0%</span></td>
+                <td><span class="mono">671 → 3392</span> <span style="color:#e74c3c">⬆️ +405.5%</span></td>
+                <td><a href="reports/prb-math.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">507 → 689</span> <span style="color:#e74c3c">⬆️ +35.9%</span></td>
+                <td><span class="mono">641 → 854</span> <span style="color:#e74c3c">⬆️ +33.2%</span></td>
+                <td><a href="reports-via-ir/prb-math-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>rollcall</strong></td>
+                <td>false</td>
+                <td><span class="mono">73926 → 70884</span> <span style="color:#2ecc71">⬇️ -4.1%</span></td>
+                <td><span class="mono">86148 → 26924</span> <span style="color:#2ecc71">⬇️ -68.7%</span></td>
+                <td><a href="reports/rollcall.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">113658 → 90312</span> <span style="color:#2ecc71">⬇️ -20.5%</span></td>
+                <td><span class="mono">128112 → 100306</span> <span style="color:#2ecc71">⬇️ -21.7%</span></td>
+                <td><a href="reports-via-ir/rollcall-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>solady</strong></td>
+                <td>false</td>
+                <td><span class="mono">151033 → 249644</span> <span style="color:#e74c3c">⬆️ +65.3%</span></td>
+                <td><span class="mono">165847 → 107108</span> <span style="color:#2ecc71">⬇️ -35.4%</span></td>
+                <td><a href="reports/solady.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">140580 → 234072</span> <span style="color:#e74c3c">⬆️ +66.5%</span></td>
+                <td><span class="mono">154447 → 101588</span> <span style="color:#2ecc71">⬇️ -34.2%</span></td>
+                <td><a href="reports-via-ir/solady-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>solmate</strong></td>
+                <td>false</td>
+                <td><span class="mono">63894 → 63181</span> <span style="color:#2ecc71">⬇️ -1.1%</span></td>
+                <td><span class="mono">69916 → 72111</span> <span style="color:#e74c3c">⬆️ +3.1%</span></td>
+                <td><a href="reports/solmate.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">65383 → 61091</span> <span style="color:#2ecc71">⬇️ -6.6%</span></td>
+                <td><span class="mono">72061 → 70344</span> <span style="color:#2ecc71">⬇️ -2.4%</span></td>
+                <td><a href="reports-via-ir/solmate-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>tokenlon</strong></td>
+                <td>false</td>
+                <td><span class="mono">51108 → 57176</span> <span style="color:#e74c3c">⬆️ +11.9%</span></td>
+                <td><span class="mono">58206 → 33572</span> <span style="color:#2ecc71">⬇️ -42.3%</span></td>
+                <td><a href="reports/tokenlon.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">78872 → 102696</span> <span style="color:#e74c3c">⬆️ +30.2%</span></td>
+                <td><span class="mono">88232 → 37552</span> <span style="color:#2ecc71">⬇️ -57.4%</span></td>
+                <td><a href="reports-via-ir/tokenlon-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>uniswap-v4</strong></td>
+                <td>false</td>
+                <td><span class="mono">121275 → 144776</span> <span style="color:#e74c3c">⬆️ +19.4%</span></td>
+                <td><span class="mono">128199 → 53936</span> <span style="color:#2ecc71">⬇️ -57.9%</span></td>
+                <td><a href="reports/uniswap-v4.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">120973 → 146076</span> <span style="color:#e74c3c">⬆️ +20.8%</span></td>
+                <td><span class="mono">126732 → 52412</span> <span style="color:#2ecc71">⬇️ -58.6%</span></td>
+                <td><a href="reports-via-ir/uniswap-v4-via-ir.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td><strong>unix</strong></td>
+                <td>false</td>
+                <td><span class="mono">77274 → 49000</span> <span style="color:#2ecc71">⬇️ -36.6%</span></td>
+                <td><span class="mono">77829 → 4592</span> <span style="color:#2ecc71">⬇️ -94.1%</span></td>
+                <td><a href="reports/unix.html">Full report</a></td>
+            </tr>
+            
+            <tr>
+                <td></td>
+                <td>true</td>
+                <td><span class="mono">84739 → 41432</span> <span style="color:#2ecc71">⬇️ -51.1%</span></td>
+                <td><span class="mono">85421 → 4300</span> <span style="color:#2ecc71">⬇️ -95.0%</span></td>
+                <td><a href="reports-via-ir/unix-via-ir.html">Full report</a></td>
+            </tr>
+            
+      
+    <tr style="background: #fcfcfc; font-weight: bold;">
+        <td colspan="2">Total Summary</td>
+        <td class="mono">4083882 → 6844636 <span style="color:#e74c3c">⬆️ +67.6%</span></td>
+        <td class="mono">5183169 → 2497732 <span style="color:#2ecc71">⬇️ -51.8%</span></td>
+        <td></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>forge-std viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>forge-std viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>StdUtilsMock</code></td>
+        <td><span class="mono">3843 → 4524</span> <span style="color:#e74c3c">⬆️ +17.7%</span></td>
+        <td><span class="mono">3871 → 648</span> <span style="color:#2ecc71">⬇️ -83.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ErrorsTest</code></td>
+        <td><span class="mono">1078 → 1156</span> <span style="color:#e74c3c">⬆️ +7.2%</span></td>
+        <td><span class="mono">1106 → 644</span> <span style="color:#2ecc71">⬇️ -41.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StdCheatsMock</code></td>
+        <td><span class="mono">1869 → 2612</span> <span style="color:#e74c3c">⬆️ +39.8%</span></td>
+        <td><span class="mono">1897 → 648</span> <span style="color:#2ecc71">⬇️ -65.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StorageTest</code></td>
+        <td><span class="mono">2191 → 2960</span> <span style="color:#e74c3c">⬆️ +35.1%</span></td>
+        <td><span class="mono">2534 → 1276</span> <span style="color:#2ecc71">⬇️ -49.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bar</code></td>
+        <td><span class="mono">628 → 888</span> <span style="color:#e74c3c">⬆️ +41.4%</span></td>
+        <td><span class="mono">678 → 688</span> <span style="color:#e74c3c">⬆️ +1.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockUSDC</code></td>
+        <td><span class="mono">347 → 588</span> <span style="color:#e74c3c">⬆️ +69.5%</span></td>
+        <td><span class="mono">375 → 644</span> <span style="color:#e74c3c">⬆️ +71.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockUSDT</code></td>
+        <td><span class="mono">347 → 588</span> <span style="color:#e74c3c">⬆️ +69.5%</span></td>
+        <td><span class="mono">375 → 644</span> <span style="color:#e74c3c">⬆️ +71.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BarERC721</code></td>
+        <td><span class="mono">287 → 536</span> <span style="color:#e74c3c">⬆️ +86.8%</span></td>
+        <td><span class="mono">499 → 952</span> <span style="color:#e74c3c">⬆️ +90.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BarERC1155</code></td>
+        <td><span class="mono">271 → 496</span> <span style="color:#e74c3c">⬆️ +83.0%</span></td>
+        <td><span class="mono">383 → 752</span> <span style="color:#e74c3c">⬆️ +96.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestMockCall</code></td>
+        <td><span class="mono">273 → 612</span> <span style="color:#e74c3c">⬆️ +124.2%</span></td>
+        <td><span class="mono">918 → 1532</span> <span style="color:#e74c3c">⬆️ +66.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockContractWithConstructorArgs</code></td>
+        <td><span class="mono">244 → 584</span> <span style="color:#e74c3c">⬆️ +139.3%</span></td>
+        <td><span class="mono">433 → 908</span> <span style="color:#e74c3c">⬆️ +109.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockContractPayable</code></td>
+        <td><span class="mono">68 → 380</span> <span style="color:#e74c3c">⬆️ +458.8%</span></td>
+        <td><span class="mono">94 → 656</span> <span style="color:#e74c3c">⬆️ +597.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Dummy</code></td>
+        <td><span class="mono">62 → 336</span> <span style="color:#e74c3c">⬆️ +441.9%</span></td>
+        <td><span class="mono">88 → 644</span> <span style="color:#e74c3c">⬆️ +631.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CompilationTestBase</code></td>
+        <td><span class="mono">62 → 356</span> <span style="color:#e74c3c">⬆️ +474.2%</span></td>
+        <td><span class="mono">88 → 664</span> <span style="color:#e74c3c">⬆️ +654.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CompilationScriptBase</code></td>
+        <td><span class="mono">62 → 360</span> <span style="color:#e74c3c">⬆️ +480.6%</span></td>
+        <td><span class="mono">88 → 668</span> <span style="color:#e74c3c">⬆️ +659.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>RevertingContract</code></td>
+        <td><span class="mono">62 → 348</span> <span style="color:#e74c3c">⬆️ +461.3%</span></td>
+        <td><span class="mono">9 → 340</span> <span style="color:#e74c3c">⬆️ +3677.8%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">11694 → 17324</span></strong> <span style="color:#e74c3c">⬆️ +48.1%</span></td>
+        <td><strong><span class="mono">13436 → 12308</span></strong> <span style="color:#2ecc71">⬇️ -8.4%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

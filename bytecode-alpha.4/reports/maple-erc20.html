@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>maple-erc20 viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>maple-erc20 viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>ERC20User</code></td>
+        <td><span class="mono">1064 → 957</span> <span style="color:#2ecc71">⬇️ -10.1%</span></td>
+        <td><span class="mono">1092 → 994</span> <span style="color:#2ecc71">⬇️ -9.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BalanceSum</code></td>
+        <td><span class="mono">1115 → 1326</span> <span style="color:#e74c3c">⬆️ +18.9%</span></td>
+        <td><span class="mono">5040 → 6855</span> <span style="color:#e74c3c">⬆️ +36.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC20</code></td>
+        <td><span class="mono">3032 → 3932</span> <span style="color:#e74c3c">⬆️ +29.7%</span></td>
+        <td><span class="mono">3747 → 5298</span> <span style="color:#e74c3c">⬆️ +41.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20</code></td>
+        <td><span class="mono">2728 → 3676</span> <span style="color:#e74c3c">⬆️ +34.8%</span></td>
+        <td><span class="mono">3437 → 5041</span> <span style="color:#e74c3c">⬆️ +46.7%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">7939 → 9891</span></strong> <span style="color:#e74c3c">⬆️ +24.6%</span></td>
+        <td><strong><span class="mono">13316 → 18188</span></strong> <span style="color:#e74c3c">⬆️ +36.6%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

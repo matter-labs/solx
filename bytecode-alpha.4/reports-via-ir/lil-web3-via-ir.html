@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>lil-web3 viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>lil-web3 viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>LilOpenSea</code></td>
+        <td><span class="mono">1784 → 1851</span> <span style="color:#e74c3c">⬆️ +3.8%</span></td>
+        <td><span class="mono">1814 → 1888</span> <span style="color:#e74c3c">⬆️ +4.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestToken (src/test/LilFlashloan.t.sol)</code></td>
+        <td><span class="mono">2686 → 3260</span> <span style="color:#e74c3c">⬆️ +21.4%</span></td>
+        <td><span class="mono">3800 → 4213</span> <span style="color:#e74c3c">⬆️ +10.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestToken (src/test/LilSuperfluid.t.sol)</code></td>
+        <td><span class="mono">2686 → 3260</span> <span style="color:#e74c3c">⬆️ +21.4%</span></td>
+        <td><span class="mono">3799 → 4213</span> <span style="color:#e74c3c">⬆️ +10.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LilJuicebox</code></td>
+        <td><span class="mono">1646 → 1839</span> <span style="color:#e74c3c">⬆️ +11.7%</span></td>
+        <td><span class="mono">6355 → 8123</span> <span style="color:#e74c3c">⬆️ +27.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestNFT (src/test/LilFractional.t.sol)</code></td>
+        <td><span class="mono">3401 → 4299</span> <span style="color:#e74c3c">⬆️ +26.4%</span></td>
+        <td><span class="mono">4192 → 4776</span> <span style="color:#e74c3c">⬆️ +13.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestNFT (src/test/LilOpenSea.t.sol)</code></td>
+        <td><span class="mono">3396 → 4294</span> <span style="color:#e74c3c">⬆️ +26.4%</span></td>
+        <td><span class="mono">4187 → 4771</span> <span style="color:#e74c3c">⬆️ +13.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LilGnosis</code></td>
+        <td><span class="mono">2518 → 3022</span> <span style="color:#e74c3c">⬆️ +20.0%</span></td>
+        <td><span class="mono">3091 → 3906</span> <span style="color:#e74c3c">⬆️ +26.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LilSuperfluid</code></td>
+        <td><span class="mono">3180 → 4009</span> <span style="color:#e74c3c">⬆️ +26.1%</span></td>
+        <td><span class="mono">3473 → 4331</span> <span style="color:#e74c3c">⬆️ +24.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ProjectShare</code></td>
+        <td><span class="mono">3022 → 3641</span> <span style="color:#e74c3c">⬆️ +20.5%</span></td>
+        <td><span class="mono">4270 → 5574</span> <span style="color:#e74c3c">⬆️ +30.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>NFTShare</code></td>
+        <td><span class="mono">2761 → 3367</span> <span style="color:#e74c3c">⬆️ +21.9%</span></td>
+        <td><span class="mono">4118 → 5376</span> <span style="color:#e74c3c">⬆️ +30.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LilFlashloan</code></td>
+        <td><span class="mono">1679 → 2137</span> <span style="color:#e74c3c">⬆️ +27.3%</span></td>
+        <td><span class="mono">1723 → 2182</span> <span style="color:#e74c3c">⬆️ +26.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LilFractional</code></td>
+        <td><span class="mono">5741 → 7464</span> <span style="color:#e74c3c">⬆️ +30.0%</span></td>
+        <td><span class="mono">5771 → 7501</span> <span style="color:#e74c3c">⬆️ +30.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LilENS</code></td>
+        <td><span class="mono">751 → 1099</span> <span style="color:#e74c3c">⬆️ +46.3%</span></td>
+        <td><span class="mono">777 → 1132</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeTransferLib</code></td>
+        <td><span class="mono">57 → 97</span> <span style="color:#e74c3c">⬆️ +70.2%</span></td>
+        <td><span class="mono">85 → 130</span> <span style="color:#e74c3c">⬆️ +52.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>User (src/test/LilOpenSea.t.sol)</code></td>
+        <td><span class="mono">64 → 106</span> <span style="color:#e74c3c">⬆️ +65.6%</span></td>
+        <td><span class="mono">88 → 139</span> <span style="color:#e74c3c">⬆️ +58.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>User (src/test/LilENS.t.sol)</code></td>
+        <td><span class="mono">57 → 97</span> <span style="color:#e74c3c">⬆️ +70.2%</span></td>
+        <td><span class="mono">81 → 130</span> <span style="color:#e74c3c">⬆️ +60.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>User (src/test/LilFlashloan.t.sol)</code></td>
+        <td><span class="mono">57 → 97</span> <span style="color:#e74c3c">⬆️ +70.2%</span></td>
+        <td><span class="mono">81 → 130</span> <span style="color:#e74c3c">⬆️ +60.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>User (src/test/LilFractional.t.sol)</code></td>
+        <td><span class="mono">57 → 97</span> <span style="color:#e74c3c">⬆️ +70.2%</span></td>
+        <td><span class="mono">81 → 130</span> <span style="color:#e74c3c">⬆️ +60.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>User (src/test/LilGnosis.t.sol)</code></td>
+        <td><span class="mono">57 → 97</span> <span style="color:#e74c3c">⬆️ +70.2%</span></td>
+        <td><span class="mono">81 → 130</span> <span style="color:#e74c3c">⬆️ +60.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>User (src/test/LilJuicebox.t.sol)</code></td>
+        <td><span class="mono">57 → 97</span> <span style="color:#e74c3c">⬆️ +70.2%</span></td>
+        <td><span class="mono">81 → 130</span> <span style="color:#e74c3c">⬆️ +60.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>User (src/test/LilSuperfluid.t.sol)</code></td>
+        <td><span class="mono">57 → 97</span> <span style="color:#e74c3c">⬆️ +70.2%</span></td>
+        <td><span class="mono">81 → 130</span> <span style="color:#e74c3c">⬆️ +60.5%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">35714 → 44327</span></strong> <span style="color:#e74c3c">⬆️ +24.1%</span></td>
+        <td><strong><span class="mono">48029 → 59035</span></strong> <span style="color:#e74c3c">⬆️ +22.9%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

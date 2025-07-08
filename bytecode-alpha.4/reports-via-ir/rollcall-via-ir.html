@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>rollcall viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>rollcall viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>OVM_FakeL1BlockNumber</code></td>
+        <td><span class="mono">535 → 185</span> <span style="color:#2ecc71">⬇️ -65.4%</span></td>
+        <td><span class="mono">578 → 218</span> <span style="color:#2ecc71">⬇️ -62.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>OVM_FakeCrossDomainMessenger (src/test/OVM_FakeCrossDomainMessenger.sol)</code></td>
+        <td><span class="mono">1252 → 709</span> <span style="color:#2ecc71">⬇️ -43.4%</span></td>
+        <td><span class="mono">1295 → 742</span> <span style="color:#2ecc71">⬇️ -42.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>OptimismVm</code></td>
+        <td><span class="mono">1044 → 609</span> <span style="color:#2ecc71">⬇️ -41.7%</span></td>
+        <td><span class="mono">1087 → 642</span> <span style="color:#2ecc71">⬇️ -40.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>OVM_FakeCrossDomainMessenger (lib/forge-optimism/src/OVM_FakeCrossDomainMessenger.sol)</code></td>
+        <td><span class="mono">2854 → 1842</span> <span style="color:#2ecc71">⬇️ -35.5%</span></td>
+        <td><span class="mono">2897 → 1875</span> <span style="color:#2ecc71">⬇️ -35.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721Holder</code></td>
+        <td><span class="mono">731 → 515</span> <span style="color:#2ecc71">⬇️ -29.5%</span></td>
+        <td><span class="mono">774 → 548</span> <span style="color:#2ecc71">⬇️ -29.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bridge</code></td>
+        <td><span class="mono">4613 → 3388</span> <span style="color:#2ecc71">⬇️ -26.6%</span></td>
+        <td><span class="mono">5245 → 3727</span> <span style="color:#2ecc71">⬇️ -28.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SimpleL1Governor</code></td>
+        <td><span class="mono">10988 → 8428</span> <span style="color:#2ecc71">⬇️ -23.3%</span></td>
+        <td><span class="mono">14112 → 10596</span> <span style="color:#2ecc71">⬇️ -24.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>L2Voter</code></td>
+        <td><span class="mono">20486 → 15742</span> <span style="color:#2ecc71">⬇️ -23.2%</span></td>
+        <td><span class="mono">21679 → 16477</span> <span style="color:#2ecc71">⬇️ -24.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>L1VotingERC20</code></td>
+        <td><span class="mono">15618 → 11985</span> <span style="color:#2ecc71">⬇️ -23.3%</span></td>
+        <td><span class="mono">17604 → 13404</span> <span style="color:#2ecc71">⬇️ -23.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>L2VoterTester</code></td>
+        <td><span class="mono">20758 → 16004</span> <span style="color:#2ecc71">⬇️ -22.9%</span></td>
+        <td><span class="mono">21962 → 16739</span> <span style="color:#2ecc71">⬇️ -23.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Executor</code></td>
+        <td><span class="mono">1422 → 1155</span> <span style="color:#2ecc71">⬇️ -18.8%</span></td>
+        <td><span class="mono">1821 → 1433</span> <span style="color:#2ecc71">⬇️ -21.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>L2VotingERC20</code></td>
+        <td><span class="mono">14502 → 12125</span> <span style="color:#2ecc71">⬇️ -16.4%</span></td>
+        <td><span class="mono">16407 → 13593</span> <span style="color:#2ecc71">⬇️ -17.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GovernanceERC20 (src/test/RollCallL1Governor.t.sol)</code></td>
+        <td><span class="mono">4665 → 4176</span> <span style="color:#2ecc71">⬇️ -10.5%</span></td>
+        <td><span class="mono">5666 → 4812</span> <span style="color:#2ecc71">⬇️ -15.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GovernanceERC20 (src/test/RollCallVoter.t.sol)</code></td>
+        <td><span class="mono">4665 → 4176</span> <span style="color:#2ecc71">⬇️ -10.5%</span></td>
+        <td><span class="mono">5666 → 4812</span> <span style="color:#2ecc71">⬇️ -15.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20</code></td>
+        <td><span class="mono">4255 → 3860</span> <span style="color:#2ecc71">⬇️ -9.3%</span></td>
+        <td><span class="mono">5304 → 4742</span> <span style="color:#2ecc71">⬇️ -10.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Treasury</code></td>
+        <td><span class="mono">3082 → 2857</span> <span style="color:#2ecc71">⬇️ -7.3%</span></td>
+        <td><span class="mono">3256 → 2961</span> <span style="color:#2ecc71">⬇️ -9.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1155Holder</code></td>
+        <td><span class="mono">1444 → 1332</span> <span style="color:#2ecc71">⬇️ -7.8%</span></td>
+        <td><span class="mono">1487 → 1365</span> <span style="color:#2ecc71">⬇️ -8.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Address</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Counters</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ECDSA</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Lib_PredeployAddresses (lib/forge-optimism/src/lib/Lib_PredeployAddresses.sol)</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Lib_PredeployAddresses (src/lib/Lib_PredeployAddresses.sol)</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Math</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MerklePatriciaProofVerifier</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>RLPReader</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeCast</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StateProofVerifier</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Strings</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Timers</code></td>
+        <td><span class="mono">62 → 102</span> <span style="color:#e74c3c">⬆️ +64.5%</span></td>
+        <td><span class="mono">106 → 135</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">113658 → 90312</span></strong> <span style="color:#2ecc71">⬇️ -20.5%</span></td>
+        <td><strong><span class="mono">128112 → 100306</span></strong> <span style="color:#2ecc71">⬇️ -21.7%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>beefy viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>beefy viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>StrategyFactory</code></td>
+        <td><span class="mono">6754 → 7344</span> <span style="color:#e74c3c">⬆️ +8.7%</span></td>
+        <td><span class="mono">7098 → 1300</span> <span style="color:#2ecc71">⬇️ -81.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyOracleUniswapV3</code></td>
+        <td><span class="mono">4683 → 6240</span> <span style="color:#e74c3c">⬆️ +33.2%</span></td>
+        <td><span class="mono">4709 → 640</span> <span style="color:#2ecc71">⬇️ -86.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>WrapperUser</code></td>
+        <td><span class="mono">2316 → 3028</span> <span style="color:#e74c3c">⬆️ +30.7%</span></td>
+        <td><span class="mono">2342 → 620</span> <span style="color:#2ecc71">⬇️ -73.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StratFeeManagerInitializable</code></td>
+        <td><span class="mono">3222 → 4612</span> <span style="color:#e74c3c">⬆️ +43.1%</span></td>
+        <td><span class="mono">3248 → 656</span> <span style="color:#2ecc71">⬇️ -79.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyApeStaking</code></td>
+        <td><span class="mono">10783 → 17040</span> <span style="color:#e74c3c">⬆️ +58.0%</span></td>
+        <td><span class="mono">10809 → 636</span> <span style="color:#2ecc71">⬇️ -94.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyOracle</code></td>
+        <td><span class="mono">3429 → 5092</span> <span style="color:#e74c3c">⬆️ +48.5%</span></td>
+        <td><span class="mono">3455 → 620</span> <span style="color:#2ecc71">⬇️ -82.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyAuraGyroMainnet</code></td>
+        <td><span class="mono">29466 → 48704</span> <span style="color:#e74c3c">⬆️ +65.3%</span></td>
+        <td><span class="mono">29492 → 644</span> <span style="color:#2ecc71">⬇️ -97.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyFxConvex</code></td>
+        <td><span class="mono">14790 → 24176</span> <span style="color:#e74c3c">⬆️ +63.5%</span></td>
+        <td><span class="mono">14816 → 632</span> <span style="color:#2ecc71">⬇️ -95.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyConic</code></td>
+        <td><span class="mono">13534 → 22404</span> <span style="color:#e74c3c">⬆️ +65.5%</span></td>
+        <td><span class="mono">13560 → 624</span> <span style="color:#2ecc71">⬇️ -95.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyOracleUniswapV2</code></td>
+        <td><span class="mono">3367 → 5100</span> <span style="color:#e74c3c">⬆️ +51.5%</span></td>
+        <td><span class="mono">3393 → 640</span> <span style="color:#2ecc71">⬇️ -81.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20Upgradeable</code></td>
+        <td><span class="mono">2150 → 3084</span> <span style="color:#e74c3c">⬆️ +43.4%</span></td>
+        <td><span class="mono">2176 → 632</span> <span style="color:#2ecc71">⬇️ -71.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyVaultV7</code></td>
+        <td><span class="mono">8243 → 13660</span> <span style="color:#e74c3c">⬆️ +65.7%</span></td>
+        <td><span class="mono">8269 → 624</span> <span style="color:#2ecc71">⬇️ -92.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>VaultUser</code></td>
+        <td><span class="mono">1385 → 1796</span> <span style="color:#e74c3c">⬆️ +29.7%</span></td>
+        <td><span class="mono">1411 → 616</span> <span style="color:#2ecc71">⬇️ -56.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyVelodromeGaugeV2</code></td>
+        <td><span class="mono">22371 → 38172</span> <span style="color:#e74c3c">⬆️ +70.6%</span></td>
+        <td><span class="mono">22397 → 648</span> <span style="color:#2ecc71">⬇️ -97.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyCurveConvex</code></td>
+        <td><span class="mono">15379 → 26304</span> <span style="color:#e74c3c">⬆️ +71.0%</span></td>
+        <td><span class="mono">15405 → 636</span> <span style="color:#2ecc71">⬇️ -95.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyCurveConvexL2</code></td>
+        <td><span class="mono">15228 → 26136</span> <span style="color:#e74c3c">⬆️ +71.6%</span></td>
+        <td><span class="mono">15254 → 640</span> <span style="color:#2ecc71">⬇️ -95.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyMendiLeverage</code></td>
+        <td><span class="mono">16202 → 27880</span> <span style="color:#e74c3c">⬆️ +72.1%</span></td>
+        <td><span class="mono">16228 → 640</span> <span style="color:#2ecc71">⬇️ -96.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyPenpie</code></td>
+        <td><span class="mono">14646 → 25988</span> <span style="color:#e74c3c">⬆️ +77.4%</span></td>
+        <td><span class="mono">14672 → 628</span> <span style="color:#2ecc71">⬇️ -95.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyWrapper</code></td>
+        <td><span class="mono">7875 → 13712</span> <span style="color:#e74c3c">⬆️ +74.1%</span></td>
+        <td><span class="mono">7901 → 624</span> <span style="color:#2ecc71">⬇️ -92.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyLLCurveLP</code></td>
+        <td><span class="mono">20520 → 33512</span> <span style="color:#e74c3c">⬆️ +63.3%</span></td>
+        <td><span class="mono">23214 → 4956</span> <span style="color:#2ecc71">⬇️ -78.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StratFeeManager</code></td>
+        <td><span class="mono">3216 → 4636</span> <span style="color:#e74c3c">⬆️ +44.2%</span></td>
+        <td><span class="mono">3672 → 1492</span> <span style="color:#2ecc71">⬇️ -59.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>HardhatNetworkManager</code></td>
+        <td><span class="mono">4088 → 6952</span> <span style="color:#e74c3c">⬆️ +70.1%</span></td>
+        <td><span class="mono">4114 → 640</span> <span style="color:#2ecc71">⬇️ -84.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyConvex</code></td>
+        <td><span class="mono">22657 → 41496</span> <span style="color:#e74c3c">⬆️ +83.1%</span></td>
+        <td><span class="mono">22683 → 628</span> <span style="color:#2ecc71">⬇️ -97.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyEquilibria</code></td>
+        <td><span class="mono">16186 → 30124</span> <span style="color:#e74c3c">⬆️ +86.1%</span></td>
+        <td><span class="mono">16212 → 636</span> <span style="color:#2ecc71">⬇️ -96.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyVelodromeUsdPlus</code></td>
+        <td><span class="mono">20703 → 38824</span> <span style="color:#e74c3c">⬆️ +87.5%</span></td>
+        <td><span class="mono">20729 → 648</span> <span style="color:#2ecc71">⬇️ -96.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyMorpho</code></td>
+        <td><span class="mono">12828 → 23852</span> <span style="color:#e74c3c">⬆️ +85.9%</span></td>
+        <td><span class="mono">12854 → 628</span> <span style="color:#2ecc71">⬇️ -95.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyStakeDao</code></td>
+        <td><span class="mono">12685 → 23872</span> <span style="color:#e74c3c">⬆️ +88.2%</span></td>
+        <td><span class="mono">12711 → 632</span> <span style="color:#2ecc71">⬇️ -95.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyConvexStaking</code></td>
+        <td><span class="mono">18148 → 34556</span> <span style="color:#e74c3c">⬆️ +90.4%</span></td>
+        <td><span class="mono">18174 → 640</span> <span style="color:#2ecc71">⬇️ -96.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ConicZap</code></td>
+        <td><span class="mono">5369 → 9808</span> <span style="color:#e74c3c">⬆️ +82.7%</span></td>
+        <td><span class="mono">5395 → 616</span> <span style="color:#2ecc71">⬇️ -88.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyConvexCRV</code></td>
+        <td><span class="mono">18275 → 35100</span> <span style="color:#e74c3c">⬆️ +92.1%</span></td>
+        <td><span class="mono">18301 → 632</span> <span style="color:#2ecc71">⬇️ -96.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AddressBook</code></td>
+        <td><span class="mono">1734 → 2788</span> <span style="color:#e74c3c">⬆️ +60.8%</span></td>
+        <td><span class="mono">1760 → 620</span> <span style="color:#2ecc71">⬇️ -64.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyOracleSolidly</code></td>
+        <td><span class="mono">2088 → 3544</span> <span style="color:#e74c3c">⬆️ +69.7%</span></td>
+        <td><span class="mono">2114 → 636</span> <span style="color:#2ecc71">⬇️ -69.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyCurveConvexFactory</code></td>
+        <td><span class="mono">15874 → 31516</span> <span style="color:#e74c3c">⬆️ +98.5%</span></td>
+        <td><span class="mono">15900 → 652</span> <span style="color:#2ecc71">⬇️ -95.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyWrapperFactory</code></td>
+        <td><span class="mono">1004 → 1928</span> <span style="color:#e74c3c">⬆️ +92.0%</span></td>
+        <td><span class="mono">9031 → 988</span> <span style="color:#2ecc71">⬇️ -89.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyThenaGamma</code></td>
+        <td><span class="mono">19568 → 39412</span> <span style="color:#e74c3c">⬆️ +101.4%</span></td>
+        <td><span class="mono">19633 → 696</span> <span style="color:#2ecc71">⬇️ -96.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyCurveConvexFraxtalFactory</code></td>
+        <td><span class="mono">15832 → 31848</span> <span style="color:#e74c3c">⬆️ +101.2%</span></td>
+        <td><span class="mono">15858 → 664</span> <span style="color:#2ecc71">⬇️ -95.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyCurveConvexL2Factory</code></td>
+        <td><span class="mono">15690 → 31716</span> <span style="color:#e74c3c">⬆️ +102.1%</span></td>
+        <td><span class="mono">15716 → 656</span> <span style="color:#2ecc71">⬇️ -95.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TimelockController</code></td>
+        <td><span class="mono">6460 → 11068</span> <span style="color:#e74c3c">⬆️ +71.3%</span></td>
+        <td><span class="mono">8267 → 3292</span> <span style="color:#2ecc71">⬇️ -60.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20</code></td>
+        <td><span class="mono">2165 → 3124</span> <span style="color:#e74c3c">⬆️ +44.3%</span></td>
+        <td><span class="mono">3072 → 2152</span> <span style="color:#2ecc71">⬇️ -29.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Utils</code></td>
+        <td><span class="mono">1191 → 1984</span> <span style="color:#e74c3c">⬆️ +66.6%</span></td>
+        <td><span class="mono">1221 → 608</span> <span style="color:#2ecc71">⬇️ -50.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BIFI</code></td>
+        <td><span class="mono">2165 → 3120</span> <span style="color:#e74c3c">⬆️ +44.1%</span></td>
+        <td><span class="mono">3220 → 2340</span> <span style="color:#2ecc71">⬇️ -27.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyPearlTrident</code></td>
+        <td><span class="mono">17113 → 37952</span> <span style="color:#e74c3c">⬆️ +121.8%</span></td>
+        <td><span class="mono">17139 → 640</span> <span style="color:#2ecc71">⬇️ -96.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyOracleChainlink</code></td>
+        <td><span class="mono">860 → 1324</span> <span style="color:#e74c3c">⬆️ +54.0%</span></td>
+        <td><span class="mono">890 → 640</span> <span style="color:#2ecc71">⬇️ -28.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StrategyPrisma</code></td>
+        <td><span class="mono">17756 → 41628</span> <span style="color:#e74c3c">⬆️ +134.4%</span></td>
+        <td><span class="mono">17782 → 628</span> <span style="color:#2ecc71">⬇️ -96.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UpgradeableBeacon</code></td>
+        <td><span class="mono">605 → 1264</span> <span style="color:#e74c3c">⬆️ +108.9%</span></td>
+        <td><span class="mono">958 → 1192</span> <span style="color:#e74c3c">⬆️ +24.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeaconProxy</code></td>
+        <td><span class="mono">291 → 636</span> <span style="color:#e74c3c">⬆️ +118.6%</span></td>
+        <td><span class="mono">1146 → 2000</span> <span style="color:#e74c3c">⬆️ +74.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GasFeeThrottler</code></td>
+        <td><span class="mono">171 → 456</span> <span style="color:#e74c3c">⬆️ +166.7%</span></td>
+        <td><span class="mono">233 → 688</span> <span style="color:#e74c3c">⬆️ +195.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Path (contracts/BIFI/utils/Path.sol)</code></td>
+        <td><span class="mono">57 → 324</span> <span style="color:#e74c3c">⬆️ +468.4%</span></td>
+        <td><span class="mono">85 → 608</span> <span style="color:#e74c3c">⬆️ +615.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Address (node_modules/@openzeppelin-4/contracts/utils/Address.sol)</code></td>
+        <td><span class="mono">57 → 328</span> <span style="color:#e74c3c">⬆️ +475.4%</span></td>
+        <td><span class="mono">85 → 612</span> <span style="color:#e74c3c">⬆️ +620.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Address (node_modules/@openzeppelin-5/contracts/utils/Address.sol)</code></td>
+        <td><span class="mono">57 → 328</span> <span style="color:#e74c3c">⬆️ +475.4%</span></td>
+        <td><span class="mono">85 → 612</span> <span style="color:#e74c3c">⬆️ +620.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Strings</code></td>
+        <td><span class="mono">57 → 328</span> <span style="color:#e74c3c">⬆️ +475.4%</span></td>
+        <td><span class="mono">85 → 612</span> <span style="color:#e74c3c">⬆️ +620.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Path (contracts/BIFI/utils/AlgebraPath.sol)</code></td>
+        <td><span class="mono">57 → 328</span> <span style="color:#e74c3c">⬆️ +475.4%</span></td>
+        <td><span class="mono">85 → 616</span> <span style="color:#e74c3c">⬆️ +624.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BytesLib</code></td>
+        <td><span class="mono">57 → 332</span> <span style="color:#e74c3c">⬆️ +482.5%</span></td>
+        <td><span class="mono">85 → 616</span> <span style="color:#e74c3c">⬆️ +624.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeERC20 (node_modules/@openzeppelin-4/contracts/token/ERC20/utils/SafeERC20.sol)</code></td>
+        <td><span class="mono">57 → 332</span> <span style="color:#e74c3c">⬆️ +482.5%</span></td>
+        <td><span class="mono">85 → 616</span> <span style="color:#e74c3c">⬆️ +624.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeERC20 (node_modules/@openzeppelin-5/contracts/token/ERC20/utils/SafeERC20.sol)</code></td>
+        <td><span class="mono">57 → 332</span> <span style="color:#e74c3c">⬆️ +482.5%</span></td>
+        <td><span class="mono">85 → 616</span> <span style="color:#e74c3c">⬆️ +624.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TickMath</code></td>
+        <td><span class="mono">57 → 332</span> <span style="color:#e74c3c">⬆️ +482.5%</span></td>
+        <td><span class="mono">85 → 616</span> <span style="color:#e74c3c">⬆️ +624.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StorageSlot</code></td>
+        <td><span class="mono">57 → 336</span> <span style="color:#e74c3c">⬆️ +489.5%</span></td>
+        <td><span class="mono">85 → 620</span> <span style="color:#e74c3c">⬆️ +629.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AlgebraUtils</code></td>
+        <td><span class="mono">57 → 340</span> <span style="color:#e74c3c">⬆️ +496.5%</span></td>
+        <td><span class="mono">85 → 624</span> <span style="color:#e74c3c">⬆️ +634.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1967Utils</code></td>
+        <td><span class="mono">57 → 340</span> <span style="color:#e74c3c">⬆️ +496.5%</span></td>
+        <td><span class="mono">85 → 624</span> <span style="color:#e74c3c">⬆️ +634.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UniV3Actions</code></td>
+        <td><span class="mono">57 → 340</span> <span style="color:#e74c3c">⬆️ +496.5%</span></td>
+        <td><span class="mono">85 → 624</span> <span style="color:#e74c3c">⬆️ +634.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MathUpgradeable</code></td>
+        <td><span class="mono">57 → 344</span> <span style="color:#e74c3c">⬆️ +503.5%</span></td>
+        <td><span class="mono">85 → 628</span> <span style="color:#e74c3c">⬆️ +638.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UniswapV3Utils</code></td>
+        <td><span class="mono">57 → 344</span> <span style="color:#e74c3c">⬆️ +503.5%</span></td>
+        <td><span class="mono">85 → 628</span> <span style="color:#e74c3c">⬆️ +638.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyOracleHelper</code></td>
+        <td><span class="mono">57 → 348</span> <span style="color:#e74c3c">⬆️ +510.5%</span></td>
+        <td><span class="mono">85 → 632</span> <span style="color:#e74c3c">⬆️ +643.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ClonesUpgradeable</code></td>
+        <td><span class="mono">57 → 348</span> <span style="color:#e74c3c">⬆️ +510.5%</span></td>
+        <td><span class="mono">85 → 632</span> <span style="color:#e74c3c">⬆️ +643.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AddressUpgradeable</code></td>
+        <td><span class="mono">57 → 352</span> <span style="color:#e74c3c">⬆️ +517.5%</span></td>
+        <td><span class="mono">85 → 636</span> <span style="color:#e74c3c">⬆️ +648.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BalancerActionsLib</code></td>
+        <td><span class="mono">57 → 352</span> <span style="color:#e74c3c">⬆️ +517.5%</span></td>
+        <td><span class="mono">85 → 636</span> <span style="color:#e74c3c">⬆️ +648.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyBalancerStructs</code></td>
+        <td><span class="mono">57 → 356</span> <span style="color:#e74c3c">⬆️ +524.6%</span></td>
+        <td><span class="mono">85 → 640</span> <span style="color:#e74c3c">⬆️ +652.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeERC20Upgradeable</code></td>
+        <td><span class="mono">57 → 356</span> <span style="color:#e74c3c">⬆️ +524.6%</span></td>
+        <td><span class="mono">85 → 640</span> <span style="color:#e74c3c">⬆️ +652.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UniswapV3OracleLibrary</code></td>
+        <td><span class="mono">57 → 360</span> <span style="color:#e74c3c">⬆️ +531.6%</span></td>
+        <td><span class="mono">85 → 644</span> <span style="color:#e74c3c">⬆️ +657.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BeefyOracleErrors</code></td>
+        <td><span class="mono">57 → 348</span> <span style="color:#e74c3c">⬆️ +510.5%</span></td>
+        <td><span class="mono">81 → 632</span> <span style="color:#e74c3c">⬆️ +680.2%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">472376 → 856340</span></strong> <span style="color:#e74c3c">⬆️ +81.3%</span></td>
+        <td><strong><span class="mono">490585 → 58304</span></strong> <span style="color:#2ecc71">⬇️ -88.1%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

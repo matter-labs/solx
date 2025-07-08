@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>art-gobblers viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>art-gobblers viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>VRFCoordinatorMock</code></td>
+        <td><span class="mono">988 → 854</span> <span style="color:#2ecc71">⬇️ -13.6%</span></td>
+        <td><span class="mono">1124 → 1060</span> <span style="color:#2ecc71">⬇️ -5.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ChainlinkV1RandProvider</code></td>
+        <td><span class="mono">1502 → 1335</span> <span style="color:#2ecc71">⬇️ -11.1%</span></td>
+        <td><span class="mono">1769 → 1660</span> <span style="color:#2ecc71">⬇️ -6.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LinkToken</code></td>
+        <td><span class="mono">3853 → 3670</span> <span style="color:#2ecc71">⬇️ -4.7%</span></td>
+        <td><span class="mono">5109 → 4803</span> <span style="color:#2ecc71">⬇️ -6.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Goo</code></td>
+        <td><span class="mono">4274 → 3827</span> <span style="color:#2ecc71">⬇️ -10.5%</span></td>
+        <td><span class="mono">5511 → 5686</span> <span style="color:#e74c3c">⬆️ +3.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Pages</code></td>
+        <td><span class="mono">8927 → 8409</span> <span style="color:#2ecc71">⬇️ -5.8%</span></td>
+        <td><span class="mono">10980 → 10818</span> <span style="color:#2ecc71">⬇️ -1.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>GobblerReserve</code></td>
+        <td><span class="mono">996 → 972</span> <span style="color:#2ecc71">⬇️ -2.4%</span></td>
+        <td><span class="mono">1213 → 1267</span> <span style="color:#e74c3c">⬆️ +4.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ArtGobblers</code></td>
+        <td><span class="mono">20278 → 20514</span> <span style="color:#e74c3c">⬆️ +1.2%</span></td>
+        <td><span class="mono">22964 → 23885</span> <span style="color:#e74c3c">⬆️ +4.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC1155</code></td>
+        <td><span class="mono">5306 → 5725</span> <span style="color:#e74c3c">⬆️ +7.9%</span></td>
+        <td><span class="mono">5332 → 5758</span> <span style="color:#e74c3c">⬆️ +8.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockGooCalculator</code></td>
+        <td><span class="mono">481 → 609</span> <span style="color:#e74c3c">⬆️ +26.6%</span></td>
+        <td><span class="mono">507 → 642</span> <span style="color:#e74c3c">⬆️ +26.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bytes32AddressLib</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">44 → 89</span> <span style="color:#e74c3c">⬆️ +102.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>FixedPointMathLib</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">44 → 89</span> <span style="color:#e74c3c">⬆️ +102.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LibGOO</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">44 → 89</span> <span style="color:#e74c3c">⬆️ +102.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LibRLP</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">44 → 89</span> <span style="color:#e74c3c">⬆️ +102.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LibString</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">44 → 89</span> <span style="color:#e74c3c">⬆️ +102.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MerkleProofLib</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">44 → 89</span> <span style="color:#e74c3c">⬆️ +102.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>console</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">44 → 89</span> <span style="color:#e74c3c">⬆️ +102.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>VRFRequestIDBase</code></td>
+        <td><span class="mono">16 → 56</span> <span style="color:#e74c3c">⬆️ +250.0%</span></td>
+        <td><span class="mono">40 → 89</span> <span style="color:#e74c3c">⬆️ +122.5%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">46733 → 46363</span></strong> <span style="color:#2ecc71">⬇️ -0.8%</span></td>
+        <td><strong><span class="mono">54857 → 56291</span></strong> <span style="color:#e74c3c">⬆️ +2.6%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

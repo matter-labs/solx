@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>tokenlon viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>tokenlon viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>Strategy</code></td>
+        <td><span class="mono">3655 → 3200</span> <span style="color:#2ecc71">⬇️ -12.4%</span></td>
+        <td><span class="mono">3859 → 884</span> <span style="color:#2ecc71">⬇️ -77.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockLimitOrderTaker</code></td>
+        <td><span class="mono">4980 → 4724</span> <span style="color:#2ecc71">⬇️ -5.1%</span></td>
+        <td><span class="mono">5176 → 916</span> <span style="color:#2ecc71">⬇️ -82.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockStrategy</code></td>
+        <td><span class="mono">1743 → 1376</span> <span style="color:#2ecc71">⬇️ -21.1%</span></td>
+        <td><span class="mono">1771 → 648</span> <span style="color:#2ecc71">⬇️ -63.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AssetHarness</code></td>
+        <td><span class="mono">1709 → 1452</span> <span style="color:#2ecc71">⬇️ -15.0%</span></td>
+        <td><span class="mono">1737 → 644</span> <span style="color:#2ecc71">⬇️ -62.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SmartOrderStrategy</code></td>
+        <td><span class="mono">5863 → 6588</span> <span style="color:#e74c3c">⬆️ +12.4%</span></td>
+        <td><span class="mono">6146 → 1032</span> <span style="color:#2ecc71">⬇️ -83.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ContractWithAdmin</code></td>
+        <td><span class="mono">3567 → 3740</span> <span style="color:#e74c3c">⬆️ +4.9%</span></td>
+        <td><span class="mono">3744 → 928</span> <span style="color:#2ecc71">⬇️ -75.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC1271Wallet</code></td>
+        <td><span class="mono">3242 → 3392</span> <span style="color:#e74c3c">⬆️ +4.6%</span></td>
+        <td><span class="mono">3376 → 864</span> <span style="color:#2ecc71">⬇️ -74.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>AllowanceTarget</code></td>
+        <td><span class="mono">2781 → 2600</span> <span style="color:#2ecc71">⬇️ -6.5%</span></td>
+        <td><span class="mono">3316 → 1344</span> <span style="color:#2ecc71">⬇️ -59.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockDeflationaryERC20</code></td>
+        <td><span class="mono">2834 → 2880</span> <span style="color:#e74c3c">⬆️ +1.6%</span></td>
+        <td><span class="mono">3316 → 1124</span> <span style="color:#2ecc71">⬇️ -66.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockNoReturnERC20</code></td>
+        <td><span class="mono">2567 → 2652</span> <span style="color:#e74c3c">⬆️ +3.3%</span></td>
+        <td><span class="mono">3037 → 1116</span> <span style="color:#2ecc71">⬇️ -63.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockNoRevertERC20</code></td>
+        <td><span class="mono">2582 → 2684</span> <span style="color:#e74c3c">⬆️ +4.0%</span></td>
+        <td><span class="mono">3085 → 1120</span> <span style="color:#2ecc71">⬇️ -63.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>NonStandard1271Wallet</code></td>
+        <td><span class="mono">1065 → 952</span> <span style="color:#2ecc71">⬇️ -10.6%</span></td>
+        <td><span class="mono">1093 → 664</span> <span style="color:#2ecc71">⬇️ -39.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockWETH</code></td>
+        <td><span class="mono">3002 → 2976</span> <span style="color:#2ecc71">⬇️ -0.9%</span></td>
+        <td><span class="mono">3726 → 2092</span> <span style="color:#2ecc71">⬇️ -43.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC20</code></td>
+        <td><span class="mono">2586 → 2464</span> <span style="color:#2ecc71">⬇️ -4.7%</span></td>
+        <td><span class="mono">3304 → 2096</span> <span style="color:#2ecc71">⬇️ -36.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC20Permit</code></td>
+        <td><span class="mono">5013 → 5448</span> <span style="color:#e74c3c">⬆️ +8.7%</span></td>
+        <td><span class="mono">6222 → 3188</span> <span style="color:#2ecc71">⬇️ -48.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>EIP712Harness</code></td>
+        <td><span class="mono">1282 → 1884</span> <span style="color:#e74c3c">⬆️ +47.0%</span></td>
+        <td><span class="mono">1561 → 868</span> <span style="color:#2ecc71">⬇️ -44.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>OwnableTestContract</code></td>
+        <td><span class="mono">1045 → 1360</span> <span style="color:#e74c3c">⬆️ +30.1%</span></td>
+        <td><span class="mono">1219 → 920</span> <span style="color:#2ecc71">⬇️ -24.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Math</code></td>
+        <td><span class="mono">85 → 348</span> <span style="color:#e74c3c">⬆️ +309.4%</span></td>
+        <td><span class="mono">135 → 680</span> <span style="color:#e74c3c">⬆️ +403.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Asset</code></td>
+        <td><span class="mono">85 → 348</span> <span style="color:#e74c3c">⬆️ +309.4%</span></td>
+        <td><span class="mono">135 → 684</span> <span style="color:#e74c3c">⬆️ +406.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ECDSA</code></td>
+        <td><span class="mono">85 → 348</span> <span style="color:#e74c3c">⬆️ +309.4%</span></td>
+        <td><span class="mono">135 → 684</span> <span style="color:#e74c3c">⬆️ +406.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Path</code></td>
+        <td><span class="mono">85 → 352</span> <span style="color:#e74c3c">⬆️ +314.1%</span></td>
+        <td><span class="mono">135 → 684</span> <span style="color:#e74c3c">⬆️ +406.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Address</code></td>
+        <td><span class="mono">85 → 352</span> <span style="color:#e74c3c">⬆️ +314.1%</span></td>
+        <td><span class="mono">135 → 688</span> <span style="color:#e74c3c">⬆️ +409.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bytes</code></td>
+        <td><span class="mono">85 → 352</span> <span style="color:#e74c3c">⬆️ +314.1%</span></td>
+        <td><span class="mono">135 → 688</span> <span style="color:#e74c3c">⬆️ +409.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Strings</code></td>
+        <td><span class="mono">85 → 352</span> <span style="color:#e74c3c">⬆️ +314.1%</span></td>
+        <td><span class="mono">135 → 688</span> <span style="color:#e74c3c">⬆️ +409.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Constant</code></td>
+        <td><span class="mono">85 → 356</span> <span style="color:#e74c3c">⬆️ +318.8%</span></td>
+        <td><span class="mono">135 → 688</span> <span style="color:#e74c3c">⬆️ +409.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeERC20</code></td>
+        <td><span class="mono">85 → 356</span> <span style="color:#e74c3c">⬆️ +318.8%</span></td>
+        <td><span class="mono">135 → 692</span> <span style="color:#e74c3c">⬆️ +412.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UniswapV3</code></td>
+        <td><span class="mono">85 → 356</span> <span style="color:#e74c3c">⬆️ +318.8%</span></td>
+        <td><span class="mono">135 → 692</span> <span style="color:#e74c3c">⬆️ +412.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SignedMath</code></td>
+        <td><span class="mono">85 → 360</span> <span style="color:#e74c3c">⬆️ +323.5%</span></td>
+        <td><span class="mono">135 → 692</span> <span style="color:#e74c3c">⬆️ +412.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>StorageSlot</code></td>
+        <td><span class="mono">85 → 360</span> <span style="color:#e74c3c">⬆️ +323.5%</span></td>
+        <td><span class="mono">135 → 696</span> <span style="color:#e74c3c">⬆️ +415.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ShortStrings</code></td>
+        <td><span class="mono">85 → 364</span> <span style="color:#e74c3c">⬆️ +328.2%</span></td>
+        <td><span class="mono">135 → 696</span> <span style="color:#e74c3c">⬆️ +415.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BalanceSnapshot</code></td>
+        <td><span class="mono">85 → 368</span> <span style="color:#e74c3c">⬆️ +332.9%</span></td>
+        <td><span class="mono">135 → 704</span> <span style="color:#e74c3c">⬆️ +421.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UniswapCommands</code></td>
+        <td><span class="mono">85 → 368</span> <span style="color:#e74c3c">⬆️ +332.9%</span></td>
+        <td><span class="mono">135 → 704</span> <span style="color:#e74c3c">⬆️ +421.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MessageHashUtils</code></td>
+        <td><span class="mono">85 → 372</span> <span style="color:#e74c3c">⬆️ +337.6%</span></td>
+        <td><span class="mono">135 → 704</span> <span style="color:#e74c3c">⬆️ +421.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>UniswapV2Library</code></td>
+        <td><span class="mono">85 → 372</span> <span style="color:#e74c3c">⬆️ +337.6%</span></td>
+        <td><span class="mono">135 → 704</span> <span style="color:#e74c3c">⬆️ +421.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SignatureValidator</code></td>
+        <td><span class="mono">85 → 376</span> <span style="color:#e74c3c">⬆️ +342.4%</span></td>
+        <td><span class="mono">135 → 708</span> <span style="color:#e74c3c">⬆️ +424.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockContract</code></td>
+        <td><span class="mono">62 → 344</span> <span style="color:#e74c3c">⬆️ +454.8%</span></td>
+        <td><span class="mono">88 → 648</span> <span style="color:#e74c3c">⬆️ +636.4%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">51108 → 57176</span></strong> <span style="color:#e74c3c">⬆️ +11.9%</span></td>
+        <td><strong><span class="mono">58206 → 33572</span></strong> <span style="color:#2ecc71">⬇️ -42.3%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>
