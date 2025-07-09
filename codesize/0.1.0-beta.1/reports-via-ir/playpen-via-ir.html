@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>playpen viaIR = true Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>playpen viaIR = true Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>StakingPoolFactory</code></td>
+        <td><span class="mono">2625 → 1690</span> <span style="color:#2ecc71">⬇️ -35.6%</span></td>
+        <td><span class="mono">2845 → 1951</span> <span style="color:#2ecc71">⬇️ -31.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestERC721</code></td>
+        <td><span class="mono">4585 → 3895</span> <span style="color:#2ecc71">⬇️ -15.0%</span></td>
+        <td><span class="mono">5370 → 4322</span> <span style="color:#2ecc71">⬇️ -19.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>TestERC20</code></td>
+        <td><span class="mono">3628 → 3087</span> <span style="color:#2ecc71">⬇️ -14.9%</span></td>
+        <td><span class="mono">4708 → 3829</span> <span style="color:#2ecc71">⬇️ -18.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>xERC20</code></td>
+        <td><span class="mono">8075 → 6903</span> <span style="color:#2ecc71">⬇️ -14.5%</span></td>
+        <td><span class="mono">8101 → 6936</span> <span style="color:#2ecc71">⬇️ -14.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CREATE3Factory</code></td>
+        <td><span class="mono">1581 → 1421</span> <span style="color:#2ecc71">⬇️ -10.1%</span></td>
+        <td><span class="mono">1607 → 1454</span> <span style="color:#2ecc71">⬇️ -9.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721StakingPool</code></td>
+        <td><span class="mono">7448 → 7034</span> <span style="color:#2ecc71">⬇️ -5.6%</span></td>
+        <td><span class="mono">7474 → 7067</span> <span style="color:#2ecc71">⬇️ -5.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC20StakingPool</code></td>
+        <td><span class="mono">7801 → 7540</span> <span style="color:#2ecc71">⬇️ -3.3%</span></td>
+        <td><span class="mono">7827 → 7573</span> <span style="color:#2ecc71">⬇️ -3.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bytes32AddressLib</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CREATE3</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ClonesWithImmutableArgs</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>FullMath</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeTransferLib</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">85 → 122</span> <span style="color:#e74c3c">⬆️ +43.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Clone</code></td>
+        <td><span class="mono">57 → 89</span> <span style="color:#e74c3c">⬆️ +56.1%</span></td>
+        <td><span class="mono">81 → 122</span> <span style="color:#e74c3c">⬆️ +50.6%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">36085 → 32104</span></strong> <span style="color:#2ecc71">⬇️ -11.0%</span></td>
+        <td><strong><span class="mono">38438 → 33864</span></strong> <span style="color:#2ecc71">⬇️ -11.9%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>

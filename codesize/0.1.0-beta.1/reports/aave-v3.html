@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>aave-v3 viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>aave-v3 viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    <tr>
+        <td><code>CollateralEngine</code></td>
+        <td><span class="mono">2704 → 1653</span> <span style="color:#2ecc71">⬇️ -38.9%</span></td>
+        <td><span class="mono">2756 → 1715</span> <span style="color:#2ecc71">⬇️ -37.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BorrowEngine</code></td>
+        <td><span class="mono">2499 → 1598</span> <span style="color:#2ecc71">⬇️ -36.1%</span></td>
+        <td><span class="mono">2551 → 1660</span> <span style="color:#2ecc71">⬇️ -34.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockFlashLoanReceiver (FlashLoanReceiver.sol)</code></td>
+        <td><span class="mono">1988 → 1305</span> <span style="color:#2ecc71">⬇️ -34.4%</span></td>
+        <td><span class="mono">2016 → 1339</span> <span style="color:#2ecc71">⬇️ -33.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>CapsEngine</code></td>
+        <td><span class="mono">1149 → 838</span> <span style="color:#2ecc71">⬇️ -27.1%</span></td>
+        <td><span class="mono">1201 → 900</span> <span style="color:#2ecc71">⬇️ -25.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ListingEngine</code></td>
+        <td><span class="mono">6641 → 5197</span> <span style="color:#2ecc71">⬇️ -21.7%</span></td>
+        <td><span class="mono">6693 → 5259</span> <span style="color:#2ecc71">⬇️ -21.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockPeripheryContractV1</code></td>
+        <td><span class="mono">309 → 241</span> <span style="color:#2ecc71">⬇️ -22.0%</span></td>
+        <td><span class="mono">337 → 275</span> <span style="color:#2ecc71">⬇️ -18.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>RateEngine</code></td>
+        <td><span class="mono">2205 → 1774</span> <span style="color:#2ecc71">⬇️ -19.5%</span></td>
+        <td><span class="mono">2257 → 1836</span> <span style="color:#2ecc71">⬇️ -18.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>InitializableUpgradeabilityProxy</code></td>
+        <td><span class="mono">857 → 707</span> <span style="color:#2ecc71">⬇️ -17.5%</span></td>
+        <td><span class="mono">885 → 741</span> <span style="color:#2ecc71">⬇️ -16.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockInitializableFromConstructorImple</code></td>
+        <td><span class="mono">349 → 300</span> <span style="color:#2ecc71">⬇️ -14.0%</span></td>
+        <td><span class="mono">643 → 527</span> <span style="color:#2ecc71">⬇️ -18.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Pretty</code></td>
+        <td><span class="mono">2436 → 2057</span> <span style="color:#2ecc71">⬇️ -15.6%</span></td>
+        <td><span class="mono">2488 → 2119</span> <span style="color:#2ecc71">⬇️ -14.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SigUtils</code></td>
+        <td><span class="mono">492 → 417</span> <span style="color:#2ecc71">⬇️ -15.2%</span></td>
+        <td><span class="mono">544 → 479</span> <span style="color:#2ecc71">⬇️ -11.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PriceOracle</code></td>
+        <td><span class="mono">469 → 402</span> <span style="color:#2ecc71">⬇️ -14.3%</span></td>
+        <td><span class="mono">497 → 436</span> <span style="color:#2ecc71">⬇️ -12.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockFlashLoanSimpleReceiver</code></td>
+        <td><span class="mono">1484 → 1302</span> <span style="color:#2ecc71">⬇️ -12.3%</span></td>
+        <td><span class="mono">1769 → 1522</span> <span style="color:#2ecc71">⬇️ -14.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockReentrantInitializableImple</code></td>
+        <td><span class="mono">413 → 362</span> <span style="color:#2ecc71">⬇️ -12.3%</span></td>
+        <td><span class="mono">448 → 404</span> <span style="color:#2ecc71">⬇️ -9.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>TransparentUpgradeableProxy</code></td>
+        <td><span class="mono">1074 → 868</span> <span style="color:#2ecc71">⬇️ -19.2%</span></td>
+        <td><span class="mono">3447 → 3347</span> <span style="color:#2ecc71">⬇️ -2.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockSimpleFlashLoanReceiverWithoutMint</code></td>
+        <td><span class="mono">754 → 690</span> <span style="color:#2ecc71">⬇️ -8.5%</span></td>
+        <td><span class="mono">1037 → 910</span> <span style="color:#2ecc71">⬇️ -12.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PriceFeedEngine</code></td>
+        <td><span class="mono">1544 → 1389</span> <span style="color:#2ecc71">⬇️ -10.0%</span></td>
+        <td><span class="mono">1596 → 1451</span> <span style="color:#2ecc71">⬇️ -9.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Mock</code></td>
+        <td><span class="mono">162 → 142</span> <span style="color:#2ecc71">⬇️ -12.3%</span></td>
+        <td><span class="mono">188 → 176</span> <span style="color:#2ecc71">⬇️ -6.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AugustusRegistryMock</code></td>
+        <td><span class="mono">162 → 144</span> <span style="color:#2ecc71">⬇️ -11.1%</span></td>
+        <td><span class="mono">188 → 178</span> <span style="color:#2ecc71">⬇️ -5.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>UpgradeabilityProxy</code></td>
+        <td><span class="mono">108 → 117</span> <span style="color:#e74c3c">⬆️ +8.3%</span></td>
+        <td><span class="mono">823 → 623</span> <span style="color:#2ecc71">⬇️ -24.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>FlashloanAttacker</code></td>
+        <td><span class="mono">1610 → 1517</span> <span style="color:#2ecc71">⬇️ -5.8%</span></td>
+        <td><span class="mono">2034 → 1840</span> <span style="color:#2ecc71">⬇️ -9.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockInitializableV1</code></td>
+        <td><span class="mono">307 → 280</span> <span style="color:#2ecc71">⬇️ -8.8%</span></td>
+        <td><span class="mono">342 → 322</span> <span style="color:#2ecc71">⬇️ -5.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EModeEngine</code></td>
+        <td><span class="mono">6369 → 5932</span> <span style="color:#2ecc71">⬇️ -6.9%</span></td>
+        <td><span class="mono">6421 → 5994</span> <span style="color:#2ecc71">⬇️ -6.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockInitializableV2</code></td>
+        <td><span class="mono">309 → 284</span> <span style="color:#2ecc71">⬇️ -8.1%</span></td>
+        <td><span class="mono">344 → 326</span> <span style="color:#2ecc71">⬇️ -5.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockAggregatorSetPrice</code></td>
+        <td><span class="mono">243 → 238</span> <span style="color:#2ecc71">⬇️ -2.1%</span></td>
+        <td><span class="mono">386 → 361</span> <span style="color:#2ecc71">⬇️ -6.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WadRayMathWrapper</code></td>
+        <td><span class="mono">816 → 782</span> <span style="color:#2ecc71">⬇️ -4.2%</span></td>
+        <td><span class="mono">844 → 816</span> <span style="color:#2ecc71">⬇️ -3.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockFlashLoanBorrowInsideFlashLoan</code></td>
+        <td><span class="mono">2123 → 2073</span> <span style="color:#2ecc71">⬇️ -2.4%</span></td>
+        <td><span class="mono">2400 → 2288</span> <span style="color:#2ecc71">⬇️ -4.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ParaSwapLiquiditySwapAdapter</code></td>
+        <td><span class="mono">8115 → 7893</span> <span style="color:#2ecc71">⬇️ -2.7%</span></td>
+        <td><span class="mono">9202 → 8817</span> <span style="color:#2ecc71">⬇️ -4.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockReserveInterestRateStrategy</code></td>
+        <td><span class="mono">3070 → 3000</span> <span style="color:#2ecc71">⬇️ -2.3%</span></td>
+        <td><span class="mono">3257 → 3150</span> <span style="color:#2ecc71">⬇️ -3.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ATokenMock</code></td>
+        <td><span class="mono">803 → 786</span> <span style="color:#2ecc71">⬇️ -2.1%</span></td>
+        <td><span class="mono">961 → 928</span> <span style="color:#2ecc71">⬇️ -3.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WETH9</code></td>
+        <td><span class="mono">1864 → 1830</span> <span style="color:#2ecc71">⬇️ -1.8%</span></td>
+        <td><span class="mono">2330 → 2287</span> <span style="color:#2ecc71">⬇️ -1.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ParaSwapWithdrawSwapAdapter</code></td>
+        <td><span class="mono">6637 → 6612</span> <span style="color:#2ecc71">⬇️ -0.4%</span></td>
+        <td><span class="mono">7654 → 7525</span> <span style="color:#2ecc71">⬇️ -1.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PercentageMathWrapper</code></td>
+        <td><span class="mono">297 → 291</span> <span style="color:#2ecc71">⬇️ -2.0%</span></td>
+        <td><span class="mono">325 → 325</span> <span style="color:#999">→ +0.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ERC1967Proxy</code></td>
+        <td><span class="mono">122 → 139</span> <span style="color:#e74c3c">⬆️ +13.9%</span></td>
+        <td><span class="mono">935 → 791</span> <span style="color:#2ecc71">⬇️ -15.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveOracle</code></td>
+        <td><span class="mono">2466 → 2424</span> <span style="color:#2ecc71">⬇️ -1.7%</span></td>
+        <td><span class="mono">3462 → 3486</span> <span style="color:#e74c3c">⬆️ +0.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>DeployUtils</code></td>
+        <td><span class="mono">893 → 895</span> <span style="color:#e74c3c">⬆️ +0.2%</span></td>
+        <td><span class="mono">921 → 929</span> <span style="color:#e74c3c">⬆️ +0.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WETH9Mocked</code></td>
+        <td><span class="mono">2170 → 2201</span> <span style="color:#e74c3c">⬆️ +1.4%</span></td>
+        <td><span class="mono">2636 → 2658</span> <span style="color:#e74c3c">⬆️ +0.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SlotParser</code></td>
+        <td><span class="mono">330 → 330</span> <span style="color:#999">→ +0.0%</span></td>
+        <td><span class="mono">382 → 392</span> <span style="color:#e74c3c">⬆️ +2.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockIncentivesController</code></td>
+        <td><span class="mono">132 → 131</span> <span style="color:#2ecc71">⬇️ -0.8%</span></td>
+        <td><span class="mono">158 → 165</span> <span style="color:#e74c3c">⬆️ +4.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EModeLogic</code></td>
+        <td><span class="mono">3048 → 3101</span> <span style="color:#e74c3c">⬆️ +1.7%</span></td>
+        <td><span class="mono">3100 → 3163</span> <span style="color:#e74c3c">⬆️ +2.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WrappedTokenGatewayV3</code></td>
+        <td><span class="mono">5365 → 5558</span> <span style="color:#e74c3c">⬆️ +3.6%</span></td>
+        <td><span class="mono">6230 → 6297</span> <span style="color:#e74c3c">⬆️ +1.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>UiPoolDataProviderV3</code></td>
+        <td><span class="mono">9949 → 10243</span> <span style="color:#e74c3c">⬆️ +3.0%</span></td>
+        <td><span class="mono">10147 → 10378</span> <span style="color:#e74c3c">⬆️ +2.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockBadTransferStrategy</code></td>
+        <td><span class="mono">914 → 974</span> <span style="color:#e74c3c">⬆️ +6.6%</span></td>
+        <td><span class="mono">1103 → 1110</span> <span style="color:#e74c3c">⬆️ +0.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ParaSwapRepayAdapter</code></td>
+        <td><span class="mono">8691 → 9151</span> <span style="color:#e74c3c">⬆️ +5.3%</span></td>
+        <td><span class="mono">9867 → 10169</span> <span style="color:#e74c3c">⬆️ +3.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockParaSwapAugustusRegistry</code></td>
+        <td><span class="mono">179 → 197</span> <span style="color:#e74c3c">⬆️ +10.1%</span></td>
+        <td><span class="mono">302 → 297</span> <span style="color:#2ecc71">⬇️ -1.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>RevenueSplitter</code></td>
+        <td><span class="mono">1953 → 2076</span> <span style="color:#e74c3c">⬆️ +6.3%</span></td>
+        <td><span class="mono">2270 → 2322</span> <span style="color:#e74c3c">⬆️ +2.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockFlashLoanReceiverWithoutMint</code></td>
+        <td><span class="mono">1234 → 1322</span> <span style="color:#e74c3c">⬆️ +7.1%</span></td>
+        <td><span class="mono">1518 → 1541</span> <span style="color:#e74c3c">⬆️ +1.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PriceOracleSentinel</code></td>
+        <td><span class="mono">1530 → 1626</span> <span style="color:#e74c3c">⬆️ +6.3%</span></td>
+        <td><span class="mono">1746 → 1812</span> <span style="color:#e74c3c">⬆️ +3.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>StakedTokenTransferStrategy</code></td>
+        <td><span class="mono">1972 → 2126</span> <span style="color:#e74c3c">⬆️ +7.8%</span></td>
+        <td><span class="mono">2682 → 2746</span> <span style="color:#e74c3c">⬆️ +2.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ReserveConfiguration</code></td>
+        <td><span class="mono">128 → 131</span> <span style="color:#e74c3c">⬆️ +2.3%</span></td>
+        <td><span class="mono">178 → 193</span> <span style="color:#e74c3c">⬆️ +8.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Faucet</code></td>
+        <td><span class="mono">2038 → 2129</span> <span style="color:#e74c3c">⬆️ +4.5%</span></td>
+        <td><span class="mono">2570 → 2735</span> <span style="color:#e74c3c">⬆️ +6.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PriceAggregatorHandler</code></td>
+        <td><span class="mono">485 → 331</span> <span style="color:#2ecc71">⬇️ -31.8%</span></td>
+        <td><span class="mono">1205 → 1720</span> <span style="color:#e74c3c">⬆️ +42.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockReserveConfiguration</code></td>
+        <td><span class="mono">2142 → 2274</span> <span style="color:#e74c3c">⬆️ +6.2%</span></td>
+        <td><span class="mono">2170 → 2308</span> <span style="color:#e74c3c">⬆️ +6.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>DefaultReserveInterestRateStrategyV2</code></td>
+        <td><span class="mono">3575 → 3866</span> <span style="color:#e74c3c">⬆️ +8.1%</span></td>
+        <td><span class="mono">3759 → 4016</span> <span style="color:#e74c3c">⬆️ +6.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockAggregator</code></td>
+        <td><span class="mono">134 → 153</span> <span style="color:#e74c3c">⬆️ +14.2%</span></td>
+        <td><span class="mono">273 → 276</span> <span style="color:#e74c3c">⬆️ +1.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>FlashLoanLogic</code></td>
+        <td><span class="mono">8260 → 8949</span> <span style="color:#e74c3c">⬆️ +8.3%</span></td>
+        <td><span class="mono">8312 → 9011</span> <span style="color:#e74c3c">⬆️ +8.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>StataTokenFactory</code></td>
+        <td><span class="mono">2946 → 3214</span> <span style="color:#e74c3c">⬆️ +9.1%</span></td>
+        <td><span class="mono">3402 → 3663</span> <span style="color:#e74c3c">⬆️ +7.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>TransparentProxyFactory</code></td>
+        <td><span class="mono">6543 → 7133</span> <span style="color:#e74c3c">⬆️ +9.0%</span></td>
+        <td><span class="mono">6571 → 7167</span> <span style="color:#e74c3c">⬆️ +9.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BaseUpgradeabilityProxy</code></td>
+        <td><span class="mono">108 → 117</span> <span style="color:#e74c3c">⬆️ +8.3%</span></td>
+        <td><span class="mono">134 → 151</span> <span style="color:#e74c3c">⬆️ +12.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>StakeMock</code></td>
+        <td><span class="mono">355 → 391</span> <span style="color:#e74c3c">⬆️ +10.1%</span></td>
+        <td><span class="mono">383 → 425</span> <span style="color:#e74c3c">⬆️ +11.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BorrowLogic</code></td>
+        <td><span class="mono">10905 → 12066</span> <span style="color:#e74c3c">⬆️ +10.6%</span></td>
+        <td><span class="mono">10957 → 12128</span> <span style="color:#e74c3c">⬆️ +10.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockFlashLoanATokenReceiver</code></td>
+        <td><span class="mono">2378 → 2700</span> <span style="color:#e74c3c">⬆️ +13.5%</span></td>
+        <td><span class="mono">2756 → 2975</span> <span style="color:#e74c3c">⬆️ +7.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockFlashLoanReceiver (MockFlashLoanReceiver.sol)</code></td>
+        <td><span class="mono">2237 → 2533</span> <span style="color:#e74c3c">⬆️ +13.2%</span></td>
+        <td><span class="mono">2522 → 2752</span> <span style="color:#e74c3c">⬆️ +9.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>DonationAttackHandler</code></td>
+        <td><span class="mono">670 → 561</span> <span style="color:#2ecc71">⬇️ -16.3%</span></td>
+        <td><span class="mono">1390 → 1950</span> <span style="color:#e74c3c">⬆️ +40.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockPeripheryContractV2</code></td>
+        <td><span class="mono">290 → 324</span> <span style="color:#e74c3c">⬆️ +11.7%</span></td>
+        <td><span class="mono">318 → 358</span> <span style="color:#e74c3c">⬆️ +12.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolLogic</code></td>
+        <td><span class="mono">7971 → 8956</span> <span style="color:#e74c3c">⬆️ +12.4%</span></td>
+        <td><span class="mono">8023 → 9018</span> <span style="color:#e74c3c">⬆️ +12.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Actor</code></td>
+        <td><span class="mono">909 → 897</span> <span style="color:#2ecc71">⬇️ -1.3%</span></td>
+        <td><span class="mono">1721 → 2204</span> <span style="color:#e74c3c">⬆️ +28.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolConfiguratorInstance</code></td>
+        <td><span class="mono">16563 → 18978</span> <span style="color:#e74c3c">⬆️ +14.6%</span></td>
+        <td><span class="mono">16598 → 19020</span> <span style="color:#e74c3c">⬆️ +14.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WalletBalanceProvider</code></td>
+        <td><span class="mono">2485 → 2857</span> <span style="color:#e74c3c">⬆️ +15.0%</span></td>
+        <td><span class="mono">2513 → 2891</span> <span style="color:#e74c3c">⬆️ +15.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>FlashLoanHandler</code></td>
+        <td><span class="mono">8895 → 9964</span> <span style="color:#e74c3c">⬆️ +12.0%</span></td>
+        <td><span class="mono">9615 → 11353</span> <span style="color:#e74c3c">⬆️ +18.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>LiquidationDataProvider</code></td>
+        <td><span class="mono">7515 → 8735</span> <span style="color:#e74c3c">⬆️ +16.2%</span></td>
+        <td><span class="mono">7789 → 8894</span> <span style="color:#e74c3c">⬆️ +14.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PullRewardsTransferStrategy</code></td>
+        <td><span class="mono">1172 → 1386</span> <span style="color:#e74c3c">⬆️ +18.3%</span></td>
+        <td><span class="mono">1398 → 1577</span> <span style="color:#e74c3c">⬆️ +12.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>InitializableImmutableAdminUpgradeabilityProxy</code></td>
+        <td><span class="mono">1841 → 2172</span> <span style="color:#e74c3c">⬆️ +18.0%</span></td>
+        <td><span class="mono">2008 → 2293</span> <span style="color:#e74c3c">⬆️ +14.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ValidationLogic</code></td>
+        <td><span class="mono">189 → 218</span> <span style="color:#e74c3c">⬆️ +15.3%</span></td>
+        <td><span class="mono">239 → 280</span> <span style="color:#e74c3c">⬆️ +17.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SequencerOracle</code></td>
+        <td><span class="mono">865 → 1018</span> <span style="color:#e74c3c">⬆️ +17.7%</span></td>
+        <td><span class="mono">1326 → 1537</span> <span style="color:#e74c3c">⬆️ +15.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Create2Utils</code></td>
+        <td><span class="mono">121 → 140</span> <span style="color:#e74c3c">⬆️ +15.7%</span></td>
+        <td><span class="mono">171 → 202</span> <span style="color:#e74c3c">⬆️ +18.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ConfiguratorLogic</code></td>
+        <td><span class="mono">5469 → 6396</span> <span style="color:#e74c3c">⬆️ +17.0%</span></td>
+        <td><span class="mono">5521 → 6458</span> <span style="color:#e74c3c">⬆️ +17.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SupplyLogic</code></td>
+        <td><span class="mono">10186 → 11966</span> <span style="color:#e74c3c">⬆️ +17.5%</span></td>
+        <td><span class="mono">10238 → 12028</span> <span style="color:#e74c3c">⬆️ +17.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockL2Pool</code></td>
+        <td><span class="mono">21979 → 25934</span> <span style="color:#e74c3c">⬆️ +18.0%</span></td>
+        <td><span class="mono">22491 → 26313</span> <span style="color:#e74c3c">⬆️ +17.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MintableERC20</code></td>
+        <td><span class="mono">3708 → 4141</span> <span style="color:#e74c3c">⬆️ +11.7%</span></td>
+        <td><span class="mono">4584 → 5655</span> <span style="color:#e74c3c">⬆️ +23.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>LiquidationLogic</code></td>
+        <td><span class="mono">13009 → 15307</span> <span style="color:#e74c3c">⬆️ +17.7%</span></td>
+        <td><span class="mono">13061 → 15369</span> <span style="color:#e74c3c">⬆️ +17.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockInitializableImple</code></td>
+        <td><span class="mono">1534 → 1806</span> <span style="color:#e74c3c">⬆️ +17.7%</span></td>
+        <td><span class="mono">1569 → 1848</span> <span style="color:#e74c3c">⬆️ +17.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>L2PoolInstance</code></td>
+        <td><span class="mono">21952 → 25934</span> <span style="color:#e74c3c">⬆️ +18.1%</span></td>
+        <td><span class="mono">22399 → 26313</span> <span style="color:#e74c3c">⬆️ +17.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockInitializableImpleV2</code></td>
+        <td><span class="mono">1536 → 1810</span> <span style="color:#e74c3c">⬆️ +17.8%</span></td>
+        <td><span class="mono">1571 → 1852</span> <span style="color:#e74c3c">⬆️ +17.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockScaledTestnetERC20</code></td>
+        <td><span class="mono">4458 → 5062</span> <span style="color:#e74c3c">⬆️ +13.5%</span></td>
+        <td><span class="mono">5803 → 7090</span> <span style="color:#e74c3c">⬆️ +22.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolAddressesProviderRegistry</code></td>
+        <td><span class="mono">1946 → 2307</span> <span style="color:#e74c3c">⬆️ +18.6%</span></td>
+        <td><span class="mono">2407 → 2826</span> <span style="color:#e74c3c">⬆️ +17.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockPoolInherited</code></td>
+        <td><span class="mono">20816 → 24704</span> <span style="color:#e74c3c">⬆️ +18.7%</span></td>
+        <td><span class="mono">21338 → 25092</span> <span style="color:#e74c3c">⬆️ +17.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveProtocolDataProvider</code></td>
+        <td><span class="mono">7420 → 8870</span> <span style="color:#e74c3c">⬆️ +19.5%</span></td>
+        <td><span class="mono">7878 → 9202</span> <span style="color:#e74c3c">⬆️ +16.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>VariableDebtTokenHandler</code></td>
+        <td><span class="mono">1155 → 1160</span> <span style="color:#e74c3c">⬆️ +0.4%</span></td>
+        <td><span class="mono">1875 → 2549</span> <span style="color:#e74c3c">⬆️ +35.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolHandler</code></td>
+        <td><span class="mono">12106 → 14061</span> <span style="color:#e74c3c">⬆️ +16.1%</span></td>
+        <td><span class="mono">12826 → 15450</span> <span style="color:#e74c3c">⬆️ +20.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ProxyAdmin</code></td>
+        <td><span class="mono">977 → 1162</span> <span style="color:#e74c3c">⬆️ +18.9%</span></td>
+        <td><span class="mono">1213 → 1432</span> <span style="color:#e74c3c">⬆️ +18.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolInstance</code></td>
+        <td><span class="mono">20656 → 24627</span> <span style="color:#e74c3c">⬆️ +19.2%</span></td>
+        <td><span class="mono">21099 → 25006</span> <span style="color:#e74c3c">⬆️ +18.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>TestnetERC20</code></td>
+        <td><span class="mono">4338 → 5018</span> <span style="color:#e74c3c">⬆️ +15.7%</span></td>
+        <td><span class="mono">5675 → 7046</span> <span style="color:#e74c3c">⬆️ +24.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockParaSwapAugustus</code></td>
+        <td><span class="mono">1939 → 2329</span> <span style="color:#e74c3c">⬆️ +20.1%</span></td>
+        <td><span class="mono">1967 → 2363</span> <span style="color:#e74c3c">⬆️ +20.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WETH9Mock</code></td>
+        <td><span class="mono">2619 → 2815</span> <span style="color:#e74c3c">⬆️ +7.5%</span></td>
+        <td><span class="mono">3769 → 5007</span> <span style="color:#e74c3c">⬆️ +32.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AdminUpgradeabilityProxy</code></td>
+        <td><span class="mono">1546 → 2072</span> <span style="color:#e74c3c">⬆️ +34.0%</span></td>
+        <td><span class="mono">2420 → 2631</span> <span style="color:#e74c3c">⬆️ +8.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BaseImmutableAdminUpgradeabilityProxy</code></td>
+        <td><span class="mono">1304 → 1625</span> <span style="color:#e74c3c">⬆️ +24.6%</span></td>
+        <td><span class="mono">1471 → 1746</span> <span style="color:#e74c3c">⬆️ +18.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>LiquidationHandler</code></td>
+        <td><span class="mono">11550 → 14019</span> <span style="color:#e74c3c">⬆️ +21.4%</span></td>
+        <td><span class="mono">12270 → 15408</span> <span style="color:#e74c3c">⬆️ +25.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockVariableDebtToken (MockDebtTokens.sol)</code></td>
+        <td><span class="mono">7091 → 8729</span> <span style="color:#e74c3c">⬆️ +23.1%</span></td>
+        <td><span class="mono">8155 → 10180</span> <span style="color:#e74c3c">⬆️ +24.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockVariableDebtToken (MockVariableDebtToken.sol)</code></td>
+        <td><span class="mono">7069 → 8729</span> <span style="color:#e74c3c">⬆️ +23.5%</span></td>
+        <td><span class="mono">8083 → 10180</span> <span style="color:#e74c3c">⬆️ +25.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>VariableDebtTokenHarness</code></td>
+        <td><span class="mono">7087 → 8753</span> <span style="color:#e74c3c">⬆️ +23.5%</span></td>
+        <td><span class="mono">8101 → 10204</span> <span style="color:#e74c3c">⬆️ +26.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>VariableDebtTokenInstance</code></td>
+        <td><span class="mono">7069 → 8729</span> <span style="color:#e74c3c">⬆️ +23.5%</span></td>
+        <td><span class="mono">8041 → 10180</span> <span style="color:#e74c3c">⬆️ +26.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>InitializableAdminUpgradeabilityProxy</code></td>
+        <td><span class="mono">2370 → 2975</span> <span style="color:#e74c3c">⬆️ +25.5%</span></td>
+        <td><span class="mono">2398 → 3009</span> <span style="color:#e74c3c">⬆️ +25.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3ParaswapBatch</code></td>
+        <td><span class="mono">189 → 286</span> <span style="color:#e74c3c">⬆️ +51.3%</span></td>
+        <td><span class="mono">28150 → 28079</span> <span style="color:#2ecc71">⬇️ -0.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MintableDelegationERC20</code></td>
+        <td><span class="mono">2512 → 2957</span> <span style="color:#e74c3c">⬆️ +17.7%</span></td>
+        <td><span class="mono">3224 → 4338</span> <span style="color:#e74c3c">⬆️ +34.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3HelpersBatchOne</code></td>
+        <td><span class="mono">353 → 529</span> <span style="color:#e74c3c">⬆️ +49.9%</span></td>
+        <td><span class="mono">35288 → 36462</span> <span style="color:#e74c3c">⬆️ +3.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>RewardsController</code></td>
+        <td><span class="mono">13965 → 17742</span> <span style="color:#e74c3c">⬆️ +27.0%</span></td>
+        <td><span class="mono">14155 → 17881</span> <span style="color:#e74c3c">⬆️ +26.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>LendingHandler</code></td>
+        <td><span class="mono">12044 → 15066</span> <span style="color:#e74c3c">⬆️ +25.1%</span></td>
+        <td><span class="mono">12764 → 16455</span> <span style="color:#e74c3c">⬆️ +28.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>FactoryDeployer</code></td>
+        <td><span class="mono">214 → 273</span> <span style="color:#e74c3c">⬆️ +27.6%</span></td>
+        <td><span class="mono">240 → 307</span> <span style="color:#e74c3c">⬆️ +27.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BaseHandler</code></td>
+        <td><span class="mono">147 → 120</span> <span style="color:#2ecc71">⬇️ -18.4%</span></td>
+        <td><span class="mono">866 → 1509</span> <span style="color:#e74c3c">⬆️ +74.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BaseHooks</code></td>
+        <td><span class="mono">147 → 120</span> <span style="color:#2ecc71">⬇️ -18.4%</span></td>
+        <td><span class="mono">866 → 1509</span> <span style="color:#e74c3c">⬆️ +74.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ProtocolAssertions</code></td>
+        <td><span class="mono">147 → 120</span> <span style="color:#2ecc71">⬇️ -18.4%</span></td>
+        <td><span class="mono">866 → 1509</span> <span style="color:#e74c3c">⬆️ +74.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Setup</code></td>
+        <td><span class="mono">147 → 120</span> <span style="color:#2ecc71">⬇️ -18.4%</span></td>
+        <td><span class="mono">866 → 1509</span> <span style="color:#e74c3c">⬆️ +74.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EmissionManager</code></td>
+        <td><span class="mono">3444 → 4494</span> <span style="color:#e74c3c">⬆️ +30.5%</span></td>
+        <td><span class="mono">3905 → 5013</span> <span style="color:#e74c3c">⬆️ +28.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>TestERC20</code></td>
+        <td><span class="mono">3926 → 4962</span> <span style="color:#e74c3c">⬆️ +26.4%</span></td>
+        <td><span class="mono">5082 → 6737</span> <span style="color:#e74c3c">⬆️ +32.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3LibrariesBatch1</code></td>
+        <td><span class="mono">321 → 478</span> <span style="color:#e74c3c">⬆️ +48.9%</span></td>
+        <td><span class="mono">21103 → 23545</span> <span style="color:#e74c3c">⬆️ +11.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Collector</code></td>
+        <td><span class="mono">6496 → 8478</span> <span style="color:#e74c3c">⬆️ +30.5%</span></td>
+        <td><span class="mono">6710 → 8729</span> <span style="color:#e74c3c">⬆️ +30.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockAToken (MockAToken.sol)</code></td>
+        <td><span class="mono">9993 → 13094</span> <span style="color:#e74c3c">⬆️ +31.0%</span></td>
+        <td><span class="mono">11092 → 14605</span> <span style="color:#e74c3c">⬆️ +31.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ATokenInstance</code></td>
+        <td><span class="mono">9993 → 13094</span> <span style="color:#e74c3c">⬆️ +31.0%</span></td>
+        <td><span class="mono">11086 → 14605</span> <span style="color:#e74c3c">⬆️ +31.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3LibrariesBatch2</code></td>
+        <td><span class="mono">321 → 478</span> <span style="color:#e74c3c">⬆️ +48.9%</span></td>
+        <td><span class="mono">41206 → 47295</span> <span style="color:#e74c3c">⬆️ +14.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockAToken (tokens/MockAToken.sol)</code></td>
+        <td><span class="mono">10264 → 13550</span> <span style="color:#e74c3c">⬆️ +32.0%</span></td>
+        <td><span class="mono">11413 → 15061</span> <span style="color:#e74c3c">⬆️ +32.0%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockERC20AaveLMUpgradeable</code></td>
+        <td><span class="mono">7915 → 10531</span> <span style="color:#e74c3c">⬆️ +33.1%</span></td>
+        <td><span class="mono">8130 → 10717</span> <span style="color:#e74c3c">⬆️ +31.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ERC20</code></td>
+        <td><span class="mono">2064 → 2539</span> <span style="color:#e74c3c">⬆️ +23.0%</span></td>
+        <td><span class="mono">2745 → 3913</span> <span style="color:#e74c3c">⬆️ +42.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolAddressesProvider</code></td>
+        <td><span class="mono">6907 → 9306</span> <span style="color:#e74c3c">⬆️ +34.7%</span></td>
+        <td><span class="mono">8156 → 10719</span> <span style="color:#e74c3c">⬆️ +31.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockScaledToken</code></td>
+        <td><span class="mono">2657 → 3455</span> <span style="color:#e74c3c">⬆️ +30.0%</span></td>
+        <td><span class="mono">3483 → 4787</span> <span style="color:#e74c3c">⬆️ +37.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ATokenWithDelegationInstanceNext</code></td>
+        <td><span class="mono">13680 → 18343</span> <span style="color:#e74c3c">⬆️ +34.1%</span></td>
+        <td><span class="mono">14835 → 19866</span> <span style="color:#e74c3c">⬆️ +33.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ATokenWithDelegationInstanceNext (ATokenDelegation.t.sol)</code></td>
+        <td><span class="mono">13680 → 18343</span> <span style="color:#e74c3c">⬆️ +34.1%</span></td>
+        <td><span class="mono">14835 → 19866</span> <span style="color:#e74c3c">⬆️ +33.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3PeripheryBatch</code></td>
+        <td><span class="mono">353 → 529</span> <span style="color:#e74c3c">⬆️ +49.9%</span></td>
+        <td><span class="mono">37330 → 44369</span> <span style="color:#e74c3c">⬆️ +18.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ATokenWithDelegationInstance</code></td>
+        <td><span class="mono">13658 → 18343</span> <span style="color:#e74c3c">⬆️ +34.3%</span></td>
+        <td><span class="mono">14757 → 19866</span> <span style="color:#e74c3c">⬆️ +34.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BaseAdminUpgradeabilityProxy</code></td>
+        <td><span class="mono">1538 → 2072</span> <span style="color:#e74c3c">⬆️ +34.7%</span></td>
+        <td><span class="mono">1566 → 2106</span> <span style="color:#e74c3c">⬆️ +34.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3GettersBatchOne</code></td>
+        <td><span class="mono">189 → 286</span> <span style="color:#e74c3c">⬆️ +51.3%</span></td>
+        <td><span class="mono">22504 → 26871</span> <span style="color:#e74c3c">⬆️ +19.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>BorrowingHandler</code></td>
+        <td><span class="mono">13523 → 18204</span> <span style="color:#e74c3c">⬆️ +34.6%</span></td>
+        <td><span class="mono">14243 → 19593</span> <span style="color:#e74c3c">⬆️ +37.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>UiIncentiveDataProviderV3</code></td>
+        <td><span class="mono">9099 → 12736</span> <span style="color:#e74c3c">⬆️ +40.0%</span></td>
+        <td><span class="mono">9127 → 12770</span> <span style="color:#e74c3c">⬆️ +39.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MiscBatch</code></td>
+        <td><span class="mono">137 → 237</span> <span style="color:#e74c3c">⬆️ +73.0%</span></td>
+        <td><span class="mono">6160 → 6600</span> <span style="color:#e74c3c">⬆️ +7.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3HelpersBatchTwo</code></td>
+        <td><span class="mono">229 → 334</span> <span style="color:#e74c3c">⬆️ +45.9%</span></td>
+        <td><span class="mono">30662 → 42397</span> <span style="color:#e74c3c">⬆️ +38.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EIP712SigUtils</code></td>
+        <td><span class="mono">1576 → 2253</span> <span style="color:#e74c3c">⬆️ +43.0%</span></td>
+        <td><span class="mono">1628 → 2315</span> <span style="color:#e74c3c">⬆️ +42.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolPermissionedHandler</code></td>
+        <td><span class="mono">10174 → 14345</span> <span style="color:#e74c3c">⬆️ +41.0%</span></td>
+        <td><span class="mono">10894 → 15734</span> <span style="color:#e74c3c">⬆️ +44.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3SetupBatch</code></td>
+        <td><span class="mono">11407 → 17261</span> <span style="color:#e74c3c">⬆️ +51.3%</span></td>
+        <td><span class="mono">28317 → 38026</span> <span style="color:#e74c3c">⬆️ +34.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3GettersBatchTwo</code></td>
+        <td><span class="mono">189 → 286</span> <span style="color:#e74c3c">⬆️ +51.3%</span></td>
+        <td><span class="mono">18707 → 25174</span> <span style="color:#e74c3c">⬆️ +34.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ATokenHandler</code></td>
+        <td><span class="mono">9915 → 14122</span> <span style="color:#e74c3c">⬆️ +42.4%</span></td>
+        <td><span class="mono">10635 → 15511</span> <span style="color:#e74c3c">⬆️ +45.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3L2PoolBatch</code></td>
+        <td><span class="mono">137 → 237</span> <span style="color:#e74c3c">⬆️ +73.0%</span></td>
+        <td><span class="mono">39647 → 46064</span> <span style="color:#e74c3c">⬆️ +16.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3PoolBatch</code></td>
+        <td><span class="mono">137 → 237</span> <span style="color:#e74c3c">⬆️ +73.0%</span></td>
+        <td><span class="mono">38347 → 44757</span> <span style="color:#e74c3c">⬆️ +16.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MockERC4626StataTokenUpgradeable</code></td>
+        <td><span class="mono">9481 → 14061</span> <span style="color:#e74c3c">⬆️ +48.3%</span></td>
+        <td><span class="mono">9823 → 14362</span> <span style="color:#e74c3c">⬆️ +46.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3TokensBatch</code></td>
+        <td><span class="mono">137 → 237</span> <span style="color:#e74c3c">⬆️ +73.0%</span></td>
+        <td><span class="mono">19717 → 25518</span> <span style="color:#e74c3c">⬆️ +29.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3TestListing</code></td>
+        <td><span class="mono">5134 → 8644</span> <span style="color:#e74c3c">⬆️ +68.4%</span></td>
+        <td><span class="mono">12753 → 18095</span> <span style="color:#e74c3c">⬆️ +41.9%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3ConfigEngine</code></td>
+        <td><span class="mono">7871 → 12531</span> <span style="color:#e74c3c">⬆️ +59.2%</span></td>
+        <td><span class="mono">9400 → 14310</span> <span style="color:#e74c3c">⬆️ +52.2%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>StataTokenV2</code></td>
+        <td><span class="mono">18897 → 29637</span> <span style="color:#e74c3c">⬆️ +56.8%</span></td>
+        <td><span class="mono">19575 → 30310</span> <span style="color:#e74c3c">⬆️ +54.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3BatchOrchestration</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Address</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Address(Address.sol)</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>CalldataLogic</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ConfiguratorInputTypes</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>DataTypes</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>DeployPermit2</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ECDSA</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EModeConfiguration</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ERC1967Utils</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EngineFlags</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EnumerableSet</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Errors</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Errors (Errors.sol)</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>GPv2SafeERC20</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>GenericLogic</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>IsolationModeLogic</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>LiquidationHelper</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MarketReportUtils</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Math</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MathUtils</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MessageHashUtils</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Panic</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PercentageMath</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PropertiesLibString</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ProxyHelpers</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ReserveLogic</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>RewardsDataTypes</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SafeCast</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SafeERC20</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SafeERC20 (SafeERC20.sol)</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SafeMath</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>SignedMath</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>StorageSlot</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Strings</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Strings (Strings.sol)</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Strings (Pretty.sol)</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>UserConfiguration</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WadRayMath</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>Create2Factory</code></td>
+        <td><span class="mono">52 → 86</span> <span style="color:#e74c3c">⬆️ +65.4%</span></td>
+        <td><span class="mono">78 → 120</span> <span style="color:#e74c3c">⬆️ +53.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>MetadataReporter</code></td>
+        <td><span class="mono">12280 → 20848</span> <span style="color:#e74c3c">⬆️ +69.8%</span></td>
+        <td><span class="mono">12308 → 20882</span> <span style="color:#e74c3c">⬆️ +69.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockEModeCategoryCreation</code></td>
+        <td><span class="mono">3867 → 7207</span> <span style="color:#e74c3c">⬆️ +86.4%</span></td>
+        <td><span class="mono">4146 → 7490</span> <span style="color:#e74c3c">⬆️ +80.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockListingCustom</code></td>
+        <td><span class="mono">4048 → 7609</span> <span style="color:#e74c3c">⬆️ +88.0%</span></td>
+        <td><span class="mono">4357 → 7917</span> <span style="color:#e74c3c">⬆️ +81.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockListing</code></td>
+        <td><span class="mono">3755 → 7309</span> <span style="color:#e74c3c">⬆️ +94.6%</span></td>
+        <td><span class="mono">3984 → 7510</span> <span style="color:#e74c3c">⬆️ +88.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockAssetEModeUpdate</code></td>
+        <td><span class="mono">3576 → 7086</span> <span style="color:#e74c3c">⬆️ +98.2%</span></td>
+        <td><span class="mono">3805 → 7287</span> <span style="color:#e74c3c">⬆️ +91.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockRatesUpdate</code></td>
+        <td><span class="mono">3434 → 6913</span> <span style="color:#e74c3c">⬆️ +101.3%</span></td>
+        <td><span class="mono">3626 → 7058</span> <span style="color:#e74c3c">⬆️ +94.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockCollateralUpdateNoChange</code></td>
+        <td><span class="mono">3502 → 7093</span> <span style="color:#e74c3c">⬆️ +102.5%</span></td>
+        <td><span class="mono">3694 → 7243</span> <span style="color:#e74c3c">⬆️ +96.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockBorrowUpdateNoChange</code></td>
+        <td><span class="mono">3501 → 7099</span> <span style="color:#e74c3c">⬆️ +102.8%</span></td>
+        <td><span class="mono">3693 → 7249</span> <span style="color:#e74c3c">⬆️ +96.3%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockCapUpdate</code></td>
+        <td><span class="mono">3415 → 6955</span> <span style="color:#e74c3c">⬆️ +103.7%</span></td>
+        <td><span class="mono">3607 → 7100</span> <span style="color:#e74c3c">⬆️ +96.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockCollateralUpdate</code></td>
+        <td><span class="mono">3475 → 7093</span> <span style="color:#e74c3c">⬆️ +104.1%</span></td>
+        <td><span class="mono">3667 → 7243</span> <span style="color:#e74c3c">⬆️ +97.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockCollateralUpdateCorrectBonus</code></td>
+        <td><span class="mono">3475 → 7093</span> <span style="color:#e74c3c">⬆️ +104.1%</span></td>
+        <td><span class="mono">3667 → 7243</span> <span style="color:#e74c3c">⬆️ +97.5%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockCollateralUpdateWrongBonus</code></td>
+        <td><span class="mono">3479 → 7105</span> <span style="color:#e74c3c">⬆️ +104.2%</span></td>
+        <td><span class="mono">3671 → 7255</span> <span style="color:#e74c3c">⬆️ +97.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockBorrowUpdate</code></td>
+        <td><span class="mono">3471 → 7093</span> <span style="color:#e74c3c">⬆️ +104.4%</span></td>
+        <td><span class="mono">3663 → 7243</span> <span style="color:#e74c3c">⬆️ +97.7%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockEModeCategoryUpdateNoChange</code></td>
+        <td><span class="mono">3403 → 6974</span> <span style="color:#e74c3c">⬆️ +104.9%</span></td>
+        <td><span class="mono">3535 → 7090</span> <span style="color:#e74c3c">⬆️ +100.6%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockPriceFeedUpdate</code></td>
+        <td><span class="mono">3426 → 7166</span> <span style="color:#e74c3c">⬆️ +109.2%</span></td>
+        <td><span class="mono">3655 → 7377</span> <span style="color:#e74c3c">⬆️ +101.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockEModeCategoryUpdateEdgeBonus</code></td>
+        <td><span class="mono">3335 → 6972</span> <span style="color:#e74c3c">⬆️ +109.1%</span></td>
+        <td><span class="mono">3467 → 7088</span> <span style="color:#e74c3c">⬆️ +104.4%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MockEModeCategoryUpdate</code></td>
+        <td><span class="mono">3332 → 6978</span> <span style="color:#e74c3c">⬆️ +109.4%</span></td>
+        <td><span class="mono">3464 → 7094</span> <span style="color:#e74c3c">⬆️ +104.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>ACLManager</code></td>
+        <td><span class="mono">3463 → 7471</span> <span style="color:#e74c3c">⬆️ +115.7%</span></td>
+        <td><span class="mono">3941 → 7913</span> <span style="color:#e74c3c">⬆️ +100.8%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3DefaultRateStrategyProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3GettersProcedureOne</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3GettersProcedureTwo</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3HelpersProcedureOne</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3HelpersProcedureTwo</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3IncentiveProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3L2PoolProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3MiscProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3OracleProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3ParaswapProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3PoolConfigProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3PoolProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3SetupProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3TokensProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>AaveV3TreasuryProcedure</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>DefaultMarketInput</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>EmptyImplementation</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>PoolStorage</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>WalletMock</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+
+    <tr>
+        <td><code>L2Encoder</code></td>
+        <td><span class="mono">3585 → 8505</span> <span style="color:#e74c3c">⬆️ +137.2%</span></td>
+        <td><span class="mono">3780 → 8645</span> <span style="color:#e74c3c">⬆️ +128.7%</span></td>
+    </tr>
+
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">709215 → 918405</span></strong> <span style="color:#e74c3c">⬆️ +29.5%</span></td>
+        <td><strong><span class="mono">1134072 → 1423473</span></strong> <span style="color:#e74c3c">⬆️ +25.5%</span></td>
+    </tr>
+
+    </tbody>
+  </table>
+</body>
+</html>

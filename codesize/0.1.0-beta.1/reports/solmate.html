@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>solmate viaIR = false Bytecode Size Comparison (solc → solx)</title>
+  <style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: #fff;
+        color: #333;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #f8f8f8;
+        font-weight: 600;
+    }
+    td span.mono {
+        font-family: monospace;
+    }
+    code {
+        font-size: 0.85rem;
+        background: #f0f0f0;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    tr:hover {
+        background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>solmate viaIR = false Bytecode Size Comparison (solc → solx)</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Contract</th>
+        <th>Runtime Size</th>
+        <th>Init Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+        <td><code>RevertingERC721Recipient</code></td>
+        <td><span class="mono">551 → 313</span> <span style="color:#2ecc71">⬇️ -43.2%</span></td>
+        <td><span class="mono">579 → 347</span> <span style="color:#2ecc71">⬇️ -40.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>RevertingToken</code></td>
+        <td><span class="mono">771 → 427</span> <span style="color:#2ecc71">⬇️ -44.6%</span></td>
+        <td><span class="mono">818 → 502</span> <span style="color:#2ecc71">⬇️ -38.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>WrongReturnDataERC721Recipient</code></td>
+        <td><span class="mono">356 → 229</span> <span style="color:#2ecc71">⬇️ -35.7%</span></td>
+        <td><span class="mono">384 → 263</span> <span style="color:#2ecc71">⬇️ -31.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>WrongReturnDataERC1155Recipient</code></td>
+        <td><span class="mono">718 → 488</span> <span style="color:#2ecc71">⬇️ -32.0%</span></td>
+        <td><span class="mono">746 → 522</span> <span style="color:#2ecc71">⬇️ -30.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReturnsTooLittleToken</code></td>
+        <td><span class="mono">816 → 550</span> <span style="color:#2ecc71">⬇️ -32.6%</span></td>
+        <td><span class="mono">863 → 625</span> <span style="color:#2ecc71">⬇️ -27.6%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReturnsFalseToken</code></td>
+        <td><span class="mono">800 → 542</span> <span style="color:#2ecc71">⬇️ -32.2%</span></td>
+        <td><span class="mono">847 → 617</span> <span style="color:#2ecc71">⬇️ -27.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReturnsTwoToken</code></td>
+        <td><span class="mono">786 → 543</span> <span style="color:#2ecc71">⬇️ -30.9%</span></td>
+        <td><span class="mono">833 → 618</span> <span style="color:#2ecc71">⬇️ -25.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>RevertingERC1155Recipient</code></td>
+        <td><span class="mono">924 → 688</span> <span style="color:#2ecc71">⬇️ -25.5%</span></td>
+        <td><span class="mono">952 → 722</span> <span style="color:#2ecc71">⬇️ -24.2%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>OutOfOrderAuthority</code></td>
+        <td><span class="mono">345 → 261</span> <span style="color:#2ecc71">⬇️ -24.3%</span></td>
+        <td><span class="mono">373 → 295</span> <span style="color:#2ecc71">⬇️ -20.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>WETHTester</code></td>
+        <td><span class="mono">616 → 473</span> <span style="color:#2ecc71">⬇️ -23.2%</span></td>
+        <td><span class="mono">739 → 595</span> <span style="color:#2ecc71">⬇️ -19.5%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC6909</code></td>
+        <td><span class="mono">2464 → 2061</span> <span style="color:#2ecc71">⬇️ -16.4%</span></td>
+        <td><span class="mono">2492 → 2095</span> <span style="color:#2ecc71">⬇️ -15.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>RiskyContract</code></td>
+        <td><span class="mono">717 → 598</span> <span style="color:#2ecc71">⬇️ -16.6%</span></td>
+        <td><span class="mono">749 → 636</span> <span style="color:#2ecc71">⬇️ -15.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockAuthority</code></td>
+        <td><span class="mono">263 → 226</span> <span style="color:#2ecc71">⬇️ -14.1%</span></td>
+        <td><span class="mono">374 → 310</span> <span style="color:#2ecc71">⬇️ -17.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MissingReturnToken</code></td>
+        <td><span class="mono">1414 → 1184</span> <span style="color:#2ecc71">⬇️ -16.3%</span></td>
+        <td><span class="mono">1461 → 1259</span> <span style="color:#2ecc71">⬇️ -13.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReturnsTooMuchToken</code></td>
+        <td><span class="mono">1406 → 1193</span> <span style="color:#2ecc71">⬇️ -15.1%</span></td>
+        <td><span class="mono">1453 → 1268</span> <span style="color:#2ecc71">⬇️ -12.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC1155</code></td>
+        <td><span class="mono">7598 → 6544</span> <span style="color:#2ecc71">⬇️ -13.9%</span></td>
+        <td><span class="mono">7626 → 6578</span> <span style="color:#2ecc71">⬇️ -13.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>WETH</code></td>
+        <td><span class="mono">3849 → 3271</span> <span style="color:#2ecc71">⬇️ -15.0%</span></td>
+        <td><span class="mono">4638 → 4084</span> <span style="color:#2ecc71">⬇️ -11.9%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockOwned</code></td>
+        <td><span class="mono">739 → 627</span> <span style="color:#2ecc71">⬇️ -15.2%</span></td>
+        <td><span class="mono">831 → 762</span> <span style="color:#2ecc71">⬇️ -8.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC721Recipient</code></td>
+        <td><span class="mono">1368 → 1203</span> <span style="color:#2ecc71">⬇️ -12.1%</span></td>
+        <td><span class="mono">1396 → 1237</span> <span style="color:#2ecc71">⬇️ -11.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC721</code></td>
+        <td><span class="mono">5844 → 5039</span> <span style="color:#2ecc71">⬇️ -13.8%</span></td>
+        <td><span class="mono">6515 → 6364</span> <span style="color:#2ecc71">⬇️ -2.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>BalanceSum</code></td>
+        <td><span class="mono">1248 → 1181</span> <span style="color:#2ecc71">⬇️ -5.4%</span></td>
+        <td><span class="mono">1382 → 1312</span> <span style="color:#2ecc71">⬇️ -5.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>DSInvariantTest</code></td>
+        <td><span class="mono">393 → 371</span> <span style="color:#2ecc71">⬇️ -5.6%</span></td>
+        <td><span class="mono">421 → 405</span> <span style="color:#2ecc71">⬇️ -3.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Factory</code></td>
+        <td><span class="mono">5786 → 5607</span> <span style="color:#2ecc71">⬇️ -3.1%</span></td>
+        <td><span class="mono">5814 → 5641</span> <span style="color:#2ecc71">⬇️ -3.0%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC20</code></td>
+        <td><span class="mono">3441 → 3087</span> <span style="color:#2ecc71">⬇️ -10.3%</span></td>
+        <td><span class="mono">4456 → 4786</span> <span style="color:#e74c3c">⬆️ +7.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockAuthChild</code></td>
+        <td><span class="mono">1522 → 1541</span> <span style="color:#e74c3c">⬆️ +1.2%</span></td>
+        <td><span class="mono">1682 → 1756</span> <span style="color:#e74c3c">⬆️ +4.4%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>RolesAuthority</code></td>
+        <td><span class="mono">3562 → 3730</span> <span style="color:#e74c3c">⬆️ +4.7%</span></td>
+        <td><span class="mono">3852 → 4050</span> <span style="color:#e74c3c">⬆️ +5.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ReturnsGarbageToken</code></td>
+        <td><span class="mono">2326 → 2459</span> <span style="color:#e74c3c">⬆️ +5.7%</span></td>
+        <td><span class="mono">2373 → 2534</span> <span style="color:#e74c3c">⬆️ +6.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MultiRolesAuthority</code></td>
+        <td><span class="mono">3942 → 4286</span> <span style="color:#e74c3c">⬆️ +8.7%</span></td>
+        <td><span class="mono">4232 → 4606</span> <span style="color:#e74c3c">⬆️ +8.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MockERC4626</code></td>
+        <td><span class="mono">6516 → 8300</span> <span style="color:#e74c3c">⬆️ +27.4%</span></td>
+        <td><span class="mono">7742 → 10204</span> <span style="color:#e74c3c">⬆️ +31.8%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>ERC1155Recipient</code></td>
+        <td><span class="mono">2419 → 3179</span> <span style="color:#e74c3c">⬆️ +31.4%</span></td>
+        <td><span class="mono">2447 → 3213</span> <span style="color:#e74c3c">⬆️ +31.3%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>Bytes32AddressLib</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>CREATE3</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>FixedPointMathLib</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>LibString</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>MerkleProofLib</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SSTORE2</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeCastLib</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>SafeTransferLib</code></td>
+        <td><span class="mono">44 → 75</span> <span style="color:#e74c3c">⬆️ +70.5%</span></td>
+        <td><span class="mono">94 → 137</span> <span style="color:#e74c3c">⬆️ +45.7%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>NonERC1155Recipient</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+    
+    <tr>
+        <td><code>NonERC721Recipient</code></td>
+        <td><span class="mono">21 → 53</span> <span style="color:#e74c3c">⬆️ +152.4%</span></td>
+        <td><span class="mono">47 → 87</span> <span style="color:#e74c3c">⬆️ +85.1%</span></td>
+    </tr>
+    
+    <tr style="background: #fcfcfc;">
+        <td><strong>Summary</strong></td>
+        <td><strong><span class="mono">63894 → 60907</span></strong> <span style="color:#2ecc71">⬇️ -4.7%</span></td>
+        <td><strong><span class="mono">69916 → 69476</span></strong> <span style="color:#2ecc71">⬇️ -0.6%</span></td>
+    </tr>
+    
+    </tbody>
+  </table>
+</body>
+</html>
