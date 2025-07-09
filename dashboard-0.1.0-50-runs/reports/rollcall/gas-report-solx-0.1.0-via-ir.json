@@ -1,0 +1,208 @@
+[
+  {
+    "contract": "lib/forge-optimism/src/Optimism.sol:OptimismVm",
+    "deployment": {
+      "gas": 140621,
+      "size": 437
+    },
+    "functions": {
+      "warp(uint256)": {
+        "calls": 1000,
+        "min": 24386,
+        "mean": 24386,
+        "median": 24386,
+        "max": 24386
+      }
+    }
+  },
+  {
+    "contract": "src/Bridge.sol:Bridge",
+    "deployment": {
+      "gas": 645074,
+      "size": 2910
+    },
+    "functions": {
+      "setVoter(address)": {
+        "calls": 600,
+        "min": 45906,
+        "mean": 45906,
+        "median": 45906,
+        "max": 45906
+      }
+    }
+  },
+  {
+    "contract": "src/extensions/SimpleL1Governor.sol:SimpleL1Governor",
+    "deployment": {
+      "gas": 1732140,
+      "size": 9140
+    },
+    "functions": {
+      "name()": {
+        "calls": 50,
+        "min": 2716,
+        "mean": 2716,
+        "median": 2716,
+        "max": 2716
+      },
+      "quorum(uint256)": {
+        "calls": 50,
+        "min": 236,
+        "mean": 236,
+        "median": 236,
+        "max": 236
+      },
+      "slots()": {
+        "calls": 50,
+        "min": 4816,
+        "mean": 4816,
+        "median": 4816,
+        "max": 4816
+      },
+      "sources()": {
+        "calls": 50,
+        "min": 4876,
+        "mean": 4876,
+        "median": 4876,
+        "max": 4876
+      },
+      "version()": {
+        "calls": 50,
+        "min": 371,
+        "mean": 371,
+        "median": 371,
+        "max": 371
+      },
+      "votingPeriod()": {
+        "calls": 50,
+        "min": 220,
+        "mean": 220,
+        "median": 220,
+        "max": 220
+      }
+    }
+  },
+  {
+    "contract": "src/test/RollCallVoter.t.sol:L1Governor",
+    "deployment": {
+      "gas": 310691,
+      "size": 1289
+    },
+    "functions": {
+      "proposal(bytes32)": {
+        "calls": 600,
+        "min": 817,
+        "mean": 817,
+        "median": 817,
+        "max": 817
+      },
+      "propose(bytes32,(bytes32,uint64,uint64,bool,bool))": {
+        "calls": 600,
+        "min": 189970,
+        "mean": 226805,
+        "median": 230154,
+        "max": 230154
+      },
+      "queueId()": {
+        "calls": 50,
+        "min": 2309,
+        "mean": 2309,
+        "median": 2309,
+        "max": 2309
+      },
+      "queueVotes(uint256)": {
+        "calls": 500,
+        "min": 2339,
+        "mean": 2339,
+        "median": 2339,
+        "max": 2339
+      },
+      "slots()": {
+        "calls": 600,
+        "min": 248,
+        "mean": 248,
+        "median": 248,
+        "max": 248
+      },
+      "sources()": {
+        "calls": 600,
+        "min": 255,
+        "mean": 255,
+        "median": 255,
+        "max": 255
+      }
+    }
+  },
+  {
+    "contract": "src/test/RollCallVoter.t.sol:L2VoterTester",
+    "deployment": {
+      "gas": 2723728,
+      "size": 12815
+    },
+    "functions": {
+      "activate(address,bytes32,bytes,bytes)": {
+        "calls": 450,
+        "min": 362960,
+        "mean": 362960,
+        "median": 362960,
+        "max": 362960
+      },
+      "castVote(bytes32,address,address,bytes,uint8)": {
+        "calls": 350,
+        "min": 73059,
+        "mean": 151447,
+        "median": 139224,
+        "max": 226762
+      },
+      "castVoteBySig(bytes32,address,address,bytes,uint8,uint8,bytes32,bytes32)": {
+        "calls": 50,
+        "min": 232670,
+        "mean": 232670,
+        "median": 232670,
+        "max": 232670
+      },
+      "castVoteWithReason(bytes32,address,address,bytes,uint8,string)": {
+        "calls": 50,
+        "min": 227832,
+        "mean": 227832,
+        "median": 227832,
+        "max": 227832
+      },
+      "hashTypedDataV4(bytes32,uint256)": {
+        "calls": 50,
+        "min": 693,
+        "mean": 693,
+        "median": 693,
+        "max": 693
+      },
+      "proposal(address,bytes32)": {
+        "calls": 50,
+        "min": 7156,
+        "mean": 7156,
+        "median": 7156,
+        "max": 7156
+      },
+      "queue(address,bytes32,uint32)": {
+        "calls": 150,
+        "min": 24413,
+        "mean": 100685,
+        "median": 128871,
+        "max": 148771
+      },
+      "state(address,bytes32)": {
+        "calls": 250,
+        "min": 2586,
+        "mean": 4527,
+        "median": 5416,
+        "max": 6003
+      },
+      "votes(address,bytes32)": {
+        "calls": 50,
+        "min": 23102,
+        "mean": 23102,
+        "median": 23102,
+        "max": 23102
+      }
+    }
+  }
+]

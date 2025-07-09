@@ -1,0 +1,32 @@
+[
+  {
+    "contract": "src/StakingPoolFactory.sol:StakingPoolFactory",
+    "deployment": {
+      "gas": 387094,
+      "size": 1835
+    },
+    "functions": {
+      "createERC20StakingPool(address,address,uint64)": {
+        "calls": 25600,
+        "min": 104027,
+        "mean": 104070,
+        "median": 104059,
+        "max": 104123
+      },
+      "createERC721StakingPool(address,address,uint64)": {
+        "calls": 25600,
+        "min": 104023,
+        "mean": 104066,
+        "median": 104054,
+        "max": 104119
+      },
+      "createXERC20(bytes32,bytes32,uint8,address,uint64)": {
+        "calls": 25600,
+        "min": 113240,
+        "mean": 113737,
+        "median": 113977,
+        "max": 114061
+      }
+    }
+  }
+]

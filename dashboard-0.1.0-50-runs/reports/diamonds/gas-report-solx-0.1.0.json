@@ -1,0 +1,50 @@
+[
+  {
+    "contract": "contracts/Diamond.sol:Diamond",
+    "deployment": {
+      "gas": 357970,
+      "size": 4297
+    },
+    "functions": {
+      "fallback()": {
+        "calls": 100,
+        "min": 14167,
+        "mean": 204300,
+        "median": 204300,
+        "max": 394434
+      }
+    }
+  },
+  {
+    "contract": "contracts/facets/DiamondCutFacet.sol:DiamondCutFacet",
+    "deployment": {
+      "gas": 1029278,
+      "size": 4552
+    },
+    "functions": {
+      "diamondCut((address,uint8,bytes4[])[],address,bytes)": {
+        "calls": 50,
+        "min": 364531,
+        "mean": 364531,
+        "median": 364531,
+        "max": 364531
+      }
+    }
+  },
+  {
+    "contract": "contracts/facets/DiamondLoupeFacet.sol:DiamondLoupeFacet",
+    "deployment": {
+      "gas": 419760,
+      "size": 1724
+    },
+    "functions": {
+      "facetAddresses()": {
+        "calls": 50,
+        "min": 9198,
+        "mean": 9198,
+        "median": 9198,
+        "max": 9198
+      }
+    }
+  }
+]

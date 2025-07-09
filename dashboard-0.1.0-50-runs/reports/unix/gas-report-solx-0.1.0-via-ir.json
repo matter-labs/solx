@@ -1,0 +1,41 @@
+[
+  {
+    "contract": "src/Unix.sol:Unix",
+    "deployment": {
+      "gas": 6784627,
+      "size": 33917
+    },
+    "functions": {
+      "run(string)": {
+        "calls": 50,
+        "min": 2663118,
+        "mean": 2663118,
+        "median": 2663118,
+        "max": 2663118
+      }
+    }
+  },
+  {
+    "contract": "src/commands/Echo.sol:Echo",
+    "deployment": {
+      "gas": 0,
+      "size": 5667
+    },
+    "functions": {
+      "n()": {
+        "calls": 50,
+        "min": 65597,
+        "mean": 65597,
+        "median": 65597,
+        "max": 65597
+      },
+      "stdout(string)": {
+        "calls": 50,
+        "min": 44399,
+        "mean": 44399,
+        "median": 44399,
+        "max": 44399
+      }
+    }
+  }
+]

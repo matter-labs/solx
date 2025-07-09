@@ -1,0 +1,227 @@
+[
+  {
+    "contract": "contracts/ERC20.sol:ERC20",
+    "deployment": {
+      "gas": 700698,
+      "size": 3661
+    },
+    "functions": {
+      "DOMAIN_SEPARATOR()": {
+        "calls": 141350,
+        "min": 2973,
+        "mean": 2973,
+        "median": 2973,
+        "max": 2973
+      },
+      "PERMIT_TYPEHASH()": {
+        "calls": 141350,
+        "min": 239,
+        "mean": 239,
+        "median": 239,
+        "max": 239
+      },
+      "allowance(address,address)": {
+        "calls": 140950,
+        "min": 2777,
+        "mean": 2777,
+        "median": 2777,
+        "max": 2777
+      },
+      "nonces(address)": {
+        "calls": 281750,
+        "min": 2583,
+        "mean": 2583,
+        "median": 2583,
+        "max": 2583
+      }
+    }
+  },
+  {
+    "contract": "contracts/test/ERC20.t.sol:BalanceSum",
+    "deployment": {
+      "gas": 1064513,
+      "size": 5040
+    },
+    "functions": {
+      "approve(address,uint256)": {
+        "calls": 1284018,
+        "min": 30838,
+        "mean": 51183,
+        "median": 51600,
+        "max": 51876
+      },
+      "burn(address,uint256)": {
+        "calls": 21910,
+        "min": 35547,
+        "mean": 38546,
+        "median": 36039,
+        "max": 44751
+      },
+      "mint(address,uint256)": {
+        "calls": 1173083,
+        "min": 35380,
+        "mean": 61491,
+        "median": 61615,
+        "max": 96103
+      },
+      "sum()": {
+        "calls": 50,
+        "min": 2283,
+        "mean": 2283,
+        "median": 2283,
+        "max": 2283
+      },
+      "token()": {
+        "calls": 50,
+        "min": 2401,
+        "mean": 2401,
+        "median": 2401,
+        "max": 2401
+      },
+      "transfer(address,uint256)": {
+        "calls": 19307,
+        "min": 33612,
+        "mean": 38266,
+        "median": 34012,
+        "max": 56933
+      },
+      "transferFrom(address,address,uint256)": {
+        "calls": 15272,
+        "min": 38373,
+        "mean": 39123,
+        "median": 39133,
+        "max": 39133
+      }
+    }
+  },
+  {
+    "contract": "contracts/test/accounts/ERC20User.sol:ERC20User",
+    "deployment": {
+      "gas": 283357,
+      "size": 1092
+    },
+    "functions": {
+      "erc20_approve(address,address,uint256)": {
+        "calls": 64000,
+        "min": 29959,
+        "mean": 46559,
+        "median": 49922,
+        "max": 50243
+      },
+      "erc20_permit(address,address,address,uint256,uint256,uint8,bytes32,bytes32)": {
+        "calls": 154000,
+        "min": 28026,
+        "mean": 51265,
+        "median": 47159,
+        "max": 81371
+      },
+      "erc20_transfer(address,address,uint256)": {
+        "calls": 25600,
+        "min": 27642,
+        "mean": 39127,
+        "median": 39166,
+        "max": 50690
+      }
+    }
+  },
+  {
+    "contract": "contracts/test/mocks/MockERC20.sol:MockERC20",
+    "deployment": {
+      "gas": 766526,
+      "size": 3971
+    },
+    "functions": {
+      "allowance(address,address)": {
+        "calls": 128000,
+        "min": 2799,
+        "mean": 2799,
+        "median": 2799,
+        "max": 2799
+      },
+      "approve(address,uint256)": {
+        "calls": 2138985,
+        "min": 4669,
+        "mean": 37751,
+        "median": 45987,
+        "max": 46513
+      },
+      "balanceOf(address)": {
+        "calls": 147156,
+        "min": 2561,
+        "mean": 2561,
+        "median": 2561,
+        "max": 2561
+      },
+      "burn(address,uint256)": {
+        "calls": 40223,
+        "min": 6835,
+        "mean": 24045,
+        "median": 28395,
+        "max": 34362
+      },
+      "decimals()": {
+        "calls": 12850,
+        "min": 248,
+        "mean": 248,
+        "median": 248,
+        "max": 248
+      },
+      "decreaseAllowance(address,uint256)": {
+        "calls": 35427,
+        "min": 4971,
+        "mean": 20721,
+        "median": 24474,
+        "max": 29701
+      },
+      "increaseAllowance(address,uint256)": {
+        "calls": 815094,
+        "min": 4955,
+        "mean": 24691,
+        "median": 24855,
+        "max": 46029
+      },
+      "mint(address,uint256)": {
+        "calls": 2045195,
+        "min": 6792,
+        "mean": 43575,
+        "median": 50944,
+        "max": 68536
+      },
+      "name()": {
+        "calls": 12850,
+        "min": 2921,
+        "mean": 5249,
+        "median": 4611,
+        "max": 9478
+      },
+      "symbol()": {
+        "calls": 12850,
+        "min": 2987,
+        "mean": 5365,
+        "median": 5222,
+        "max": 9544
+      },
+      "totalSupply()": {
+        "calls": 70407,
+        "min": 2362,
+        "mean": 2362,
+        "median": 2362,
+        "max": 2362
+      },
+      "transfer(address,uint256)": {
+        "calls": 45154,
+        "min": 7035,
+        "mean": 30904,
+        "median": 28606,
+        "max": 51516
+      },
+      "transferFrom(address,address,uint256)": {
+        "calls": 101858,
+        "min": 11691,
+        "mean": 38681,
+        "median": 37959,
+        "max": 54691
+      }
+    }
+  }
+]
