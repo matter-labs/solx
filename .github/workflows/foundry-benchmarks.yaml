@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       solx-version:
-        description: 'Prebuilt `solx` version to use. For example: `0.1.0-alpha.4` without `v` prefix. If empty, `solx` will be built.'
+        description: 'Prebuilt `solx` version to use. For example: `0.1.0` without `v` prefix. If empty, `solx` will be built.'
         required: false
         default: ''
   pull_request:
