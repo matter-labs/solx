@@ -1,0 +1,2 @@
+[{"contract":"src/Unix.sol:Unix","deployment":{"gas":7042037,"size":35202},"functions":{"run(string)":{"calls":1,"min":2718096,"mean":2718096,"median":2718096,"max":2718096}}},{"contract":"src/commands/Echo.sol:Echo","deployment":{"gas":0,"size":5840},"functions":{"n()":{"calls":1,"min":65597,"mean":65597,"median":65597,"max":65597},"stdout(string)":{"calls":1,"min":44399,"mean":44399,"median":44399,"max":44399}}}]
+
