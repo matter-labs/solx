@@ -108,6 +108,8 @@ jobs:
       always() &&
       (needs.build-solx.result == 'skipped' || needs.build-solx.result == 'success')
     runs-on: matterlabs-ci-runner-high-performance
+    env:
+      DEFAULT_ITERATIONS: 50
     outputs:
       solx-version: ${{ steps.solx.outputs.solx-version }}
       solx-llvm-version: ${{ steps.solx.outputs.solx-llvm-version }}
@@ -121,7 +123,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          sparse-checkout: .github/forge-benchmarks.toml
+          sparse-checkout: |
+            .github/forge-benchmarks.toml
+            .github/scripts/combine-gas-reports.py
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
 
       - name: Download artifacts
         if: ${{ needs.build-solx.result == 'success' }}
@@ -292,7 +300,15 @@ jobs:
                 jq --arg k "exec_time" --argjson v "${RUN_TIME}" '. + {($k): $v}' "${BUILD_JSON}" > tmp.json
                 mv tmp.json "${BUILD_JSON}"
           
-                forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON}" 2>/dev/null || true
+                GAS_REPORTS="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}-gas-reports"
+                mkdir -p "${GAS_REPORTS}"
+                
+                ITERATIONS=$(yq ".${PROJECT}.run_iterations // ${DEFAULT_ITERATIONS}" "${TOML_CONFIG}")
+                for ITER in $(seq "${ITERATIONS}"); do
+                  GAS_JSON_ITER="${GAS_REPORTS}/${PROJECT}_${ITER}.json"
+                  forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON_ITER}" 2>/dev/null || true
+                done
+                python ${GITHUB_WORKSPACE}/.github/scripts/combine-gas-reports.py "${GAS_REPORTS}" "${GAS_JSON}"
 
               done
             done
