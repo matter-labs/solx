@@ -17,6 +17,7 @@
 [openzeppelin]
 repo = "https://github.com/OpenZeppelin/openzeppelin-contracts"
 description = "A library for secure smart contract development."
+run_iterations = 5 # OpenZeppelin is a large project, so we run fewer iterations
 
 [lil-web3]
 repo = "https://github.com/m1guelpf/lil-web3"

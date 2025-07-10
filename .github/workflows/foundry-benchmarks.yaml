@@ -109,7 +109,7 @@ jobs:
       (needs.build-solx.result == 'skipped' || needs.build-solx.result == 'success')
     runs-on: matterlabs-ci-runner-high-performance
     env:
-      DEFAULT_ITERATIONS: 50
+      DEFAULT_ITERATIONS: 20
     outputs:
       solx-version: ${{ steps.solx.outputs.solx-version }}
       solx-llvm-version: ${{ steps.solx.outputs.solx-llvm-version }}
