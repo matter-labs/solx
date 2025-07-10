@@ -718,7 +718,7 @@ impl Contract {
                         )
                     })
             } else {
-                panic!()
+                None
             },
             self.runtime_object_result
                 .as_mut()

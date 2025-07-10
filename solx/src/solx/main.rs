@@ -104,9 +104,23 @@ fn main_inner(
 
     let mut optimizer_settings = match arguments.optimization {
         Some(mode) => era_compiler_llvm_context::OptimizerSettings::try_from_cli(mode)?,
+        None if arguments.standard_json.is_none() => {
+            if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
+                if optimization.len() != 1 {
+                    anyhow::bail!(
+                        "Invalid value '99' for environment variable 'SOLX_OPTIMIZATION': values 1, 2, 3, s, z are supported."
+                    );
+                }
+                era_compiler_llvm_context::OptimizerSettings::try_from_cli(
+                    optimization.chars().next().expect("Always exists"),
+                )?
+            } else {
+                era_compiler_llvm_context::OptimizerSettings::cycles()
+            }
+        }
         None => era_compiler_llvm_context::OptimizerSettings::cycles(),
     };
-    if arguments.size_fallback {
+    if arguments.size_fallback || std::env::var("SOLX_OPTIMIZATION_SIZE_FALLBACK").is_ok() {
         optimizer_settings.enable_fallback_to_size();
     }
     optimizer_settings.is_verify_each_enabled = arguments.llvm_verify_each;
@@ -166,7 +180,12 @@ fn main_inner(
         })
         .unwrap_or_default();
 
-    let debug_config = match arguments.debug_output_dir {
+    let debug_config = match arguments
+        .debug_output_dir
+        .or(std::env::var("SOLX_DEBUG_OUTPUT_DIR")
+            .ok()
+            .map(PathBuf::from))
+    {
         Some(ref debug_output_directory) => {
             std::fs::create_dir_all(debug_output_directory.as_path())?;
             Some(era_compiler_llvm_context::DebugConfig::new(

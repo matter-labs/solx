@@ -126,6 +126,29 @@ jobs:
           target: ${{ matrix.target }}
           release-suffix: ${{ format('{0}-{1}', matrix.release-suffix, inputs.prerelease_suffix || format('v{0}', github.ref_name)) }}
 
+  get-previous-release:
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.latest_release.outputs.tag }}
+    steps:
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ref || '' }}
+
+      # Gets the tag of the published release marked `latest`
+      # ignoring all intermediate releases and tags for manual releases
+      - name: Get latest release tag
+        id: latest_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag=$(gh release view --json tagName --jq .tagName)
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+
   prepare-release:
     permissions:
       id-token: write
@@ -135,7 +158,11 @@ jobs:
     runs-on: matterlabs-ci-runner-high-performance
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-    needs: build
+    needs: [build, get-previous-release]
+    if: |
+      always() &&
+      (needs.get-previous-release.result == 'skipped' || needs.get-previous-release.result == 'success') &&
+      needs.build.result == 'success'
     steps:
 
       - name: Checkout source
@@ -198,27 +225,17 @@ jobs:
         with:
           subject-path: 'releases/**/**'
 
-      # Gets the tag of the published release marked `latest`
-      # ignoring all intermediate releases and tags for manual releases
-      - name: Get latest release tag
-        id: latest_release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag=$(gh release view --json tagName --jq .tagName)
-          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
-
       - name: Build changelog
         if: github.ref_type == 'tag'
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v5
         with:
-          fromTag: ${{ steps.latest_release.outputs.tag || '' }}
+          fromTag: ${{ needs.get-previous-release.outputs.tag || '' }}
           toTag: ${{ github.ref_name }}
           mode: "COMMIT"
           configurationJson: |
             {
-              "template": "# 📝 Changelog\n\n{{CHANGELOG}}",
+              "template": "# 📝 Changelog\n\n#{{CHANGELOG}}",
               "categories": [
                 {
                   "title": "## ✨ Features",
@@ -265,6 +282,7 @@ jobs:
 
   check-install-script:
     if: github.ref_type == 'tag'
+    needs: prepare-release
     strategy:
       fail-fast: false
       matrix:
@@ -283,4 +301,4 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Run installation script
-        run: curl -L https://raw.githubusercontent.com/matter-labs/solx/${{ github.ref_name }}/install-solx | sh
+        run: curl -L https://raw.githubusercontent.com/matter-labs/solx/${{ github.ref_name }}/install-solx | bash

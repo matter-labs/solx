@@ -7,7 +7,9 @@
 **solx** is a new optimizing compiler for EVM developed by [Matter Labs](https://matter-labs.io/).
 
 > [!WARNING]  
-> The project is in alpha state and not suitable for production use.
+> The project is in beta state and must be used with caution. Please use it only for testing and experimentation.
+> If you want to use it in production, make sure to test your contracts thoroughly, or [contact us](#contact-us) first.
+> The main issue is the EVM bytecode size limit of 24KB, which is not always respected by the compiler. But we are working on it!
 
 **solx** passes [our test suite](https://github.com/matter-labs/era-compiler-tester), which includes:
 
@@ -23,7 +25,6 @@ Our mid-term goals:
 - further reduce gas usage and bytecode size
 - eliminate the need for inline assembly for efficiency
 - emit [ethdebug](https://ethdebug.github.io/format/index.html) for optimized code
-- run more tests of real-life projects in CI
 
 ## Installation
 
@@ -88,4 +89,4 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 
 ## Contact Us
 
-Email us at [solx@matterlabs.dev](mailto:solx@matterlabs.dev).
+Email us at [solx@matterlabs.dev](mailto:solx@matterlabs.dev) or join our [Telegram group](https://t.me/solx_devs).

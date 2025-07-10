@@ -5,19 +5,19 @@
 # compile_only = true # optional, set to true if you only want to compile the project without running tests
 # requires_yarn = true # optional, set to true if the project requires yarn install before building
 # category = "huge" # optional, use huge to indicate a large project that may take longer to compile or run tests
-###
+# run_iterations = 5 # optional, set the number of iterations to run for benchmarks, default is 50
 
-[solady]
-repo = "https://github.com/Vectorized/solady"
-description = "Gas optimized Solidity snippets."
+# Environment variables
+# You can set environment variables for the project.
+# They will be set during the compilation and testing phases.
+# [beefy.env]
+# TEST_ENV = "123"
+# ANOTHER_ENV = "321"
 
 [openzeppelin]
 repo = "https://github.com/OpenZeppelin/openzeppelin-contracts"
 description = "A library for secure smart contract development."
-
-[forge-std]
-repo = "https://github.com/foundry-rs/forge-std"
-description = "Forge Standard Library is a collection of helpful contracts and libraries for use with Forge and Foundry."
+run_iterations = 5 # OpenZeppelin is a large project, so we run fewer iterations
 
 [lil-web3]
 repo = "https://github.com/m1guelpf/lil-web3"
@@ -30,6 +30,7 @@ description = "Basic ERC-20 contract designed to be inherited and extended."
 [diamonds]
 repo = "https://github.com/Timidan/Foundry-Hardhat-Diamonds"
 description = "A minimal template for Diamonds EIP-2535."
+requires_yarn = true
 
 [rollcall]
 repo = "https://github.com/withtally/rollcall"
@@ -48,6 +49,10 @@ repo = "https://github.com/paulrberg/prb-math"
 description = "Solidity library for advanced fixed-point math operations."
 requires_yarn = true
 
+[solady]
+repo = "https://github.com/Vectorized/solady"
+description = "Gas optimized Solidity snippets."
+
 [unix]
 repo = "https://github.com/refcell/unix"
 description = "A lightweight, extensible foundry library for shell scripting."
@@ -57,8 +62,8 @@ repo = "https://github.com/odyslam/foundry-upgrades"
 description = "Helper smart contracts to deploy and manage upgradeable contracts."
 
 [art-gobblers]
-repo = "https://github.com/artgobblers/art-gobblers"
-description = "A decentralized art factory and marketplace."
+repo = "https://github.com/antonbaliasnikov/art-gobblers"
+description = "A decentralized art factory and marketplace. Fork with fixed tests."
 
 [balance-snapshot]
 repo = "https://github.com/pilagod/balance-snapshot"
@@ -73,6 +78,10 @@ repo = "https://github.com/maple-labs/fixed-term-loan"
 description = "A set of contracts to facilitate on-chain loans."
 disabled = true
 
+[forge-std]
+repo = "https://github.com/foundry-rs/forge-std"
+description = "Forge Standard Library is a collection of helpful contracts and libraries for use with Forge and Foundry."
+
 [tokenlon]
 repo = "https://github.com/consenlabs/tokenlon-contracts"
 description = "A decentralized exchange and payment settlement protocol."
@@ -85,6 +94,8 @@ description = "A new automated market maker protocol."
 repo = "https://github.com/beefyfinance/beefy-contracts"
 description = "Official repo for strategies and vaults from Beefy."
 requires_yarn = true
+[beefy.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [gov-of-venice]
 repo = "https://github.com/pentagonxyz/gov-of-venice"
@@ -94,6 +105,7 @@ description = "A new paradigm in DAO governance."
 repo = "https://github.com/aave-dao/aave-v3-origin"
 description = "A non-custodial liquidity protocol on Ethereum."
 requires_yarn = true
+run_iterations = 5 # Aave v3 is a large project
 
 [seaport]
 repo = "https://github.com/ProjectOpenSea/seaport"

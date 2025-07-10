@@ -5,7 +5,7 @@ authors = [
 language = "en"
 multilingual = false
 src = "src"
-title = "SolX Compiler Documentation"
+title = "solx Compiler Documentation"
 
 [output.html]
 additional-js = ["js/version-box.js"]

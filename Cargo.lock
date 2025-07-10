@@ -236,9 +236,9 @@ checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
 
 [[package]]
 name = "cc"
-version = "1.2.27"
+version = "1.2.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d487aa071b5f64da6f19a3e848e3578944b726ee5a4854b82172f02aa876bfdc"
+checksum = "5c1599538de2394445747c8cf7935946e3cc27e9625f889d979bfb2aaf569362"
 dependencies = [
  "shlex",
 ]
@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#f2214251c57b0943d7ffc6a737f8483264872fcf"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#1dd5c4406071615fdc62ac924751b92e43906b4c"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1511,7 +1511,7 @@ dependencies = [
 
 [[package]]
 name = "solx"
-version = "0.1.0-alpha.4"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1539,7 +1539,7 @@ dependencies = [
 
 [[package]]
 name = "solx-evm-assembly"
-version = "0.1.0-alpha.4"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1555,7 +1555,7 @@ dependencies = [
 
 [[package]]
 name = "solx-solc"
-version = "0.1.0-alpha.4"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1568,7 +1568,7 @@ dependencies = [
 
 [[package]]
 name = "solx-standard-json"
-version = "0.1.0-alpha.4"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1582,7 +1582,7 @@ dependencies = [
 
 [[package]]
 name = "solx-yul"
-version = "0.1.0-alpha.4"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "era-compiler-common",

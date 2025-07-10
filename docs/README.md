@@ -1,4 +1,4 @@
-# SolX Compiler Documentation
+# solx Compiler Documentation
 
 This directory contains an **mdBook** project for **solx** documentation.
 This README will guide you on how to build and test the book locally.
