@@ -81,7 +81,7 @@ impl Output {
                     Some(name.as_str()),
                     InputSettingsSelector::Yul,
                 ) {
-                    contract.ir_optimized = None;
+                    contract.ir = None;
                 }
                 if let Some(ref mut evm) = contract.evm {
                     if !output_selection.check_selection(

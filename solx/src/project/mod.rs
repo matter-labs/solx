@@ -145,7 +145,7 @@ impl Project {
                 let result = if via_ir {
                     ContractYul::try_from_source(
                         name.full_path.as_str(),
-                        contract.ir_optimized.as_deref()?,
+                        contract.ir.as_deref()?,
                         debug_config,
                     )
                     .map(|yul| yul.map(ContractIR::from))
@@ -171,7 +171,7 @@ impl Project {
                     contract.storage_layout,
                     contract.transient_storage_layout,
                     legacy_assembly,
-                    contract.ir_optimized,
+                    contract.ir,
                 );
                 Some((name.full_path, Ok(contract)))
             })
