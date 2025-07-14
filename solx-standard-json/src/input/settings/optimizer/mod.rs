@@ -83,6 +83,6 @@ impl Optimizer {
     /// The default flag to enable the `solc` optimizer.
     ///
     pub fn default_enabled() -> bool {
-        true
+        false
     }
 }
