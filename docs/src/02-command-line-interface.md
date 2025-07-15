@@ -491,7 +491,7 @@ Sets the optimization level to `z` for contracts that failed to compile due to o
 
 Under the hood, this option automatically triggers recompilation of contracts with level `z`. Contracts that were successfully compiled with [the original `--optimization` setting](#--optimization---o) are not recompiled.
 
-> For deployment, it is recommended not to disable this option in order to mitigate potential issues with EVM bytecode size constraints.
+> For deployment, it is recommended to have this option enabled in order to mitigate potential issues with EVM bytecode size constraints on a per-contract basis.
 > If your environment does not have bytecode size limitations, it is better to disable it to prevent unnecessary recompilations.
 
 Usage:
@@ -758,10 +758,12 @@ Simple.sol_Test.evmla
 Simple.sol_Test.ethir
 Simple.sol_Test.unoptimized.ll
 Simple.sol_Test.optimized.ll
+Simple.sol_Test.asm
 Simple.sol_Test.runtime.evmla
 Simple.sol_Test.runtime.ethir
 Simple.sol_Test.runtime.unoptimized.ll
 Simple.sol_Test.runtime.optimized.ll
+Simple.sol_Test.runtime.asm
 ```
 
 The output file name is constructed as follows: `<ContractPath>_<ContractName>.<Modifiers>.<Extension>`.

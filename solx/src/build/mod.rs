@@ -237,7 +237,11 @@ impl Build {
                 .to_string_lossy()
                 .replace(['\\', '/'], "_");
 
-                let output_name = format!("{path}_{}.ast", era_compiler_common::EXTENSION_JSON);
+                let output_name = format!(
+                    "{path}_{}.{}",
+                    era_compiler_common::EXTENSION_JSON,
+                    era_compiler_common::EXTENSION_SOLIDITY_AST
+                );
                 let mut output_path = output_directory.to_owned();
                 output_path.push(output_name.as_str());
 
