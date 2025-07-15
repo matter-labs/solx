@@ -72,7 +72,7 @@ pub fn run() -> anyhow::Result<()> {
 ///
 /// Runs this process recursively to compile a single contract.
 ///
-pub fn call<I, O>(path: &str, input: I) -> crate::Result<O>
+pub fn call<I, O>(path: &str, input: &I) -> crate::Result<O>
 where
     I: serde::Serialize,
     O: serde::de::DeserializeOwned,
@@ -97,7 +97,7 @@ where
         .stdin
         .as_mut()
         .unwrap_or_else(|| panic!("{executable:?} subprocess stdin getting error"));
-    let stdin_input = serde_json::to_vec(&input).expect("Always valid");
+    let stdin_input = serde_json::to_vec(input).expect("Always valid");
     stdin
         .write_all(stdin_input.as_slice())
         .unwrap_or_else(|error| panic!("{executable:?} subprocess stdin writing: {error:?}"));

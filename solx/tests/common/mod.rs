@@ -131,7 +131,6 @@ pub fn build_solidity_standard_json(
         &input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings,
-        None,
         vec![],
         None,
     )?;
@@ -199,7 +198,6 @@ pub fn build_yul_standard_json(
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
-        None,
         vec![],
         None,
     )?;
@@ -259,7 +257,6 @@ pub fn build_llvm_ir_standard_json(
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
-        None,
         vec![],
         None,
     )?;

@@ -13,7 +13,6 @@ use normpath::PathExt;
 
 use solx_standard_json::CollectableError;
 
-use crate::error::stack_too_deep::StackTooDeep as StackTooDeepError;
 use crate::error::Error;
 
 use self::contract::object::Object as ContractObject;
@@ -345,36 +344,6 @@ impl Build {
             standard_json.contracts.clear();
         }
         Ok(())
-    }
-
-    ///
-    /// Extracts stack-too-deep errors from the build.
-    ///
-    pub fn take_stack_too_deep_errors(&mut self) -> Vec<StackTooDeepError> {
-        let mut stack_too_deep_errors = Vec::new();
-        for contract in self.contracts.values() {
-            if let Err(Error::StackTooDeep(stack_too_deep_error)) =
-                contract.deploy_object_result.as_ref()
-            {
-                let mut error = stack_too_deep_error.to_owned();
-                error.contract_name = Some(contract.name.to_owned());
-                error.code_segment = Some(era_compiler_common::CodeSegment::Deploy);
-                stack_too_deep_errors.push(error);
-            }
-            if let Err(Error::StackTooDeep(stack_too_deep_error)) =
-                contract.runtime_object_result.as_ref()
-            {
-                let mut error = stack_too_deep_error.to_owned();
-                error.contract_name = Some(contract.name.to_owned());
-                error.code_segment = Some(era_compiler_common::CodeSegment::Runtime);
-                stack_too_deep_errors.push(error);
-            }
-        }
-        self.contracts.retain(|_, contract| {
-            !matches!(contract.deploy_object_result, Err(Error::StackTooDeep(_)))
-                && !matches!(contract.runtime_object_result, Err(Error::StackTooDeep(_)))
-        }); // TODO: replace with `extract_if` when stabilized
-        stack_too_deep_errors
     }
 }
 

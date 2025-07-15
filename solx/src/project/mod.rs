@@ -425,7 +425,6 @@ impl Project {
         output_selection: &solx_standard_json::InputSelection,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
-        spill_area_size: Option<BTreeMap<String, solx_standard_json::InputOptimizerSpillAreaSize>>,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<EVMBuild> {
@@ -492,14 +491,7 @@ impl Project {
                                 ),
                             });
 
-                    let spill_area_size = spill_area_size
-                        .as_ref()
-                        .and_then(|sizes| sizes.get(contract_name.full_path.as_str()));
-                    let mut optimizer_settings = optimizer_settings.clone();
-                    if let Some(spill_area_size) = spill_area_size {
-                        optimizer_settings.set_spill_area_size(spill_area_size.runtime);
-                    }
-                    let input = EVMProcessInput::new(
+                    let mut input = EVMProcessInput::new(
                         contract_name.clone(),
                         runtime_code_ir,
                         era_compiler_common::CodeSegment::Runtime,
@@ -507,17 +499,20 @@ impl Project {
                         output_selection.to_owned(),
                         None,
                         metadata_bytes,
-                        optimizer_settings,
+                        optimizer_settings.clone(),
                         llvm_options.clone(),
                         debug_config.clone(),
                     );
-                    let mut result: crate::Result<EVMProcessOutput> =
-                        crate::process::call(path.as_str(), input);
-                    if let Err(Error::StackTooDeep(ref mut stack_too_deep)) = result {
-                        stack_too_deep.contract_name = Some(contract_name.clone());
-                        stack_too_deep.code_segment =
-                            Some(era_compiler_common::CodeSegment::Runtime);
-                    }
+                    let result: crate::Result<EVMProcessOutput> =
+                        match crate::process::call(path.as_str(), &input) {
+                            Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                                input
+                                    .optimizer_settings
+                                    .set_spill_area_size(stack_too_deep.spill_area_size);
+                                crate::process::call(path.as_str(), &input)
+                            }
+                            result => result,
+                        };
                     (result, metadata)
                 };
 
@@ -525,16 +520,8 @@ impl Project {
                     .as_ref()
                     .ok()
                     .and_then(|output| output.object.immutables.to_owned());
-                let deploy_object_result = {
-                    let spill_area_size = spill_area_size
-                        .as_ref()
-                        .and_then(|sizes| sizes.get(contract_name.full_path.as_str()));
-                    let mut optimizer_settings = optimizer_settings.clone();
-                    if let Some(spill_area_size) = spill_area_size {
-                        optimizer_settings.set_spill_area_size(spill_area_size.creation);
-                    }
-
-                    let input = EVMProcessInput::new(
+                let deploy_object_result: crate::Result<EVMProcessOutput> = {
+                    let mut input = EVMProcessInput::new(
                         contract_name.clone(),
                         deploy_code_ir,
                         era_compiler_common::CodeSegment::Deploy,
@@ -542,18 +529,19 @@ impl Project {
                         output_selection.to_owned(),
                         immutables,
                         None,
-                        optimizer_settings,
+                        optimizer_settings.clone(),
                         llvm_options.clone(),
                         debug_config.clone(),
                     );
-                    let mut result: crate::Result<EVMProcessOutput> =
-                        crate::process::call(path.as_str(), input);
-                    if let Err(Error::StackTooDeep(ref mut stack_too_deep)) = result {
-                        stack_too_deep.contract_name = Some(contract_name.clone());
-                        stack_too_deep.code_segment =
-                            Some(era_compiler_common::CodeSegment::Deploy);
+                    match crate::process::call(path.as_str(), &input) {
+                        Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                            input
+                                .optimizer_settings
+                                .set_spill_area_size(stack_too_deep.spill_area_size);
+                            crate::process::call(path.as_str(), &input)
+                        }
+                        result => result,
                     }
-                    result
                 };
 
                 let build = EVMContractBuild::new(

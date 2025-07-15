@@ -169,6 +169,20 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 &[],
                 "library_deploy_address",
             ),
+            InstructionName::MEMORYGUARD => {
+                let arguments = self.pop_arguments_llvm(context)?;
+                let spill_area = context
+                    .optimizer()
+                    .settings()
+                    .spill_area_size()
+                    .unwrap_or_default();
+                era_compiler_llvm_context::evm_arithmetic::addition(
+                    context,
+                    arguments[0].into_int_value(),
+                    context.field_const(spill_area),
+                )
+                .map(Some)
+            }
 
             InstructionName::DUP1 => crate::assembly::instruction::stack::dup(
                 context,

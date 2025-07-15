@@ -108,6 +108,7 @@ impl Contract {
         use era_compiler_llvm_context::EVMWriteLLVM;
 
         let solc_version = solx_solc::Compiler::default().version;
+        let solidity_data = era_compiler_llvm_context::EVMContextSolidityData::new(immutables);
         let optimizer = era_compiler_llvm_context::Optimizer::new(optimizer_settings);
         let output_bytecode = output_selection.is_bytecode_set_for_any();
 
@@ -122,15 +123,13 @@ impl Contract {
                     deploy_module,
                     llvm_options.clone(),
                     code_segment,
-                    optimizer.clone(),
+                    optimizer,
                     debug_config.clone(),
                 );
                 inkwell::context::Context::install_stack_error_handler(
                     crate::process::evm_stack_error_handler,
                 );
-                deploy_context.set_solidity_data(
-                    era_compiler_llvm_context::EVMContextSolidityData::new(immutables),
-                );
+                deploy_context.set_solidity_data(solidity_data);
                 deploy_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths,
                 ));
@@ -178,6 +177,7 @@ impl Contract {
                 inkwell::context::Context::install_stack_error_handler(
                     crate::process::evm_stack_error_handler,
                 );
+                runtime_context.set_solidity_data(solidity_data);
                 runtime_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths.clone(),
                 ));
@@ -226,15 +226,13 @@ impl Contract {
                     deploy_module,
                     llvm_options.clone(),
                     code_segment,
-                    optimizer.clone(),
+                    optimizer,
                     debug_config.clone(),
                 );
                 inkwell::context::Context::install_stack_error_handler(
                     crate::process::evm_stack_error_handler,
                 );
-                deploy_context.set_solidity_data(
-                    era_compiler_llvm_context::EVMContextSolidityData::new(immutables),
-                );
+                deploy_context.set_solidity_data(solidity_data);
                 deploy_context.set_evmla_data(evmla_data);
                 deploy_code.assembly.declare(&mut deploy_context)?;
                 deploy_code
@@ -287,6 +285,7 @@ impl Contract {
                 inkwell::context::Context::install_stack_error_handler(
                     crate::process::evm_stack_error_handler,
                 );
+                runtime_context.set_solidity_data(solidity_data);
                 runtime_context.set_evmla_data(evmla_data.clone());
                 runtime_code.assembly.declare(&mut runtime_context)?;
                 runtime_code
@@ -343,6 +342,7 @@ impl Contract {
                 inkwell::context::Context::install_stack_error_handler(
                     crate::process::evm_stack_error_handler,
                 );
+                deploy_context.set_solidity_data(solidity_data);
                 let deploy_build = deploy_context.build(
                     output_selection.check_selection(
                         contract_name.path.as_str(),
@@ -384,12 +384,13 @@ impl Contract {
                     runtime_module,
                     llvm_options.clone(),
                     code_segment,
-                    optimizer.clone(),
+                    optimizer,
                     debug_config.clone(),
                 );
                 inkwell::context::Context::install_stack_error_handler(
                     crate::process::evm_stack_error_handler,
                 );
+                runtime_context.set_solidity_data(solidity_data);
                 let runtime_build = runtime_context.build(
                     output_selection.check_selection(
                         contract_name.path.as_str(),
