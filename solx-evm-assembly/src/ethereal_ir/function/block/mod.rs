@@ -4,7 +4,7 @@
 
 pub mod element;
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use num::Zero;
 
@@ -26,7 +26,7 @@ pub struct Block {
     /// The block elements relevant to the stack consistency.
     pub elements: Vec<Element>,
     /// The block predecessors.
-    pub predecessors: HashSet<(era_compiler_llvm_context::BlockKey, usize)>,
+    pub predecessors: BTreeSet<(era_compiler_llvm_context::BlockKey, usize)>,
     /// The initial stack state.
     pub initial_stack: ElementStack,
     /// The stack.
@@ -38,8 +38,6 @@ pub struct Block {
 impl Block {
     /// The elements vector initial capacity.
     pub const ELEMENTS_VECTOR_DEFAULT_CAPACITY: usize = 64;
-    /// The predecessors hashset initial capacity.
-    pub const PREDECESSORS_HASHSET_DEFAULT_CAPACITY: usize = 4;
 
     ///
     /// Assembles a block from the sequence of instructions.
@@ -69,7 +67,7 @@ impl Block {
             key: era_compiler_llvm_context::BlockKey::new(code_segment, tag),
             instance: None,
             elements: Vec::with_capacity(Self::ELEMENTS_VECTOR_DEFAULT_CAPACITY),
-            predecessors: HashSet::with_capacity(Self::PREDECESSORS_HASHSET_DEFAULT_CAPACITY),
+            predecessors: BTreeSet::new(),
             initial_stack: ElementStack::new(),
             stack: ElementStack::new(),
             extra_hashes: vec![],
