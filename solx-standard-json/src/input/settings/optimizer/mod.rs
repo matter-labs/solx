@@ -29,7 +29,7 @@ pub struct Optimizer {
 
     /// Enable the `solc` optimizer.
     /// Always `true` in order to allow library inlining.
-    #[serde(default = "Optimizer::default_enabled")]
+    #[serde(default)]
     pub enabled: bool,
     /// Spill area size for the LLVM stack-too-deep avoidance algorithm.
     /// It is specified per-contract using its fully qualified name.
@@ -60,7 +60,7 @@ impl Optimizer {
             mode: Some(mode),
             size_fallback: Some(size_fallback),
 
-            enabled: Self::default_enabled(),
+            enabled: false,
             spill_area_size,
         }
     }
@@ -73,16 +73,9 @@ impl Optimizer {
     }
 
     ///
-    /// The default flag to enable the size fallback.
+    /// The default flag for the size fallback.
     ///
     pub fn default_size_fallback() -> Option<bool> {
         Some(false)
-    }
-
-    ///
-    /// The default flag to enable the `solc` optimizer.
-    ///
-    pub fn default_enabled() -> bool {
-        false
     }
 }

@@ -388,8 +388,9 @@ impl Contract {
             solx_standard_json::InputSelector::ABI,
         ) {
             let output_name = format!(
-                "{contract_path}_{}.abi",
+                "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
+                era_compiler_common::EXTENSION_SOLIDITY_ABI,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -404,8 +405,9 @@ impl Contract {
             solx_standard_json::InputSelector::MethodIdentifiers,
         ) {
             let output_name = format!(
-                "{contract_path}_{}.signatures",
+                "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
+                era_compiler_common::EXTENSION_SOLIDITY_SIGNATURES,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -462,8 +464,9 @@ impl Contract {
             solx_standard_json::InputSelector::DeveloperDocumentation,
         ) {
             let output_name = format!(
-                "{contract_path}_{}.docdev",
+                "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
+                era_compiler_common::EXTENSION_SOLIDITY_DOCDEV,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -477,8 +480,9 @@ impl Contract {
             solx_standard_json::InputSelector::UserDocumentation,
         ) {
             let output_name = format!(
-                "{contract_path}_{}.docuser",
+                "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
+                era_compiler_common::EXTENSION_SOLIDITY_DOCUSER,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
