@@ -26,11 +26,6 @@ pub struct Optimizer {
         skip_serializing_if = "Option::is_none"
     )]
     pub size_fallback: Option<bool>,
-
-    /// Enable the `solc` optimizer.
-    /// Always `true` in order to allow library inlining.
-    #[serde(default)]
-    pub enabled: bool,
     /// Spill area size for the LLVM stack-too-deep avoidance algorithm.
     /// It is specified per-contract using its fully qualified name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -59,8 +54,6 @@ impl Optimizer {
         Self {
             mode: Some(mode),
             size_fallback: Some(size_fallback),
-
-            enabled: false,
             spill_area_size,
         }
     }
