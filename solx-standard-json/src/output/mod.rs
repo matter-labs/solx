@@ -7,6 +7,8 @@ pub mod error;
 pub mod source;
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use crate::input::settings::selection::selector::Selector as InputSettingsSelector;
 use crate::input::settings::selection::Selection as InputSettingsSelection;
@@ -42,7 +44,7 @@ impl Output {
     ///
     pub fn new(
         sources: &BTreeMap<String, InputSource>,
-        messages: &mut Vec<JsonOutputError>,
+        messages: Arc<Mutex<Vec<JsonOutputError>>>,
     ) -> Self {
         let sources = sources
             .keys()
@@ -53,7 +55,7 @@ impl Output {
         Self {
             contracts: BTreeMap::new(),
             sources,
-            errors: std::mem::take(messages),
+            errors: messages.lock().expect("Sync").drain(..).collect(),
         }
     }
 
@@ -62,12 +64,8 @@ impl Output {
     ///
     /// Is used to emit errors in standard JSON mode.
     ///
-    pub fn new_with_messages(messages: Vec<JsonOutputError>) -> Self {
-        Self {
-            contracts: BTreeMap::new(),
-            sources: BTreeMap::new(),
-            errors: messages,
-        }
+    pub fn new_with_messages(messages: Arc<Mutex<Vec<JsonOutputError>>>) -> Self {
+        Self::new(&BTreeMap::new(), messages)
     }
 
     ///
@@ -144,10 +142,11 @@ impl Output {
 }
 
 impl CollectableError for Output {
-    fn errors(&self) -> Vec<&JsonOutputError> {
+    fn errors(&self) -> Vec<JsonOutputError> {
         self.errors
             .iter()
             .filter(|error| error.severity == "error")
+            .cloned()
             .collect()
     }
 

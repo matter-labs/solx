@@ -12,6 +12,8 @@
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 ///
 /// The Solidity compiler.
@@ -72,7 +74,7 @@ impl Compiler {
     pub fn standard_json(
         &self,
         input_json: &mut solx_standard_json::Input,
-        messages: &mut Vec<solx_standard_json::OutputError>,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
         use_import_callback: bool,
         base_path: Option<&str>,
         include_paths: &[String],
@@ -176,7 +178,9 @@ impl Compiler {
                 }
                 None => true,
             });
-        solc_output.errors.append(messages);
+        solc_output
+            .errors
+            .append(messages.lock().expect("Sync").as_mut());
 
         Ok(solc_output)
     }
@@ -188,7 +192,7 @@ impl Compiler {
         &self,
         paths: &[PathBuf],
         libraries: era_compiler_common::Libraries,
-        messages: &mut Vec<solx_standard_json::OutputError>,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     ) -> anyhow::Result<solx_standard_json::Output> {
         let mut solc_input = solx_standard_json::Input::from_yul_paths(
             paths,
@@ -207,7 +211,7 @@ impl Compiler {
     pub fn validate_yul_standard_json(
         &self,
         solc_input: &mut solx_standard_json::Input,
-        messages: &mut Vec<solx_standard_json::OutputError>,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     ) -> anyhow::Result<solx_standard_json::Output> {
         solc_input
             .settings

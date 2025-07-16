@@ -41,6 +41,9 @@ impl Error {
     /// The list of ignored `solc` warnings that are strictly EVM-related.
     pub const IGNORED_WARNING_CODES: [&'static str; 5] = ["1699", "3860", "5159", "5574", "6417"];
 
+    /// The memory-unsafe assembly warning code.
+    pub const MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE: &'static str = "5726";
+
     ///
     /// A shortcut constructor.
     ///
@@ -121,10 +124,19 @@ impl Error {
     ///
     /// It is useful when the user is confident that the error is not critical and can be ignored.
     ///
-    pub fn into_warning(mut self) -> Self {
+    pub fn make_warning(&mut self) {
         self.severity = "warning".to_owned();
         self.r#type = "Warning".to_owned();
-        self
+    }
+
+    ///
+    /// Changes this message to a warning.
+    ///
+    /// It is useful when we want to abort the compilation when we consider the situation more critical than a warning.
+    ///
+    pub fn make_error(&mut self) {
+        self.severity = "error".to_owned();
+        self.r#type = "Error".to_owned();
     }
 }
 

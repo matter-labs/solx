@@ -30,6 +30,8 @@ pub use self::r#const::*;
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use solx_standard_json::CollectableError;
 
@@ -43,7 +45,7 @@ pub fn yul_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -54,7 +56,7 @@ pub fn yul_to_evm(
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let solc_compiler = solx_solc::Compiler::default();
-    solc_compiler.validate_yul_paths(paths, libraries.clone(), messages)?;
+    solc_compiler.validate_yul_paths(paths, libraries.clone(), messages.clone())?;
 
     let project = Project::try_from_yul_paths(
         paths,
@@ -111,7 +113,7 @@ pub fn llvm_ir_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -160,7 +162,7 @@ pub fn standard_output_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     evm_version: Option<era_compiler_common::EVMVersion>,
     via_ir: bool,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
@@ -210,7 +212,7 @@ pub fn standard_output_evm(
 
     let mut solc_output = solc_compiler.standard_json(
         &mut solc_input,
-        messages,
+        messages.clone(),
         use_import_callback,
         base_path.as_deref(),
         include_paths.as_slice(),
@@ -262,7 +264,7 @@ pub fn standard_output_evm(
 ///
 pub fn standard_json_evm(
     json_path: Option<PathBuf>,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     base_path: Option<String>,
     include_paths: Vec<String>,
     allow_paths: Option<String>,
@@ -333,7 +335,7 @@ pub fn standard_json_evm(
         solx_standard_json::InputLanguage::Solidity => {
             let mut solc_output = solc_compiler.standard_json(
                 &mut solc_input,
-                messages,
+                messages.clone(),
                 use_import_callback,
                 base_path.as_deref(),
                 include_paths.as_slice(),
@@ -357,7 +359,7 @@ pub fn standard_json_evm(
         }
         solx_standard_json::InputLanguage::Yul => {
             let mut solc_output =
-                solc_compiler.validate_yul_standard_json(&mut solc_input, messages)?;
+                solc_compiler.validate_yul_standard_json(&mut solc_input, messages.clone())?;
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
@@ -376,7 +378,8 @@ pub fn standard_json_evm(
             (solc_output, project)
         }
         solx_standard_json::InputLanguage::LLVMIR => {
-            let mut solc_output = solx_standard_json::Output::new(&solc_input.sources, messages);
+            let mut solc_output =
+                solx_standard_json::Output::new(&solc_input.sources, messages.clone());
 
             let project = Project::try_from_llvm_ir_sources(
                 solc_input.sources.clone(),

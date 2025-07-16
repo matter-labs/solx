@@ -36,7 +36,7 @@ impl Error {
     ///
     /// Unwraps the error as a `StandardJson` error reference.
     ///
-    pub fn unwrap_standard_json_ref(&self) -> &solx_standard_json::OutputError {
+    pub fn unwrap_standard_json(self) -> solx_standard_json::OutputError {
         match self {
             Error::StandardJson(error) => error,
             Error::Generic(error) => {

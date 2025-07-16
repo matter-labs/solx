@@ -7,6 +7,8 @@ pub mod arguments;
 use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use clap::Parser;
 
@@ -18,12 +20,19 @@ use self::arguments::Arguments;
 fn main() -> anyhow::Result<()> {
     let arguments = Arguments::try_parse()?;
     let is_standard_json = arguments.standard_json.is_some();
-    let mut messages = arguments.validate();
-    if messages.iter().all(|error| error.severity != "error") {
+    let messages = Arc::new(Mutex::new(arguments.validate()));
+    if messages
+        .lock()
+        .expect("Sync")
+        .iter()
+        .all(|error| error.severity != "error")
+    {
         if !is_standard_json {
             std::io::stderr()
                 .write_all(
                     messages
+                        .lock()
+                        .expect("Sync")
                         .drain(..)
                         .map(|error| error.to_string())
                         .collect::<Vec<String>>()
@@ -32,10 +41,13 @@ fn main() -> anyhow::Result<()> {
                 )
                 .expect("Stderr writing error");
         }
-        if let Err(error) = main_inner(arguments, &mut messages) {
-            messages.push(solx_standard_json::OutputError::new_error(
-                None, error, None, None,
-            ));
+        if let Err(error) = main_inner(arguments, messages.clone()) {
+            messages
+                .lock()
+                .expect("Sync")
+                .push(solx_standard_json::OutputError::new_error(
+                    None, error, None, None,
+                ));
         }
     }
 
@@ -44,7 +56,12 @@ fn main() -> anyhow::Result<()> {
         output.write_and_exit(&solx_standard_json::InputSelection::default());
     }
 
-    let exit_code = if messages.iter().any(|error| error.severity == "error") {
+    let exit_code = if messages
+        .lock()
+        .expect("Sync")
+        .iter()
+        .any(|error| error.severity == "error")
+    {
         era_compiler_common::EXIT_CODE_FAILURE
     } else {
         era_compiler_common::EXIT_CODE_SUCCESS
@@ -52,7 +69,9 @@ fn main() -> anyhow::Result<()> {
     std::io::stderr()
         .write_all(
             messages
-                .into_iter()
+                .lock()
+                .expect("Sync")
+                .iter()
                 .map(|error| error.to_string())
                 .collect::<Vec<String>>()
                 .join("\n")
@@ -67,7 +86,7 @@ fn main() -> anyhow::Result<()> {
 ///
 fn main_inner(
     arguments: Arguments,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
 ) -> anyhow::Result<()> {
     if arguments.version {
         let solc = solx_solc::Compiler::default();

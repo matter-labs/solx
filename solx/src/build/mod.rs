@@ -8,6 +8,8 @@ use std::collections::BTreeMap;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use normpath::PathExt;
 
@@ -28,7 +30,7 @@ pub struct Build {
     /// The Solidity AST JSONs of the source files.
     pub ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
     /// The additional message to output.
-    pub messages: Vec<solx_standard_json::OutputError>,
+    pub messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
 }
 
 impl Build {
@@ -38,12 +40,12 @@ impl Build {
     pub fn new(
         contracts: BTreeMap<String, Contract>,
         ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
-        messages: &mut Vec<solx_standard_json::OutputError>,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     ) -> Self {
         Self {
             contracts,
             ast_jsons,
-            messages: std::mem::take(messages),
+            messages,
         }
     }
 
@@ -102,11 +104,12 @@ impl Build {
                         match object.assemble(all_objects.as_slice(), cbor_data.clone()) {
                             Ok(assembled_object) => assembled_object,
                             Err(error) => {
-                                self.messages
-                                    .push(solx_standard_json::OutputError::new_error(
+                                self.messages.lock().expect("Sync").push(
+                                    solx_standard_json::OutputError::new_error(
                                         None, &error, None, None,
-                                    ));
-                                return Self::new(BTreeMap::new(), ast_jsons, &mut self.messages);
+                                    ),
+                                );
+                                return Self::new(BTreeMap::new(), ast_jsons, self.messages);
                             }
                         };
                     assembled_objects_data.push((
@@ -163,16 +166,15 @@ impl Build {
             .into_iter()
             {
                 if let Err(error) = object.link(&linker_symbols) {
-                    self.messages
-                        .push(solx_standard_json::OutputError::new_error(
-                            None, &error, None, None,
-                        ));
-                    return Self::new(BTreeMap::new(), ast_jsons, &mut self.messages);
+                    self.messages.lock().expect("Sync").push(
+                        solx_standard_json::OutputError::new_error(None, &error, None, None),
+                    );
+                    return Self::new(BTreeMap::new(), ast_jsons, self.messages);
                 }
             }
         }
 
-        Self::new(self.contracts, ast_jsons, &mut self.messages)
+        Self::new(self.contracts, ast_jsons, self.messages)
     }
 
     ///
@@ -348,8 +350,8 @@ impl Build {
 }
 
 impl solx_standard_json::CollectableError for Build {
-    fn errors(&self) -> Vec<&solx_standard_json::OutputError> {
-        let mut errors: Vec<&solx_standard_json::OutputError> = self
+    fn errors(&self) -> Vec<solx_standard_json::OutputError> {
+        let mut errors: Vec<solx_standard_json::OutputError> = self
             .contracts
             .values()
             .flat_map(|contract| {
@@ -359,12 +361,16 @@ impl solx_standard_json::CollectableError for Build {
                 ]
             })
             .flatten()
-            .map(|error| error.unwrap_standard_json_ref())
+            .cloned()
+            .map(|error| error.unwrap_standard_json())
             .collect();
         errors.extend(
             self.messages
+                .lock()
+                .expect("Sync")
                 .iter()
-                .filter(|message| message.severity == "error"),
+                .filter(|message| message.severity == "error")
+                .cloned(),
         );
         errors
     }
@@ -372,6 +378,8 @@ impl solx_standard_json::CollectableError for Build {
     fn take_warnings(&mut self) -> Vec<solx_standard_json::OutputError> {
         let mut warnings: Vec<solx_standard_json::OutputError> = self
             .messages
+            .lock()
+            .expect("Sync")
             .iter()
             .filter(|message| message.severity == "warning")
             .cloned()
@@ -393,6 +401,8 @@ impl solx_standard_json::CollectableError for Build {
             );
         }
         self.messages
+            .lock()
+            .expect("Sync")
             .retain(|message| message.severity != "warning");
         warnings
     }

@@ -6,6 +6,8 @@ pub mod contract;
 
 use std::collections::BTreeMap;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
@@ -421,7 +423,7 @@ impl Project {
     ///
     pub fn compile_to_evm(
         self,
-        messages: &mut Vec<solx_standard_json::OutputError>,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
         output_selection: &solx_standard_json::InputSelection,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -511,6 +513,13 @@ impl Project {
                         pass_count += 1;
                         match result {
                             Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                                for message in messages.lock().expect("Sync").iter_mut() {
+                                    if let (Some(path), Some(error_code)) = (message.source_location.as_ref().map(|location| location.file.as_str()), message.error_code.as_ref()) {
+                                        if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
+                                            message.make_error();
+                                        }
+                                    }
+                                }
                                 if pass_count > 2 {
                                     panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
                                 }
@@ -553,6 +562,13 @@ impl Project {
                         pass_count += 1;
                         match result {
                             Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                                for message in messages.lock().expect("Sync").iter_mut() {
+                                    if let (Some(path), Some(error_code)) = (message.source_location.as_ref().map(|location| location.file.as_str()), message.error_code.as_ref()) {
+                                        if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
+                                            message.make_error();
+                                        }
+                                    }
+                                }
                                 if pass_count > 2 {
                                     panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
                                 }
