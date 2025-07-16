@@ -26,8 +26,11 @@ impl Error {
     ///
     /// A shortcut constructor for a `StackTooDeep` error.
     ///
-    pub fn stack_too_deep(spill_area_size: u64) -> Self {
-        Error::StackTooDeep(StackTooDeep { spill_area_size })
+    pub fn stack_too_deep(spill_area_size: u64, is_size_fallback: bool) -> Self {
+        Error::StackTooDeep(StackTooDeep {
+            spill_area_size,
+            is_size_fallback,
+        })
     }
 
     ///

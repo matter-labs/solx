@@ -536,7 +536,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-move-spill-area-to-solx#947b635d428ce95b125a6b01c3d5cf5a1823b569"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-move-spill-area-to-solx#beb406bc74b7942fc3d8d8d948aeed9c9bab8bf8"
 dependencies = [
  "anyhow",
  "era-compiler-common",

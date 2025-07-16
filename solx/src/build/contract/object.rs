@@ -36,6 +36,8 @@ pub struct Object {
     pub unlinked_symbols: BTreeMap<String, Vec<u64>>,
     /// Whether the object is already assembled.
     pub is_assembled: bool,
+    /// Whether the size fallback was activated during the compilation.
+    pub is_size_fallback: bool,
     /// Compilation warnings.
     pub warnings: Vec<era_compiler_llvm_context::EVMWarning>,
 }
@@ -57,6 +59,7 @@ impl Object {
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
         metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
+        is_size_fallback: bool,
         warnings: Vec<era_compiler_llvm_context::EVMWarning>,
     ) -> Self {
         let bytecode_hex = bytecode.as_ref().map(hex::encode);
@@ -73,6 +76,7 @@ impl Object {
             dependencies,
             unlinked_symbols: BTreeMap::new(),
             is_assembled: false,
+            is_size_fallback,
             warnings,
         }
     }

@@ -465,7 +465,7 @@ Sets the optimization level of the LLVM optimizer. Available values are:
 
 For most cases, it is fine to keep the default value of `3`. You should only use the level `z` if you are ready to deliberately sacrifice performance and optimize for size.
 
-> Large contracts may hit the EVM bytecode size limit. In this case, it is recommended using the [`--optimization-size-fallback`](#--optimization-size-fallback) option rather than setting the level to `z`.
+> Large contracts may hit the EVM bytecode size limit. In this case, it is recommended to use the [`--optimization-size-fallback`](#--optimization-size-fallback) option rather than setting the level to `z`.
 
 Usage:
 
@@ -486,13 +486,10 @@ SOLX_OPTIMIZATION='3' solx 'Simple.sol' --bin
 
 Sets the optimization level to `z` for contracts that failed to compile due to overrunning the bytecode size constraints.
 
-> This option can cause stack-too-deep errors that solx cannot resolve yet. It will be fixed soon.
-> If you encounter such errors in your project, please temporarily refrain from using this option.
-
 Under the hood, this option automatically triggers recompilation of contracts with level `z`. Contracts that were successfully compiled with [the original `--optimization` setting](#--optimization---o) are not recompiled.
 
 > For deployment, it is recommended to have this option enabled in order to mitigate potential issues with EVM bytecode size constraints on a per-contract basis.
-> If your environment does not have bytecode size limitations, it is better to disable it to prevent unnecessary recompilations.
+> If your environment does not have bytecode size limitations, it is better to disable it to prevent unnecessary recompilations. A good example is running `forge test`.
 
 Usage:
 

@@ -503,16 +503,28 @@ impl Project {
                         llvm_options.clone(),
                         debug_config.clone(),
                     );
-                    let result: crate::Result<EVMProcessOutput> =
-                        match crate::process::call(path.as_str(), &input) {
+
+                    let mut result: crate::Result<EVMProcessOutput>;
+                    let mut pass_count = 0;
+                    loop {
+                        result = crate::process::call(path.as_str(), &input);
+                        pass_count += 1;
+                        match result {
                             Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                                if pass_count > 2 {
+                                    panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
+                                }
+                                if stack_too_deep.is_size_fallback {
+                                    input.optimizer_settings.switch_to_size_fallback();
+                                }
                                 input
                                     .optimizer_settings
                                     .set_spill_area_size(stack_too_deep.spill_area_size);
-                                crate::process::call(path.as_str(), &input)
+                                continue;
                             }
-                            result => result,
-                        };
+                            _ => break,
+                        }
+                    }
                     (result, metadata)
                 };
 
@@ -533,15 +545,29 @@ impl Project {
                         llvm_options.clone(),
                         debug_config.clone(),
                     );
-                    match crate::process::call(path.as_str(), &input) {
-                        Err(Error::StackTooDeep(ref stack_too_deep)) => {
-                            input
-                                .optimizer_settings
-                                .set_spill_area_size(stack_too_deep.spill_area_size);
-                            crate::process::call(path.as_str(), &input)
+
+                    let mut result: crate::Result<EVMProcessOutput>;
+                    let mut pass_count = 0;
+                    loop {
+                        result = crate::process::call(path.as_str(), &input);
+                        pass_count += 1;
+                        match result {
+                            Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                                if pass_count > 2 {
+                                    panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
+                                }
+                                if stack_too_deep.is_size_fallback {
+                                    input.optimizer_settings.switch_to_size_fallback();
+                                }
+                                input
+                                    .optimizer_settings
+                                    .set_spill_area_size(stack_too_deep.spill_area_size);
+                                continue;
+                            }
+                            _ => break,
                         }
-                        result => result,
                     }
+                    result
                 };
 
                 let build = EVMContractBuild::new(

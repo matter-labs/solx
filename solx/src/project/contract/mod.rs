@@ -156,6 +156,7 @@ impl Contract {
                     None,
                     None,
                     yul.dependencies,
+                    deploy_build.is_size_fallback,
                     deploy_build.warnings,
                 );
                 Ok(deploy_object)
@@ -207,6 +208,7 @@ impl Contract {
                     Some(immutables),
                     metadata_bytes,
                     yul.dependencies,
+                    runtime_build.is_size_fallback,
                     runtime_build.warnings,
                 );
                 Ok(runtime_object)
@@ -260,6 +262,7 @@ impl Contract {
                     None,
                     None,
                     deploy_code_dependencies,
+                    deploy_build.is_size_fallback,
                     deploy_build.warnings,
                 );
                 Ok(deploy_object)
@@ -314,6 +317,7 @@ impl Contract {
                     Some(immutables),
                     metadata_bytes,
                     runtime_code.dependencies,
+                    runtime_build.is_size_fallback,
                     runtime_build.warnings,
                 );
                 Ok(runtime_object)
@@ -362,6 +366,7 @@ impl Contract {
                     None,
                     None,
                     deploy_llvm_ir.dependencies,
+                    deploy_build.is_size_fallback,
                     deploy_build.warnings,
                 );
                 Ok(deploy_object)
@@ -410,6 +415,7 @@ impl Contract {
                     Some(BTreeMap::new()),
                     metadata_bytes,
                     runtime_llvm_ir.dependencies,
+                    runtime_build.is_size_fallback,
                     runtime_build.warnings,
                 );
                 Ok(runtime_object)
