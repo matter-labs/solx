@@ -213,11 +213,14 @@ impl Object {
     }
 
     ///
-    /// Returns warnings in standard JSON format.
+    /// Extracts warnings in standard JSON format.
     ///
-    pub fn warnings_standard_json(&self, path: &str) -> Vec<solx_standard_json::OutputError> {
+    pub fn take_warnings_standard_json(
+        &mut self,
+        path: &str,
+    ) -> Vec<solx_standard_json::OutputError> {
         self.warnings
-            .iter()
+            .drain(..)
             .map(|warning| {
                 solx_standard_json::OutputError::new_warning(
                     warning.code(),

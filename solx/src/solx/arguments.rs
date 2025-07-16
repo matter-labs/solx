@@ -5,6 +5,8 @@
 use std::collections::BTreeSet;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use clap::Parser;
 use path_slash::PathExt;
@@ -194,7 +196,7 @@ impl Arguments {
     ///
     /// Validates the arguments.
     ///
-    pub fn validate(&self) -> Vec<solx_standard_json::OutputError> {
+    pub fn validate(&self) -> Arc<Mutex<Vec<solx_standard_json::OutputError>>> {
         let mut messages = vec![];
 
         if self.version && std::env::args().count() > 2 {
@@ -397,7 +399,7 @@ impl Arguments {
             }
         }
 
-        messages
+        Arc::new(Mutex::new(messages))
     }
 
     ///

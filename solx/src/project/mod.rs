@@ -506,34 +506,12 @@ impl Project {
                         debug_config.clone(),
                     );
 
-                    let mut result: crate::Result<EVMProcessOutput>;
-                    let mut pass_count = 0;
-                    loop {
-                        result = crate::process::call(path.as_str(), &input);
-                        pass_count += 1;
-                        match result {
-                            Err(Error::StackTooDeep(ref stack_too_deep)) => {
-                                for message in messages.lock().expect("Sync").iter_mut() {
-                                    if let (Some(path), Some(error_code)) = (message.source_location.as_ref().map(|location| location.file.as_str()), message.error_code.as_ref()) {
-                                        if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
-                                            message.make_error();
-                                        }
-                                    }
-                                }
-                                if pass_count > 2 {
-                                    panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
-                                }
-                                if stack_too_deep.is_size_fallback {
-                                    input.optimizer_settings.switch_to_size_fallback();
-                                }
-                                input
-                                    .optimizer_settings
-                                    .set_spill_area_size(stack_too_deep.spill_area_size);
-                                continue;
-                            }
-                            _ => break,
-                        }
-                    }
+                    let result = Self::run_multi_pass_pipeline(
+                        path.as_str(),
+                        &contract_name,
+                        &mut input,
+                        messages.clone(),
+                    );
                     (result, metadata)
                 };
 
@@ -555,35 +533,12 @@ impl Project {
                         debug_config.clone(),
                     );
 
-                    let mut result: crate::Result<EVMProcessOutput>;
-                    let mut pass_count = 0;
-                    loop {
-                        result = crate::process::call(path.as_str(), &input);
-                        pass_count += 1;
-                        match result {
-                            Err(Error::StackTooDeep(ref stack_too_deep)) => {
-                                for message in messages.lock().expect("Sync").iter_mut() {
-                                    if let (Some(path), Some(error_code)) = (message.source_location.as_ref().map(|location| location.file.as_str()), message.error_code.as_ref()) {
-                                        if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
-                                            message.make_error();
-                                        }
-                                    }
-                                }
-                                if pass_count > 2 {
-                                    panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
-                                }
-                                if stack_too_deep.is_size_fallback {
-                                    input.optimizer_settings.switch_to_size_fallback();
-                                }
-                                input
-                                    .optimizer_settings
-                                    .set_spill_area_size(stack_too_deep.spill_area_size);
-                                continue;
-                            }
-                            _ => break,
-                        }
-                    }
-                    result
+                    Self::run_multi_pass_pipeline(
+                        path.as_str(),
+                        &contract_name,
+                        &mut input,
+                        messages.clone(),
+                    )
                 };
 
                 let build = EVMContractBuild::new(
@@ -605,5 +560,54 @@ impl Project {
             .collect::<BTreeMap<String, EVMContractBuild>>();
 
         Ok(EVMBuild::new(results, self.ast_jsons, messages))
+    }
+
+    ///
+    /// Runs the multi-pass compilation pipeline.
+    ///
+    /// It is expected to run up to 4 passes in the process of handling stack too deep errors
+    /// and turning on the size fallback to overcome the EVM bytecode size limit.
+    ///
+    fn run_multi_pass_pipeline(
+        path: &str,
+        contract_name: &era_compiler_common::ContractName,
+        input: &mut EVMProcessInput,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
+    ) -> crate::Result<EVMProcessOutput> {
+        let mut result: crate::Result<EVMProcessOutput>;
+        let mut pass_count = 0;
+        loop {
+            result = crate::process::call(path, input);
+            pass_count += 1;
+            match result {
+                Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                    for message in messages.lock().expect("Sync").iter_mut() {
+                        if let (Some(path), Some(error_code)) = (
+                            message
+                                .source_location
+                                .as_ref()
+                                .map(|location| location.file.as_str()),
+                            message.error_code.as_ref(),
+                        ) {
+                            if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
+                                message.make_error();
+                            }
+                        }
+                    }
+                    if pass_count > 2 {
+                        panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
+                    }
+                    if stack_too_deep.is_size_fallback {
+                        input.optimizer_settings.switch_to_size_fallback();
+                    }
+                    input
+                        .optimizer_settings
+                        .set_spill_area_size(stack_too_deep.spill_area_size);
+                    continue;
+                }
+                _ => break,
+            }
+        }
+        result
     }
 }

@@ -20,7 +20,7 @@ use self::arguments::Arguments;
 fn main() -> anyhow::Result<()> {
     let arguments = Arguments::try_parse()?;
     let is_standard_json = arguments.standard_json.is_some();
-    let messages = Arc::new(Mutex::new(arguments.validate()));
+    let messages = arguments.validate();
     if messages
         .lock()
         .expect("Sync")

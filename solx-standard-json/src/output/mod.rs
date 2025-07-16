@@ -42,10 +42,7 @@ impl Output {
     ///
     /// Is used for projects compiled without `solc`.
     ///
-    pub fn new(
-        sources: &BTreeMap<String, InputSource>,
-        messages: Arc<Mutex<Vec<JsonOutputError>>>,
-    ) -> Self {
+    pub fn new(sources: &BTreeMap<String, InputSource>) -> Self {
         let sources = sources
             .keys()
             .enumerate()
@@ -55,7 +52,7 @@ impl Output {
         Self {
             contracts: BTreeMap::new(),
             sources,
-            errors: messages.lock().expect("Sync").drain(..).collect(),
+            errors: Vec::new(),
         }
     }
 
@@ -65,7 +62,11 @@ impl Output {
     /// Is used to emit errors in standard JSON mode.
     ///
     pub fn new_with_messages(messages: Arc<Mutex<Vec<JsonOutputError>>>) -> Self {
-        Self::new(&BTreeMap::new(), messages)
+        Self {
+            contracts: BTreeMap::new(),
+            sources: BTreeMap::new(),
+            errors: messages.lock().expect("Sync").drain(..).collect(),
+        }
     }
 
     ///
@@ -151,13 +152,8 @@ impl CollectableError for Output {
     }
 
     fn take_warnings(&mut self) -> Vec<JsonOutputError> {
-        let warnings = self
-            .errors
-            .iter()
-            .filter(|message| message.severity == "warning")
-            .cloned()
-            .collect();
-        self.errors.retain(|message| message.severity != "warning");
-        warnings
+        self.errors
+            .extract_if(.., |message| message.severity == "warning")
+            .collect()
     }
 }

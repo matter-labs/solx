@@ -56,7 +56,7 @@ pub fn yul_to_evm(
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let solc_compiler = solx_solc::Compiler::default();
-    solc_compiler.validate_yul_paths(paths, libraries.clone(), messages.clone())?;
+    solc_compiler.validate_yul_paths(paths, libraries.clone())?;
 
     let project = Project::try_from_yul_paths(
         paths,
@@ -212,7 +212,6 @@ pub fn standard_output_evm(
 
     let mut solc_output = solc_compiler.standard_json(
         &mut solc_input,
-        messages.clone(),
         use_import_callback,
         base_path.as_deref(),
         include_paths.as_slice(),
@@ -335,7 +334,6 @@ pub fn standard_json_evm(
         solx_standard_json::InputLanguage::Solidity => {
             let mut solc_output = solc_compiler.standard_json(
                 &mut solc_input,
-                messages.clone(),
                 use_import_callback,
                 base_path.as_deref(),
                 include_paths.as_slice(),
@@ -344,6 +342,10 @@ pub fn standard_json_evm(
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
+            messages
+                .lock()
+                .expect("Sync")
+                .extend(solc_output.errors.drain(..));
 
             let project = Project::try_from_solc_output(
                 solc_input.settings.libraries.clone(),
@@ -358,8 +360,7 @@ pub fn standard_json_evm(
             (solc_output, project)
         }
         solx_standard_json::InputLanguage::Yul => {
-            let mut solc_output =
-                solc_compiler.validate_yul_standard_json(&mut solc_input, messages.clone())?;
+            let mut solc_output = solc_compiler.validate_yul_standard_json(&mut solc_input)?;
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
@@ -378,8 +379,7 @@ pub fn standard_json_evm(
             (solc_output, project)
         }
         solx_standard_json::InputLanguage::LLVMIR => {
-            let mut solc_output =
-                solx_standard_json::Output::new(&solc_input.sources, messages.clone());
+            let mut solc_output = solx_standard_json::Output::new(&solc_input.sources);
 
             let project = Project::try_from_llvm_ir_sources(
                 solc_input.sources.clone(),

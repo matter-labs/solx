@@ -118,14 +118,7 @@ pub fn build_solidity_standard_json(
 
     let mut output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.standard_json(
-            &mut input,
-            Arc::new(Mutex::new(vec![])),
-            true,
-            None,
-            &[],
-            None,
-        )
+        solc_compiler.standard_json(&mut input, true, None, &[], None)
     }?;
     output.check_errors()?;
 
@@ -191,7 +184,7 @@ pub fn build_yul_standard_json(
 
     let mut solc_output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.validate_yul_standard_json(&mut input, Arc::new(Mutex::new(vec![])))
+        solc_compiler.validate_yul_standard_json(&mut input)
     }?;
 
     let project = solx::Project::try_from_yul_sources(
@@ -252,8 +245,7 @@ pub fn build_llvm_ir_standard_json(
         }),
     )?;
 
-    let mut output =
-        solx_standard_json::Output::new(&BTreeMap::new(), Arc::new(Mutex::new(vec![])));
+    let mut output = solx_standard_json::Output::new(&BTreeMap::new());
 
     let project = solx::Project::try_from_llvm_ir_sources(
         input.sources,

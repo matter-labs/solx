@@ -290,8 +290,10 @@ impl Build {
             errors.extend(
                 contract
                     .deploy_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
             if let Err(Error::StandardJson(ref error)) = contract.deploy_object_result {
@@ -300,8 +302,10 @@ impl Build {
             errors.extend(
                 contract
                     .runtime_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
             if let Err(Error::StandardJson(ref error)) = contract.runtime_object_result {
@@ -341,6 +345,9 @@ impl Build {
                 }
             }
         }
+        standard_json
+            .errors
+            .extend(self.messages.lock().expect("Sync").drain(..));
         standard_json.errors.extend(errors);
         if standard_json.has_errors() {
             standard_json.contracts.clear();
@@ -380,30 +387,28 @@ impl solx_standard_json::CollectableError for Build {
             .messages
             .lock()
             .expect("Sync")
-            .iter()
-            .filter(|message| message.severity == "warning")
-            .cloned()
+            .extract_if(.., |message| message.severity == "warning")
             .collect();
         for contract in self.contracts.values_mut() {
             warnings.extend(
                 contract
                     .deploy_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
             warnings.extend(
                 contract
                     .runtime_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
         }
-        self.messages
-            .lock()
-            .expect("Sync")
-            .retain(|message| message.severity != "warning");
         warnings
     }
 }
