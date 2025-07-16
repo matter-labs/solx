@@ -581,19 +581,31 @@ impl Project {
             pass_count += 1;
             match result {
                 Err(Error::StackTooDeep(ref stack_too_deep)) => {
-                    for message in messages.lock().expect("Sync").iter_mut() {
-                        if let (Some(path), Some(error_code)) = (
-                            message
-                                .source_location
-                                .as_ref()
-                                .map(|location| location.file.as_str()),
-                            message.error_code.as_ref(),
-                        ) {
-                            if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
-                                message.make_error();
+                    match std::env::var("EVM_DISABLE_MEMORY_SAFE_ASM_CHECK") {
+                        Ok(_) => {
+                            messages.lock().expect("Sync").retain(|message| {
+                                message.source_location.as_ref().is_none_or(|location| {
+                                    location.file.as_str() != contract_name.path.as_str()
+                                }) || message.error_code.as_deref() != Some(solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE)
+                            });
+                        }
+                        Err(_) => {
+                            for message in messages.lock().expect("Sync").iter_mut() {
+                                if let (Some(path), Some(error_code)) = (
+                                    message
+                                        .source_location
+                                        .as_ref()
+                                        .map(|location| location.file.as_str()),
+                                    message.error_code.as_ref(),
+                                ) {
+                                    if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
+                                        message.make_error();
+                                    }
+                                }
                             }
                         }
                     }
+
                     if pass_count > 2 {
                         panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
                     }
