@@ -2,18 +2,6 @@
 //! The `solc --standard-json` input settings optimizer.
 //!
 
-<<<<<<< HEAD
-pub mod details;
-
-use self::details::Details;
-=======
-pub mod spill_area_size;
-
-use std::collections::BTreeMap;
-
-use self::spill_area_size::SpillAreaSize;
->>>>>>> main
-
 ///
 /// The `solc --standard-json` input settings optimizer.
 ///
@@ -32,25 +20,6 @@ pub struct Optimizer {
         skip_serializing_if = "Option::is_none"
     )]
     pub size_fallback: Option<bool>,
-<<<<<<< HEAD
-
-    /// Enable the `solc` optimizer.
-    /// Always `true` in order to allow library inlining.
-    #[serde(default = "Optimizer::default_enabled")]
-    pub enabled: bool,
-    /// Enable the Yul optimizer in `solc`.
-    /// Always `true` in order to explicitly disable the Yul stack allocation.
-    #[serde(
-        default = "Optimizer::default_details",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub details: Option<Details>,
-=======
-    /// Spill area size for the LLVM stack-too-deep avoidance algorithm.
-    /// It is specified per-contract using its fully qualified name.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub spill_area_size: Option<BTreeMap<String, SpillAreaSize>>,
->>>>>>> main
 }
 
 impl Default for Optimizer {
@@ -70,13 +39,6 @@ impl Optimizer {
         Self {
             mode: Some(mode),
             size_fallback: Some(size_fallback),
-<<<<<<< HEAD
-
-            enabled: Self::default_enabled(),
-            details: Self::default_details(),
-=======
-            spill_area_size,
->>>>>>> main
         }
     }
 

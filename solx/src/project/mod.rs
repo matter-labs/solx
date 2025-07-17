@@ -560,9 +560,9 @@ impl Project {
             .collect::<BTreeMap<String, EVMContractBuild>>();
 
         messages.lock().expect("Sync").retain(|message| {
-            message.severity != "warning"
+            !(message.severity == "warning"
                 && message.error_code.as_deref()
-                    != Some(solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE)
+                    == Some(solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE))
         });
 
         Ok(EVMBuild::new(results, self.ast_jsons, messages))
