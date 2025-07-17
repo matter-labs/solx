@@ -285,12 +285,14 @@ EVM assembly:
 
 
 
-### `--ir-optimized`
+### `--ir`
 
-Emits the optimized **solc** Yul IR.
+Emits the **solc** Yul IR.
+
+> **solx** does not use the Yul optimizer anymore, so the Yul IR is always unoptimized, and it is not possible to emit optimized Yul IR with **solx**.
 
 ```bash
-solx 'Simple.sol' --ir-optimized
+solx 'Simple.sol' --ir
 ```
 
 Output:
@@ -316,9 +318,6 @@ object "Test_26" {
     }
 }
 ```
-
-> **solx** always requests optimized Yul IR from **solc** to ensure that all inlineable libraries are always inlined.
-> For the sake of consistency, **solx** does not support the unoptimized Yul IR output, as it is not used in practice.
 
 
 

@@ -597,7 +597,7 @@ impl Contract {
                 solx_standard_json::InputSelector::Yul,
             )
         }) {
-            standard_json_contract.ir_optimized = Some(value);
+            standard_json_contract.ir = Some(value);
         }
 
         let evm = standard_json_contract

@@ -18,7 +18,7 @@ use test_case::test_case;
 #[test_case("--storage-layout")]
 #[test_case("--transient-storage-layout")]
 #[test_case("--asm-solc-json")]
-#[test_case("--ir-optimized")]
+#[test_case("--ir")]
 fn default(flag: &str) -> anyhow::Result<()> {
     crate::common::setup()?;
 
@@ -54,7 +54,7 @@ fn default(flag: &str) -> anyhow::Result<()> {
 #[test_case("--storage-layout")]
 #[test_case("--transient-storage-layout")]
 #[test_case("--asm-solc-json")]
-#[test_case("--ir-optimized")]
+#[test_case("--ir")]
 fn missing(flag: &str) -> anyhow::Result<()> {
     crate::common::setup()?;
 
@@ -96,7 +96,7 @@ fn all() -> anyhow::Result<()> {
         "--storage-layout",
         "--transient-storage-layout",
         "--asm-solc-json",
-        "--ir-optimized",
+        "--ir",
         "--output-dir",
         output_directory.path().to_str().unwrap(),
         "--overwrite",
@@ -132,7 +132,7 @@ fn all_missing() -> anyhow::Result<()> {
         "--storage-layout",
         "--transient-storage-layout",
         "--asm-solc-json",
-        "--ir-optimized",
+        "--ir",
         "--output-dir",
         output_directory.path().to_str().unwrap(),
     ];

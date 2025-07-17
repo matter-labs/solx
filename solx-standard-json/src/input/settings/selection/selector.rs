@@ -37,7 +37,7 @@ pub enum Selector {
     #[serde(rename = "evm.legacyAssembly")]
     EVMLegacyAssembly,
     /// The Yul IR.
-    #[serde(rename = "irOptimized")]
+    #[serde(rename = "ir", alias = "irOptimized")]
     Yul,
 
     /// All EVM data.

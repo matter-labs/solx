@@ -168,8 +168,8 @@ pub struct Arguments {
     pub output_asm_solc_json: bool,
 
     /// Emit solc's optimized Yul IR of the compiled project.
-    #[arg(long = "ir-optimized")]
-    pub output_ir_optimized: bool,
+    #[arg(long = "ir")]
+    pub output_ir: bool,
 
     /// Dump all IRs to files in the specified directory.
     /// Only for testing and debugging.
@@ -255,7 +255,7 @@ impl Arguments {
                 || self.output_transient_storage_layout
                 || self.output_ast_json
                 || self.output_asm_solc_json
-                || self.output_ir_optimized
+                || self.output_ir
             {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
@@ -297,7 +297,7 @@ impl Arguments {
                 || self.output_transient_storage_layout
                 || self.output_ast_json
                 || self.output_asm_solc_json
-                || self.output_ir_optimized
+                || self.output_ir
             {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
