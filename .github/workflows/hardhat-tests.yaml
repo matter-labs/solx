@@ -1,0 +1,475 @@
+name: Hardhat tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      solx-version:
+        description: 'Prebuilt `solx` version to use. For example: `0.1.0` without `v` prefix. If empty, `solx` will be built.'
+        required: false
+        default: ''
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# Cancel the workflow if any new changes pushed to a feature branch or the trunk
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -ex {0}
+
+jobs:
+
+#  build-solx:
+#    if: ${{ inputs.solx-version == '' }}
+#    runs-on: matterlabs-ci-runner-high-performance
+#    container:
+#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+#    steps:
+#      - name: Checkout source
+#        uses: actions/checkout@v4
+#        with:
+#          submodules: 'recursive'
+#
+#      # This step is required to checkout submodules
+#      # that are disabled in .gitmodules config
+#      - name: Checkout submodules
+#        run: |
+#          git config --global --add safe.directory '*'
+#          git submodule update --force --depth=1 --recursive --checkout
+#
+#      - name: Building solc
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+#        with:
+#          cmake-build-type: 'Release'
+#          working-dir: 'era-solidity'
+#
+#      - name: Build LLVM
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+#        with:
+#          clone-llvm: 'false'
+#          build-type: Release
+#          enable-assertions: 'false'
+#          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+#
+#      - name: Build solx
+#        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+#        env:
+#          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+#          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+#        with:
+#          exec_name: 'solx'
+#          target: 'x86_64-unknown-linux-gnu'
+#          release-suffix: test
+
+  # Special job to separate projects by chunks
+  # and execute chunks in parallel later.
+  prepare-projects:
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.projects.outputs.projects }}
+    env:
+      MAX_RUNNERS: 6 # how many max runners we can occupy in parallel
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare projects
+        id: projects
+        run: |
+          # Filter huge projects in PRs
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            projects=$(yq 'to_entries | map(select(.value.category != "huge")) | .[].key' .github/hardhat-projects.toml | tr '\n' ' ')
+            projects_len=$(yq 'to_entries | map(select(.value.category != "huge")) | length' .github/hardhat-projects.toml)
+          else
+            projects=$(yq '. as $root | keys[]' .github/hardhat-projects.toml | tr '\n' ' ')
+            projects_len=$(yq '. | keys | length' .github/hardhat-projects.toml)
+          fi
+          read -a arr <<< "${projects}"
+          chunk_size="$(( (projects_len + MAX_RUNNERS - 1) / MAX_RUNNERS ))"
+          groups=()
+          for ((i=0; i<${#arr[@]}; i+=chunk_size)); do
+            group="${arr[@]:i:chunk_size}"
+            groups+=("$group")
+          done
+          JSON=$(jq -cn --argjson g "$(printf '%s\n' "${groups[@]}" | jq -R . | jq -s .)" '$g')
+          echo "projects=${JSON}" >> ${GITHUB_OUTPUT}
+
+  test:
+    # needs: [build-solx, prepare-projects]
+    needs: prepare-projects
+#    if: |
+#      always() &&
+#      (needs.build-solx.result == 'skipped' || needs.build-solx.result == 'success')
+    runs-on: matterlabs-ci-runner-high-performance
+    env:
+      DEFAULT_ITERATIONS: 20
+    outputs:
+      solx-version: ${{ steps.solx.outputs.solx-version }}
+      solx-llvm-version: ${{ steps.solx.outputs.solx-llvm-version }}
+      solc-base-version: ${{ steps.solx.outputs.solc-base-version }}
+      compilation_json: ${{ steps.tests.outputs.compilation_json }}
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.prepare-projects.outputs.projects) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/hardhat-projects.toml
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Download artifacts
+        if: ${{ needs.build-solx.result == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release*
+          path: .
+
+      - name: Setup solx
+        id: solx
+        env:
+          SOLX_DOWNLOAD_URL: 'https://github.com/matter-labs/solx/releases/download'
+        run: |
+          mkdir -p compilers
+          cd compilers
+          # if [[ '${{ needs.build-solx.result }}' == 'success' ]]; then
+          #   mv ${GITHUB_WORKSPACE}/release-test/test/solx* ${GITHUB_WORKSPACE}/compilers/solx
+          # else
+          wget "${SOLX_DOWNLOAD_URL}/0.1.0/solx-linux-amd64-gnu-v0.1.0"
+          mv ./solx-linux-amd64-gnu-v0.1.0 ./solx
+          # fi
+          chmod a+x ./solx
+          SOLX_VERSION=$(./solx --version | head -n 1)
+          SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          LLVM_VERSION=$(echo "${SOLX_VERSION}" | grep -oP "(?<=LLVM build: )[a-f0-9]{40}")
+          echo "solx-version=${SOLX_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "solx-llvm-version=${LLVM_VERSION}" >> ${GITHUB_OUTPUT}
+          echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
+
+      - name: Install yq
+        env:
+          YQ_DOWNLOAD_URL: https://github.com/mikefarah/yq/releases/download/v4.45.4/yq_linux_amd64
+        run: |
+          wget "${YQ_DOWNLOAD_URL}"
+          mv yq_linux_amd64 yq
+          chmod +x yq
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      # Some projects might use hardcoded ssh urls
+      # force git to use https instead
+      - name: Git https settings
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git config --global url."https://".insteadOf git://
+
+      - name: Run tests
+        id: tests
+        run: |
+          mkdir -p projects
+          compilation_json='{}'
+          TOML_CONFIG="${GITHUB_WORKSPACE}/.github/hardhat-projects.toml"
+          export PATH="${GITHUB_WORKSPACE}:${PATH}"
+          export SOLX=${GITHUB_WORKSPACE}/compilers/solx
+          for PROJECT in ${{ matrix.project }}; do
+            DISABLED=$(yq ".${PROJECT}.disabled" "${TOML_CONFIG}")
+            if [[ "${DISABLED}" == "true" ]]; then
+              echo "Skipping ${PROJECT} as it is disabled"
+              continue
+            fi
+            # Set env variables for a project if any
+            while IFS='=' read -r key value; do
+              if [[ -n "${key}" ]]; then
+                export "${key}=${value}"
+                echo "Exported env variable: ${key}=${value} for ${PROJECT}."
+              fi
+            done < <(
+              yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" |
+                jq -r 'select(.key != null) | .key + "=" + (.value | tostring)'
+            )
+            for COMPILER in solc solx; do
+              for VIA_IR in false true; do
+                REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
+                if [ -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then
+                  cd ${GITHUB_WORKSPACE}/projects
+                  rm -rf "${GITHUB_WORKSPACE}/projects/${PROJECT}"
+                fi
+                git clone --depth 1 "${REPO}" "${GITHUB_WORKSPACE}/projects/${PROJECT}" --recurse-submodules
+                cd "${GITHUB_WORKSPACE}/projects/${PROJECT}"
+                echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
+          
+                # Install dependencies
+                npm install
+          
+                # Clean project
+                npm run clean
+          
+                # Build project
+                [ ${COMPILER} == 'solx' ] && USE_SOLX="true" || USE_SOLX="false"
+                [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-via-ir" || VIA_IR_SUFFIX=""
+                mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
+                BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
+          
+                start_ms=$(date +%s%3N)
+                USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} npm run compile > ${BUILD_JSON} 2>&1 || true
+                end_ms=$(date +%s%3N)
+                elapsed_ms=$(( end_ms - start_ms ))
+                COMPILE_TIME=$(awk -v ms="${elapsed_ms}" 'BEGIN { printf "%.3f\n", ms / 1000 }')
+                COMPILE_ONLY=$(yq ".${PROJECT}.compile_only" "${TOML_CONFIG}")
+                if [[ "${COMPILE_ONLY}" == "true" ]]; then
+                  echo "Skipping tests for ${PROJECT} as compile_only is set to true"
+                  continue
+                fi
+          
+                # Run tests
+                TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_${PROJECT}.json"
+                TEST_OUTPUT="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_output_${PROJECT}.json"
+                JUNIT_REPORT=${TEST_JSON} USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} npm run test || true
+          
+                if jq empty "${TEST_JSON}" > /dev/null 2>&1 && [ -s "${TEST_JSON}" ]; then
+                  jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '.stats += {($k): $v}' "${TEST_JSON}" > tmp.json
+                  mv tmp.json "${TEST_JSON}"
+                else
+                  echo "Test failed for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}."
+                  continue
+                fi
+              done
+            done
+            # Clean-up environment variables for the project
+            while IFS= read -r key; do
+              unset "${key}"
+              echo "Unset environment variable ${key} for ${PROJECT}."
+            done < <(
+              yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" | jq -r '.key'
+            )
+          done
+
+      - name: Upload json
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ strategy.job-index }}
+          path: 'sol*/'
+
+#  prepare-compatibility-table:
+#    runs-on: ubuntu-latest
+#    needs: test
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Download reports
+#        uses: actions/download-artifact@v4
+#        with:
+#          path: data
+#          merge-multiple: 'true'
+#
+#      - name: Prepare compatibility table
+#        run: |
+#          echo "| Project     | Mode     | Compiled / Total       | Passed / Total         |" > report.md
+#          echo "|-------------|----------|------------------------|------------------------|" >> report.md
+#
+#          PROJECTS=$(yq '. as $root | keys[]' .github/hardhat-projects.toml | tr '\n' ' ')
+#          for PROJECT in ${PROJECTS}; do
+#            for MODE in "default" "viaIR"; do
+#              if [ "${MODE}" = "default" ]; then
+#                JSON="data/solx/build_${PROJECT}.json"
+#                RUN_JSON="data/solx/test_${PROJECT}.json"
+#                RUN_REF_JSON="data/solc/test_${PROJECT}.json"
+#              else
+#                JSON="data/solx-via-ir/build_${PROJECT}.json"
+#                RUN_JSON="data/solx-via-ir/test_${PROJECT}.json"
+#                RUN_REF_JSON="data/solc-via-ir/test_${PROJECT}.json"
+#              fi
+#
+#              TEST_TOTAL=0
+#              TEST_PASSED=0
+#              if jq empty "${RUN_JSON}" > /dev/null 2>&1 && [ -s "${RUN_JSON}" ]; then
+#                TEST_RESULTS_JSON=$(
+#                jq '
+#                  reduce to_entries[] as $contract (
+#                    {total: 0, success: 0};
+#                    reduce ($contract.value.test_results | to_entries)[] as $test (
+#                      .;
+#                      .total += 1 |
+#                      .success += (if $test.value.status == "Success" then 1 else 0 end)
+#                    )
+#                  )' "${RUN_JSON}"
+#                )
+#                REF_TEST_RESULTS_JSON=$(
+#                jq '
+#                  reduce to_entries[] as $contract (
+#                    {total: 0, success: 0};
+#                    reduce ($contract.value.test_results | to_entries)[] as $test (
+#                      .;
+#                      .total += 1 |
+#                      .success += (if $test.value.status == "Success" then 1 else 0 end)
+#                    )
+#                  )' "${RUN_REF_JSON}"
+#                )
+#                # Take number of successful tests from solc as total
+#                TEST_TOTAL=$(echo "${REF_TEST_RESULTS_JSON}" | jq -r '.success')
+#                TEST_PASSED=$(echo "${TEST_RESULTS_JSON}" | jq -r '.success')
+#              fi
+#
+#              if [ ! -s "$JSON" ]; then
+#                echo "No data for ${PROJECT} [$MODE]"
+#                continue
+#              fi
+#
+#              TOTAL=0
+#              PASSED=0
+#              if jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]; then
+#                if [[ "${RUN_TIME}" == null ]]; then RUN_TIME=0; fi
+#                TOTAL=$(jq -r '.build_infos[0].source_id_to_path | length' "$JSON")
+#                FAILURES=$(jq -r '[.errors[] | select(.type == "Error")] | length' "$JSON")
+#                PASSED=$((TOTAL - FAILURES))
+#              fi
+#
+#              # Generate compile bar
+#              COMPILE_BAR=""
+#              COMPILE_PERCENT=0
+#              if [[ "$TOTAL" -gt 0 ]]; then
+#                COMPILE_PERCENT=$((PASSED * 100 / TOTAL))
+#              fi
+#              FILLED=$(( COMPILE_PERCENT / 10 ))
+#              for i in $(seq 1 10); do
+#                [ "$i" -le "$FILLED" ] && COMPILE_BAR+="🟩" || COMPILE_BAR+="⬜"
+#              done
+#
+#              # Generate test bar
+#              TEST_BAR=""
+#              TEST_PERCENT=0
+#              if [[ "$TEST_TOTAL" -gt 0 ]]; then
+#                TEST_PERCENT=$((TEST_PASSED * 100 / TEST_TOTAL))
+#              fi
+#              FILLED=$(( TEST_PERCENT / 10 ))
+#              for i in $(seq 1 10); do
+#                [ "$i" -le "$FILLED" ] && TEST_BAR+="🟩" || TEST_BAR+="⬜"
+#              done
+#              if [[ "$TEST_TOTAL" -eq 0 ]]; then
+#                TEST_BAR="🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩"
+#              fi
+#              TEST_COLUMN=$(printf "%-10s %4d / %4d" "${TEST_BAR}" "${TEST_PASSED}" "${TEST_TOTAL}")
+#
+#              if [ "$MODE" = "default" ]; then
+#                printf "| %-11s | %-8s | %-10s %4d / %4d | %s |\n" \
+#                  "${PROJECT}" "${MODE}" "${COMPILE_BAR}" "${PASSED}" "${TOTAL}" "${TEST_COLUMN}" >> report.md
+#              else
+#                printf "| %-11s | %-8s | %-10s %4d / %4d | %s |\n" \
+#                  "" "${MODE}" "${COMPILE_BAR}" "${PASSED}" "${TOTAL}" "${TEST_COLUMN}" >> report.md
+#              fi
+#            done
+#          done
+#
+#      - name: Prepare compilation and run time table
+#        run: |
+#          echo "| Project     | Mode     | Compile (solx/solc/Δs/Δ%)  | Run (solx/solc/Δs/Δ%)  | Size warnings (solx/solc) |" > time_report.md
+#          echo "|-------------|----------|----------------------------|------------------------|---------------------------|" >> time_report.md
+#
+#          PROJECTS=$(yq '. as $root | keys[]' .github/hardhat-projects.toml | tr '\n' ' ')
+#          for PROJECT in ${PROJECTS}; do
+#            for MODE in "default" "viaIR"; do
+#              [ "${MODE}" = "viaIR" ] && SUFFIX="-via-ir" || SUFFIX=""
+#              JSON="data/solx${SUFFIX}/build_${PROJECT}.json"
+#              REF_JSON="data/solc${SUFFIX}/build_${PROJECT}.json"
+#
+#              if [ ! -s "$JSON" ] || [ ! -s "$REF_JSON" ]; then
+#                echo "No data for ${PROJECT} [$MODE]"
+#                continue
+#              fi
+#
+#              if ! (jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]); then
+#                echo "Invalid JSON for ${PROJECT} [${MODE}]: ${JSON}"
+#                continue
+#              fi
+#
+#              # Bytecode size exceeds limit
+#              BYTECODE_WARN_SOLX=$(jq '[.errors[] | select(.errorCode == "5574" or .errorCode == "3860")] | length' "${JSON}")
+#              BYTECODE_WARN_SOLC=$(jq '[.errors[] | select(.errorCode == "5574" or .errorCode == "3860")] | length' "${REF_JSON}")
+#              BYTECODE_COLUMN=$(printf "%d / %d" "${BYTECODE_WARN_SOLX}" "${BYTECODE_WARN_SOLC}")
+#
+#              COMPILE_SOLX=$(jq -r '.compile_time // 0' "${JSON}")
+#              COMPILE_SOLC=$(jq -r '.compile_time // 0' "${REF_JSON}")
+#              RUN_SOLX=$(jq -r '.exec_time // 0' "${JSON}")
+#              RUN_SOLC=$(jq -r '.exec_time // 0' "${REF_JSON}")
+#
+#              # Compute differences
+#              COMPILE_DIFF=$(awk "BEGIN { printf \"%.2f\", ${COMPILE_SOLX} - ${COMPILE_SOLC} }")
+#              COMPILE_PCT=$(awk "BEGIN {
+#                if (${COMPILE_SOLC} == 0) print \"∞\";
+#                else printf \"%+.0f%%\", ((${COMPILE_SOLX} - ${COMPILE_SOLC}) / ${COMPILE_SOLC}) * 100
+#              }")
+#
+#              RUN_DIFF=$(awk "BEGIN { printf \"%.2f\", ${RUN_SOLX} - ${RUN_SOLC} }")
+#              RUN_PCT=$(awk "BEGIN {
+#                if (${RUN_SOLC} == 0) print \"∞\";
+#                else printf \"%+.0f%%\", ((${RUN_SOLX} - ${RUN_SOLC}) / ${RUN_SOLC}) * 100
+#              }")
+#
+#              # Compile emoji
+#              COMPILE_EMOJI=$(awk "BEGIN {
+#                diff = ${COMPILE_SOLX} - ${COMPILE_SOLC};
+#                pct = ((${COMPILE_SOLC} > 0) ? (diff / ${COMPILE_SOLC}) * 100 : 0);
+#                if (pct > 5) print \"📈\";
+#                else if (pct < -5) print \"📉\";
+#                else print \"➖\";
+#              }")
+#
+#              # Run emoji
+#              RUN_EMOJI=$(awk "BEGIN {
+#                diff = ${RUN_SOLX} - ${RUN_SOLC};
+#                pct = ((${RUN_SOLC} > 0) ? (diff / ${RUN_SOLC}) * 100 : 0);
+#                if (pct > 5) print \"📈\";
+#                else if (pct < -5) print \"📉\";
+#                else print \"➖\";
+#              }")
+#
+#              COMPILE_COLUMN=$(printf "%.2fs / %.2fs / %+0.2fs / %s %s" "$COMPILE_SOLX" "$COMPILE_SOLC" "$COMPILE_DIFF" "$COMPILE_PCT" "$COMPILE_EMOJI")
+#              RUN_COLUMN=$(printf "%.2fs / %.2fs / %+0.2fs / %s %s" "$RUN_SOLX" "$RUN_SOLC" "$RUN_DIFF" "$RUN_PCT" "$RUN_EMOJI")
+#
+#              if [ "$MODE" = "default" ]; then
+#                printf "| %-11s | %-8s | %-28s | %-24s | %-27s |\n" \
+#                  "${PROJECT}" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" "${BYTECODE_COLUMN}" >> time_report.md
+#              else
+#                printf "| %-11s | %-8s | %-28s | %-24s | %-27s |\n" \
+#                  "" "${MODE}" "${COMPILE_COLUMN}" "${RUN_COLUMN}" "${BYTECODE_COLUMN}" >> time_report.md
+#              fi
+#            done
+#          done
+#
+#      - name: Update job summary
+#        run: cat report.md >> "${GITHUB_STEP_SUMMARY}"
+#
+#      - name: Update job summary with time report
+#        run: cat time_report.md >> "${GITHUB_STEP_SUMMARY}"
+#
+#      - name: Upload report
+#        if: ${{ github.event_name == 'pull_request' }}
+#        uses: mshick/add-pr-comment@v2
+#        with:
+#          message-path: report.md
+#          message-id: 'compatibility-matrix'
+#
+#      - name: Upload time report
+#        if: ${{ github.event_name == 'pull_request' }}
+#        uses: mshick/add-pr-comment@v2
+#        with:
+#          message-path: time_report.md
+#          message-id: 'time-report-table'
