@@ -44,6 +44,10 @@ impl Error {
     /// The memory-unsafe assembly warning code.
     pub const MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE: &'static str = "5726";
 
+    /// The environment variable to disable the memory-safe assembly check.
+    pub const EVM_DISABLE_MEMORY_SAFE_ASM_CHECK_ENV: &'static str =
+        "EVM_DISABLE_MEMORY_SAFE_ASM_CHECK";
+
     ///
     /// A shortcut constructor.
     ///

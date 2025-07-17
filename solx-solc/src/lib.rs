@@ -170,9 +170,14 @@ impl Compiler {
         solc_output
             .errors
             .retain(|error| match error.error_code.as_deref() {
-                Some(code) => {
-                    !solx_standard_json::OutputError::IGNORED_WARNING_CODES.contains(&code)
-                }
+                Some(code) => !(solx_standard_json::OutputError::IGNORED_WARNING_CODES
+                    .contains(&code)
+                    || (code
+                        == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE
+                        && std::env::var(
+                            solx_standard_json::OutputError::EVM_DISABLE_MEMORY_SAFE_ASM_CHECK_ENV,
+                        )
+                        .is_ok())),
                 None => true,
             });
 
