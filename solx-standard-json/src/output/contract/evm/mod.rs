@@ -26,6 +26,9 @@ pub struct EVM {
     /// The contract function signatures.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub method_identifiers: Option<BTreeMap<String, String>>,
+    /// The contract gas estimates.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gas_estimates: Option<serde_json::Value>,
 
     /// The extra EVM legacy assembly metadata.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -48,5 +51,6 @@ impl EVM {
                 .unwrap_or(true)
             && self.legacy_assembly.is_none()
             && self.method_identifiers.is_none()
+            && self.gas_estimates.is_none()
     }
 }

@@ -30,6 +30,8 @@ pub use self::r#const::*;
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use solx_standard_json::CollectableError;
 
@@ -43,7 +45,7 @@ pub fn yul_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -54,7 +56,7 @@ pub fn yul_to_evm(
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let solc_compiler = solx_solc::Compiler::default();
-    solc_compiler.validate_yul_paths(paths, libraries.clone(), messages)?;
+    solc_compiler.validate_yul_paths(paths, libraries.clone())?;
 
     let project = Project::try_from_yul_paths(
         paths,
@@ -69,7 +71,6 @@ pub fn yul_to_evm(
         output_selection,
         metadata_hash_type,
         optimizer_settings,
-        None,
         llvm_options,
         debug_config,
     )?;
@@ -112,7 +113,7 @@ pub fn llvm_ir_to_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
     optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
@@ -129,7 +130,6 @@ pub fn llvm_ir_to_evm(
         output_selection,
         metadata_hash_type,
         optimizer_settings,
-        None,
         llvm_options,
         debug_config,
     )?;
@@ -162,7 +162,7 @@ pub fn standard_output_evm(
     paths: &[PathBuf],
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     evm_version: Option<era_compiler_common::EVMVersion>,
     via_ir: bool,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
@@ -212,7 +212,6 @@ pub fn standard_output_evm(
 
     let mut solc_output = solc_compiler.standard_json(
         &mut solc_input,
-        messages,
         use_import_callback,
         base_path.as_deref(),
         include_paths.as_slice(),
@@ -237,42 +236,26 @@ pub fn standard_output_evm(
         &solc_input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings.clone(),
-        None,
         llvm_options,
         debug_config.clone(),
     )?;
-    let stack_too_deep_errors = build.take_stack_too_deep_errors();
     build.take_and_write_warnings();
     build.check_errors()?;
-    let output_selection = solc_input.settings.output_selection.clone();
-    let build = if !stack_too_deep_errors.is_empty() {
-        let (_solc_output_second_pass, mut build_second_pass) = standard_json_second_pass(
-            &solc_compiler,
-            solc_input,
-            optimizer_settings,
-            stack_too_deep_errors,
-            messages,
-            base_path.as_deref(),
-            include_paths.as_slice(),
-            allow_paths.as_deref(),
-            use_import_callback,
-            debug_config.as_ref(),
-        )?;
-        build_second_pass.take_and_write_warnings();
-        build_second_pass.check_errors()?;
-        build_second_pass
-    } else {
-        build
-    };
 
-    Ok(if output_selection.is_bytecode_set_for_any() {
-        let mut build = build.link(linker_symbols, cbor_data);
-        build.take_and_write_warnings();
-        build.check_errors()?;
-        build
-    } else {
-        build
-    })
+    Ok(
+        if solc_input
+            .settings
+            .output_selection
+            .is_bytecode_set_for_any()
+        {
+            let mut build = build.link(linker_symbols, cbor_data);
+            build.take_and_write_warnings();
+            build.check_errors()?;
+            build
+        } else {
+            build
+        },
+    )
 }
 
 ///
@@ -280,7 +263,7 @@ pub fn standard_output_evm(
 ///
 pub fn standard_json_evm(
     json_path: Option<PathBuf>,
-    messages: &mut Vec<solx_standard_json::OutputError>,
+    messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     base_path: Option<String>,
     include_paths: Vec<String>,
     allow_paths: Option<String>,
@@ -351,7 +334,6 @@ pub fn standard_json_evm(
         solx_standard_json::InputLanguage::Solidity => {
             let mut solc_output = solc_compiler.standard_json(
                 &mut solc_input,
-                messages,
                 use_import_callback,
                 base_path.as_deref(),
                 include_paths.as_slice(),
@@ -360,6 +342,10 @@ pub fn standard_json_evm(
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
+            messages
+                .lock()
+                .expect("Sync")
+                .extend(solc_output.errors.drain(..));
 
             let project = Project::try_from_solc_output(
                 solc_input.settings.libraries.clone(),
@@ -374,8 +360,7 @@ pub fn standard_json_evm(
             (solc_output, project)
         }
         solx_standard_json::InputLanguage::Yul => {
-            let mut solc_output =
-                solc_compiler.validate_yul_standard_json(&mut solc_input, messages)?;
+            let mut solc_output = solc_compiler.validate_yul_standard_json(&mut solc_input)?;
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
@@ -394,7 +379,7 @@ pub fn standard_json_evm(
             (solc_output, project)
         }
         solx_standard_json::InputLanguage::LLVMIR => {
-            let mut solc_output = solx_standard_json::Output::new(&solc_input.sources, messages);
+            let mut solc_output = solx_standard_json::Output::new(&solc_input.sources);
 
             let project = Project::try_from_llvm_ir_sources(
                 solc_input.sources.clone(),
@@ -415,13 +400,11 @@ pub fn standard_json_evm(
         &solc_input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings.clone(),
-        None,
         llvm_options,
         debug_config.clone(),
     )?;
-    let stack_too_deep_errors = build.take_stack_too_deep_errors();
     let output_selection = solc_input.settings.output_selection.clone();
-    if build.has_errors() && stack_too_deep_errors.is_empty() {
+    if build.has_errors() {
         build.write_to_standard_json(
             &mut solc_output,
             &solc_input.settings.output_selection,
@@ -429,33 +412,6 @@ pub fn standard_json_evm(
         )?;
         solc_output.write_and_exit(&solc_input.settings.output_selection);
     }
-    let (build, mut solc_output) = if language == solx_standard_json::InputLanguage::Solidity
-        && !stack_too_deep_errors.is_empty()
-    {
-        let (mut solc_output_second_pass, mut build_second_pass) = standard_json_second_pass(
-            &solc_compiler,
-            solc_input,
-            optimizer_settings,
-            stack_too_deep_errors,
-            messages,
-            base_path.as_deref(),
-            include_paths.as_slice(),
-            allow_paths.as_deref(),
-            use_import_callback,
-            debug_config.as_ref(),
-        )?;
-        if build_second_pass.has_errors() {
-            build_second_pass.write_to_standard_json(
-                &mut solc_output_second_pass,
-                &output_selection,
-                false,
-            )?;
-            solc_output_second_pass.write_and_exit(&output_selection);
-        }
-        (build_second_pass, solc_output_second_pass)
-    } else {
-        (build, solc_output)
-    };
     let mut build = if output_selection.is_bytecode_set_for_any() {
         build.link(linker_symbols, cbor_data)
     } else {
@@ -463,78 +419,4 @@ pub fn standard_json_evm(
     };
     build.write_to_standard_json(&mut solc_output, &output_selection, true)?;
     solc_output.write_and_exit(&output_selection);
-}
-
-///
-/// Runs the second pass that recompiles contracts that failed to compile in the first pass.
-///
-fn standard_json_second_pass(
-    solc_compiler: &solx_solc::Compiler,
-    mut solc_input: solx_standard_json::Input,
-    optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
-    stack_too_deep_errors: Vec<StackTooDeepError>,
-    messages: &mut Vec<solx_standard_json::OutputError>,
-    base_path: Option<&str>,
-    include_paths: &[String],
-    allow_paths: Option<&str>,
-    use_import_callback: bool,
-    debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
-) -> anyhow::Result<(solx_standard_json::Output, EVMBuild)> {
-    let via_ir = solc_input.settings.via_ir;
-    let llvm_options = solc_input.settings.llvm_options.clone();
-
-    let metadata_hash_type = solc_input.settings.metadata.bytecode_hash;
-
-    solc_input.settings.optimizer.spill_area_size = Some(
-        stack_too_deep_errors
-            .into_iter()
-            .map(|error| {
-                let (deploy_spill_area_size, runtime_spill_area_size) =
-                    match error.code_segment.expect("Always exists") {
-                        era_compiler_common::CodeSegment::Deploy => (error.spill_area_size, 0),
-                        era_compiler_common::CodeSegment::Runtime => (0, error.spill_area_size),
-                    };
-                (
-                    error.contract_name.expect("Always exists").full_path,
-                    solx_standard_json::InputOptimizerSpillAreaSize::new(
-                        deploy_spill_area_size,
-                        runtime_spill_area_size,
-                    ),
-                )
-            })
-            .collect(),
-    );
-    let mut solc_output_second_pass = solc_compiler.standard_json(
-        &mut solc_input,
-        messages,
-        use_import_callback,
-        base_path,
-        include_paths,
-        allow_paths,
-    )?;
-
-    if solc_output_second_pass.has_errors() {
-        solc_output_second_pass.write_and_exit(&solc_input.settings.output_selection);
-    }
-
-    let project_second_pass = Project::try_from_solc_output(
-        solc_input.settings.libraries,
-        via_ir,
-        &mut solc_output_second_pass,
-        debug_config,
-    )?;
-    if solc_output_second_pass.has_errors() {
-        solc_output_second_pass.write_and_exit(&solc_input.settings.output_selection);
-    }
-
-    let build_second_pass = project_second_pass.compile_to_evm(
-        messages,
-        &solc_input.settings.output_selection,
-        metadata_hash_type,
-        optimizer_settings,
-        solc_input.settings.optimizer.spill_area_size,
-        llvm_options,
-        debug_config.cloned(),
-    )?;
-    Ok((solc_output_second_pass, build_second_pass))
 }

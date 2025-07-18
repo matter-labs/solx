@@ -321,6 +321,8 @@ pub enum Name {
     PUSHLIB,
     /// The eponymous EVM instruction.
     PUSHDEPLOYADDRESS,
+    /// The eponymous EVM instruction.
+    MEMORYGUARD,
 
     /// The eponymous EVM instruction.
     GASLIMIT,

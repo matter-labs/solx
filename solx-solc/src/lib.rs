@@ -72,7 +72,6 @@ impl Compiler {
     pub fn standard_json(
         &self,
         input_json: &mut solx_standard_json::Input,
-        messages: &mut Vec<solx_standard_json::OutputError>,
         use_import_callback: bool,
         base_path: Option<&str>,
         include_paths: &[String],
@@ -171,12 +170,16 @@ impl Compiler {
         solc_output
             .errors
             .retain(|error| match error.error_code.as_deref() {
-                Some(code) => {
-                    !solx_standard_json::OutputError::IGNORED_WARNING_CODES.contains(&code)
-                }
+                Some(code) => !(solx_standard_json::OutputError::IGNORED_WARNING_CODES
+                    .contains(&code)
+                    || (code
+                        == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE
+                        && std::env::var(
+                            solx_standard_json::OutputError::EVM_DISABLE_MEMORY_SAFE_ASM_CHECK_ENV,
+                        )
+                        .is_ok())),
                 None => true,
             });
-        solc_output.errors.append(messages);
 
         Ok(solc_output)
     }
@@ -188,7 +191,6 @@ impl Compiler {
         &self,
         paths: &[PathBuf],
         libraries: era_compiler_common::Libraries,
-        messages: &mut Vec<solx_standard_json::OutputError>,
     ) -> anyhow::Result<solx_standard_json::Output> {
         let mut solc_input = solx_standard_json::Input::from_yul_paths(
             paths,
@@ -198,7 +200,7 @@ impl Compiler {
             solx_standard_json::InputMetadata::default(),
             vec![],
         );
-        self.validate_yul_standard_json(&mut solc_input, messages)
+        self.validate_yul_standard_json(&mut solc_input)
     }
 
     ///
@@ -207,13 +209,12 @@ impl Compiler {
     pub fn validate_yul_standard_json(
         &self,
         solc_input: &mut solx_standard_json::Input,
-        messages: &mut Vec<solx_standard_json::OutputError>,
     ) -> anyhow::Result<solx_standard_json::Output> {
         solc_input
             .settings
             .output_selection
             .set_selector(solx_standard_json::InputSelector::Yul);
-        let solc_output = self.standard_json(solc_input, messages, true, None, &[], None)?;
+        let solc_output = self.standard_json(solc_input, true, None, &[], None)?;
         Ok(solc_output)
     }
 

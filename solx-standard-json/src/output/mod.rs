@@ -7,6 +7,8 @@ pub mod error;
 pub mod source;
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use crate::input::settings::selection::selector::Selector as InputSettingsSelector;
 use crate::input::settings::selection::Selection as InputSettingsSelection;
@@ -40,10 +42,7 @@ impl Output {
     ///
     /// Is used for projects compiled without `solc`.
     ///
-    pub fn new(
-        sources: &BTreeMap<String, InputSource>,
-        messages: &mut Vec<JsonOutputError>,
-    ) -> Self {
+    pub fn new(sources: &BTreeMap<String, InputSource>) -> Self {
         let sources = sources
             .keys()
             .enumerate()
@@ -53,7 +52,7 @@ impl Output {
         Self {
             contracts: BTreeMap::new(),
             sources,
-            errors: std::mem::take(messages),
+            errors: Vec::new(),
         }
     }
 
@@ -62,11 +61,11 @@ impl Output {
     ///
     /// Is used to emit errors in standard JSON mode.
     ///
-    pub fn new_with_messages(messages: Vec<JsonOutputError>) -> Self {
+    pub fn new_with_messages(messages: Arc<Mutex<Vec<JsonOutputError>>>) -> Self {
         Self {
             contracts: BTreeMap::new(),
             sources: BTreeMap::new(),
-            errors: messages,
+            errors: messages.lock().expect("Sync").drain(..).collect(),
         }
     }
 
@@ -81,7 +80,7 @@ impl Output {
                     Some(name.as_str()),
                     InputSettingsSelector::Yul,
                 ) {
-                    contract.ir_optimized = None;
+                    contract.ir = None;
                 }
                 if let Some(ref mut evm) = contract.evm {
                     if !output_selection.check_selection(
@@ -144,21 +143,17 @@ impl Output {
 }
 
 impl CollectableError for Output {
-    fn errors(&self) -> Vec<&JsonOutputError> {
+    fn errors(&self) -> Vec<JsonOutputError> {
         self.errors
             .iter()
             .filter(|error| error.severity == "error")
+            .cloned()
             .collect()
     }
 
     fn take_warnings(&mut self) -> Vec<JsonOutputError> {
-        let warnings = self
-            .errors
-            .iter()
-            .filter(|message| message.severity == "warning")
-            .cloned()
-            .collect();
-        self.errors.retain(|message| message.severity != "warning");
-        warnings
+        self.errors
+            .extract_if(.., |message| message.severity == "warning")
+            .collect()
     }
 }

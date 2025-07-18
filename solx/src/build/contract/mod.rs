@@ -597,7 +597,7 @@ impl Contract {
                 solx_standard_json::InputSelector::Yul,
             )
         }) {
-            standard_json_contract.ir_optimized = Some(value);
+            standard_json_contract.ir = Some(value);
         }
 
         let evm = standard_json_contract
@@ -620,6 +620,13 @@ impl Contract {
             )
         }) {
             evm.legacy_assembly = Some(value);
+        }
+        if output_selection.check_selection(
+            self.name.path.as_str(),
+            self.name.name.as_deref(),
+            solx_standard_json::InputSelector::GasEstimates,
+        ) {
+            evm.gas_estimates = Some(serde_json::json!({}));
         }
 
         evm.bytecode = Some(solx_standard_json::OutputContractEVMBytecode::new(
@@ -689,18 +696,18 @@ impl Contract {
             if output_selection.check_selection(
                 self.name.path.as_str(),
                 self.name.name.as_deref(),
-                solx_standard_json::InputSelector::BytecodeGeneratedSources,
+                solx_standard_json::InputSelector::BytecodeFunctionDebugData,
             ) {
-                Some(Vec::new())
+                Some(BTreeMap::new())
             } else {
                 None
             },
             if output_selection.check_selection(
                 self.name.path.as_str(),
                 self.name.name.as_deref(),
-                solx_standard_json::InputSelector::BytecodeFunctionDebugData,
+                solx_standard_json::InputSelector::BytecodeGeneratedSources,
             ) {
-                Some(BTreeMap::new())
+                Some(Vec::new())
             } else {
                 None
             },
@@ -774,18 +781,18 @@ impl Contract {
             if output_selection.check_selection(
                 self.name.path.as_str(),
                 self.name.name.as_deref(),
-                solx_standard_json::InputSelector::RuntimeBytecodeGeneratedSources,
+                solx_standard_json::InputSelector::RuntimeBytecodeFunctionDebugData,
             ) {
-                Some(Vec::new())
+                Some(BTreeMap::new())
             } else {
                 None
             },
             if output_selection.check_selection(
                 self.name.path.as_str(),
                 self.name.name.as_deref(),
-                solx_standard_json::InputSelector::RuntimeBytecodeFunctionDebugData,
+                solx_standard_json::InputSelector::RuntimeBytecodeGeneratedSources,
             ) {
-                Some(BTreeMap::new())
+                Some(Vec::new())
             } else {
                 None
             },

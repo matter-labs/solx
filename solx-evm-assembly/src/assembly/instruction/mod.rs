@@ -44,6 +44,7 @@ impl Instruction {
 
             Name::DUPX => 1,
             Name::SWAPX => 1,
+            Name::MEMORYGUARD => 1,
 
             Name::ADD => 2,
             Name::SUB => 2,
@@ -145,6 +146,7 @@ impl Instruction {
             Name::PUSH_DataSize => 1,
             Name::PUSHLIB => 1,
             Name::PUSHDEPLOYADDRESS => 1,
+            Name::MEMORYGUARD => 1,
 
             Name::PUSH1 => 1,
             Name::PUSH2 => 1,

@@ -12,11 +12,12 @@ pub use self::r#const::*;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::sync::Once;
 
 use assert_cmd::Command;
 
-use solx::project::Project;
 use solx_standard_json::CollectableError;
 
 /// Shared lock for unit tests, as `solc` libraries are not thread-safe.
@@ -78,16 +79,17 @@ pub fn build_solidity_standard_json(
     selectors.insert(solx_standard_json::InputSelector::BytecodeOpcodes);
     selectors.insert(solx_standard_json::InputSelector::BytecodeLLVMAssembly);
     selectors.insert(solx_standard_json::InputSelector::BytecodeSourceMap);
-    selectors.insert(solx_standard_json::InputSelector::BytecodeGeneratedSources);
     selectors.insert(solx_standard_json::InputSelector::BytecodeFunctionDebugData);
+    selectors.insert(solx_standard_json::InputSelector::BytecodeGeneratedSources);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeObject);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeLinkReferences);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeImmutableReferences);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeOpcodes);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeLLVMAssembly);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeSourceMap);
-    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeGeneratedSources);
     selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeFunctionDebugData);
+    selectors.insert(solx_standard_json::InputSelector::RuntimeBytecodeGeneratedSources);
+    selectors.insert(solx_standard_json::InputSelector::GasEstimates);
     selectors.insert(solx_standard_json::InputSelector::AST);
     selectors.insert(solx_standard_json::InputSelector::ABI);
     selectors.insert(solx_standard_json::InputSelector::Metadata);
@@ -117,21 +119,20 @@ pub fn build_solidity_standard_json(
 
     let mut output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.standard_json(&mut input, &mut vec![], true, None, &[], None)
+        solc_compiler.standard_json(&mut input, true, None, &[], None)
     }?;
     output.check_errors()?;
 
     let linker_symbols = libraries.as_linker_symbols()?;
 
-    let project = Project::try_from_solc_output(libraries, via_ir, &mut output, None)?;
+    let project = solx::Project::try_from_solc_output(libraries, via_ir, &mut output, None)?;
     output.check_errors()?;
 
     let build = project.compile_to_evm(
-        &mut vec![],
+        Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
         metadata_hash_type,
         optimizer_settings,
-        None,
         vec![],
         None,
     )?;
@@ -184,10 +185,10 @@ pub fn build_yul_standard_json(
 
     let mut solc_output = {
         let _lock = UNIT_TEST_LOCK.lock();
-        solc_compiler.validate_yul_standard_json(&mut input, &mut vec![])
+        solc_compiler.validate_yul_standard_json(&mut input)
     }?;
 
-    let project = Project::try_from_yul_sources(
+    let project = solx::Project::try_from_yul_sources(
         input.sources,
         era_compiler_common::Libraries::default(),
         &input.settings.output_selection,
@@ -195,11 +196,10 @@ pub fn build_yul_standard_json(
         None,
     )?;
     let build = project.compile_to_evm(
-        &mut vec![],
+        Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
-        None,
         vec![],
         None,
     )?;
@@ -246,20 +246,19 @@ pub fn build_llvm_ir_standard_json(
         }),
     )?;
 
-    let mut output = solx_standard_json::Output::new(&BTreeMap::new(), &mut vec![]);
+    let mut output = solx_standard_json::Output::new(&BTreeMap::new());
 
-    let project = Project::try_from_llvm_ir_sources(
+    let project = solx::Project::try_from_llvm_ir_sources(
         input.sources,
         input.settings.libraries,
         &input.settings.output_selection,
         Some(&mut output),
     )?;
     let build = project.compile_to_evm(
-        &mut vec![],
+        Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
         optimizer_settings,
-        None,
         vec![],
         None,
     )?;

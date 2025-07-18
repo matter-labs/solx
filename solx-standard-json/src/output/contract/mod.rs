@@ -30,9 +30,9 @@ pub struct Contract {
     /// The contract user documentation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub userdoc: Option<serde_json::Value>,
-    /// The contract optimized IR code.
+    /// The contract Yul IR code.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ir_optimized: Option<String>,
+    pub ir: Option<String>,
     /// The EVM data of the contract.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub evm: Option<EVM>,
@@ -49,7 +49,7 @@ impl Contract {
             && self.metadata.is_none()
             && self.devdoc.is_none()
             && self.userdoc.is_none()
-            && self.ir_optimized.is_none()
+            && self.ir.is_none()
             && self.evm.is_none()
     }
 }
