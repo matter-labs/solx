@@ -607,9 +607,8 @@ impl Project {
                         }
                     }
 
-                    if pass_count > 2 {
-                        panic!("Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
-                    }
+                    assert!(pass_count <= 2, "Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
+
                     if stack_too_deep.is_size_fallback {
                         input.optimizer_settings.switch_to_size_fallback();
                     }

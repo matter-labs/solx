@@ -20,7 +20,7 @@ num = "0.4"
 
 solx-yul = { path = "../solx-yul" }
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "az-move-spill-area-to-solx" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 
 [dependencies.inkwell]

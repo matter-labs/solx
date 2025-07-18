@@ -6,5 +6,5 @@
 [submodule "era-solidity"]
 	path = era-solidity
 	url = https://github.com/matter-labs/era-solidity
-	branch = app-nostd-v2
+	branch = 0.8.30
 	update = none
