@@ -6,6 +6,8 @@ pub mod contract;
 
 use std::collections::BTreeMap;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
@@ -145,7 +147,7 @@ impl Project {
                 let result = if via_ir {
                     ContractYul::try_from_source(
                         name.full_path.as_str(),
-                        contract.ir_optimized.as_deref()?,
+                        contract.ir.as_deref()?,
                         debug_config,
                     )
                     .map(|yul| yul.map(ContractIR::from))
@@ -171,7 +173,7 @@ impl Project {
                     contract.storage_layout,
                     contract.transient_storage_layout,
                     legacy_assembly,
-                    contract.ir_optimized,
+                    contract.ir,
                 );
                 Some((name.full_path, Ok(contract)))
             })
@@ -421,11 +423,10 @@ impl Project {
     ///
     pub fn compile_to_evm(
         self,
-        messages: &mut Vec<solx_standard_json::OutputError>,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
         output_selection: &solx_standard_json::InputSelection,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
-        spill_area_size: Option<BTreeMap<String, solx_standard_json::InputOptimizerSpillAreaSize>>,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> anyhow::Result<EVMBuild> {
@@ -492,14 +493,7 @@ impl Project {
                                 ),
                             });
 
-                    let spill_area_size = spill_area_size
-                        .as_ref()
-                        .and_then(|sizes| sizes.get(contract_name.full_path.as_str()));
-                    let mut optimizer_settings = optimizer_settings.clone();
-                    if let Some(spill_area_size) = spill_area_size {
-                        optimizer_settings.set_spill_area_size(spill_area_size.runtime);
-                    }
-                    let input = EVMProcessInput::new(
+                    let mut input = EVMProcessInput::new(
                         contract_name.clone(),
                         runtime_code_ir,
                         era_compiler_common::CodeSegment::Runtime,
@@ -507,17 +501,17 @@ impl Project {
                         output_selection.to_owned(),
                         None,
                         metadata_bytes,
-                        optimizer_settings,
+                        optimizer_settings.clone(),
                         llvm_options.clone(),
                         debug_config.clone(),
                     );
-                    let mut result: crate::Result<EVMProcessOutput> =
-                        crate::process::call(path.as_str(), input);
-                    if let Err(Error::StackTooDeep(ref mut stack_too_deep)) = result {
-                        stack_too_deep.contract_name = Some(contract_name.clone());
-                        stack_too_deep.code_segment =
-                            Some(era_compiler_common::CodeSegment::Runtime);
-                    }
+
+                    let result = Self::run_multi_pass_pipeline(
+                        path.as_str(),
+                        &contract_name,
+                        &mut input,
+                        messages.clone(),
+                    );
                     (result, metadata)
                 };
 
@@ -525,16 +519,8 @@ impl Project {
                     .as_ref()
                     .ok()
                     .and_then(|output| output.object.immutables.to_owned());
-                let deploy_object_result = {
-                    let spill_area_size = spill_area_size
-                        .as_ref()
-                        .and_then(|sizes| sizes.get(contract_name.full_path.as_str()));
-                    let mut optimizer_settings = optimizer_settings.clone();
-                    if let Some(spill_area_size) = spill_area_size {
-                        optimizer_settings.set_spill_area_size(spill_area_size.creation);
-                    }
-
-                    let input = EVMProcessInput::new(
+                let deploy_object_result: crate::Result<EVMProcessOutput> = {
+                    let mut input = EVMProcessInput::new(
                         contract_name.clone(),
                         deploy_code_ir,
                         era_compiler_common::CodeSegment::Deploy,
@@ -542,18 +528,17 @@ impl Project {
                         output_selection.to_owned(),
                         immutables,
                         None,
-                        optimizer_settings,
+                        optimizer_settings.clone(),
                         llvm_options.clone(),
                         debug_config.clone(),
                     );
-                    let mut result: crate::Result<EVMProcessOutput> =
-                        crate::process::call(path.as_str(), input);
-                    if let Err(Error::StackTooDeep(ref mut stack_too_deep)) = result {
-                        stack_too_deep.contract_name = Some(contract_name.clone());
-                        stack_too_deep.code_segment =
-                            Some(era_compiler_common::CodeSegment::Deploy);
-                    }
-                    result
+
+                    Self::run_multi_pass_pipeline(
+                        path.as_str(),
+                        &contract_name,
+                        &mut input,
+                        messages.clone(),
+                    )
                 };
 
                 let build = EVMContractBuild::new(
@@ -574,6 +559,67 @@ impl Project {
             })
             .collect::<BTreeMap<String, EVMContractBuild>>();
 
+        messages.lock().expect("Sync").retain(|message| {
+            !(message.severity == "warning"
+                && message.error_code.as_deref()
+                    == Some(solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE))
+        });
+
         Ok(EVMBuild::new(results, self.ast_jsons, messages))
+    }
+
+    ///
+    /// Runs the multi-pass compilation pipeline.
+    ///
+    /// It is expected to run up to 4 passes in the process of handling stack too deep errors
+    /// and turning on the size fallback to overcome the EVM bytecode size limit.
+    ///
+    fn run_multi_pass_pipeline(
+        path: &str,
+        contract_name: &era_compiler_common::ContractName,
+        input: &mut EVMProcessInput,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
+    ) -> crate::Result<EVMProcessOutput> {
+        let mut result: crate::Result<EVMProcessOutput>;
+        let mut pass_count = 0;
+        loop {
+            result = crate::process::call(path, input);
+            pass_count += 1;
+            match result {
+                Err(Error::StackTooDeep(ref stack_too_deep)) => {
+                    if std::env::var(
+                        solx_standard_json::OutputError::EVM_DISABLE_MEMORY_SAFE_ASM_CHECK_ENV,
+                    )
+                    .is_err()
+                    {
+                        for message in messages.lock().expect("Sync").iter_mut() {
+                            if let (Some(path), Some(error_code)) = (
+                                message
+                                    .source_location
+                                    .as_ref()
+                                    .map(|location| location.file.as_str()),
+                                message.error_code.as_ref(),
+                            ) {
+                                if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
+                                    message.make_error();
+                                }
+                            }
+                        }
+                    }
+
+                    assert!(pass_count <= 2, "Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
+
+                    if stack_too_deep.is_size_fallback {
+                        input.optimizer_settings.switch_to_size_fallback();
+                    }
+                    input
+                        .optimizer_settings
+                        .set_spill_area_size(stack_too_deep.spill_area_size);
+                    continue;
+                }
+                _ => break,
+            }
+        }
+        result
     }
 }

@@ -16,7 +16,7 @@ pub trait Collectable {
     ///
     /// Returns errors as a list.
     ///
-    fn errors(&self) -> Vec<&Error>;
+    fn errors(&self) -> Vec<Error>;
 
     ///
     /// Extracts warnings from the list of messages.

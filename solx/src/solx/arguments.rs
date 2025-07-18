@@ -5,6 +5,8 @@
 use std::collections::BTreeSet;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use clap::Parser;
 use path_slash::PathExt;
@@ -166,8 +168,8 @@ pub struct Arguments {
     pub output_asm_solc_json: bool,
 
     /// Emit solc's optimized Yul IR of the compiled project.
-    #[arg(long = "ir-optimized")]
-    pub output_ir_optimized: bool,
+    #[arg(long = "ir")]
+    pub output_ir: bool,
 
     /// Dump all IRs to files in the specified directory.
     /// Only for testing and debugging.
@@ -194,7 +196,7 @@ impl Arguments {
     ///
     /// Validates the arguments.
     ///
-    pub fn validate(&self) -> Vec<solx_standard_json::OutputError> {
+    pub fn validate(&self) -> Arc<Mutex<Vec<solx_standard_json::OutputError>>> {
         let mut messages = vec![];
 
         if self.version && std::env::args().count() > 2 {
@@ -253,7 +255,7 @@ impl Arguments {
                 || self.output_transient_storage_layout
                 || self.output_ast_json
                 || self.output_asm_solc_json
-                || self.output_ir_optimized
+                || self.output_ir
             {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
@@ -295,7 +297,7 @@ impl Arguments {
                 || self.output_transient_storage_layout
                 || self.output_ast_json
                 || self.output_asm_solc_json
-                || self.output_ir_optimized
+                || self.output_ir
             {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
@@ -397,7 +399,7 @@ impl Arguments {
             }
         }
 
-        messages
+        Arc::new(Mutex::new(messages))
     }
 
     ///

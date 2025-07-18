@@ -81,6 +81,8 @@ disabled = true
 [forge-std]
 repo = "https://github.com/foundry-rs/forge-std"
 description = "Forge Standard Library is a collection of helpful contracts and libraries for use with Forge and Foundry."
+[forge-std.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [tokenlon]
 repo = "https://github.com/consenlabs/tokenlon-contracts"

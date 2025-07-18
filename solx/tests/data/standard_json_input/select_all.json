@@ -33,7 +33,7 @@
           "transientStorageLayout",
           "evm.methodIdentifiers",
           "evm.legacyAssembly",
-          "irOptimized",
+          "ir",
           "evm"
         ]
       }

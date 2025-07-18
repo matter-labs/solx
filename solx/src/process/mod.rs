@@ -72,7 +72,7 @@ pub fn run() -> anyhow::Result<()> {
 ///
 /// Runs this process recursively to compile a single contract.
 ///
-pub fn call<I, O>(path: &str, input: I) -> crate::Result<O>
+pub fn call<I, O>(path: &str, input: &I) -> crate::Result<O>
 where
     I: serde::Serialize,
     O: serde::de::DeserializeOwned,
@@ -97,7 +97,7 @@ where
         .stdin
         .as_mut()
         .unwrap_or_else(|| panic!("{executable:?} subprocess stdin getting error"));
-    let stdin_input = serde_json::to_vec(&input).expect("Always valid");
+    let stdin_input = serde_json::to_vec(input).expect("Always valid");
     stdin
         .write_all(stdin_input.as_slice())
         .unwrap_or_else(|error| panic!("{executable:?} subprocess stdin writing: {error:?}"));
@@ -143,11 +143,14 @@ where
 ///
 /// # Safety
 ///
-/// This function is unsafe because it is called from LLVM C API.
+/// This function is unsafe because it is called from the LLVM stackifier.
 /// The function must terminate the process after handling the error.
 ///
 pub unsafe extern "C" fn evm_stack_error_handler(spill_area_size: u64) {
-    let result: Result<EVMOutput, Error> = Err(Error::stack_too_deep(spill_area_size));
+    let result: Result<EVMOutput, Error> = Err(Error::stack_too_deep(
+        spill_area_size,
+        era_compiler_llvm_context::EVM_IS_SIZE_FALLBACK.load(std::sync::atomic::Ordering::Relaxed),
+    ));
     serde_json::to_writer(std::io::stdout(), &result)
         .unwrap_or_else(|error| panic!("Stdout writing error: {error}"));
     unsafe { inkwell::support::shutdown_llvm() };

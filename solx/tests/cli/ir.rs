@@ -8,7 +8,7 @@ use predicates::prelude::*;
 fn default() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &[crate::common::TEST_SOLIDITY_CONTRACT_PATH, "--ir-optimized"];
+    let args = &[crate::common::TEST_SOLIDITY_CONTRACT_PATH, "--ir"];
 
     let result = crate::cli::execute_solx(args)?;
 
@@ -26,7 +26,7 @@ fn standard_json() -> anyhow::Result<()> {
     let args = &[
         "--standard-json",
         crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
-        "--ir-optimized",
+        "--ir",
     ];
 
     let result = crate::cli::execute_solx(args)?;

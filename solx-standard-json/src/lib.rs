@@ -15,7 +15,6 @@ pub mod version;
 
 pub use self::input::language::Language as InputLanguage;
 pub use self::input::settings::metadata::Metadata as InputMetadata;
-pub use self::input::settings::optimizer::spill_area_size::SpillAreaSize as InputOptimizerSpillAreaSize;
 pub use self::input::settings::optimizer::Optimizer as InputOptimizer;
 pub use self::input::settings::selection::selector::Selector as InputSelector;
 pub use self::input::settings::selection::Selection as InputSelection;

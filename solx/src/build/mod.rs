@@ -8,12 +8,13 @@ use std::collections::BTreeMap;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use normpath::PathExt;
 
 use solx_standard_json::CollectableError;
 
-use crate::error::stack_too_deep::StackTooDeep as StackTooDeepError;
 use crate::error::Error;
 
 use self::contract::object::Object as ContractObject;
@@ -29,7 +30,7 @@ pub struct Build {
     /// The Solidity AST JSONs of the source files.
     pub ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
     /// The additional message to output.
-    pub messages: Vec<solx_standard_json::OutputError>,
+    pub messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
 }
 
 impl Build {
@@ -39,12 +40,12 @@ impl Build {
     pub fn new(
         contracts: BTreeMap<String, Contract>,
         ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
-        messages: &mut Vec<solx_standard_json::OutputError>,
+        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     ) -> Self {
         Self {
             contracts,
             ast_jsons,
-            messages: std::mem::take(messages),
+            messages,
         }
     }
 
@@ -103,11 +104,12 @@ impl Build {
                         match object.assemble(all_objects.as_slice(), cbor_data.clone()) {
                             Ok(assembled_object) => assembled_object,
                             Err(error) => {
-                                self.messages
-                                    .push(solx_standard_json::OutputError::new_error(
+                                self.messages.lock().expect("Sync").push(
+                                    solx_standard_json::OutputError::new_error(
                                         None, &error, None, None,
-                                    ));
-                                return Self::new(BTreeMap::new(), ast_jsons, &mut self.messages);
+                                    ),
+                                );
+                                return Self::new(BTreeMap::new(), ast_jsons, self.messages);
                             }
                         };
                     assembled_objects_data.push((
@@ -164,16 +166,15 @@ impl Build {
             .into_iter()
             {
                 if let Err(error) = object.link(&linker_symbols) {
-                    self.messages
-                        .push(solx_standard_json::OutputError::new_error(
-                            None, &error, None, None,
-                        ));
-                    return Self::new(BTreeMap::new(), ast_jsons, &mut self.messages);
+                    self.messages.lock().expect("Sync").push(
+                        solx_standard_json::OutputError::new_error(None, &error, None, None),
+                    );
+                    return Self::new(BTreeMap::new(), ast_jsons, self.messages);
                 }
             }
         }
 
-        Self::new(self.contracts, ast_jsons, &mut self.messages)
+        Self::new(self.contracts, ast_jsons, self.messages)
     }
 
     ///
@@ -289,8 +290,10 @@ impl Build {
             errors.extend(
                 contract
                     .deploy_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
             if let Err(Error::StandardJson(ref error)) = contract.deploy_object_result {
@@ -299,8 +302,10 @@ impl Build {
             errors.extend(
                 contract
                     .runtime_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
             if let Err(Error::StandardJson(ref error)) = contract.runtime_object_result {
@@ -340,47 +345,20 @@ impl Build {
                 }
             }
         }
+        standard_json
+            .errors
+            .extend(self.messages.lock().expect("Sync").drain(..));
         standard_json.errors.extend(errors);
         if standard_json.has_errors() {
             standard_json.contracts.clear();
         }
         Ok(())
     }
-
-    ///
-    /// Extracts stack-too-deep errors from the build.
-    ///
-    pub fn take_stack_too_deep_errors(&mut self) -> Vec<StackTooDeepError> {
-        let mut stack_too_deep_errors = Vec::new();
-        for contract in self.contracts.values() {
-            if let Err(Error::StackTooDeep(stack_too_deep_error)) =
-                contract.deploy_object_result.as_ref()
-            {
-                let mut error = stack_too_deep_error.to_owned();
-                error.contract_name = Some(contract.name.to_owned());
-                error.code_segment = Some(era_compiler_common::CodeSegment::Deploy);
-                stack_too_deep_errors.push(error);
-            }
-            if let Err(Error::StackTooDeep(stack_too_deep_error)) =
-                contract.runtime_object_result.as_ref()
-            {
-                let mut error = stack_too_deep_error.to_owned();
-                error.contract_name = Some(contract.name.to_owned());
-                error.code_segment = Some(era_compiler_common::CodeSegment::Runtime);
-                stack_too_deep_errors.push(error);
-            }
-        }
-        self.contracts.retain(|_, contract| {
-            !matches!(contract.deploy_object_result, Err(Error::StackTooDeep(_)))
-                && !matches!(contract.runtime_object_result, Err(Error::StackTooDeep(_)))
-        }); // TODO: replace with `extract_if` when stabilized
-        stack_too_deep_errors
-    }
 }
 
 impl solx_standard_json::CollectableError for Build {
-    fn errors(&self) -> Vec<&solx_standard_json::OutputError> {
-        let mut errors: Vec<&solx_standard_json::OutputError> = self
+    fn errors(&self) -> Vec<solx_standard_json::OutputError> {
+        let mut errors: Vec<solx_standard_json::OutputError> = self
             .contracts
             .values()
             .flat_map(|contract| {
@@ -390,12 +368,16 @@ impl solx_standard_json::CollectableError for Build {
                 ]
             })
             .flatten()
-            .map(|error| error.unwrap_standard_json_ref())
+            .cloned()
+            .map(|error| error.unwrap_standard_json())
             .collect();
         errors.extend(
             self.messages
+                .lock()
+                .expect("Sync")
                 .iter()
-                .filter(|message| message.severity == "error"),
+                .filter(|message| message.severity == "error")
+                .cloned(),
         );
         errors
     }
@@ -403,28 +385,30 @@ impl solx_standard_json::CollectableError for Build {
     fn take_warnings(&mut self) -> Vec<solx_standard_json::OutputError> {
         let mut warnings: Vec<solx_standard_json::OutputError> = self
             .messages
-            .iter()
-            .filter(|message| message.severity == "warning")
-            .cloned()
+            .lock()
+            .expect("Sync")
+            .extract_if(.., |message| message.severity == "warning")
             .collect();
         for contract in self.contracts.values_mut() {
             warnings.extend(
                 contract
                     .deploy_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
             warnings.extend(
                 contract
                     .runtime_object_result
-                    .as_ref()
-                    .map(|object| object.warnings_standard_json(contract.name.full_path.as_str()))
+                    .as_mut()
+                    .map(|object| {
+                        object.take_warnings_standard_json(contract.name.full_path.as_str())
+                    })
                     .unwrap_or_default(),
             );
         }
-        self.messages
-            .retain(|message| message.severity != "warning");
         warnings
     }
 }

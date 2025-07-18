@@ -26,18 +26,17 @@ impl Error {
     ///
     /// A shortcut constructor for a `StackTooDeep` error.
     ///
-    pub fn stack_too_deep(spill_area_size: u64) -> Self {
+    pub fn stack_too_deep(spill_area_size: u64, is_size_fallback: bool) -> Self {
         Error::StackTooDeep(StackTooDeep {
             spill_area_size,
-            contract_name: None,
-            code_segment: None,
+            is_size_fallback,
         })
     }
 
     ///
     /// Unwraps the error as a `StandardJson` error reference.
     ///
-    pub fn unwrap_standard_json_ref(&self) -> &solx_standard_json::OutputError {
+    pub fn unwrap_standard_json(self) -> solx_standard_json::OutputError {
         match self {
             Error::StandardJson(error) => error,
             Error::Generic(error) => {

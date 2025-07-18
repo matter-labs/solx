@@ -120,13 +120,16 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
           // Slots, offsets and types of the contract's state variables in transient storage.
           "transientStorageLayout",
           // Yul produced by solc.
-          "irOptimized",
+          // An alias "irOptimized" is supported for compatibility, but it will request unoptimized Yul IR anyway.
+          "ir",
           // Everything of the below.
           "evm",
           // Solidity function hashes.
           "evm.methodIdentifiers",
           // EVM assembly produced by solc.
           "evm.legacyAssembly",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.gasEstimates",
           // Everything that starts with "evm.bytecode".
           "evm.bytecode",
           // Deploy bytecode produced by solx/LLVM.
@@ -234,8 +237,8 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
         // Corresponds to "userdoc" in the outputSelection settings.
         "userdoc": {/* ... */},
         // Optional: Yul produced by solc (string).
-        // Corresponds to "irOptimized" in the outputSelection settings.
-        "irOptimized": "/* ... */",
+        // Corresponds to "ir" in the outputSelection settings.
+        "ir": "/* ... */",
         // Optional: EVM target outputs.
         // Corresponds to "evm" in the outputSelection settings.
         "evm": {
@@ -248,6 +251,9 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
             // Mapping between the function signature and its hash.
             "delegate(address)": "5c19a95c"
           },
+          // Optional: Always empty, Included only to preserve compatibility with some toolkits (object).
+          // Corresponds to "evm.gasEstimates" in the outputSelection settings.
+          "gasEstimates": {},
           // Optional: Deploy EVM bytecode.
           // Corresponds to "evm.bytecode" in the outputSelection settings.
           "bytecode": {
