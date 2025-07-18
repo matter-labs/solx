@@ -2,6 +2,8 @@
 //! Translates the CODECOPY use cases.
 //!
 
+use inkwell::values::BasicValue;
+
 use era_compiler_llvm_context::IContext;
 
 ///
@@ -33,7 +35,25 @@ pub fn static_data<'ctx>(
     destination: inkwell::values::IntValue<'ctx>,
     source: &str,
 ) -> anyhow::Result<()> {
-    let pointer = era_compiler_llvm_context::Pointer::new_with_offset(
+    let source_type = context.array_type(context.byte_type(), source.len());
+    let source_global = context.module().add_global(
+        source_type,
+        Some(era_compiler_llvm_context::EVMAddressSpace::Code.into()),
+        "codecopy_bytes_global",
+    );
+    source_global.set_initializer(
+        &context
+            .llvm()
+            .const_string(source.as_bytes(), false)
+            .as_basic_value_enum(),
+    );
+    let source_pointer = era_compiler_llvm_context::Pointer::new(
+        source_type,
+        era_compiler_llvm_context::EVMAddressSpace::Code,
+        source_global.as_pointer_value(),
+    );
+
+    let destination_pointer = era_compiler_llvm_context::Pointer::new_with_offset(
         context,
         era_compiler_llvm_context::EVMAddressSpace::Heap,
         context.field_type(),
@@ -41,16 +61,12 @@ pub fn static_data<'ctx>(
         "codecopy_bytes_destination_pointer",
     )?;
 
-    context.build_call_metadata(
-        context.intrinsics().codecopybytes,
-        &[
-            pointer.as_basic_value_enum().into(),
-            context
-                .llvm()
-                .metadata_node(&[context.llvm().metadata_string(source).into()])
-                .into(),
-        ],
-        "codecopy_bytes",
+    context.build_memcpy(
+        context.intrinsics().memory_copy_from_code,
+        destination_pointer,
+        source_pointer,
+        context.field_const(source.len() as u64),
+        "codecopy_memcpy",
     )?;
     Ok(())
 }
