@@ -64,7 +64,7 @@ pub enum Selector {
     /// The deploy bytecode function debug data.
     #[serde(rename = "evm.bytecode.functionDebugData")]
     BytecodeFunctionDebugData,
-    /// The deploy bytecode generated sources
+    /// The deploy bytecode generated sources.
     #[serde(rename = "evm.bytecode.generatedSources")]
     BytecodeGeneratedSources,
     /// The runtime bytecode.
@@ -91,9 +91,12 @@ pub enum Selector {
     /// The runtime bytecode function debug data.
     #[serde(rename = "evm.deployedBytecode.functionDebugData")]
     RuntimeBytecodeFunctionDebugData,
-    /// The runtime bytecode generated sources
+    /// The runtime bytecode generated sources.
     #[serde(rename = "evm.deployedBytecode.generatedSources")]
     RuntimeBytecodeGeneratedSources,
+    /// The gas estimates.
+    #[serde(rename = "evm.gasEstimates")]
+    GasEstimates,
 
     /// The wildcard variant that selects everything.
     #[serde(rename = "*")]
@@ -113,16 +116,17 @@ impl Selector {
                 | Self::BytecodeLLVMAssembly
                 | Self::BytecodeLinkReferences
                 | Self::BytecodeSourceMap
-                | Self::BytecodeGeneratedSources
                 | Self::BytecodeFunctionDebugData
+                | Self::BytecodeGeneratedSources
                 | Self::RuntimeBytecode
                 | Self::RuntimeBytecodeObject
                 | Self::RuntimeBytecodeLLVMAssembly
                 | Self::RuntimeBytecodeSourceMap
-                | Self::RuntimeBytecodeGeneratedSources
                 | Self::RuntimeBytecodeFunctionDebugData
+                | Self::RuntimeBytecodeGeneratedSources
                 | Self::RuntimeBytecodeLinkReferences
                 | Self::RuntimeBytecodeImmutableReferences
+                | Self::GasEstimates
         )
     }
 
@@ -149,6 +153,7 @@ impl Selector {
                 Self::RuntimeBytecodeSourceMap,
                 Self::RuntimeBytecodeFunctionDebugData,
                 Self::RuntimeBytecodeGeneratedSources,
+                Self::GasEstimates,
             ],
             Self::Bytecode => vec![
                 Self::BytecodeObject,
@@ -198,6 +203,7 @@ impl Selector {
                 Self::RuntimeBytecodeSourceMap,
                 Self::RuntimeBytecodeFunctionDebugData,
                 Self::RuntimeBytecodeGeneratedSources,
+                Self::GasEstimates,
             ],
             selector => vec![selector],
         }

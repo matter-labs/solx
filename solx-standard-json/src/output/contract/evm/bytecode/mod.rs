@@ -30,12 +30,12 @@ pub struct Bytecode {
     /// Source maps placeholder.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub source_map: Option<String>,
-    /// Generated sources placeholder.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub generated_sources: Option<Vec<serde_json::Value>>,
     /// Function debug data placeholder.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub function_debug_data: Option<BTreeMap<String, serde_json::Value>>,
+    /// Generated sources placeholder.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub generated_sources: Option<Vec<serde_json::Value>>,
     /// Immutable generated_sources placeholder.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub immutable_references: Option<serde_json::Value>,
@@ -52,8 +52,8 @@ impl Bytecode {
 
         opcodes: Option<String>,
         source_map: Option<String>,
-        generated_sources: Option<Vec<serde_json::Value>>,
         function_debug_data: Option<BTreeMap<String, serde_json::Value>>,
+        generated_sources: Option<Vec<serde_json::Value>>,
         immutable_references: Option<serde_json::Value>,
     ) -> Self {
         let link_references = unlinked_symbols.map(|unlinked_symbols| {
@@ -84,8 +84,8 @@ impl Bytecode {
 
             opcodes,
             source_map,
-            generated_sources,
             function_debug_data,
+            generated_sources,
             immutable_references,
         }
     }
@@ -99,8 +99,8 @@ impl Bytecode {
             && self.link_references.is_none()
             && self.opcodes.is_none()
             && self.source_map.is_none()
-            && self.generated_sources.is_none()
             && self.function_debug_data.is_none()
+            && self.generated_sources.is_none()
             && self.immutable_references.is_none()
     }
 }

@@ -128,6 +128,8 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
           "evm.methodIdentifiers",
           // EVM assembly produced by solc.
           "evm.legacyAssembly",
+          // Unsupported, but emitted as an empty object to preserve compatibility with some toolkits.
+          "evm.gasEstimates",
           // Everything that starts with "evm.bytecode".
           "evm.bytecode",
           // Deploy bytecode produced by solx/LLVM.
@@ -249,6 +251,9 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
             // Mapping between the function signature and its hash.
             "delegate(address)": "5c19a95c"
           },
+          // Optional: Always empty, Included only to preserve compatibility with some toolkits (object).
+          // Corresponds to "evm.gasEstimates" in the outputSelection settings.
+          "gasEstimates": {},
           // Optional: Deploy EVM bytecode.
           // Corresponds to "evm.bytecode" in the outputSelection settings.
           "bytecode": {

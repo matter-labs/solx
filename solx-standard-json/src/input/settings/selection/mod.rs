@@ -67,7 +67,9 @@ impl Selection {
                 .or(name.and_then(|name| file.get(name)))
             {
                 match selector {
-                    Selector::MethodIdentifiers | Selector::EVMLegacyAssembly
+                    Selector::MethodIdentifiers
+                    | Selector::EVMLegacyAssembly
+                    | Selector::GasEstimates
                         if contract.contains(&Selector::EVM) =>
                     {
                         return true
