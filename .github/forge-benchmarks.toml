@@ -109,6 +109,10 @@ description = "A non-custodial liquidity protocol on Ethereum."
 requires_yarn = true
 run_iterations = 5 # Aave v3 is a large project
 
+[cicada]
+repo = "https://github.com/a16z/cicada"
+description = "A private on-chain voting protocol based on homomorphic time-lock puzzles."
+
 [seaport]
 repo = "https://github.com/ProjectOpenSea/seaport"
 description = "A marketplace protocol for safely and efficiently buying and selling NFTs."
