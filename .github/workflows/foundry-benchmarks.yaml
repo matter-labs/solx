@@ -148,7 +148,7 @@ jobs:
           if [[ '${{ needs.build-solx.result }}' == 'success' ]]; then
             mv ${GITHUB_WORKSPACE}/release-test/test/solx* ${GITHUB_WORKSPACE}/compilers/solx
           else
-            wget "${SOLX_DOWNLOAD_URL}/${{ inputs.solx-version }}/solx-linux-amd64-gnu-${{ inputs.solx-version }}"
+            wget "${SOLX_DOWNLOAD_URL}/${{ inputs.solx-version }}/solx-linux-amd64-gnu-v${{ inputs.solx-version }}"
             mv ./solx-linux-amd64-gnu-v${{ inputs.solx-version }} ./solx
           fi
           chmod a+x ./solx
@@ -307,6 +307,9 @@ jobs:
                 for ITER in $(seq "${ITERATIONS}"); do
                   GAS_JSON_ITER="${GAS_REPORTS}/${PROJECT}_${ITER}.json"
                   forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON_ITER}" 2>/dev/null || true
+                  cat "${GAS_JSON_ITER}"
+                  # Clean up output gas JSON from wrong output
+                  awk '/^\[\{/{f=1} f' "${GAS_JSON_ITER}" > tmp && mv tmp "${GAS_JSON_ITER}"
                 done
                 python ${GITHUB_WORKSPACE}/.github/scripts/combine-gas-reports.py "${GAS_REPORTS}" "${GAS_JSON}"
 
