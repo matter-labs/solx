@@ -276,6 +276,18 @@ jobs:
                     ' "${BUILD_JSON}"
                 fi
           
+                # Check if there are any errors in src/ directory, we should not run the tests then
+                if jq -e '
+                  has("errors") and
+                  (.errors | type == "array") and
+                  (.errors[]? |
+                    .severity == "error" and
+                    (.sourceLocation.file? | type == "string" and startswith("src/"))
+                  )' "${BUILD_JSON}" > /dev/null; then
+                  echo "⏭️ Skipping ${BUILD_JSON} due to error in src/"
+                  continue
+                fi
+          
                 COMPILE_ONLY=$(yq ".${PROJECT}.compile_only" "${TOML_CONFIG}")
                 if [[ "${COMPILE_ONLY}" == "true" ]]; then
                   echo "Skipping tests for ${PROJECT} as compile_only is set to true"
@@ -307,9 +319,6 @@ jobs:
                 for ITER in $(seq "${ITERATIONS}"); do
                   GAS_JSON_ITER="${GAS_REPORTS}/${PROJECT}_${ITER}.json"
                   forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON_ITER}" 2>/dev/null || true
-                  cat "${GAS_JSON_ITER}"
-                  # Clean up output gas JSON from wrong output
-                  awk '/^\[\{/{f=1} f' "${GAS_JSON_ITER}" > tmp && mv tmp "${GAS_JSON_ITER}"
                 done
                 python ${GITHUB_WORKSPACE}/.github/scripts/combine-gas-reports.py "${GAS_REPORTS}" "${GAS_JSON}"
 
@@ -325,6 +334,7 @@ jobs:
           done
 
       - name: Upload json
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-${{ strategy.job-index }}
@@ -375,20 +385,22 @@ jobs:
                     )
                   )' "${RUN_JSON}"
                 )
-                REF_TEST_RESULTS_JSON=$(
-                jq '
-                  reduce to_entries[] as $contract (
-                    {total: 0, success: 0};
-                    reduce ($contract.value.test_results | to_entries)[] as $test (
-                      .;
-                      .total += 1 |
-                      .success += (if $test.value.status == "Success" then 1 else 0 end)
-                    )
-                  )' "${RUN_REF_JSON}"
-                )
-                # Take number of successful tests from solc as total
-                TEST_TOTAL=$(echo "${REF_TEST_RESULTS_JSON}" | jq -r '.success')
-                TEST_PASSED=$(echo "${TEST_RESULTS_JSON}" | jq -r '.success')
+                if jq empty "${RUN_REF_JSON}" > /dev/null 2>&1 && [ -s "${RUN_REF_JSON}" ]; then
+                  REF_TEST_RESULTS_JSON=$(
+                  jq '
+                    reduce to_entries[] as $contract (
+                      {total: 0, success: 0};
+                      reduce ($contract.value.test_results | to_entries)[] as $test (
+                        .;
+                        .total += 1 |
+                        .success += (if $test.value.status == "Success" then 1 else 0 end)
+                      )
+                    )' "${RUN_REF_JSON}"
+                  )
+                  # Take number of successful tests from solc as total
+                  TEST_TOTAL=$(echo "${REF_TEST_RESULTS_JSON}" | jq -r '.success')
+                  TEST_PASSED=$(echo "${TEST_RESULTS_JSON}" | jq -r '.success')
+                fi
               fi
           
               if [ ! -s "$JSON" ]; then
@@ -603,7 +615,7 @@ jobs:
             INPUTS=""
             rm -f ./data/${COMPILER}/build*.json
             rm -f ./data/${COMPILER}/test*.json
-            JSONS=$(ls ./data/${COMPILER}/*.json)
+            JSONS=$(ls ./data/${COMPILER}/*.json 2>/dev/null)
             for JSON in ${JSONS}; do
               if jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]; then
                 INPUTS+=" --input-paths ${JSON}"
