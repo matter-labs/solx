@@ -307,6 +307,9 @@ jobs:
                 for ITER in $(seq "${ITERATIONS}"); do
                   GAS_JSON_ITER="${GAS_REPORTS}/${PROJECT}_${ITER}.json"
                   forge test --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON_ITER}" 2>/dev/null || true
+                  cat "${GAS_JSON_ITER}"
+                  # Clean up output gas JSON from wrong output
+                  awk '/^\[\{/{f=1} f' "${GAS_JSON_ITER}" > tmp && mv tmp "${GAS_JSON_ITER}"
                 done
                 python ${GITHUB_WORKSPACE}/.github/scripts/combine-gas-reports.py "${GAS_REPORTS}" "${GAS_JSON}"
 
