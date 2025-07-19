@@ -7,7 +7,6 @@ pub mod instruction;
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
-use std::collections::HashSet;
 
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
@@ -40,9 +39,6 @@ pub struct Assembly {
     /// The full contract path.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub full_path: Option<String>,
-    /// The factory dependency paths.
-    #[serde(default, skip_serializing_if = "HashSet::is_empty")]
-    pub factory_dependencies: HashSet<String>,
     /// The EVM legacy assembly extra metadata.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub extra_metadata: Option<ExtraMetadata>,
@@ -154,11 +150,16 @@ impl Assembly {
     }
 
     ///
-    /// Returns the `keccak256` hash of the assembly representation.
+    /// Returns the `blake3` hash of the assembly representation.
     ///
-    pub fn keccak256(&self) -> String {
-        let json: Vec<u8> = serde_json::to_vec(self).expect("Always valid");
-        era_compiler_common::Keccak256Hash::from_slice(json.as_slice()).to_string()
+    pub fn hash(&self) -> String {
+        let start = std::time::Instant::now();
+        let json: Vec<u8> = serde_cbor::to_vec(self).expect("Always valid");
+        dbg!("CBOR", start.elapsed());
+        let start = std::time::Instant::now();
+        let hash = blake3::hash(json.as_slice()).to_string();
+        dbg!("HASH", start.elapsed());
+        hash
     }
 
     ///
@@ -172,14 +173,14 @@ impl Assembly {
         for (path, file) in contracts.iter() {
             for (name, deploy_code_assembly) in file.iter() {
                 let deploy_code_path = format!("{path}:{name}");
-                let deploy_code_hash = deploy_code_assembly.keccak256();
+                let deploy_code_hash = deploy_code_assembly.hash();
 
                 let runtime_code_path = format!(
                     "{path}:{name}.{}",
                     era_compiler_common::CodeSegment::Runtime
                 );
                 let runtime_code_assembly = deploy_code_assembly.runtime_code()?;
-                let runtime_code_hash = runtime_code_assembly.keccak256();
+                let runtime_code_hash = runtime_code_assembly.hash();
 
                 hash_path_mapping.insert(deploy_code_hash, deploy_code_path);
                 hash_path_mapping.insert(runtime_code_hash, runtime_code_path);
@@ -275,7 +276,7 @@ impl Assembly {
 
             *data = match data {
                 Data::Assembly(assembly) => {
-                    let hash = Assembly::keccak256(assembly);
+                    let hash = assembly.hash();
                     let full_path =
                         hash_data_mapping
                             .get(hash.as_str())
@@ -283,7 +284,6 @@ impl Assembly {
                             .ok_or_else(|| {
                                 anyhow::anyhow!("Contract path not found for hash `{hash}`")
                             })?;
-                    self.factory_dependencies.insert(full_path.to_owned());
 
                     index_path_mapping.insert(index_extended, full_path.clone());
                     Data::Path(full_path)
@@ -325,7 +325,7 @@ impl Assembly {
 
             *data = match data {
                 Data::Assembly(assembly) => {
-                    let hash = Assembly::keccak256(assembly);
+                    let hash = Assembly::hash(assembly);
                     let full_path =
                         hash_data_mapping
                             .get(hash.as_str())
@@ -333,7 +333,6 @@ impl Assembly {
                             .ok_or_else(|| {
                                 anyhow::anyhow!("Contract path not found for hash `{hash}`")
                             })?;
-                    self.factory_dependencies.insert(full_path.to_owned());
 
                     index_path_mapping.insert(index_extended, full_path.clone());
                     Data::Path(full_path)

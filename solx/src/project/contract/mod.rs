@@ -1,5 +1,5 @@
 //!
-//! The contract data.
+//! Contract data.
 //!
 
 pub mod ir;
@@ -16,32 +16,32 @@ use crate::error::Error;
 use self::ir::IR;
 
 ///
-/// The contract data.
+/// Contract data.
 ///
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Contract {
-    /// The contract name.
+    /// Contract name.
     pub name: era_compiler_common::ContractName,
-    /// The IR source code data.
+    /// IR source code data.
     pub ir: IR,
-    /// The solc metadata.
+    /// solc metadata.
     pub metadata: Option<String>,
-    /// The solc ABI.
+    /// solc ABI.
     pub abi: Option<serde_json::Value>,
-    /// The solc method identifiers.
+    /// solc method identifiers.
     pub method_identifiers: Option<BTreeMap<String, String>>,
-    /// The solc user documentation.
+    /// solc user documentation.
     pub userdoc: Option<serde_json::Value>,
-    /// The solc developer documentation.
+    /// solc developer documentation.
     pub devdoc: Option<serde_json::Value>,
-    /// The solc storage layout.
+    /// solc storage layout.
     pub storage_layout: Option<serde_json::Value>,
-    /// The solc transient storage layout.
+    /// solc transient storage layout.
     pub transient_storage_layout: Option<serde_json::Value>,
-    /// the solc EVM legacy assembly.
+    /// solc EVM legacy assembly.
     pub legacy_assembly: Option<solx_evm_assembly::Assembly>,
-    /// the solc optimized Yul IR assembly.
-    pub ir_optimized: Option<String>,
+    /// solc Yul IR.
+    pub yul: Option<String>,
 }
 
 impl Contract {
@@ -59,7 +59,7 @@ impl Contract {
         storage_layout: Option<serde_json::Value>,
         transient_storage_layout: Option<serde_json::Value>,
         legacy_assembly: Option<solx_evm_assembly::Assembly>,
-        ir_optimized: Option<String>,
+        yul: Option<String>,
     ) -> Self {
         Self {
             name,
@@ -72,7 +72,7 @@ impl Contract {
             storage_layout,
             transient_storage_layout,
             legacy_assembly,
-            ir_optimized,
+            yul,
         }
     }
 
@@ -106,10 +106,11 @@ impl Contract {
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> Result<EVMContractObject, Error> {
         use era_compiler_llvm_context::EVMWriteLLVM;
+        let mut profiler = era_compiler_llvm_context::EVMProfiler::default();
 
         let solc_version = solx_solc::Compiler::default().version;
         let solidity_data = era_compiler_llvm_context::EVMContextSolidityData::new(immutables);
-        let optimizer = era_compiler_llvm_context::Optimizer::new(optimizer_settings);
+        let optimizer = era_compiler_llvm_context::Optimizer::new(optimizer_settings.clone());
         let output_bytecode = output_selection.is_bytecode_set_for_any();
 
         match (contract_ir, code_segment) {
@@ -133,10 +134,17 @@ impl Contract {
                 deploy_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths,
                 ));
+                let run_yul_lowering = profiler.start_evm_translation_unit(
+                    contract_name.full_path.as_str(),
+                    code_segment,
+                    "YulToLLVMIR",
+                    &optimizer_settings,
+                );
                 yul.object.declare(&mut deploy_context)?;
                 yul.object.into_llvm(&mut deploy_context).map_err(|error| {
                     anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
                 })?;
+                run_yul_lowering.borrow_mut().finish();
                 let deploy_build = deploy_context.build(
                     output_selection.check_selection(
                         contract_name.path.as_str(),
@@ -145,6 +153,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
+                    &mut profiler,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -158,6 +167,7 @@ impl Contract {
                     yul.dependencies,
                     deploy_build.is_size_fallback,
                     deploy_build.warnings,
+                    profiler.to_vec(),
                 );
                 Ok(deploy_object)
             }
@@ -182,12 +192,19 @@ impl Contract {
                 runtime_context.set_yul_data(era_compiler_llvm_context::EVMContextYulData::new(
                     identifier_paths.clone(),
                 ));
+                let run_yul_lowering = profiler.start_evm_translation_unit(
+                    contract_name.full_path.as_str(),
+                    code_segment,
+                    "YulToLLVMIR",
+                    &optimizer_settings,
+                );
                 yul.object.declare(&mut runtime_context)?;
                 yul.object
                     .into_llvm(&mut runtime_context)
                     .map_err(|error| {
                         anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
                     })?;
+                run_yul_lowering.borrow_mut().finish();
                 let runtime_build = runtime_context.build(
                     output_selection.check_selection(
                         contract_name.path.as_str(),
@@ -196,6 +213,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
+                    &mut profiler,
                 )?;
                 let immutables = runtime_build.immutables.unwrap_or_default();
                 let runtime_object = EVMContractObject::new(
@@ -210,6 +228,7 @@ impl Contract {
                     yul.dependencies,
                     runtime_build.is_size_fallback,
                     runtime_build.warnings,
+                    profiler.to_vec(),
                 );
                 Ok(runtime_object)
             }
@@ -219,7 +238,9 @@ impl Contract {
                 let deploy_code_identifier = contract_name.full_path.to_owned();
                 let mut deploy_code_dependencies =
                     solx_yul::Dependencies::new(deploy_code_identifier.as_str());
-                deploy_code.accumulate_evm_dependencies(&mut deploy_code_dependencies);
+                deploy_code
+                    .assembly
+                    .accumulate_evm_dependencies(&mut deploy_code_dependencies);
 
                 let deploy_llvm = inkwell::context::Context::create();
                 let deploy_module = deploy_llvm.create_module(deploy_code_identifier.as_str());
@@ -236,6 +257,12 @@ impl Contract {
                 );
                 deploy_context.set_solidity_data(solidity_data);
                 deploy_context.set_evmla_data(evmla_data);
+                let run_evm_assembly_lowering = profiler.start_evm_translation_unit(
+                    contract_name.full_path.as_str(),
+                    code_segment,
+                    "EVMAssemblyToLLVMIR",
+                    &optimizer_settings,
+                );
                 deploy_code.assembly.declare(&mut deploy_context)?;
                 deploy_code
                     .assembly
@@ -243,6 +270,7 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
                     })?;
+                run_evm_assembly_lowering.borrow_mut().finish();
                 let deploy_build = deploy_context.build(
                     output_selection.check_selection(
                         contract_name.path.as_str(),
@@ -251,6 +279,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
+                    &mut profiler,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -264,6 +293,7 @@ impl Contract {
                     deploy_code_dependencies,
                     deploy_build.is_size_fallback,
                     deploy_build.warnings,
+                    profiler.to_vec(),
                 );
                 Ok(deploy_object)
             }
@@ -290,6 +320,12 @@ impl Contract {
                 );
                 runtime_context.set_solidity_data(solidity_data);
                 runtime_context.set_evmla_data(evmla_data.clone());
+                let run_evm_assembly_lowering = profiler.start_evm_translation_unit(
+                    contract_name.full_path.as_str(),
+                    code_segment,
+                    "EVMAssemblyToLLVMIR",
+                    &optimizer_settings,
+                );
                 runtime_code.assembly.declare(&mut runtime_context)?;
                 runtime_code
                     .assembly
@@ -297,6 +333,7 @@ impl Contract {
                     .map_err(|error| {
                         anyhow::anyhow!("{code_segment} code LLVM IR generator: {error}")
                     })?;
+                run_evm_assembly_lowering.borrow_mut().finish();
                 let runtime_build = runtime_context.build(
                     output_selection.check_selection(
                         contract_name.path.as_str(),
@@ -305,6 +342,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
+                    &mut profiler,
                 )?;
                 let immutables = runtime_build.immutables.unwrap_or_default();
                 let runtime_object = EVMContractObject::new(
@@ -319,6 +357,7 @@ impl Contract {
                     runtime_code.dependencies,
                     runtime_build.is_size_fallback,
                     runtime_build.warnings,
+                    profiler.to_vec(),
                 );
                 Ok(runtime_object)
             }
@@ -355,6 +394,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
+                    &mut profiler,
                 )?;
                 let deploy_object = EVMContractObject::new(
                     deploy_code_identifier,
@@ -368,6 +408,7 @@ impl Contract {
                     deploy_llvm_ir.dependencies,
                     deploy_build.is_size_fallback,
                     deploy_build.warnings,
+                    profiler.to_vec(),
                 );
                 Ok(deploy_object)
             }
@@ -404,6 +445,7 @@ impl Contract {
                     ),
                     output_bytecode,
                     false,
+                    &mut profiler,
                 )?;
                 let runtime_object = EVMContractObject::new(
                     runtime_code_identifier,
@@ -417,6 +459,7 @@ impl Contract {
                     runtime_llvm_ir.dependencies,
                     runtime_build.is_size_fallback,
                     runtime_build.warnings,
+                    profiler.to_vec(),
                 );
                 Ok(runtime_object)
             }

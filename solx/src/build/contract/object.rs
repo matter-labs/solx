@@ -40,6 +40,8 @@ pub struct Object {
     pub is_size_fallback: bool,
     /// Compilation warnings.
     pub warnings: Vec<era_compiler_llvm_context::EVMWarning>,
+    /// Compilation pipeline benchmarks.
+    pub benchmarks: Vec<(String, u64)>,
 }
 
 impl Object {
@@ -61,6 +63,7 @@ impl Object {
         dependencies: solx_yul::Dependencies,
         is_size_fallback: bool,
         warnings: Vec<era_compiler_llvm_context::EVMWarning>,
+        benchmarks: Vec<(String, u64)>,
     ) -> Self {
         let bytecode_hex = bytecode.as_ref().map(hex::encode);
         Self {
@@ -78,6 +81,7 @@ impl Object {
             is_assembled: false,
             is_size_fallback,
             warnings,
+            benchmarks,
         }
     }
 

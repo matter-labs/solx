@@ -402,13 +402,7 @@ impl std::fmt::Display for Name {
                 "RECURSIVE_CALL({name}_{entry_key}, {input_size}, {output_size}, {return_address})",
             ),
             Self::RecursiveReturn { input_size } => write!(f, "RECURSIVE_RETURN({input_size})"),
-            _ => write!(
-                f,
-                "{}",
-                serde_json::to_string(self)
-                    .expect("Always valid")
-                    .trim_matches('\"')
-            ),
+            _ => write!(f, "{self:?}",),
         }
     }
 }

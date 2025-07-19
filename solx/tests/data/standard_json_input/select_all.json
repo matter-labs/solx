@@ -22,7 +22,8 @@
     "outputSelection": {
       "*": {
         "": [
-          "ast"
+          "ast",
+          "benchmarks"
         ],
         "*": [
           "abi",
@@ -33,7 +34,9 @@
           "transientStorageLayout",
           "evm.methodIdentifiers",
           "evm.legacyAssembly",
+          "evm.gasEstimates",
           "ir",
+          "benchmarks",
           "evm"
         ]
       }

@@ -7,7 +7,7 @@ use crate::ethereal_ir::function::block::element::stack::Stack;
 ///
 /// The Ethereal IR block queue element.
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct QueueElement {
     /// The block key.
     pub block_key: era_compiler_llvm_context::BlockKey,

@@ -2,8 +2,6 @@
 //! Implementation of a visitor pattern for Yul syntax tree.
 //!
 
-use std::collections::BTreeSet;
-
 use crate::yul::parser::statement::assignment::Assignment;
 use crate::yul::parser::statement::block::Block;
 use crate::yul::parser::statement::code::Code;
@@ -26,24 +24,6 @@ use super::parser::dialect::Dialect;
 /// an object.
 ///
 pub const IMPLICIT_CODE_FUNCTION_NAME: &str = "BODY";
-
-///
-/// Create a virtual definition of a function corresponding to the `code` block
-/// of an object.
-///
-pub fn implicit_code_function<P>(code: &Code<P>) -> FunctionDefinition<P>
-where
-    P: Dialect,
-{
-    FunctionDefinition {
-        location: code.location,
-        identifier: IMPLICIT_CODE_FUNCTION_NAME.to_string(),
-        arguments: Vec::new(),
-        result: Vec::new(),
-        body: code.block.clone(),
-        attributes: BTreeSet::new(),
-    }
-}
 
 #[allow(unused_variables)]
 ///

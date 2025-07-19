@@ -6,7 +6,7 @@
 /// This structure represents an ordered dependency collection
 /// in the order they are encountered in IR from the top to the bottom.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Dependencies {
     /// Top-level object identifier.
     pub identifier: String,

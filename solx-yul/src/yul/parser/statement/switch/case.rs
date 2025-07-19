@@ -18,7 +18,7 @@ use crate::yul::parser::statement::expression::literal::Literal;
 ///
 /// The Yul switch statement case.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(bound = "P: serde::de::DeserializeOwned")]
 pub struct Case<P>
 where

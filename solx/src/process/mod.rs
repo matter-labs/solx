@@ -5,6 +5,7 @@
 pub mod input;
 pub mod output;
 
+use std::io::Read;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
@@ -24,10 +25,19 @@ pub static EXECUTABLE: OnceLock<PathBuf> = OnceLock::new();
 /// Read input from `stdin`, compile a contract, and write the output to `stdout`.
 ///
 pub fn run() -> anyhow::Result<()> {
-    let input_json = std::io::read_to_string(std::io::stdin())
+    let length_bytes = {
+        let mut buffer = [0u8; 8];
+        std::io::stdin()
+            .read_exact(&mut buffer)
+            .map_err(|error| anyhow::anyhow!("Stdin length prefix reading error: {error}"))?;
+        usize::from_le_bytes(buffer)
+    };
+    let mut buffer = Vec::with_capacity(length_bytes);
+    std::io::stdin()
+        .read_to_end(&mut buffer)
         .map_err(|error| anyhow::anyhow!("Stdin reading error: {error}"))?;
-    let input: EVMInput = era_compiler_common::deserialize_from_str(input_json.as_str())
-        .map_err(|error| anyhow::anyhow!("Stdin parsing error: {error}"))?;
+    let input: EVMInput = serde_cbor::from_slice(buffer.as_slice())
+        .map_err(|error| anyhow::anyhow!("Stdin deserialziing error: {error}"))?;
 
     let source_location =
         solx_standard_json::OutputErrorSourceLocation::new(input.contract_name.path.clone());
@@ -63,7 +73,10 @@ pub fn run() -> anyhow::Result<()> {
         .join()
         .expect("Threading error");
 
-    serde_json::to_writer(std::io::stdout(), &result)
+    let output = serde_cbor::to_vec(&result)
+        .map_err(|error| anyhow::anyhow!("Stdout serializing error: {error}"))?;
+    std::io::stdout()
+        .write_all(output.as_slice())
         .map_err(|error| anyhow::anyhow!("Stdout writing error: {error}"))?;
     unsafe { inkwell::support::shutdown_llvm() };
     Ok(())
@@ -91,20 +104,27 @@ where
 
     let mut process = command
         .spawn()
-        .unwrap_or_else(|error| panic!("{executable:?} subprocess spawning: {error:?}"));
+        .unwrap_or_else(|error| panic!("{executable:?} subprocess spawning error: {error:?}"));
 
     let stdin = process
         .stdin
         .as_mut()
         .unwrap_or_else(|| panic!("{executable:?} subprocess stdin getting error"));
-    let stdin_input = serde_json::to_vec(input).expect("Always valid");
+    let input = serde_cbor::to_vec(input).unwrap_or_else(|error| {
+        panic!("{executable:?} subprocess stdin serializing error: {error:?}")
+    });
     stdin
-        .write_all(stdin_input.as_slice())
-        .unwrap_or_else(|error| panic!("{executable:?} subprocess stdin writing: {error:?}"));
+        .write_all(input.len().to_le_bytes().as_slice())
+        .unwrap_or_else(|error| {
+            panic!("{executable:?} subprocess stdin length prefix writing error: {error:?}")
+        });
+    stdin
+        .write_all(input.as_slice())
+        .unwrap_or_else(|error| panic!("{executable:?} subprocess stdin writing error: {error:?}"));
 
-    let result = process
-        .wait_with_output()
-        .unwrap_or_else(|error| panic!("{executable:?} subprocess output reading: {error:?}"));
+    let result = process.wait_with_output().unwrap_or_else(|error| {
+        panic!("{executable:?} subprocess output reading error: {error:?}")
+    });
 
     if result.status.code() != Some(era_compiler_common::EXIT_CODE_SUCCESS) {
         let message = format!(
@@ -126,11 +146,11 @@ where
         ))?;
     }
 
-    match era_compiler_common::deserialize_from_slice(result.stdout.as_slice()) {
+    match serde_cbor::from_slice(result.stdout.as_slice()) {
         Ok(output) => output,
         Err(error) => {
             panic!(
-                "{executable:?} subprocess stdout parsing error: {error:?}\n{}\n{}",
+                "{executable:?} subprocess stdout deserializing error: {error:?}\n{}\n{}",
                 String::from_utf8_lossy(result.stdout.as_slice()),
                 String::from_utf8_lossy(result.stderr.as_slice()),
             );
@@ -151,7 +171,10 @@ pub unsafe extern "C" fn evm_stack_error_handler(spill_area_size: u64) {
         spill_area_size,
         era_compiler_llvm_context::EVM_IS_SIZE_FALLBACK.load(std::sync::atomic::Ordering::Relaxed),
     ));
-    serde_json::to_writer(std::io::stdout(), &result)
+    let output = serde_cbor::to_vec(&result)
+        .unwrap_or_else(|error| panic!("Stdout serializing error: {error}"));
+    std::io::stdout()
+        .write_all(output.as_slice())
         .unwrap_or_else(|error| panic!("Stdout writing error: {error}"));
     unsafe { inkwell::support::shutdown_llvm() };
     std::process::exit(era_compiler_common::EXIT_CODE_SUCCESS);

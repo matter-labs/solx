@@ -285,7 +285,7 @@ EVM assembly:
 
 
 
-### `--ir`
+### `--ir` (or `--ir-optimized`)
 
 Emits the **solc** Yul IR.
 

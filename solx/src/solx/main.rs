@@ -186,6 +186,9 @@ fn main_inner(
     if arguments.output_ir {
         selectors.insert(solx_standard_json::InputSelector::Yul);
     }
+    if arguments.output_benchmarks {
+        selectors.insert(solx_standard_json::InputSelector::Benchmarks);
+    }
     let output_selection = solx_standard_json::InputSelection::new(selectors);
 
     let llvm_options: Vec<String> = arguments

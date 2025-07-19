@@ -7,7 +7,7 @@ use std::cmp::Ordering;
 ///
 /// The Ethereal IR block visited element.
 ///
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub struct VisitedElement {
     /// The block key.
     pub block_key: era_compiler_llvm_context::BlockKey,

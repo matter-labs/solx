@@ -21,19 +21,17 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Block {
 
         let mut functions = Vec::with_capacity(self.0.statements.len());
         let mut local_statements = Vec::with_capacity(self.0.statements.len());
-
         for statement in self.0.statements.into_iter() {
             match statement {
-                Statement::FunctionDefinition(statement) => {
-                    statement.clone().wrap().declare(context)?;
-                    functions.push(statement);
-                }
+                Statement::FunctionDefinition(statement) => functions.push(statement.wrap()),
                 statement => local_statements.push(statement),
             }
         }
-
+        for function in functions.iter_mut() {
+            function.declare(context)?;
+        }
         for function in functions.into_iter() {
-            function.wrap().into_llvm(context)?;
+            function.into_llvm(context)?;
         }
 
         context.set_current_function(current_function.as_str())?;

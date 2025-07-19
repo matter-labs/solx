@@ -15,7 +15,7 @@ use self::attributes::get_llvm_attributes;
 ///
 /// Era-specific part of the parser.
 ///
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct EraDialect {}
 
 impl Dialect for EraDialect {

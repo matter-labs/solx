@@ -22,7 +22,7 @@ pub trait Wrap {
 #[macro_export]
 macro_rules! declare_wrapper {
     ($unwrapped_type:ty, $wrapped_type:ident) => {
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[doc = concat!("Wrapper for [`", stringify!($unwrapped_type), "`].")]
         pub struct $wrapped_type(pub $unwrapped_type);
 

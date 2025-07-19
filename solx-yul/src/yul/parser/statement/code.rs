@@ -17,7 +17,7 @@ use crate::yul::parser::statement::block::Block;
 ///
 /// The Yul code entity, which is the first block of the object.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(bound = "P: serde::de::DeserializeOwned")]
 pub struct Code<P>
 where
