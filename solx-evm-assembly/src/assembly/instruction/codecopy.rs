@@ -35,6 +35,7 @@ pub fn static_data<'ctx>(
     destination: inkwell::values::IntValue<'ctx>,
     source: &str,
 ) -> anyhow::Result<()> {
+    let source = hex::decode(source).expect("Always valid");
     let source_type = context.array_type(context.byte_type(), source.len());
     let source_global = context.module().add_global(
         source_type,
@@ -44,7 +45,7 @@ pub fn static_data<'ctx>(
     source_global.set_initializer(
         &context
             .llvm()
-            .const_string(source.as_bytes(), false)
+            .const_string(source.as_slice(), false)
             .as_basic_value_enum(),
     );
     let source_pointer = era_compiler_llvm_context::Pointer::new(
