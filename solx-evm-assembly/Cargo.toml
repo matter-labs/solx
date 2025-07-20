@@ -14,14 +14,14 @@ anyhow = "1.0"
 rayon = "1.10"
 
 serde = { version = "1.0", "features" = [ "derive" ] }
-serde_cbor = "0.11"
-blake3 = "1.8"
+ciborium = "0.2"
+twox-hash = "2.1"
 semver = { version = "1.0", features = [ "serde" ] }
 num = "0.4"
 
 solx-yul = { path = "../solx-yul" }
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "az-support-pipeline-profiling" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 
 [dependencies.inkwell]

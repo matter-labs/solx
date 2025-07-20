@@ -24,12 +24,12 @@ rayon = "1.10"
 
 serde = { version = "1.0", "features" = [ "derive" ] }
 serde_json = { version = "1.0", features = [ "arbitrary_precision" ] }
-serde_cbor = "0.11"
+ciborium = "0.2"
 semver = { version = "1.0", features = [ "serde" ] }
 hex = "0.4"
 num = "0.4"
 
-era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "az-support-pipeline-profiling" }
+era-compiler-llvm-context = { git = "https://github.com/matter-labs/era-compiler-llvm-context", branch = "main" }
 era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
 
 solx-solc = { path = "../solx-solc" }

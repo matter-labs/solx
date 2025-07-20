@@ -288,9 +288,9 @@ pub fn standard_json_evm(
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let optimization_mode = if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
-        if optimization.len() != 1 {
+        if !["1", "2", "3", "s", "z"].contains(&optimization.as_str()) {
             anyhow::bail!(
-                "Invalid value '99' for environment variable 'SOLX_OPTIMIZATION': values 1, 2, 3, s, z are supported."
+                "Invalid value `{optimization}` for environment variable 'SOLX_OPTIMIZATION': only values 1, 2, 3, s, z are supported."
             );
         }
         optimization.chars().next().expect("Always exists")

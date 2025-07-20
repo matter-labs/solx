@@ -370,7 +370,7 @@ pub enum Name {
         /// The called function key.
         entry_key: era_compiler_llvm_context::BlockKey,
         /// The stack state hash after return.
-        stack_hash: [u8; era_compiler_common::BYTE_LENGTH_FIELD],
+        stack_hash: u64,
         /// The input size.
         input_size: usize,
         /// The output size.

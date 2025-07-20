@@ -10,6 +10,7 @@ use std::collections::BTreeSet;
 
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
+use twox_hash::XxHash3_64;
 
 use era_compiler_llvm_context::IContext;
 
@@ -45,6 +46,9 @@ pub struct Assembly {
 }
 
 impl Assembly {
+    /// The default serializing/deserializing buffer size.
+    pub const DEFAULT_SERDE_BUFFER_SIZE: usize = 1048576;
+
     ///
     /// Sets the full contract path.
     ///
@@ -152,14 +156,10 @@ impl Assembly {
     ///
     /// Returns the `blake3` hash of the assembly representation.
     ///
-    pub fn hash(&self) -> String {
-        let start = std::time::Instant::now();
-        let json: Vec<u8> = serde_cbor::to_vec(self).expect("Always valid");
-        dbg!("CBOR", start.elapsed());
-        let start = std::time::Instant::now();
-        let hash = blake3::hash(json.as_slice()).to_string();
-        dbg!("HASH", start.elapsed());
-        hash
+    pub fn hash(&self) -> u64 {
+        let mut preimage: Vec<u8> = Vec::with_capacity(Self::DEFAULT_SERDE_BUFFER_SIZE);
+        ciborium::into_writer(&self, &mut preimage).expect("Always valid");
+        XxHash3_64::oneshot(preimage.as_slice())
     }
 
     ///
@@ -215,7 +215,7 @@ impl Assembly {
     fn preprocess_dependency_level(
         full_path: &str,
         assembly: &mut Assembly,
-        hash_path_mapping: &BTreeMap<String, String>,
+        hash_path_mapping: &BTreeMap<u64, String>,
     ) -> anyhow::Result<()> {
         assembly.set_full_path(full_path.to_owned());
 
@@ -252,7 +252,7 @@ impl Assembly {
     fn deploy_dependencies_pass(
         &mut self,
         full_path: &str,
-        hash_data_mapping: &BTreeMap<String, String>,
+        hash_data_mapping: &BTreeMap<u64, String>,
     ) -> anyhow::Result<BTreeMap<String, String>> {
         let mut index_path_mapping = BTreeMap::new();
         let index = "0".repeat(era_compiler_common::BYTE_LENGTH_FIELD * 2);
@@ -277,13 +277,9 @@ impl Assembly {
             *data = match data {
                 Data::Assembly(assembly) => {
                     let hash = assembly.hash();
-                    let full_path =
-                        hash_data_mapping
-                            .get(hash.as_str())
-                            .cloned()
-                            .ok_or_else(|| {
-                                anyhow::anyhow!("Contract path not found for hash `{hash}`")
-                            })?;
+                    let full_path = hash_data_mapping.get(&hash).cloned().ok_or_else(|| {
+                        anyhow::anyhow!("Contract path not found for hash `{hash}`")
+                    })?;
 
                     index_path_mapping.insert(index_extended, full_path.clone());
                     Data::Path(full_path)
@@ -304,7 +300,7 @@ impl Assembly {
     ///
     fn runtime_dependencies_pass(
         &mut self,
-        hash_data_mapping: &BTreeMap<String, String>,
+        hash_data_mapping: &BTreeMap<u64, String>,
     ) -> anyhow::Result<BTreeMap<String, String>> {
         let mut index_path_mapping = BTreeMap::new();
 
@@ -326,13 +322,9 @@ impl Assembly {
             *data = match data {
                 Data::Assembly(assembly) => {
                     let hash = Assembly::hash(assembly);
-                    let full_path =
-                        hash_data_mapping
-                            .get(hash.as_str())
-                            .cloned()
-                            .ok_or_else(|| {
-                                anyhow::anyhow!("Contract path not found for hash `{hash}`")
-                            })?;
+                    let full_path = hash_data_mapping.get(&hash).cloned().ok_or_else(|| {
+                        anyhow::anyhow!("Contract path not found for hash `{hash}`")
+                    })?;
 
                     index_path_mapping.insert(index_extended, full_path.clone());
                     Data::Path(full_path)

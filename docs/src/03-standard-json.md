@@ -103,7 +103,9 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
         // Available file-level options, must be listed under "<path>"."":
         "": [
           // AST of all source files.
-          "ast"
+          "ast",
+          // Benchmarks of the solx LLVM-based compilation pipeline and its underlying call to solc.
+          "benchmarks"
         ],
         // Available contract-level options, must be listed under "<path>"."<name>":
         "<name>": [
@@ -266,6 +268,9 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
             // Optional: Link references for linkers that are to resolve library addresses at deploy time (object).
             // Corresponds to "evm.bytecode.linkReferences" in the outputSelection settings.
             "linkReferences": {/* ... */},
+            // Optional: Benchmarks of each stage of the compilation on a per-translation unit basis.
+            // Corresponds to "benchmarks" in the outputSelection settings.
+            "benchmarks": {/* ... */},
             // Optional: Always empty, included only to preserve compatibility with some toolkits (string).
             // Corresponds to "evm.bytecode.immutableReferences" in the outputSelection settings.
             "opcodes": {},
@@ -291,6 +296,9 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
             // Optional: Link references for linkers that are to resolve library addresses at deploy time (object).
             // Corresponds to "evm.deployedBytecode.linkReferences" in the outputSelection settings.
             "linkReferences": {/* ... */},
+            // Optional: Benchmarks of each stage of the compilation on a per-translation unit basis.
+            // Corresponds to "benchmarks" in the outputSelection settings.
+            "benchmarks": {/* ... */},
             // Optional: Resolved by LLVM automatically, so always returned as an empty object (object).
             // Included only to preserve compatibility with some toolkits.
             // Corresponds to "evm.deployedBytecode.immutableReferences" in the outputSelection settings.
@@ -308,7 +316,10 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
             // Corresponds to "evm.deployedBytecode.generatedSources" in the outputSelection settings.
             "generatedSources": {}
           }
-        }
+        },
+        // Optional: Benchmarks of the solx LLVM-based compilation pipeline and its underlying call to solc (object).
+        // Corresponds to "benchmarks" in the outputSelection settings.
+        "benchmarks": {/* ... */}
       }
     }
   },

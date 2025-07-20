@@ -29,15 +29,16 @@ pub fn run() -> anyhow::Result<()> {
         let mut buffer = [0u8; 8];
         std::io::stdin()
             .read_exact(&mut buffer)
-            .map_err(|error| anyhow::anyhow!("Stdin length prefix reading error: {error}"))?;
+            .map_err(|error| anyhow::anyhow!("Input length prefix reading error: {error}"))?;
         usize::from_le_bytes(buffer)
     };
     let mut buffer = Vec::with_capacity(length_bytes);
     std::io::stdin()
         .read_to_end(&mut buffer)
-        .map_err(|error| anyhow::anyhow!("Stdin reading error: {error}"))?;
-    let input: EVMInput = serde_cbor::from_slice(buffer.as_slice())
-        .map_err(|error| anyhow::anyhow!("Stdin deserialziing error: {error}"))?;
+        .map_err(|error| anyhow::anyhow!("Input reading error: {error}"))?;
+    let input: EVMInput =
+        ciborium::de::from_reader_with_recursion_limit(buffer.as_slice(), usize::MAX)
+            .map_err(|error| anyhow::anyhow!("Input deserialziing error: {error}"))?;
 
     let source_location =
         solx_standard_json::OutputErrorSourceLocation::new(input.contract_name.path.clone());
@@ -73,11 +74,8 @@ pub fn run() -> anyhow::Result<()> {
         .join()
         .expect("Threading error");
 
-    let output = serde_cbor::to_vec(&result)
-        .map_err(|error| anyhow::anyhow!("Stdout serializing error: {error}"))?;
-    std::io::stdout()
-        .write_all(output.as_slice())
-        .map_err(|error| anyhow::anyhow!("Stdout writing error: {error}"))?;
+    ciborium::into_writer(&result, &mut std::io::stdout())
+        .map_err(|error| anyhow::anyhow!("Result serializing and writing error: {error}"))?;
     unsafe { inkwell::support::shutdown_llvm() };
     Ok(())
 }
@@ -110,17 +108,18 @@ where
         .stdin
         .as_mut()
         .unwrap_or_else(|| panic!("{executable:?} subprocess stdin getting error"));
-    let input = serde_cbor::to_vec(input).unwrap_or_else(|error| {
-        panic!("{executable:?} subprocess stdin serializing error: {error:?}")
+    let mut buffer = Vec::with_capacity(crate::r#const::DEFAULT_SERDE_BUFFER_SIZE);
+    ciborium::into_writer(input, &mut buffer).unwrap_or_else(|error| {
+        panic!("{executable:?} subprocess input serializing error: {error:?}")
     });
     stdin
-        .write_all(input.len().to_le_bytes().as_slice())
+        .write_all(buffer.len().to_le_bytes().as_slice())
         .unwrap_or_else(|error| {
-            panic!("{executable:?} subprocess stdin length prefix writing error: {error:?}")
+            panic!("{executable:?} subprocess length prefix writing error: {error:?}")
         });
     stdin
-        .write_all(input.as_slice())
-        .unwrap_or_else(|error| panic!("{executable:?} subprocess stdin writing error: {error:?}"));
+        .write_all(buffer.as_slice())
+        .unwrap_or_else(|error| panic!("{executable:?} subprocess input writing error: {error:?}"));
 
     let result = process.wait_with_output().unwrap_or_else(|error| {
         panic!("{executable:?} subprocess output reading error: {error:?}")
@@ -146,7 +145,7 @@ where
         ))?;
     }
 
-    match serde_cbor::from_slice(result.stdout.as_slice()) {
+    match ciborium::de::from_reader_with_recursion_limit(result.stdout.as_slice(), usize::MAX) {
         Ok(output) => output,
         Err(error) => {
             panic!(
@@ -171,11 +170,12 @@ pub unsafe extern "C" fn evm_stack_error_handler(spill_area_size: u64) {
         spill_area_size,
         era_compiler_llvm_context::EVM_IS_SIZE_FALLBACK.load(std::sync::atomic::Ordering::Relaxed),
     ));
-    let output = serde_cbor::to_vec(&result)
-        .unwrap_or_else(|error| panic!("Stdout serializing error: {error}"));
+    let mut buffer = Vec::with_capacity(crate::r#const::DEFAULT_SERDE_BUFFER_SIZE);
+    ciborium::into_writer(&result, &mut buffer)
+        .unwrap_or_else(|error| panic!("Stdout stack-too-deep error serializing error: {error}"));
     std::io::stdout()
-        .write_all(output.as_slice())
-        .unwrap_or_else(|error| panic!("Stdout writing error: {error}"));
+        .write_all(buffer.as_slice())
+        .unwrap_or_else(|error| panic!("Stdout stack-too-deep error writing error: {error}"));
     unsafe { inkwell::support::shutdown_llvm() };
     std::process::exit(era_compiler_common::EXIT_CODE_SUCCESS);
 }

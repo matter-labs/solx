@@ -36,7 +36,6 @@
           "evm.legacyAssembly",
           "evm.gasEstimates",
           "ir",
-          "benchmarks",
           "evm"
         ]
       }

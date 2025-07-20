@@ -12,17 +12,14 @@ pub struct VisitedElement {
     /// The block key.
     pub block_key: era_compiler_llvm_context::BlockKey,
     /// The initial stack state hash.
-    pub stack_hash: [u8; era_compiler_common::BYTE_LENGTH_FIELD],
+    pub stack_hash: u64,
 }
 
 impl VisitedElement {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(
-        block_key: era_compiler_llvm_context::BlockKey,
-        stack_hash: [u8; era_compiler_common::BYTE_LENGTH_FIELD],
-    ) -> Self {
+    pub fn new(block_key: era_compiler_llvm_context::BlockKey, stack_hash: u64) -> Self {
         Self {
             block_key,
             stack_hash,
