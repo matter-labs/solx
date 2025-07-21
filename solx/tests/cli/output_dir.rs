@@ -28,7 +28,7 @@ fn default() -> anyhow::Result<()> {
         "--storage-layout",
         "--transient-storage-layout",
         "--asm-solc-json",
-        "--ir",
+        "--ir-optimized",
         "--benchmarks",
         "--output-dir",
         output_directory.path().to_str().expect("Always valid"),

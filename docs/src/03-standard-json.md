@@ -122,8 +122,7 @@ On the other hand, parameters that are not mentioned here but are parts of **sol
           // Slots, offsets and types of the contract's state variables in transient storage.
           "transientStorageLayout",
           // Yul produced by solc.
-          // An alias "irOptimized" is supported for compatibility, but it will request unoptimized Yul IR anyway.
-          "ir",
+          "irOptimized",
           // Everything of the below.
           "evm",
           // Solidity function hashes.
@@ -239,8 +238,8 @@ The output JSON contains all artifacts produced by **solx** and **solc** togethe
         // Corresponds to "userdoc" in the outputSelection settings.
         "userdoc": {/* ... */},
         // Optional: Yul produced by solc (string).
-        // Corresponds to "ir" in the outputSelection settings.
-        "ir": "/* ... */",
+        // Corresponds to "irOptimized" in the outputSelection settings.
+        "irOptimized": "/* ... */",
         // Optional: EVM target outputs.
         // Corresponds to "evm" in the outputSelection settings.
         "evm": {

@@ -23,7 +23,7 @@ mod devdoc;
 mod evm_version;
 mod hashes;
 mod include_path;
-mod ir;
+mod ir_optimized;
 mod libraries;
 mod llvm_ir;
 mod llvm_options;

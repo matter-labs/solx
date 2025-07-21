@@ -464,7 +464,7 @@ fn select_all(path: &str) -> anyhow::Result<()> {
         .stdout(predicate::str::contains("\"methodIdentifiers\""))
         .stdout(predicate::str::contains("\"legacyAssembly\""))
         .stdout(predicate::str::contains("\"gasEstimates\""))
-        .stdout(predicate::str::contains("\"ir\""))
+        .stdout(predicate::str::contains("\"irOptimized\""))
         .stdout(predicate::str::contains("\"benchmarks\"").count(3))
         .stdout(predicate::str::contains("\"evm\""))
         .stdout(predicate::str::contains("\"bytecode\""))
