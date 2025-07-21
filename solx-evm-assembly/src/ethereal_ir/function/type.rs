@@ -5,7 +5,7 @@
 ///
 /// The Ethereal IR function type.
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Type {
     /// The initial function, combining deploy and runtime code.
     Initial,

@@ -32,7 +32,7 @@ pub struct Block {
     /// The stack.
     pub stack: ElementStack,
     /// The extra block hashes for alternative routes.
-    pub extra_hashes: Vec<[u8; era_compiler_common::BYTE_LENGTH_FIELD]>,
+    pub extra_hashes: Vec<u64>,
 }
 
 impl Block {

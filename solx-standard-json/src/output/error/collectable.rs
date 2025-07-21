@@ -14,9 +14,9 @@ use crate::output::error::Error;
 ///
 pub trait Collectable {
     ///
-    /// Returns errors as a list.
+    /// Filters errors out of messages to prepare the process for exiting.
     ///
-    fn errors(&self) -> Vec<Error>;
+    fn error_strings(&self) -> Vec<String>;
 
     ///
     /// Extracts warnings from the list of messages.
@@ -26,9 +26,7 @@ pub trait Collectable {
     ///
     /// Checks if there is at least one error.
     ///
-    fn has_errors(&self) -> bool {
-        !self.errors().is_empty()
-    }
+    fn has_errors(&self) -> bool;
 
     ///
     /// Collects errors into one message and bails, if there is at least one error.
@@ -38,18 +36,11 @@ pub trait Collectable {
             return Ok(());
         }
 
-        anyhow::bail!(
-            "{}",
-            self.errors()
-                .iter()
-                .map(|error| error.to_string())
-                .collect::<Vec<String>>()
-                .join("\n")
-        );
+        anyhow::bail!("{}", self.error_strings().join("\n"));
     }
 
     ///
-    /// Checks for errors, exiting the application if there is at least one error.
+    /// Exits the application with errors collected so far if there is at least one error.
     ///
     fn exit_on_error(&self) {
         if !self.has_errors() {
@@ -57,14 +48,7 @@ pub trait Collectable {
         }
 
         std::io::stderr()
-            .write_all(
-                self.errors()
-                    .iter()
-                    .map(|error| error.to_string())
-                    .collect::<Vec<String>>()
-                    .join("\n")
-                    .as_bytes(),
-            )
+            .write_all(self.error_strings().join("\n").as_bytes())
             .expect("Stderr writing error");
         std::process::exit(era_compiler_common::EXIT_CODE_FAILURE);
     }

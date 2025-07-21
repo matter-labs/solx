@@ -2,12 +2,9 @@
 //! The contract Yul source code.
 //!
 
-use std::collections::BTreeSet;
-
 use solx_yul::yul::lexer::Lexer;
 use solx_yul::yul::parser::statement::object::Object;
 
-use crate::yul::parser::dialect::era::EraDialect;
 use crate::yul::parser::wrapper::Wrap;
 
 ///
@@ -63,22 +60,5 @@ impl Yul {
             dependencies,
             runtime_code: runtime_code.map(Box::new),
         }))
-    }
-
-    ///
-    /// Get the list of unlinked deployable libraries.
-    ///
-    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
-        self.object.0.get_unlinked_libraries()
-    }
-
-    ///
-    /// Get the list of EVM dependencies.
-    ///
-    pub fn get_evm_dependencies(
-        &self,
-        runtime_code: Option<&solx_yul::yul::parser::statement::object::Object<EraDialect>>,
-    ) -> solx_yul::Dependencies {
-        self.object.0.get_evm_dependencies(runtime_code)
     }
 }

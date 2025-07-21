@@ -23,17 +23,20 @@ use self::source::Source;
 ///
 /// The `solc --standard-json` output.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Output {
-    /// The file-contract hashmap.
+    /// File-contract hashmap.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub contracts: BTreeMap<String, BTreeMap<String, Contract>>,
-    /// The source code mapping data.
+    /// Source code mapping data.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub sources: BTreeMap<String, Source>,
-    /// The compilation errors and warnings.
+    /// Compilation errors and warnings.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<JsonOutputError>,
+    /// Compilation pipeline benchmarks.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub benchmarks: Vec<(String, u64)>,
 }
 
 impl Output {
@@ -53,6 +56,7 @@ impl Output {
             contracts: BTreeMap::new(),
             sources,
             errors: Vec::new(),
+            benchmarks: Vec::new(),
         }
     }
 
@@ -66,6 +70,7 @@ impl Output {
             contracts: BTreeMap::new(),
             sources: BTreeMap::new(),
             errors: messages.lock().expect("Sync").drain(..).collect(),
+            benchmarks: Vec::new(),
         }
     }
 
@@ -143,11 +148,16 @@ impl Output {
 }
 
 impl CollectableError for Output {
-    fn errors(&self) -> Vec<JsonOutputError> {
+    fn error_strings(&self) -> Vec<String> {
         self.errors
             .iter()
-            .filter(|error| error.severity == "error")
-            .cloned()
+            .filter_map(|error| {
+                if error.severity == "error" {
+                    Some(error.to_string())
+                } else {
+                    None
+                }
+            })
             .collect()
     }
 
@@ -155,5 +165,9 @@ impl CollectableError for Output {
         self.errors
             .extract_if(.., |message| message.severity == "warning")
             .collect()
+    }
+
+    fn has_errors(&self) -> bool {
+        self.errors.iter().any(|error| error.severity == "error")
     }
 }

@@ -16,7 +16,7 @@ use std::path::PathBuf;
 ///
 /// The Solidity compiler.
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Compiler {
     /// The `solc` compiler version.
     pub version: solx_standard_json::Version,

@@ -11,7 +11,7 @@ use self::link_reference::LinkReference;
 ///
 /// The `solc --standard-json` output contract EVM bytecode.
 ///
-#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Bytecode {
     /// Bytecode object.
@@ -23,6 +23,9 @@ pub struct Bytecode {
     /// Link references placeholder.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub link_references: Option<BTreeMap<String, BTreeMap<String, Vec<LinkReference>>>>,
+    /// Compilation pipeline benchmarks.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub benchmarks: Vec<(String, u64)>,
 
     /// Opcodes placeholder.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -49,6 +52,7 @@ impl Bytecode {
         object: Option<String>,
         llvm_assembly: Option<String>,
         unlinked_symbols: Option<BTreeMap<String, Vec<u64>>>,
+        benchmarks: Vec<(String, u64)>,
 
         opcodes: Option<String>,
         source_map: Option<String>,
@@ -81,6 +85,7 @@ impl Bytecode {
             object,
             llvm_assembly,
             link_references,
+            benchmarks,
 
             opcodes,
             source_map,
@@ -97,6 +102,7 @@ impl Bytecode {
         self.object.is_none()
             && self.llvm_assembly.is_none()
             && self.link_references.is_none()
+            && self.benchmarks.is_empty()
             && self.opcodes.is_none()
             && self.source_map.is_none()
             && self.function_debug_data.is_none()

@@ -444,7 +444,7 @@ impl Project {
                 let storage_layout = contract.storage_layout.take();
                 let transient_storage_layout = contract.transient_storage_layout.take();
                 let legacy_assembly = contract.legacy_assembly.take();
-                let ir_optimized = contract.ir_optimized.take();
+                let yul = contract.yul.take();
 
                 let (deploy_code_ir, runtime_code_ir): (ContractIR, ContractIR) = match contract.ir
                 {
@@ -553,7 +553,7 @@ impl Project {
                     storage_layout,
                     transient_storage_layout,
                     legacy_assembly,
-                    ir_optimized,
+                    yul,
                 );
                 (path, build)
             })

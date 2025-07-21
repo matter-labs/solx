@@ -8,16 +8,13 @@ use predicates::prelude::*;
 fn default() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let args = &[
-        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--transient-storage-layout",
-    ];
+    let args = &[crate::common::TEST_SOLIDITY_CONTRACT_PATH, "--benchmarks"];
 
     let result = crate::cli::execute_solx(args)?;
 
     result
         .success()
-        .stdout(predicate::str::contains("Contract Transient Storage Layout").count(1));
+        .stdout(predicate::str::contains("Benchmarks").count(2));
 
     Ok(())
 }
@@ -29,7 +26,7 @@ fn standard_json() -> anyhow::Result<()> {
     let args = &[
         "--standard-json",
         crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
-        "--transient-storage-layout",
+        "--benchmarks",
     ];
 
     let result = crate::cli::execute_solx(args)?;

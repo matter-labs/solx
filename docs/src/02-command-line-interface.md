@@ -285,7 +285,7 @@ EVM assembly:
 
 
 
-### `--ir`
+### `--ir` (or `--ir-optimized`)
 
 Emits the **solc** Yul IR.
 
@@ -317,6 +317,34 @@ object "Test_26" {
         data ".metadata" hex"a2646970667358221220ccbacddd0734a08eedf3a12f841c7e8c7127e2457a91f6e68f5fac6df7b9c88a64736f6c634300081e0033"
     }
 }
+```
+
+
+
+### `--benchmarks`
+
+Emits benchmarks of the **solx** LLVM-based pipeline and its underlying call to **solc**.
+
+```bash
+solx 'Simple.sol' --benchmarks
+```
+
+Output:
+
+```text
+Benchmarks:
+solc_Solidity_Standard_JSON: 6ms
+solx_Solidity_IR_Analysis: 0ms
+solx_Compilation: 75ms
+
+======= Simple.sol:Simple =======
+Benchmarks:
+    Simple.sol:Simple:deploy/EVMAssemblyToLLVMIR/M3B3/SpillArea(0): 0ms
+    Simple.sol:Simple:deploy/InitVerify/M3B3/SpillArea(0): 0ms
+    Simple.sol:Simple:deploy/OptimizeVerify/M3B3/SpillArea(0): 1ms
+    Simple.sol:Simple:runtime/EVMAssemblyToLLVMIR/M3B3/SpillArea(0): 0ms
+    Simple.sol:Simple.runtime:runtime/InitVerify/M3B3/SpillArea(0): 0ms
+    Simple.sol:Simple.runtime:runtime/OptimizeVerify/M3B3/SpillArea(0): 5ms
 ```
 
 

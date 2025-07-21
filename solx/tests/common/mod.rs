@@ -103,6 +103,7 @@ pub fn build_solidity_standard_json(
     } else {
         solx_standard_json::InputSelector::EVMLegacyAssembly
     });
+    selectors.insert(solx_standard_json::InputSelector::Benchmarks);
     let output_selection = solx_standard_json::InputSelection::new(selectors);
 
     let mut input = solx_standard_json::Input::try_from_solidity_sources(
@@ -153,12 +154,12 @@ pub fn build_solidity_standard_json(
         ),
     ];
 
-    let mut build = if input.settings.output_selection.is_bytecode_set_for_any() {
+    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
         build.link(linker_symbols, Some(cbor_data))
     } else {
         build
     };
-    build.write_to_standard_json(&mut output, &input.settings.output_selection, true)?;
+    build.write_to_standard_json(&mut output, &input.settings.output_selection, true, vec![])?;
     output.check_errors()?;
     Ok(output)
 }
@@ -220,12 +221,17 @@ pub fn build_yul_standard_json(
         ),
     ];
 
-    let mut build = if input.settings.output_selection.is_bytecode_set_for_any() {
+    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
         build.link(BTreeMap::new(), Some(cbor_data))
     } else {
         build
     };
-    build.write_to_standard_json(&mut solc_output, &input.settings.output_selection, true)?;
+    build.write_to_standard_json(
+        &mut solc_output,
+        &input.settings.output_selection,
+        true,
+        vec![],
+    )?;
     solc_output.check_errors()?;
     Ok(solc_output)
 }
@@ -269,12 +275,12 @@ pub fn build_llvm_ir_standard_json(
         solx::version().parse().expect("Always valid"),
     )];
 
-    let mut build = if input.settings.output_selection.is_bytecode_set_for_any() {
+    let build = if input.settings.output_selection.is_bytecode_set_for_any() {
         build.link(BTreeMap::new(), Some(cbor_data))
     } else {
         build
     };
-    build.write_to_standard_json(&mut output, &input.settings.output_selection, true)?;
+    build.write_to_standard_json(&mut output, &input.settings.output_selection, true, vec![])?;
     output.check_errors()?;
     Ok(output)
 }

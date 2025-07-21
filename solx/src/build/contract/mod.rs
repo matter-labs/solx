@@ -1,5 +1,5 @@
 //!
-//! The Solidity contract build.
+//! Solidity contract build.
 //!
 
 pub mod object;
@@ -14,34 +14,34 @@ use normpath::PathExt;
 use self::object::Object;
 
 ///
-/// The Solidity contract build.
+/// Solidity contract build.
 ///
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Contract {
-    /// The contract name.
+    /// Contract name.
     pub name: era_compiler_common::ContractName,
-    /// The deploy code object compilation result.
+    /// Deploy code object compilation result.
     pub deploy_object_result: crate::Result<Object>,
-    /// The runtime code object.
+    /// Runtime code object.
     pub runtime_object_result: crate::Result<Object>,
-    /// The combined `solc` and `solx` metadata.
+    /// Combined `solc` and `solx` metadata.
     pub metadata: Option<String>,
-    /// The solc ABI.
+    /// solc ABI.
     pub abi: Option<serde_json::Value>,
-    /// The solc method identifiers.
+    /// solc method identifiers.
     pub method_identifiers: Option<BTreeMap<String, String>>,
-    /// The solc user documentation.
+    /// solc user documentation.
     pub userdoc: Option<serde_json::Value>,
-    /// The solc developer documentation.
+    /// solc developer documentation.
     pub devdoc: Option<serde_json::Value>,
-    /// The solc storage layout.
+    /// solc storage layout.
     pub storage_layout: Option<serde_json::Value>,
-    /// The solc transient storage layout.
+    /// solc transient storage layout.
     pub transient_storage_layout: Option<serde_json::Value>,
-    /// The solc EVM legacy assembly.
+    /// solc EVM legacy assembly.
     pub legacy_assembly: Option<solx_evm_assembly::Assembly>,
-    /// The solc optimized Yul IR.
-    pub ir_optimized: Option<String>,
+    /// solc Yul IR.
+    pub yul: Option<String>,
 }
 
 impl Contract {
@@ -60,7 +60,7 @@ impl Contract {
         storage_layout: Option<serde_json::Value>,
         transient_storage_layout: Option<serde_json::Value>,
         legacy_assembly: Option<solx_evm_assembly::Assembly>,
-        ir_optimized: Option<String>,
+        yul: Option<String>,
     ) -> Self {
         Self {
             name,
@@ -74,7 +74,7 @@ impl Contract {
             storage_layout,
             transient_storage_layout,
             legacy_assembly,
-            ir_optimized,
+            yul,
         }
     }
 
@@ -172,8 +172,8 @@ impl Contract {
             self.name.name.as_deref(),
             solx_standard_json::InputSelector::Yul,
         ) {
-            let ir_optimized = self.ir_optimized.take().expect("Always exists");
-            writeln!(std::io::stdout(), "Optimized IR:\n{ir_optimized}")?;
+            let yul = self.yul.take().expect("Always exists");
+            writeln!(std::io::stdout(), "IR:\n{yul}")?;
         }
 
         if output_selection.check_selection(
@@ -258,6 +258,29 @@ impl Contract {
                 self.userdoc.expect("Always exists")
             )?;
         }
+        if output_selection.check_selection(
+            self.name.path.as_str(),
+            self.name.name.as_deref(),
+            solx_standard_json::InputSelector::Benchmarks,
+        ) {
+            writeln!(std::io::stdout(), "Benchmarks:")?;
+            for (name, value) in self
+                .deploy_object_result
+                .expect("Always exists")
+                .benchmarks
+                .into_iter()
+            {
+                writeln!(std::io::stdout(), "    {name}: {value}ms")?;
+            }
+            for (name, value) in self
+                .runtime_object_result
+                .expect("Always exists")
+                .benchmarks
+                .into_iter()
+            {
+                writeln!(std::io::stdout(), "    {name}: {value}ms")?;
+            }
+        }
 
         Ok(())
     }
@@ -340,8 +363,8 @@ impl Contract {
             solx_standard_json::InputSelector::BytecodeLLVMAssembly,
         ) {
             for (object, code_segment) in [
-                &mut self.deploy_object_result?,
-                &mut self.runtime_object_result?,
+                self.deploy_object_result.as_mut(),
+                self.runtime_object_result.as_mut(),
             ]
             .iter_mut()
             .zip([
@@ -360,7 +383,12 @@ impl Contract {
                 let mut output_path = output_directory.to_owned();
                 output_path.push(output_name.as_str());
 
-                let assembly = object.assembly.take().expect("Always exists");
+                let assembly = object
+                    .as_mut()
+                    .expect("Always exists")
+                    .assembly
+                    .take()
+                    .expect("Always exists");
                 Self::write_to_file(output_path.as_path(), assembly, overwrite)?;
             }
         }
@@ -520,8 +548,39 @@ impl Contract {
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
 
-            let ir_optimized = self.ir_optimized.expect("Always exists").to_string();
-            Self::write_to_file(output_path.as_path(), ir_optimized, overwrite)?;
+            let yul = self.yul.expect("Always exists").to_string();
+            Self::write_to_file(output_path.as_path(), yul, overwrite)?;
+        }
+        if output_selection.check_selection(
+            self.name.path.as_str(),
+            self.name.name.as_deref(),
+            solx_standard_json::InputSelector::Benchmarks,
+        ) {
+            let output_name = format!("{contract_path}_benchmarks.txt",);
+            let mut output_path = output_directory.to_owned();
+            output_path.push(output_name.as_str());
+
+            let mut output = String::with_capacity(4096);
+            output.push_str("Benchmarks:\n");
+            for (name, value) in self
+                .deploy_object_result
+                .as_ref()
+                .expect("Always exists")
+                .benchmarks
+                .iter()
+            {
+                output.push_str(format!("{name}: {value}ms\n").as_str());
+            }
+            for (name, value) in self
+                .runtime_object_result
+                .as_ref()
+                .expect("Always exists")
+                .benchmarks
+                .iter()
+            {
+                output.push_str(format!("{name}: {value}ms\n").as_str());
+            }
+            Self::write_to_file(output_path.as_path(), output, overwrite)?;
         }
 
         Ok(())
@@ -531,7 +590,7 @@ impl Contract {
     /// Writes the contract text assembly and bytecode to the standard JSON.
     ///
     pub fn write_to_standard_json(
-        &mut self,
+        mut self,
         standard_json_contract: &mut solx_standard_json::OutputContract,
         output_selection: &solx_standard_json::InputSelection,
         is_bytecode_linked: bool,
@@ -590,7 +649,7 @@ impl Contract {
         }) {
             standard_json_contract.transient_storage_layout = Some(value);
         }
-        if let Some(value) = self.ir_optimized.take().filter(|_| {
+        if let Some(value) = self.yul.take().filter(|_| {
             output_selection.check_selection(
                 self.name.path.as_str(),
                 self.name.name.as_deref(),
@@ -678,6 +737,20 @@ impl Contract {
             if output_selection.check_selection(
                 self.name.path.as_str(),
                 self.name.name.as_deref(),
+                solx_standard_json::InputSelector::Benchmarks,
+            ) {
+                self.deploy_object_result
+                    .as_mut()
+                    .expect("Always exists")
+                    .benchmarks
+                    .drain(..)
+                    .collect()
+            } else {
+                vec![]
+            },
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
                 solx_standard_json::InputSelector::BytecodeOpcodes,
             ) {
                 Some(String::new())
@@ -759,6 +832,20 @@ impl Contract {
                 ))
             } else {
                 None
+            },
+            if output_selection.check_selection(
+                self.name.path.as_str(),
+                self.name.name.as_deref(),
+                solx_standard_json::InputSelector::Benchmarks,
+            ) {
+                self.runtime_object_result
+                    .as_mut()
+                    .expect("Always exists")
+                    .benchmarks
+                    .drain(..)
+                    .collect()
+            } else {
+                vec![]
             },
             if output_selection.check_selection(
                 self.name.path.as_str(),

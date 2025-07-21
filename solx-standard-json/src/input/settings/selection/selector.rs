@@ -39,6 +39,9 @@ pub enum Selector {
     /// The Yul IR.
     #[serde(rename = "ir", alias = "irOptimized")]
     Yul,
+    /// The compilation pipeline benchmarks.
+    #[serde(rename = "benchmarks")]
+    Benchmarks,
 
     /// All EVM data.
     #[serde(rename = "evm")]
@@ -110,7 +113,8 @@ impl Selector {
     pub fn is_received_from_solc(&self) -> bool {
         !matches!(
             self,
-            Self::EVM
+            Self::Benchmarks
+                | Self::EVM
                 | Self::Bytecode
                 | Self::BytecodeObject
                 | Self::BytecodeLLVMAssembly
@@ -185,6 +189,7 @@ impl Selector {
                 Self::MethodIdentifiers,
                 Self::EVMLegacyAssembly,
                 Self::Yul,
+                Self::Benchmarks,
                 Self::EVM,
                 Self::Bytecode,
                 Self::BytecodeObject,

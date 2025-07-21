@@ -16,7 +16,7 @@ use crate::yul::parser::statement::expression::Expression;
 ///
 /// The Yul if-conditional statement.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(bound = "P: serde::de::DeserializeOwned")]
 pub struct IfConditional<P>
 where
