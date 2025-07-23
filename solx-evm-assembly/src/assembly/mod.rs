@@ -396,6 +396,10 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
             (era_compiler_common::CodeSegment::Runtime, blocks)
         };
 
+        let mut entry =
+            era_compiler_llvm_context::EVMEntryFunction::new(EntryLink::new(code_segment));
+        entry.declare(context)?;
+
         let mut ethereal_ir = EtherealIR::new(
             context.evmla().expect("Always exists").version.to_owned(),
             self.extra_metadata.unwrap_or_default(),
@@ -412,9 +416,6 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
         ethereal_ir.declare(context)?;
         ethereal_ir.into_llvm(context)?;
 
-        let mut entry =
-            era_compiler_llvm_context::EVMEntryFunction::new(EntryLink::new(code_segment));
-        entry.declare(context)?;
         entry.into_llvm(context)?;
 
         Ok(())
