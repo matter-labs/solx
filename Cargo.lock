@@ -563,7 +563,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#af36fedc87501d36b95f42525c15da72101bba99"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#78ecfae4cef4ebc0d42aab71c349f316a1f6ee88"
 dependencies = [
  "anyhow",
  "era-compiler-common",
@@ -1335,9 +1335,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.14"
+version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de3a5d9f0aba1dbcec1cc47f0ff94a4b778fe55bca98a6dfa92e4e094e57b1c4"
+checksum = "7e8af0dde094006011e6a740d4879319439489813bd0bcdc7d821beaeeff48ec"
 dependencies = [
  "bitflags",
 ]
