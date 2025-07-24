@@ -177,6 +177,8 @@ pub fn standard_output_evm(
     llvm_options: Vec<String>,
     debug_config: Option<era_compiler_llvm_context::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
+    let mut profiler = era_compiler_llvm_context::EVMProfiler::default();
+
     let mut solc_input = solx_standard_json::Input::try_from_solidity_paths(
         paths,
         libraries,
@@ -210,6 +212,7 @@ pub fn standard_output_evm(
         None
     };
 
+    let run_solc_standard_json = profiler.start_pipeline_element("solc_Solidity_Standard_JSON");
     let mut solc_output = solc_compiler.standard_json(
         &mut solc_input,
         use_import_callback,
@@ -217,20 +220,24 @@ pub fn standard_output_evm(
         include_paths.as_slice(),
         allow_paths.as_deref(),
     )?;
+    run_solc_standard_json.borrow_mut().finish();
     solc_output.take_and_write_warnings();
     solc_output.check_errors()?;
 
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
+    let run_solx_project = profiler.start_pipeline_element("solx_Solidity_IR_Analysis");
     let project = Project::try_from_solc_output(
         solc_input.settings.libraries.clone(),
         via_ir,
         &mut solc_output,
         debug_config.as_ref(),
     )?;
+    run_solx_project.borrow_mut().finish();
     solc_output.take_and_write_warnings();
     solc_output.check_errors()?;
 
+    let run_solx_compile = profiler.start_pipeline_element("solx_Compilation");
     let mut build = project.compile_to_evm(
         messages,
         &solc_input.settings.output_selection,
@@ -239,23 +246,26 @@ pub fn standard_output_evm(
         llvm_options,
         debug_config.clone(),
     )?;
+    run_solx_compile.borrow_mut().finish();
     build.take_and_write_warnings();
     build.check_errors()?;
 
-    Ok(
-        if solc_input
-            .settings
-            .output_selection
-            .is_bytecode_set_for_any()
-        {
-            let mut build = build.link(linker_symbols, cbor_data);
-            build.take_and_write_warnings();
-            build.check_errors()?;
-            build
-        } else {
-            build
-        },
-    )
+    let mut build = if solc_input
+        .settings
+        .output_selection
+        .is_bytecode_set_for_any()
+    {
+        let run_solx_link = profiler.start_pipeline_element("solx_Linking");
+        let mut build = build.link(linker_symbols, cbor_data);
+        run_solx_link.borrow_mut().finish();
+        build.take_and_write_warnings();
+        build.check_errors()?;
+        build
+    } else {
+        build
+    };
+    build.benchmarks = profiler.to_vec();
+    Ok(build)
 }
 
 ///
@@ -278,9 +288,9 @@ pub fn standard_json_evm(
     let linker_symbols = solc_input.settings.libraries.as_linker_symbols()?;
 
     let optimization_mode = if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
-        if optimization.len() != 1 {
+        if !["1", "2", "3", "s", "z"].contains(&optimization.as_str()) {
             anyhow::bail!(
-                "Invalid value '99' for environment variable 'SOLX_OPTIMIZATION': values 1, 2, 3, s, z are supported."
+                "Invalid value `{optimization}` for environment variable 'SOLX_OPTIMIZATION': only values 1, 2, 3, s, z are supported."
             );
         }
         optimization.chars().next().expect("Always exists")
@@ -330,8 +340,11 @@ pub fn standard_json_evm(
         None
     };
 
+    let mut profiler = era_compiler_llvm_context::EVMProfiler::default();
     let (mut solc_output, project) = match language {
         solx_standard_json::InputLanguage::Solidity => {
+            let run_solc_standard_json =
+                profiler.start_pipeline_element("solc_Solidity_Standard_JSON");
             let mut solc_output = solc_compiler.standard_json(
                 &mut solc_input,
                 use_import_callback,
@@ -339,6 +352,7 @@ pub fn standard_json_evm(
                 include_paths.as_slice(),
                 allow_paths.as_deref(),
             )?;
+            run_solc_standard_json.borrow_mut().finish();
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
@@ -347,12 +361,14 @@ pub fn standard_json_evm(
                 .expect("Sync")
                 .extend(solc_output.errors.drain(..));
 
+            let run_solx_project = profiler.start_pipeline_element("solx_Solidity_IR_Analysis");
             let project = Project::try_from_solc_output(
                 solc_input.settings.libraries.clone(),
                 via_ir,
                 &mut solc_output,
                 debug_config.as_ref(),
             )?;
+            run_solx_project.borrow_mut().finish();
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
@@ -360,18 +376,22 @@ pub fn standard_json_evm(
             (solc_output, project)
         }
         solx_standard_json::InputLanguage::Yul => {
+            let run_solc_validate_yul = profiler.start_pipeline_element("solc_Yul_Validation");
             let mut solc_output = solc_compiler.validate_yul_standard_json(&mut solc_input)?;
+            run_solc_validate_yul.borrow_mut().finish();
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
 
+            let run_solx_yul_project = profiler.start_pipeline_element("solx_Yul_IR_Analysis");
             let project = Project::try_from_yul_sources(
-                solc_input.sources.clone(),
+                solc_input.sources,
                 solc_input.settings.libraries.clone(),
                 &solc_input.settings.output_selection,
                 Some(&mut solc_output),
                 debug_config.as_ref(),
             )?;
+            run_solx_yul_project.borrow_mut().finish();
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
@@ -381,12 +401,14 @@ pub fn standard_json_evm(
         solx_standard_json::InputLanguage::LLVMIR => {
             let mut solc_output = solx_standard_json::Output::new(&solc_input.sources);
 
+            let run_solx_llvm_ir_project = profiler.start_pipeline_element("solx_LLVM_IR_Analysis");
             let project = Project::try_from_llvm_ir_sources(
-                solc_input.sources.clone(),
+                solc_input.sources,
                 solc_input.settings.libraries.clone(),
                 &solc_input.settings.output_selection,
                 Some(&mut solc_output),
             )?;
+            run_solx_llvm_ir_project.borrow_mut().finish();
             if solc_output.has_errors() {
                 solc_output.write_and_exit(&solc_input.settings.output_selection);
             }
@@ -395,7 +417,8 @@ pub fn standard_json_evm(
         }
     };
 
-    let mut build = project.compile_to_evm(
+    let run_solx_compile = profiler.start_pipeline_element("solx_Compilation");
+    let build = project.compile_to_evm(
         messages,
         &solc_input.settings.output_selection,
         metadata_hash_type,
@@ -403,20 +426,25 @@ pub fn standard_json_evm(
         llvm_options,
         debug_config.clone(),
     )?;
+    run_solx_compile.borrow_mut().finish();
     let output_selection = solc_input.settings.output_selection.clone();
     if build.has_errors() {
         build.write_to_standard_json(
             &mut solc_output,
             &solc_input.settings.output_selection,
             false,
+            profiler.to_vec(),
         )?;
         solc_output.write_and_exit(&solc_input.settings.output_selection);
     }
-    let mut build = if output_selection.is_bytecode_set_for_any() {
-        build.link(linker_symbols, cbor_data)
+    let build = if output_selection.is_bytecode_set_for_any() {
+        let run_solx_link = profiler.start_pipeline_element("solx_Linking");
+        let build = build.link(linker_symbols, cbor_data);
+        run_solx_link.borrow_mut().finish();
+        build
     } else {
         build
     };
-    build.write_to_standard_json(&mut solc_output, &output_selection, true)?;
+    build.write_to_standard_json(&mut solc_output, &output_selection, true, profiler.to_vec())?;
     solc_output.write_and_exit(&output_selection);
 }

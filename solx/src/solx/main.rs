@@ -125,9 +125,9 @@ fn main_inner(
         Some(mode) => era_compiler_llvm_context::OptimizerSettings::try_from_cli(mode)?,
         None if arguments.standard_json.is_none() => {
             if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
-                if optimization.len() != 1 {
+                if !["1", "2", "3", "s", "z"].contains(&optimization.as_str()) {
                     anyhow::bail!(
-                        "Invalid value '99' for environment variable 'SOLX_OPTIMIZATION': values 1, 2, 3, s, z are supported."
+                        "Invalid value `{optimization}` for environment variable 'SOLX_OPTIMIZATION': only values 1, 2, 3, s, z are supported."
                     );
                 }
                 era_compiler_llvm_context::OptimizerSettings::try_from_cli(
@@ -185,6 +185,9 @@ fn main_inner(
     }
     if arguments.output_ir {
         selectors.insert(solx_standard_json::InputSelector::Yul);
+    }
+    if arguments.output_benchmarks {
+        selectors.insert(solx_standard_json::InputSelector::Benchmarks);
     }
     let output_selection = solx_standard_json::InputSelection::new(selectors);
 

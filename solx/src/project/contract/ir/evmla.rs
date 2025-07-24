@@ -2,8 +2,6 @@
 //! The contract EVM legacy assembly source code.
 //!
 
-use std::collections::BTreeSet;
-
 ///
 /// The contract EVM legacy assembly source code.
 ///
@@ -52,19 +50,5 @@ impl EVMLegacyAssembly {
             dependencies: deploy_code_dependencies,
             runtime_code,
         })
-    }
-
-    ///
-    /// Get the list of unlinked deployable libraries.
-    ///
-    pub fn get_unlinked_libraries(&self) -> BTreeSet<String> {
-        self.assembly.get_unlinked_libraries()
-    }
-
-    ///
-    /// Get the list of EVM dependencies.
-    ///
-    pub fn accumulate_evm_dependencies(&self, dependencies: &mut solx_yul::Dependencies) {
-        self.assembly.accumulate_evm_dependencies(dependencies);
     }
 }

@@ -11,7 +11,7 @@ use crate::ethereal_ir::EtherealIR;
 ///
 /// The link represents branching between deploy and runtime code.
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct EntryLink {
     /// The code segment.
     pub code_segment: era_compiler_common::CodeSegment,

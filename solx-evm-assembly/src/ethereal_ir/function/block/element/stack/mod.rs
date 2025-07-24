@@ -4,6 +4,10 @@
 
 pub mod element;
 
+use std::hash::Hasher;
+
+use twox_hash::XxHash3_64;
+
 use self::element::Element;
 
 ///
@@ -49,18 +53,15 @@ impl Stack {
     ///
     /// Each block clone has its own initial stack state, which uniquely identifies the block.
     ///
-    pub fn hash(&self) -> [u8; era_compiler_common::BYTE_LENGTH_FIELD] {
-        let mut preimages = Vec::with_capacity(self.elements.len());
+    pub fn hash(&self) -> u64 {
+        let mut hasher = XxHash3_64::default();
         for element in self.elements.iter() {
             match element {
-                Element::Tag(tag) => preimages.push(tag.to_bytes_be()),
-                _ => preimages.push(vec![0]),
+                Element::Tag(tag) => hasher.write(tag.to_bytes_le().as_slice()),
+                _ => hasher.write_u8(0),
             }
         }
-        era_compiler_common::Keccak256Hash::from_slices(preimages.as_slice())
-            .as_bytes()
-            .try_into()
-            .expect("Always valid")
+        hasher.finish()
     }
 
     ///

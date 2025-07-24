@@ -9,7 +9,7 @@ use self::stack_too_deep::StackTooDeep;
 ///
 /// Compilation error.
 ///
-#[derive(Debug, Clone, thiserror::Error, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, thiserror::Error, serde::Serialize, serde::Deserialize)]
 pub enum Error {
     /// The stack-too-deep error.
     #[error("{0}")]
@@ -36,7 +36,7 @@ impl Error {
     ///
     /// Unwraps the error as a `StandardJson` error reference.
     ///
-    pub fn unwrap_standard_json(self) -> solx_standard_json::OutputError {
+    pub fn unwrap_standard_json_ref(&self) -> &solx_standard_json::OutputError {
         match self {
             Error::StandardJson(error) => error,
             Error::Generic(error) => {

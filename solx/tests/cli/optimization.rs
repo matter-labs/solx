@@ -68,7 +68,7 @@ fn invalid_with_env_var() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx_with_env_vars(args, env_vars)?;
     result.failure().stderr(
-        predicate::str::contains("Error: Invalid value \'99\' for environment variable \'SOLX_OPTIMIZATION\': values 1, 2, 3, s, z are supported.")
+        predicate::str::contains("Error: Invalid value `99` for environment variable \'SOLX_OPTIMIZATION\': only values 1, 2, 3, s, z are supported.")
     );
 
     Ok(())
@@ -105,7 +105,7 @@ fn standard_json_invalid_env_var() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx_with_env_vars(args, env_vars)?;
     result.success().stdout(
-    predicate::str::contains("Error: Invalid value \'99\' for environment variable \'SOLX_OPTIMIZATION\': values 1, 2, 3, s, z are supported.")
+    predicate::str::contains("Error: Invalid value `99` for environment variable \'SOLX_OPTIMIZATION\': only values 1, 2, 3, s, z are supported.")
     );
 
     Ok(())

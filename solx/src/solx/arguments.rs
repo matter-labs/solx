@@ -167,9 +167,13 @@ pub struct Arguments {
     #[arg(long = "asm-solc-json")]
     pub output_asm_solc_json: bool,
 
-    /// Emit solc's optimized Yul IR of the compiled project.
-    #[arg(long = "ir")]
+    /// Emit solc's Yul IR of the compiled project.
+    #[arg(long = "ir", alias = "ir-optimized")]
     pub output_ir: bool,
+
+    /// Emit solx's compilation pipeline benchmarks.
+    #[arg(long = "benchmarks")]
+    pub output_benchmarks: bool,
 
     /// Dump all IRs to files in the specified directory.
     /// Only for testing and debugging.
@@ -256,6 +260,7 @@ impl Arguments {
                 || self.output_ast_json
                 || self.output_asm_solc_json
                 || self.output_ir
+                || self.output_benchmarks
             {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,
@@ -298,6 +303,7 @@ impl Arguments {
                 || self.output_ast_json
                 || self.output_asm_solc_json
                 || self.output_ir
+                || self.output_benchmarks
             {
                 messages.push(solx_standard_json::OutputError::new_error(
                     None,

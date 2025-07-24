@@ -43,7 +43,7 @@ use self::visited_element::VisitedElement;
 ///
 /// The Ethereal IR function.
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Function {
     /// The Solidity compiler version.
     pub solc_version: semver::Version,

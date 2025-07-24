@@ -7,10 +7,10 @@ pub mod instruction;
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
-use std::collections::HashSet;
 
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
+use twox_hash::XxHash3_64;
 
 use era_compiler_llvm_context::IContext;
 
@@ -40,15 +40,15 @@ pub struct Assembly {
     /// The full contract path.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub full_path: Option<String>,
-    /// The factory dependency paths.
-    #[serde(default, skip_serializing_if = "HashSet::is_empty")]
-    pub factory_dependencies: HashSet<String>,
     /// The EVM legacy assembly extra metadata.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub extra_metadata: Option<ExtraMetadata>,
 }
 
 impl Assembly {
+    /// The default serializing/deserializing buffer size.
+    pub const DEFAULT_SERDE_BUFFER_SIZE: usize = 1048576;
+
     ///
     /// Sets the full contract path.
     ///
@@ -154,11 +154,12 @@ impl Assembly {
     }
 
     ///
-    /// Returns the `keccak256` hash of the assembly representation.
+    /// Returns the `blake3` hash of the assembly representation.
     ///
-    pub fn keccak256(&self) -> String {
-        let json: Vec<u8> = serde_json::to_vec(self).expect("Always valid");
-        era_compiler_common::Keccak256Hash::from_slice(json.as_slice()).to_string()
+    pub fn hash(&self) -> u64 {
+        let mut preimage: Vec<u8> = Vec::with_capacity(Self::DEFAULT_SERDE_BUFFER_SIZE);
+        ciborium::into_writer(&self, &mut preimage).expect("Always valid");
+        XxHash3_64::oneshot(preimage.as_slice())
     }
 
     ///
@@ -172,14 +173,14 @@ impl Assembly {
         for (path, file) in contracts.iter() {
             for (name, deploy_code_assembly) in file.iter() {
                 let deploy_code_path = format!("{path}:{name}");
-                let deploy_code_hash = deploy_code_assembly.keccak256();
+                let deploy_code_hash = deploy_code_assembly.hash();
 
                 let runtime_code_path = format!(
                     "{path}:{name}.{}",
                     era_compiler_common::CodeSegment::Runtime
                 );
                 let runtime_code_assembly = deploy_code_assembly.runtime_code()?;
-                let runtime_code_hash = runtime_code_assembly.keccak256();
+                let runtime_code_hash = runtime_code_assembly.hash();
 
                 hash_path_mapping.insert(deploy_code_hash, deploy_code_path);
                 hash_path_mapping.insert(runtime_code_hash, runtime_code_path);
@@ -214,7 +215,7 @@ impl Assembly {
     fn preprocess_dependency_level(
         full_path: &str,
         assembly: &mut Assembly,
-        hash_path_mapping: &BTreeMap<String, String>,
+        hash_path_mapping: &BTreeMap<u64, String>,
     ) -> anyhow::Result<()> {
         assembly.set_full_path(full_path.to_owned());
 
@@ -251,7 +252,7 @@ impl Assembly {
     fn deploy_dependencies_pass(
         &mut self,
         full_path: &str,
-        hash_data_mapping: &BTreeMap<String, String>,
+        hash_data_mapping: &BTreeMap<u64, String>,
     ) -> anyhow::Result<BTreeMap<String, String>> {
         let mut index_path_mapping = BTreeMap::new();
         let index = "0".repeat(era_compiler_common::BYTE_LENGTH_FIELD * 2);
@@ -275,15 +276,10 @@ impl Assembly {
 
             *data = match data {
                 Data::Assembly(assembly) => {
-                    let hash = Assembly::keccak256(assembly);
-                    let full_path =
-                        hash_data_mapping
-                            .get(hash.as_str())
-                            .cloned()
-                            .ok_or_else(|| {
-                                anyhow::anyhow!("Contract path not found for hash `{hash}`")
-                            })?;
-                    self.factory_dependencies.insert(full_path.to_owned());
+                    let hash = assembly.hash();
+                    let full_path = hash_data_mapping.get(&hash).cloned().ok_or_else(|| {
+                        anyhow::anyhow!("Contract path not found for hash `{hash}`")
+                    })?;
 
                     index_path_mapping.insert(index_extended, full_path.clone());
                     Data::Path(full_path)
@@ -304,7 +300,7 @@ impl Assembly {
     ///
     fn runtime_dependencies_pass(
         &mut self,
-        hash_data_mapping: &BTreeMap<String, String>,
+        hash_data_mapping: &BTreeMap<u64, String>,
     ) -> anyhow::Result<BTreeMap<String, String>> {
         let mut index_path_mapping = BTreeMap::new();
 
@@ -325,15 +321,10 @@ impl Assembly {
 
             *data = match data {
                 Data::Assembly(assembly) => {
-                    let hash = Assembly::keccak256(assembly);
-                    let full_path =
-                        hash_data_mapping
-                            .get(hash.as_str())
-                            .cloned()
-                            .ok_or_else(|| {
-                                anyhow::anyhow!("Contract path not found for hash `{hash}`")
-                            })?;
-                    self.factory_dependencies.insert(full_path.to_owned());
+                    let hash = Assembly::hash(assembly);
+                    let full_path = hash_data_mapping.get(&hash).cloned().ok_or_else(|| {
+                        anyhow::anyhow!("Contract path not found for hash `{hash}`")
+                    })?;
 
                     index_path_mapping.insert(index_extended, full_path.clone());
                     Data::Path(full_path)
@@ -405,6 +396,10 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
             (era_compiler_common::CodeSegment::Runtime, blocks)
         };
 
+        let mut entry =
+            era_compiler_llvm_context::EVMEntryFunction::new(EntryLink::new(code_segment));
+        entry.declare(context)?;
+
         let mut ethereal_ir = EtherealIR::new(
             context.evmla().expect("Always exists").version.to_owned(),
             self.extra_metadata.unwrap_or_default(),
@@ -421,9 +416,6 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
         ethereal_ir.declare(context)?;
         ethereal_ir.into_llvm(context)?;
 
-        let mut entry =
-            era_compiler_llvm_context::EVMEntryFunction::new(EntryLink::new(code_segment));
-        entry.declare(context)?;
         entry.into_llvm(context)?;
 
         Ok(())

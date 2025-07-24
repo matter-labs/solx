@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 ///
 /// The `solc --standard-json` output error source location.
 ///
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SourceLocation {
     /// The source file path.

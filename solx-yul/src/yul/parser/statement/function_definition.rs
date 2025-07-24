@@ -27,7 +27,7 @@ use crate::yul::parser::statement::expression::function_call::name::Name as Func
 /// 1. The hoisted declaration
 /// 2. The definition, which now has the access to all function signatures
 ///
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(bound = "P: serde::de::DeserializeOwned")]
 pub struct FunctionDefinition<P>
 where

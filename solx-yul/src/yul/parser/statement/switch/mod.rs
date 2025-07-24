@@ -23,7 +23,7 @@ use self::case::Case;
 ///
 /// The Yul switch statement.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(bound = "P: serde::de::DeserializeOwned")]
 pub struct Switch<P>
 where

@@ -20,7 +20,7 @@ use crate::yul::parser::statement::code::Code;
 ///
 /// The upper-level Yul object, representing the deploy code.
 ///
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 #[serde(bound = "P: serde::de::DeserializeOwned")]
 pub struct Object<P>
 where

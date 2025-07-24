@@ -31,6 +31,8 @@ pub struct Build {
     pub ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
     /// The additional message to output.
     pub messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
+    /// Compilation pipeline benchmarks.
+    pub benchmarks: Vec<(String, u64)>,
 }
 
 impl Build {
@@ -46,6 +48,7 @@ impl Build {
             contracts,
             ast_jsons,
             messages,
+            benchmarks: Vec::new(),
         }
     }
 
@@ -201,6 +204,16 @@ impl Build {
                 )?;
             }
         }
+        if output_selection.check_selection(
+            solx_standard_json::InputSelection::WILDCARD,
+            Some(solx_standard_json::InputSelection::ANY_CONTRACT),
+            solx_standard_json::InputSelector::Benchmarks,
+        ) {
+            writeln!(std::io::stdout(), "Benchmarks:")?;
+            for (name, value) in self.benchmarks.iter() {
+                writeln!(std::io::stdout(), "{name}: {value}ms")?;
+            }
+        }
 
         for contract in self.contracts.into_values() {
             contract.write_to_terminal(output_selection)?;
@@ -251,6 +264,22 @@ impl Build {
             }
         }
 
+        if output_selection.check_selection(
+            solx_standard_json::InputSelection::WILDCARD,
+            Some(solx_standard_json::InputSelection::ANY_CONTRACT),
+            solx_standard_json::InputSelector::Benchmarks,
+        ) {
+            let mut output_path = output_directory.to_owned();
+            output_path.push("benchmarks.txt");
+
+            let mut output = String::with_capacity(self.benchmarks.len() * 256);
+            output.push_str("Benchmarks:\n");
+            for (name, value) in self.benchmarks.iter() {
+                output.push_str(format!("{name}: {value}ms\n").as_str());
+            }
+            Contract::write_to_file(output_path.as_path(), output, overwrite)?;
+        }
+
         for contract in self.contracts.into_values() {
             contract.write_to_directory(output_directory, output_selection, overwrite)?;
         }
@@ -266,10 +295,11 @@ impl Build {
     /// Writes all contracts assembly and bytecode to the standard JSON.
     ///
     pub fn write_to_standard_json(
-        &mut self,
+        mut self,
         standard_json: &mut solx_standard_json::Output,
         output_selection: &solx_standard_json::InputSelection,
         is_bytecode_linked: bool,
+        benchmarks: Vec<(String, u64)>,
     ) -> anyhow::Result<()> {
         for (path, ast_json) in self.ast_jsons.iter_mut().flatten() {
             if let Some(source) = standard_json.sources.get_mut(path.as_str()) {
@@ -285,9 +315,8 @@ impl Build {
             }
         }
 
-        let mut errors = Vec::with_capacity(self.contracts.len());
-        for contract in self.contracts.values_mut() {
-            errors.extend(
+        for mut contract in self.contracts.into_values() {
+            standard_json.errors.extend(
                 contract
                     .deploy_object_result
                     .as_mut()
@@ -296,10 +325,7 @@ impl Build {
                     })
                     .unwrap_or_default(),
             );
-            if let Err(Error::StandardJson(ref error)) = contract.deploy_object_result {
-                errors.push(error.to_owned());
-            }
-            errors.extend(
+            standard_json.errors.extend(
                 contract
                     .runtime_object_result
                     .as_mut()
@@ -308,10 +334,13 @@ impl Build {
                     })
                     .unwrap_or_default(),
             );
-            if let Err(Error::StandardJson(ref error)) = contract.runtime_object_result {
-                errors.push(error.to_owned());
-            }
             if contract.deploy_object_result.is_err() || contract.runtime_object_result.is_err() {
+                if let Err(Error::StandardJson(error)) = contract.deploy_object_result {
+                    standard_json.errors.push(error);
+                }
+                if let Err(Error::StandardJson(error)) = contract.runtime_object_result {
+                    standard_json.errors.push(error);
+                }
                 continue;
             }
 
@@ -348,17 +377,24 @@ impl Build {
         standard_json
             .errors
             .extend(self.messages.lock().expect("Sync").drain(..));
-        standard_json.errors.extend(errors);
         if standard_json.has_errors() {
             standard_json.contracts.clear();
+        }
+
+        if output_selection.check_selection(
+            solx_standard_json::InputSelection::WILDCARD,
+            Some(solx_standard_json::InputSelection::ANY_CONTRACT),
+            solx_standard_json::InputSelector::Benchmarks,
+        ) {
+            standard_json.benchmarks.extend(benchmarks);
         }
         Ok(())
     }
 }
 
 impl solx_standard_json::CollectableError for Build {
-    fn errors(&self) -> Vec<solx_standard_json::OutputError> {
-        let mut errors: Vec<solx_standard_json::OutputError> = self
+    fn error_strings(&self) -> Vec<String> {
+        let mut errors: Vec<String> = self
             .contracts
             .values()
             .flat_map(|contract| {
@@ -368,16 +404,20 @@ impl solx_standard_json::CollectableError for Build {
                 ]
             })
             .flatten()
-            .cloned()
-            .map(|error| error.unwrap_standard_json())
+            .map(|error| error.unwrap_standard_json_ref().to_string())
             .collect();
         errors.extend(
             self.messages
                 .lock()
                 .expect("Sync")
                 .iter()
-                .filter(|message| message.severity == "error")
-                .cloned(),
+                .filter_map(|message| {
+                    if message.severity == "error" {
+                        Some(message.to_string())
+                    } else {
+                        None
+                    }
+                }),
         );
         errors
     }
@@ -410,5 +450,16 @@ impl solx_standard_json::CollectableError for Build {
             );
         }
         warnings
+    }
+
+    fn has_errors(&self) -> bool {
+        self.contracts.values().any(|contract| {
+            contract.deploy_object_result.is_err() || contract.runtime_object_result.is_err()
+        }) || self
+            .messages
+            .lock()
+            .expect("Sync")
+            .iter()
+            .any(|message| message.severity == "error")
     }
 }

@@ -14,7 +14,7 @@ use self::selector::Selector;
 ///
 #[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Selection {
-    /// The inner selection map.
+    /// Inner selection map.
     #[serde(flatten)]
     inner: BTreeMap<String, BTreeMap<String, BTreeSet<Selector>>>,
 }
@@ -37,6 +37,9 @@ impl Selection {
         if selectors.contains(&Selector::AST) {
             per_file_selectors.insert(Selector::AST);
         }
+        if selectors.contains(&Selector::Benchmarks) {
+            per_file_selectors.insert(Selector::Benchmarks);
+        }
         let mut per_contract_selectors = selectors;
         per_contract_selectors.remove(&Selector::AST);
 
@@ -57,7 +60,7 @@ impl Selection {
     ///
     pub fn check_selection(&self, path: &str, name: Option<&str>, selector: Selector) -> bool {
         if let Some(file) = self.inner.get(Self::WILDCARD).or(self.inner.get(path)) {
-            if let (Some(any), selector @ Selector::AST) =
+            if let (Some(any), selector @ Selector::AST | selector @ Selector::Benchmarks) =
                 (file.get(Self::ANY_CONTRACT).or(file.get(path)), selector)
             {
                 return any.contains(&Selector::Any) || any.contains(&selector);

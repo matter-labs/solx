@@ -14,7 +14,7 @@ fn default() -> anyhow::Result<()> {
 
     result
         .success()
-        .stdout(predicate::str::contains("Optimized IR").count(1));
+        .stdout(predicate::str::contains("IR").count(1));
 
     Ok(())
 }

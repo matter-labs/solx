@@ -15,6 +15,7 @@ mod asm;
 mod asm_solc_json;
 mod ast_json;
 mod base_path;
+mod benchmarks;
 mod bin;
 mod bin_runtime;
 mod debug_output_dir;
