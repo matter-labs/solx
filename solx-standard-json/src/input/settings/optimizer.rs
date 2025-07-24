@@ -46,7 +46,7 @@ impl Optimizer {
     /// The default optimization mode.
     ///
     pub fn default_mode() -> Option<char> {
-        Some('3')
+        Some('1')
     }
 
     ///
