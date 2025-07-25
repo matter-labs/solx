@@ -1614,6 +1614,7 @@ dependencies = [
  "ciborium",
  "era-compiler-common",
  "era-compiler-llvm-context",
+ "hex",
  "inkwell",
  "num",
  "rayon",

@@ -2,6 +2,8 @@
 //! Translates the CODECOPY use cases.
 //!
 
+use inkwell::values::BasicValue;
+
 use era_compiler_llvm_context::IContext;
 
 ///
@@ -33,32 +35,41 @@ pub fn static_data<'ctx>(
     destination: inkwell::values::IntValue<'ctx>,
     source: &str,
 ) -> anyhow::Result<()> {
-    let mut offset = 0;
-    for (index, chunk) in source
-        .chars()
-        .collect::<Vec<char>>()
-        .chunks(era_compiler_common::BYTE_LENGTH_FIELD * 2)
-        .enumerate()
-    {
-        let mut value_string = chunk.iter().collect::<String>();
-        value_string.push_str(
-            "0".repeat((era_compiler_common::BYTE_LENGTH_FIELD * 2) - chunk.len())
-                .as_str(),
-        );
+    let source = hex::decode(source).expect("Always valid");
+    let source_type = context.array_type(context.byte_type(), source.len());
+    let source_global = context.module().add_global(
+        source_type,
+        Some(era_compiler_llvm_context::EVMAddressSpace::Code.into()),
+        "codecopy_bytes_global",
+    );
+    source_global.set_initializer(
+        &context
+            .llvm()
+            .const_string(source.as_slice(), false)
+            .as_basic_value_enum(),
+    );
+    source_global.set_constant(true);
+    source_global.set_linkage(inkwell::module::Linkage::Private);
+    let source_pointer = era_compiler_llvm_context::Pointer::new(
+        source_type,
+        era_compiler_llvm_context::EVMAddressSpace::Code,
+        source_global.as_pointer_value(),
+    );
 
-        let datacopy_destination = context.builder().build_int_add(
-            destination,
-            context.field_const(offset as u64),
-            format!("datacopy_destination_index_{index}").as_str(),
-        )?;
-        let datacopy_value = context.field_const_str_hex(value_string.as_str());
-        era_compiler_llvm_context::evm_memory::store(
-            context,
-            datacopy_destination,
-            datacopy_value,
-        )?;
-        offset += chunk.len() / 2;
-    }
+    let destination_pointer = era_compiler_llvm_context::Pointer::new_with_offset(
+        context,
+        era_compiler_llvm_context::EVMAddressSpace::Heap,
+        context.field_type(),
+        destination,
+        "codecopy_bytes_destination_pointer",
+    )?;
 
+    context.build_memcpy(
+        context.intrinsics().memory_copy_from_code,
+        destination_pointer,
+        source_pointer,
+        context.field_const(source.len() as u64),
+        "codecopy_memcpy",
+    )?;
     Ok(())
 }
