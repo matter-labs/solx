@@ -48,6 +48,8 @@ pub fn static_data<'ctx>(
             .const_string(source.as_slice(), false)
             .as_basic_value_enum(),
     );
+    source_global.set_constant(true);
+    source_global.set_linkage(inkwell::module::Linkage::Private);
     let source_pointer = era_compiler_llvm_context::Pointer::new(
         source_type,
         era_compiler_llvm_context::EVMAddressSpace::Code,
