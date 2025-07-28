@@ -226,29 +226,41 @@ jobs:
                 [ ${COMPILER} == 'solx' ] && USE_SOLX="true" || USE_SOLX="false"
                 [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-via-ir" || VIA_IR_SUFFIX=""
                 mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
+                BUILD_LOG="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.log.txt"
                 BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
-          
                 start_ms=$(date +%s%3N)
-                USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run compile > ${BUILD_JSON} 2>&1 || true
+                set +e
+                USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run compile > ${BUILD_LOG} 2>&1
+                COMPILE_STATUS="$?"
+                set -e
                 end_ms=$(date +%s%3N)
                 elapsed_ms=$(( end_ms - start_ms ))
                 COMPILE_TIME=$(awk -v ms="${elapsed_ms}" 'BEGIN { printf "%.3f\n", ms / 1000 }')
+                # Prepare build json for further analysis
+                jq -n \
+                  --argjson compile_status "${COMPILE_STATUS}" \
+                  --arg compile_time "${COMPILE_TIME}" \
+                  '{ compile_status: $compile_status, compile_time: ($compile_time | tonumber) }' > "${BUILD_JSON}"
+                # Print build logs if compilation failed
+                if [ "${COMPILE_STATUS}" -ne 0 ]; then
+                  echo "❌ Compilation failed. Logs:"
+                  cat "${BUILD_LOG}"
+                  continue
+                fi
                 COMPILE_ONLY=$(yq ".${PROJECT}.compile_only" "${TOML_CONFIG}")
                 if [[ "${COMPILE_ONLY}" == "true" ]]; then
                   echo "Skipping tests for ${PROJECT} as compile_only is set to true"
                   continue
                 fi
-          
+
                 # Run tests
                 TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_${PROJECT}.json"
                 TEST_OUTPUT="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_output_${PROJECT}.json"
                 JUNIT_REPORT=${TEST_JSON} USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run test || true
-          
                 if jq empty "${TEST_JSON}" > /dev/null 2>&1 && [ -s "${TEST_JSON}" ]; then
-                  jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '.stats += {($k): $v}' "${TEST_JSON}" > tmp.json
-                  mv tmp.json "${TEST_JSON}"
+                  echo "Test run success for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}."
                 else
-                  echo "Test failed for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}."
+                  echo "Test run failed for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}."
                   continue
                 fi
               done
