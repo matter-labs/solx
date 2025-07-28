@@ -20,24 +20,23 @@ build_system = "bun"
 [openzeppelin]
 repo = "https://github.com/antonbaliasnikov/openzeppelin-contracts"
 description = "A library for secure smart contract development."
-build_system = "npm"
 
-[zksafe]
-repo = "https://github.com/antonbaliasnikov/zksafe"
-description = "A Safe module for privacy of Safe transaction signing."
-build_system = "pnpm"
-
-[ens-contracts]
-repo = "https://github.com/antonbaliasnikov/ens-contracts"
-description = "The core contracts of the ENS protocol."
-build_system = "bun"
-
-[olympus]
-repo = "https://github.com/antonbaliasnikov/olympus-contracts"
-description = "A collection of contracts for Olympus DAO."
-build_system = "yarn"
-
-[synthetix]
-repo = "https://github.com/antonbaliasnikov/synthetix"
-description = "A crypto-backed synthetic asset platform."
-build_system = "npm"
+#[zksafe]
+#repo = "https://github.com/antonbaliasnikov/zksafe"
+#description = "A Safe module for privacy of Safe transaction signing."
+#build_system = "pnpm"
+#
+#[ens-contracts]
+#repo = "https://github.com/antonbaliasnikov/ens-contracts"
+#description = "The core contracts of the ENS protocol."
+#build_system = "bun"
+#
+#[olympus]
+#repo = "https://github.com/antonbaliasnikov/olympus-contracts"
+#description = "A collection of contracts for Olympus DAO."
+#build_system = "yarn"
+#
+#[synthetix]
+#repo = "https://github.com/antonbaliasnikov/synthetix"
+#description = "A crypto-backed synthetic asset platform."
+#build_system = "npm"

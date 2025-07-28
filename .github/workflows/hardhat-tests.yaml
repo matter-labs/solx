@@ -147,8 +147,8 @@ jobs:
           # if [[ '${{ needs.build-solx.result }}' == 'success' ]]; then
           #   mv ${GITHUB_WORKSPACE}/release-test/test/solx* ${GITHUB_WORKSPACE}/compilers/solx
           # else
-          wget "${SOLX_DOWNLOAD_URL}/0.1.0/solx-linux-amd64-gnu-v0.1.0"
-          mv ./solx-linux-amd64-gnu-v0.1.0 ./solx
+          wget https://github.com/matter-labs/solx/releases/download/b8537e9/solx-linux-amd64-gnu-notag
+          mv ./solx-linux-amd64-gnu-notag ./solx
           # fi
           chmod a+x ./solx
           SOLX_VERSION=$(./solx --version | head -n 1)
@@ -171,7 +171,7 @@ jobs:
           node-version: 20
 
       - name: Install Yarn
-        run: npm install -g yarn
+        run: npm install -g yarn bun pnpm
 
       # Some projects might use hardcoded ssh urls
       # force git to use https instead
@@ -207,6 +207,7 @@ jobs:
             for COMPILER in solc solx; do
               for VIA_IR in false true; do
                 REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
+                BUILD_BIN=$(yq eval ".${PROJECT}.build_system // \"npm\"" "$TOML_CONFIG")
                 if [ -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then
                   cd ${GITHUB_WORKSPACE}/projects
                   rm -rf "${GITHUB_WORKSPACE}/projects/${PROJECT}"
@@ -216,10 +217,10 @@ jobs:
                 echo "Running tests for ${PROJECT} with ${COMPILER} via-ir=${VIA_IR}"
           
                 # Install dependencies
-                npm install
+                ${BUILD_BIN} install
           
                 # Clean project
-                npm run clean
+                ${BUILD_BIN} run clean
           
                 # Build project
                 [ ${COMPILER} == 'solx' ] && USE_SOLX="true" || USE_SOLX="false"
@@ -228,7 +229,7 @@ jobs:
                 BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
           
                 start_ms=$(date +%s%3N)
-                USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} npm run compile > ${BUILD_JSON} 2>&1 || true
+                USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run compile > ${BUILD_JSON} 2>&1 || true
                 end_ms=$(date +%s%3N)
                 elapsed_ms=$(( end_ms - start_ms ))
                 COMPILE_TIME=$(awk -v ms="${elapsed_ms}" 'BEGIN { printf "%.3f\n", ms / 1000 }')
@@ -241,7 +242,7 @@ jobs:
                 # Run tests
                 TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_${PROJECT}.json"
                 TEST_OUTPUT="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_output_${PROJECT}.json"
-                JUNIT_REPORT=${TEST_JSON} USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} npm run test || true
+                JUNIT_REPORT=${TEST_JSON} USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run test || true
           
                 if jq empty "${TEST_JSON}" > /dev/null 2>&1 && [ -s "${TEST_JSON}" ]; then
                   jq --arg k "compile_time" --argjson v "${COMPILE_TIME}" '.stats += {($k): $v}' "${TEST_JSON}" > tmp.json
