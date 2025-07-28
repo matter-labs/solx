@@ -25,6 +25,8 @@ description = "A library for secure smart contract development."
 repo = "https://github.com/antonbaliasnikov/zksafe"
 description = "A Safe module for privacy of Safe transaction signing."
 build_system = "pnpm"
+[zksafe.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 #[ens-contracts]
 #repo = "https://github.com/antonbaliasnikov/ens-contracts"
