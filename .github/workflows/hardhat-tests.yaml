@@ -27,47 +27,47 @@ defaults:
 
 jobs:
 
-#  build-solx:
-#    if: ${{ inputs.solx-version == '' }}
-#    runs-on: matterlabs-ci-runner-high-performance
-#    container:
-#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-#    steps:
-#      - name: Checkout source
-#        uses: actions/checkout@v4
-#        with:
-#          submodules: 'recursive'
-#
-#      # This step is required to checkout submodules
-#      # that are disabled in .gitmodules config
-#      - name: Checkout submodules
-#        run: |
-#          git config --global --add safe.directory '*'
-#          git submodule update --force --depth=1 --recursive --checkout
-#
-#      - name: Building solc
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
-#        with:
-#          cmake-build-type: 'Release'
-#          working-dir: 'era-solidity'
-#
-#      - name: Build LLVM
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
-#        with:
-#          clone-llvm: 'false'
-#          build-type: Release
-#          enable-assertions: 'false'
-#          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
-#
-#      - name: Build solx
-#        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
-#        env:
-#          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-#          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
-#        with:
-#          exec_name: 'solx'
-#          target: 'x86_64-unknown-linux-gnu'
-#          release-suffix: test
+  build-solx:
+    if: ${{ inputs.solx-version == '' }}
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      # This step is required to checkout submodules
+      # that are disabled in .gitmodules config
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --force --depth=1 --recursive --checkout
+
+      - name: Building solc
+        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        with:
+          cmake-build-type: 'Release'
+          working-dir: 'era-solidity'
+
+      - name: Build LLVM
+        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        with:
+          clone-llvm: 'false'
+          build-type: Release
+          enable-assertions: 'false'
+          ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
+
+      - name: Build solx
+        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+        env:
+          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+        with:
+          exec_name: 'solx'
+          target: 'x86_64-unknown-linux-gnu'
+          release-suffix: test
 
   # Special job to separate projects by chunks
   # and execute chunks in parallel later.
@@ -103,11 +103,10 @@ jobs:
           echo "projects=${JSON}" >> ${GITHUB_OUTPUT}
 
   test:
-    # needs: [build-solx, prepare-projects]
-    needs: prepare-projects
-#    if: |
-#      always() &&
-#      (needs.build-solx.result == 'skipped' || needs.build-solx.result == 'success')
+    needs: [build-solx, prepare-projects]
+    if: |
+      always() &&
+      (needs.build-solx.result == 'skipped' || needs.build-solx.result == 'success')
     runs-on: matterlabs-ci-runner-high-performance
     env:
       DEFAULT_ITERATIONS: 20
@@ -144,12 +143,12 @@ jobs:
         run: |
           mkdir -p compilers
           cd compilers
-          # if [[ '${{ needs.build-solx.result }}' == 'success' ]]; then
-          #   mv ${GITHUB_WORKSPACE}/release-test/test/solx* ${GITHUB_WORKSPACE}/compilers/solx
-          # else
-          wget https://github.com/matter-labs/solx/releases/download/b8537e9/solx-linux-amd64-gnu-notag
-          mv ./solx-linux-amd64-gnu-notag ./solx
-          # fi
+          if [[ '${{ needs.build-solx.result }}' == 'success' ]]; then
+            mv ${GITHUB_WORKSPACE}/release-test/test/solx* ${GITHUB_WORKSPACE}/compilers/solx
+          else
+            wget "${SOLX_DOWNLOAD_URL}/${{ inputs.solx-version }}/solx-linux-amd64-gnu-v${{ inputs.solx-version }}"
+            mv ./solx-linux-amd64-gnu-v${{ inputs.solx-version }} ./solx
+          fi
           chmod a+x ./solx
           SOLX_VERSION=$(./solx --version | head -n 1)
           SOLX_SOLC_VERSION=$(./solx --version | tail -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
