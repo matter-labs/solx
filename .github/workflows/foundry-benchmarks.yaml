@@ -148,7 +148,7 @@ jobs:
           if [[ '${{ needs.build-solx.result }}' == 'success' ]]; then
             mv ${GITHUB_WORKSPACE}/release-test/test/solx* ${GITHUB_WORKSPACE}/compilers/solx
           else
-            wget "${SOLX_DOWNLOAD_URL}/${{ inputs.solx-version }}/solx-linux-amd64-gnu-${{ inputs.solx-version }}"
+            wget "${SOLX_DOWNLOAD_URL}/${{ inputs.solx-version }}/solx-linux-amd64-gnu-v${{ inputs.solx-version }}"
             mv ./solx-linux-amd64-gnu-v${{ inputs.solx-version }} ./solx
           fi
           chmod a+x ./solx
