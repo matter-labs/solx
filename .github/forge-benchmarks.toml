@@ -134,5 +134,4 @@ run_iterations = 5 # the project is large
 [lido-core]
 repo = "https://github.com/lidofinance/core"
 description = "Lido DAO smart contracts"
-requires_yarn = true
 run_iterations = 5 # the project is large
