@@ -116,7 +116,8 @@ description = "A private on-chain voting protocol based on homomorphic time-lock
 [seaport]
 repo = "https://github.com/ProjectOpenSea/seaport"
 description = "A marketplace protocol for safely and efficiently buying and selling NFTs."
-run_iterations = 1 # the project is large
+category = "huge"
+disabled = true # compilation hangs, required to disable fuzzing tests
 
 [lens]
 repo = "https://github.com/lens-protocol/core"
