@@ -107,7 +107,7 @@ description = "A new paradigm in DAO governance."
 repo = "https://github.com/aave-dao/aave-v3-origin"
 description = "A non-custodial liquidity protocol on Ethereum."
 requires_yarn = true
-run_iterations = 5 # Aave v3 is a large project
+run_iterations = 5 # the project is large
 
 [cicada]
 repo = "https://github.com/a16z/cicada"
@@ -124,3 +124,15 @@ repo = "https://github.com/lens-protocol/core"
 description = "Lens protocol, non-custodial social graph."
 category = "huge"
 disabled = true # compilation is too long
+
+[morpho-blue]
+repo = "https://github.com/morpho-org/morpho-blue"
+description = "Morpho Blue Protocol"
+requires_yarn = true
+run_iterations = 5 # the project is large
+
+[lido-core]
+repo = "https://github.com/lidofinance/core"
+description = "Lido DAO smart contracts"
+run_iterations = 5 # the project is large
+disabled = true # written in Solidity v0.4
