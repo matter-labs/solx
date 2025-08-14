@@ -135,3 +135,4 @@ run_iterations = 5 # the project is large
 repo = "https://github.com/lidofinance/core"
 description = "Lido DAO smart contracts"
 run_iterations = 5 # the project is large
+disabled = true # written in Solidity v0.4
