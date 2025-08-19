@@ -119,11 +119,15 @@ description = "A marketplace protocol for safely and efficiently buying and sell
 category = "huge"
 disabled = true # compilation hangs, required to disable fuzzing tests
 
-[lens]
+[lens-core]
 repo = "https://github.com/lens-protocol/core"
 description = "Lens protocol, non-custodial social graph."
-category = "huge"
-disabled = true # compilation is too long
+run_iterations = 1 # the project is large
+
+[lens-v3]
+repo = "https://github.com/lens-protocol/lens-v3"
+description = "Lens Protocol V3"
+run_iterations = 1 # the project is large
 
 [morpho-blue]
 repo = "https://github.com/morpho-org/morpho-blue"
