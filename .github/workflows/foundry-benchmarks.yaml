@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   forge-benchmarks:
-    uses: matter-labs/era-compiler-ci/.github/workflows/forge-benchmarks.yaml@v1
+    uses: matter-labs/era-compiler-ci/.github/workflows/forge-benchmarks.yaml@aba-check-iterations
     secrets: inherit
     with:
       print-markdown-tables: 'true'
