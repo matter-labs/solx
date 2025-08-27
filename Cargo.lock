@@ -563,7 +563,7 @@ dependencies = [
 [[package]]
 name = "era-compiler-llvm-context"
 version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=main#78ecfae4cef4ebc0d42aab71c349f316a1f6ee88"
+source = "git+https://github.com/matter-labs/era-compiler-llvm-context?branch=az-add-metadata-size-hint#6049fbe58dc99f754f270f962912c28281ae84f7"
 dependencies = [
  "anyhow",
  "era-compiler-common",

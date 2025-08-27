@@ -101,12 +101,16 @@ impl Contract {
         output_selection: solx_standard_json::InputSelection,
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
         metadata_bytes: Option<Vec<u8>>,
-        optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+        mut optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
     ) -> Result<EVMContractObject, Error> {
         use era_compiler_llvm_context::EVMWriteLLVM;
         let mut profiler = era_compiler_llvm_context::EVMProfiler::default();
+
+        if let Some(ref metadata_bytes) = metadata_bytes {
+            optimizer_settings.set_metadata_size(metadata_bytes.len() as u64);
+        }
 
         let solc_version = solx_solc::Compiler::default().version;
         let solidity_data = era_compiler_llvm_context::EVMContextSolidityData::new(immutables);
