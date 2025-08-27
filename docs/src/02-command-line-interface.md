@@ -773,6 +773,13 @@ SOLX_DEBUG_OUTPUT_DIR='./debug/' solx 'Simple.sol' --bin
 ls './debug/'
 ```
 
+Additionally, it is possible to dump the standard JSON input file with the `SOLX_STANDARD_JSON_DEBUG` environment variable:
+
+```bash
+SOLX_STANDARD_JSON_DEBUG='./debug/input.json' solx 'Simple.sol' --bin
+cat './debug/input.json' | jq .
+```
+
 Output:
 
 ```text
