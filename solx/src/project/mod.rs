@@ -33,7 +33,8 @@ pub struct Project {
     /// The project language.
     pub language: solx_standard_json::InputLanguage,
     /// The `solc` compiler version.
-    pub solc_version: solx_standard_json::Version,
+    /// Used only for Solidity and Yul input languages.
+    pub solc_version: Option<solx_standard_json::Version>,
     /// The project build results.
     pub contracts: BTreeMap<String, Contract>,
     /// The Solidity AST JSONs of the source files.
@@ -59,9 +60,17 @@ impl Project {
             identifier_paths.insert(contract.identifier().to_owned(), path.to_owned());
         }
 
+        let solc_version = match language {
+            solx_standard_json::InputLanguage::Solidity
+            | solx_standard_json::InputLanguage::Yul => {
+                Some(solx_solc::Compiler::default().version)
+            }
+            solx_standard_json::InputLanguage::LLVMIR => None,
+        };
+
         Self {
             language,
-            solc_version: solx_solc::Compiler::default().version,
+            solc_version,
             contracts,
             ast_jsons,
             identifier_paths,
@@ -426,6 +435,7 @@ impl Project {
         messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
         output_selection: &solx_standard_json::InputSelection,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+        append_cbor: bool,
         optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
         llvm_options: Vec<String>,
         debug_config: Option<era_compiler_llvm_context::DebugConfig>,
@@ -478,20 +488,14 @@ impl Project {
                 };
 
                 let (runtime_object_result, metadata) = {
-                    let metadata = metadata.map(|metadata| {
-                        ContractMetadata::new(optimizer_settings.clone(), llvm_options.as_slice())
-                            .insert_into(metadata.as_str())
-                    });
-                    let metadata_bytes =
-                        metadata
-                            .as_ref()
-                            .and_then(|metadata| match metadata_hash_type {
-                                era_compiler_common::EVMMetadataHashType::None => None,
-                                era_compiler_common::EVMMetadataHashType::IPFS => Some(
-                                    era_compiler_common::IPFSHash::from_slice(metadata.as_bytes())
-                                        .to_vec(),
-                                ),
-                            });
+                    let metadata_bytes = Self::cbor_metadata(
+                        metadata.as_deref(),
+                        self.solc_version.as_ref(),
+                        &optimizer_settings,
+                        llvm_options.as_slice(),
+                        metadata_hash_type,
+                        append_cbor,
+                    );
 
                     let mut input = EVMProcessInput::new(
                         contract_name.clone(),
@@ -566,6 +570,73 @@ impl Project {
         });
 
         Ok(EVMBuild::new(results, self.ast_jsons, messages))
+    }
+
+    ///
+    /// Returns the CBOR metadata, based on the current settings.
+    ///
+    fn cbor_metadata(
+        metadata: Option<&str>,
+        solc_version: Option<&solx_standard_json::Version>,
+        optimizer_settings: &era_compiler_llvm_context::OptimizerSettings,
+        llvm_options: &[String],
+        metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+        append_cbor: bool,
+    ) -> Option<Vec<u8>> {
+        if !append_cbor {
+            return None;
+        }
+
+        let metadata = metadata.map(|metadata| {
+            ContractMetadata::new(optimizer_settings.clone(), llvm_options).insert_into(metadata)
+        });
+        let metadata_hash = metadata
+            .as_ref()
+            .and_then(|metadata| match metadata_hash_type {
+                era_compiler_common::EVMMetadataHashType::None => None,
+                era_compiler_common::EVMMetadataHashType::IPFS => {
+                    Some(era_compiler_common::IPFSHash::from_slice(metadata.as_bytes()).to_vec())
+                }
+            });
+
+        let mut cbor_version_parts = Vec::with_capacity(3);
+        cbor_version_parts.push((
+            crate::r#const::DEFAULT_EXECUTABLE_NAME.to_owned(),
+            crate::r#const::version().parse().expect("Always valid"),
+        ));
+        if let Some(solc_version) = solc_version {
+            cbor_version_parts.push((
+                crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+                solc_version.default.to_owned(),
+            ));
+            cbor_version_parts.push((
+                crate::r#const::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
+                solc_version.llvm_revision.to_owned(),
+            ));
+        }
+        let cbor_data = (
+            crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+            cbor_version_parts,
+        );
+
+        match metadata_hash {
+            Some(hash) => {
+                let cbor = era_compiler_common::CBOR::new(
+                    Some((
+                        era_compiler_common::EVMMetadataHashType::IPFS,
+                        hash.as_slice(),
+                    )),
+                    cbor_data.0,
+                    cbor_data.1,
+                );
+                Some(cbor.to_vec())
+            }
+            None => {
+                let cbor =
+                    era_compiler_common::CBOR::<'_, String>::new(None, cbor_data.0, cbor_data.1);
+                Some(cbor.to_vec())
+            }
+        }
     }
 
     ///

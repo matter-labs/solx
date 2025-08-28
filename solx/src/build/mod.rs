@@ -58,7 +58,6 @@ impl Build {
     pub fn link(
         mut self,
         linker_symbols: BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
-        cbor_data: Option<Vec<(String, semver::Version)>>,
     ) -> Self {
         let ast_jsons = self.ast_jsons.take();
 
@@ -103,18 +102,17 @@ impl Build {
 
                 let mut assembled_objects_data = Vec::with_capacity(assembleable_objects.len());
                 for object in assembleable_objects.into_iter() {
-                    let assembled_object =
-                        match object.assemble(all_objects.as_slice(), cbor_data.clone()) {
-                            Ok(assembled_object) => assembled_object,
-                            Err(error) => {
-                                self.messages.lock().expect("Sync").push(
-                                    solx_standard_json::OutputError::new_error(
-                                        None, &error, None, None,
-                                    ),
-                                );
-                                return Self::new(BTreeMap::new(), ast_jsons, self.messages);
-                            }
-                        };
+                    let assembled_object = match object.assemble(all_objects.as_slice()) {
+                        Ok(assembled_object) => assembled_object,
+                        Err(error) => {
+                            self.messages.lock().expect("Sync").push(
+                                solx_standard_json::OutputError::new_error(
+                                    None, &error, None, None,
+                                ),
+                            );
+                            return Self::new(BTreeMap::new(), ast_jsons, self.messages);
+                        }
+                    };
                     assembled_objects_data.push((
                         object.contract_name.full_path.to_owned(),
                         object.code_segment,

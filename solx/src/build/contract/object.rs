@@ -91,10 +91,7 @@ impl Object {
     /// # Panics
     /// If bytecode is `None`.
     ///
-    pub fn to_memory_buffer(
-        &self,
-        cbor_data: Option<Vec<(String, semver::Version)>>,
-    ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
+    pub fn to_memory_buffer(&self) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
         let bytecode = self.bytecode.as_deref().expect("Bytecode is not set");
 
         let mut memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
@@ -103,14 +100,12 @@ impl Object {
             false,
         );
 
-        if let (era_compiler_common::CodeSegment::Runtime, metadata_bytes) =
+        if let (era_compiler_common::CodeSegment::Runtime, Some(metadata_bytes)) =
             (self.code_segment, &self.metadata_bytes)
         {
             memory_buffer = era_compiler_llvm_context::evm_append_metadata(
                 memory_buffer,
-                metadata_bytes.to_owned(),
-                cbor_data
-                    .map(|cbor_data| (crate::r#const::SOLC_PRODUCTION_NAME.to_owned(), cbor_data)),
+                metadata_bytes.as_slice(),
             )?;
         }
 
@@ -126,9 +121,8 @@ impl Object {
     pub fn assemble(
         &self,
         all_objects: &[&Self],
-        cbor_data: Option<Vec<(String, semver::Version)>>,
     ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
-        let memory_buffer = self.to_memory_buffer(cbor_data.clone())?;
+        let memory_buffer = self.to_memory_buffer()?;
 
         let mut memory_buffers = Vec::with_capacity(1 + self.dependencies.inner.len());
         memory_buffers.push((self.identifier.to_owned(), memory_buffer));
