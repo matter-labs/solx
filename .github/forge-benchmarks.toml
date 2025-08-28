@@ -17,7 +17,6 @@
 [openzeppelin]
 repo = "https://github.com/OpenZeppelin/openzeppelin-contracts"
 description = "A library for secure smart contract development."
-run_iterations = 5 # OpenZeppelin is a large project, so we run fewer iterations
 
 [lil-web3]
 repo = "https://github.com/m1guelpf/lil-web3"
@@ -31,6 +30,11 @@ description = "Basic ERC-20 contract designed to be inherited and extended."
 repo = "https://github.com/Timidan/Foundry-Hardhat-Diamonds"
 description = "A minimal template for Diamonds EIP-2535."
 requires_yarn = true
+
+[lido-core]
+repo = "https://github.com/lidofinance/core"
+description = "Lido DAO smart contracts"
+disabled = true # written in Solidity v0.4
 
 [rollcall]
 repo = "https://github.com/withtally/rollcall"
@@ -64,6 +68,13 @@ description = "Helper smart contracts to deploy and manage upgradeable contracts
 [art-gobblers]
 repo = "https://github.com/antonbaliasnikov/art-gobblers"
 description = "A decentralized art factory and marketplace. Fork with fixed tests."
+
+[lens-core]
+repo = "https://github.com/lens-protocol/core"
+description = "Lens protocol, non-custodial social graph."
+requires_yarn = true
+[lens-core.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [balance-snapshot]
 repo = "https://github.com/pilagod/balance-snapshot"
@@ -103,12 +114,6 @@ EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 repo = "https://github.com/pentagonxyz/gov-of-venice"
 description = "A new paradigm in DAO governance."
 
-[aave-v3]
-repo = "https://github.com/aave-dao/aave-v3-origin"
-description = "A non-custodial liquidity protocol on Ethereum."
-requires_yarn = true
-run_iterations = 5 # the project is large
-
 [cicada]
 repo = "https://github.com/a16z/cicada"
 description = "A private on-chain voting protocol based on homomorphic time-lock puzzles."
@@ -119,20 +124,19 @@ description = "A marketplace protocol for safely and efficiently buying and sell
 category = "huge"
 disabled = true # compilation hangs, required to disable fuzzing tests
 
-[lens]
-repo = "https://github.com/lens-protocol/core"
-description = "Lens protocol, non-custodial social graph."
-category = "huge"
-disabled = true # compilation is too long
+[lens-v3]
+repo = "https://github.com/lens-protocol/lens-v3"
+description = "Lens Protocol V3"
+requires_yarn = true
+[lens-v3.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [morpho-blue]
 repo = "https://github.com/morpho-org/morpho-blue"
 description = "Morpho Blue Protocol"
 requires_yarn = true
-run_iterations = 5 # the project is large
 
-[lido-core]
-repo = "https://github.com/lidofinance/core"
-description = "Lido DAO smart contracts"
-run_iterations = 5 # the project is large
-disabled = true # written in Solidity v0.4
+[aave-v3]
+repo = "https://github.com/aave-dao/aave-v3-origin"
+description = "A non-custodial liquidity protocol on Ethereum."
+requires_yarn = true
