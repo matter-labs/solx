@@ -49,6 +49,11 @@ impl Input {
             None => std::io::read_to_string(std::io::stdin())
                 .map_err(|error| anyhow::anyhow!("Standard JSON reading from stdin: {error}")),
         }?;
+        if let Ok(output_path) = std::env::var("SOLX_STANDARD_JSON_DEBUG") {
+            std::fs::write(output_path.as_str(), input_json.as_str()).map_err(|error| {
+                anyhow::anyhow!("Standard JSON input debug file `{output_path}` writing: {error}")
+            })?;
+        }
         era_compiler_common::deserialize_from_str::<Self>(input_json.as_str())
             .map_err(|error| anyhow::anyhow!("Standard JSON parsing: {error}"))
     }
