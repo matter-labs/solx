@@ -33,45 +33,32 @@ impl String {
     /// Parses the value from the source code slice.
     ///
     pub fn parse(input: &str) -> Option<Token> {
-        let mut length = 0;
-
-        let is_string = input[length..].starts_with('"');
-        let is_hex_string = input[length..].starts_with(r#"hex""#);
-
-        if !is_string && !is_hex_string {
+        let (is_hex_string, mut length, terminator) = if input.starts_with(r#"""#) {
+            (false, r#"""#.len(), r#"""#)
+        } else if input.starts_with(r#"hex""#) {
+            (true, r#"hex""#.len(), r#"""#)
+        } else if input.starts_with(r#"\""#) {
+            (false, r#"\""#.len(), r#"\""#)
+        } else {
             return None;
-        }
-
-        if is_string {
-            length += 1;
-        }
-        if is_hex_string {
-            length += r#"hex""#.len();
-        }
+        };
 
         let mut string = std::string::String::new();
         loop {
             if input[length..].starts_with('\\') {
-                string.push(input.chars().nth(length).expect("Always exists"));
-                string.push(input.chars().nth(length + 1).expect("Always exists"));
+                string.push_str(&input[length..length + 2]);
                 length += 2;
                 continue;
             }
 
-            if input[length..].starts_with('"') {
-                length += 1;
+            if input[length..].starts_with(terminator) {
+                length += terminator.len();
                 break;
             }
 
-            string.push(input.chars().nth(length).expect("Always exists"));
+            string.push_str(&input[length..length + 1]);
             length += 1;
         }
-
-        let string = string
-            .strip_prefix('"')
-            .and_then(|string| string.strip_suffix('"'))
-            .unwrap_or(string.as_str())
-            .to_owned();
 
         let literal = Self::new(string, is_hex_string);
 
