@@ -33,25 +33,15 @@ impl String {
     /// Parses the value from the source code slice.
     ///
     pub fn parse(input: &str) -> Option<Token> {
-        let mut length = 0;
-
-        let is_string = input[length..].starts_with('"');
-        let is_escaped_string = input[length..].starts_with(r#"\""#);
-        let is_hex_string = input[length..].starts_with(r#"hex""#);
-
-        if !is_string && !is_escaped_string && !is_hex_string {
+        let (is_hex_string, mut length, terminator) = if input.starts_with(r#"""#) {
+            (false, r#"""#.len(), r#"""#)
+        } else if input.starts_with(r#"hex""#) {
+            (true, r#"hex""#.len(), r#"""#)
+        } else if input.starts_with(r#"\""#) {
+            (false, r#"\""#.len(), r#"\""#)
+        } else {
             return None;
-        }
-
-        if is_string {
-            length += 1;
-        }
-        if is_escaped_string {
-            length += 2;
-        }
-        if is_hex_string {
-            length += r#"hex""#.len();
-        }
+        };
 
         let mut string = std::string::String::new();
         loop {
@@ -61,12 +51,8 @@ impl String {
                 continue;
             }
 
-            if input[length..].starts_with(r#"\""#) {
-                length += 2;
-                break;
-            }
-            if input[length..].starts_with('"') {
-                length += 1;
+            if input[length..].starts_with(terminator) {
+                length += terminator.len();
                 break;
             }
 
