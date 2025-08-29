@@ -20,6 +20,7 @@ build_system = "bun"
 [openzeppelin]
 repo = "https://github.com/antonbaliasnikov/openzeppelin-contracts"
 description = "A library for secure smart contract development."
+build_system = "pnpm"
 
 [zksafe]
 repo = "https://github.com/antonbaliasnikov/zksafe"
