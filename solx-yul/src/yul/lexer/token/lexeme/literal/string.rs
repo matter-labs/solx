@@ -36,14 +36,18 @@ impl String {
         let mut length = 0;
 
         let is_string = input[length..].starts_with('"');
+        let is_escaped_string = input[length..].starts_with(r#"\""#);
         let is_hex_string = input[length..].starts_with(r#"hex""#);
 
-        if !is_string && !is_hex_string {
+        if !is_string && !is_escaped_string && !is_hex_string {
             return None;
         }
 
         if is_string {
             length += 1;
+        }
+        if is_escaped_string {
+            length += 2;
         }
         if is_hex_string {
             length += r#"hex""#.len();
@@ -52,26 +56,23 @@ impl String {
         let mut string = std::string::String::new();
         loop {
             if input[length..].starts_with('\\') {
-                string.push(input.chars().nth(length).expect("Always exists"));
-                string.push(input.chars().nth(length + 1).expect("Always exists"));
+                string.push_str(&input[length..length + 2]);
                 length += 2;
                 continue;
             }
 
+            if input[length..].starts_with(r#"\""#) {
+                length += 2;
+                break;
+            }
             if input[length..].starts_with('"') {
                 length += 1;
                 break;
             }
 
-            string.push(input.chars().nth(length).expect("Always exists"));
+            string.push_str(&input[length..length + 1]);
             length += 1;
         }
-
-        let string = string
-            .strip_prefix('"')
-            .and_then(|string| string.strip_suffix('"'))
-            .unwrap_or(string.as_str())
-            .to_owned();
 
         let literal = Self::new(string, is_hex_string);
 
