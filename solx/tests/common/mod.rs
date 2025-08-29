@@ -133,29 +133,15 @@ pub fn build_solidity_standard_json(
         Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
         metadata_hash_type,
+        input.settings.metadata.append_cbor,
         optimizer_settings,
         vec![],
         None,
     )?;
     build.check_errors()?;
 
-    let cbor_data = vec![
-        (
-            solx::DEFAULT_EXECUTABLE_NAME.to_owned(),
-            solx::version().parse().expect("Always valid"),
-        ),
-        (
-            solx::SOLC_PRODUCTION_NAME.to_owned(),
-            solc_compiler.version.default.to_owned(),
-        ),
-        (
-            solx::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
-            solc_compiler.version.llvm_revision.to_owned(),
-        ),
-    ];
-
     let build = if input.settings.output_selection.is_bytecode_set_for_any() {
-        build.link(linker_symbols, Some(cbor_data))
+        build.link(linker_symbols)
     } else {
         build
     };
@@ -200,29 +186,15 @@ pub fn build_yul_standard_json(
         Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
+        input.settings.metadata.append_cbor,
         optimizer_settings,
         vec![],
         None,
     )?;
     build.check_errors()?;
 
-    let cbor_data = vec![
-        (
-            solx::DEFAULT_EXECUTABLE_NAME.to_owned(),
-            solx::version().parse().expect("Always valid"),
-        ),
-        (
-            solx::SOLC_PRODUCTION_NAME.to_owned(),
-            solc_compiler.version.default.to_owned(),
-        ),
-        (
-            solx::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
-            solc_compiler.version.llvm_revision.to_owned(),
-        ),
-    ];
-
     let build = if input.settings.output_selection.is_bytecode_set_for_any() {
-        build.link(BTreeMap::new(), Some(cbor_data))
+        build.link(BTreeMap::new())
     } else {
         build
     };
@@ -264,19 +236,15 @@ pub fn build_llvm_ir_standard_json(
         Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
         era_compiler_common::EVMMetadataHashType::IPFS,
+        input.settings.metadata.append_cbor,
         optimizer_settings,
         vec![],
         None,
     )?;
     build.check_errors()?;
 
-    let cbor_data = vec![(
-        solx::DEFAULT_EXECUTABLE_NAME.to_owned(),
-        solx::version().parse().expect("Always valid"),
-    )];
-
     let build = if input.settings.output_selection.is_bytecode_set_for_any() {
-        build.link(BTreeMap::new(), Some(cbor_data))
+        build.link(BTreeMap::new())
     } else {
         build
     };

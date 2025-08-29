@@ -70,6 +70,7 @@ pub fn yul_to_evm(
         messages,
         output_selection,
         metadata_hash_type,
+        append_cbor,
         optimizer_settings,
         llvm_options,
         debug_config,
@@ -77,27 +78,8 @@ pub fn yul_to_evm(
     build.take_and_write_warnings();
     build.check_errors()?;
 
-    let cbor_data = if append_cbor {
-        Some(vec![
-            (
-                crate::r#const::DEFAULT_EXECUTABLE_NAME.to_owned(),
-                crate::r#const::version().parse().expect("Always valid"),
-            ),
-            (
-                crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
-                solc_compiler.version.default.to_owned(),
-            ),
-            (
-                crate::r#const::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
-                solc_compiler.version.llvm_revision.to_owned(),
-            ),
-        ])
-    } else {
-        None
-    };
-
     Ok(if output_selection.is_bytecode_set_for_any() {
-        let mut build = build.link(linker_symbols, cbor_data);
+        let mut build = build.link(linker_symbols);
         build.take_and_write_warnings();
         build.check_errors()?;
         build
@@ -129,6 +111,7 @@ pub fn llvm_ir_to_evm(
         messages,
         output_selection,
         metadata_hash_type,
+        append_cbor,
         optimizer_settings,
         llvm_options,
         debug_config,
@@ -136,17 +119,8 @@ pub fn llvm_ir_to_evm(
     build.take_and_write_warnings();
     build.check_errors()?;
 
-    let cbor_data = if append_cbor {
-        Some(vec![(
-            crate::r#const::DEFAULT_EXECUTABLE_NAME.to_owned(),
-            crate::r#const::version().parse().expect("Always valid"),
-        )])
-    } else {
-        None
-    };
-
     Ok(if output_selection.is_bytecode_set_for_any() {
-        let mut build = build.link(linker_symbols, cbor_data);
+        let mut build = build.link(linker_symbols);
         build.take_and_write_warnings();
         build.check_errors()?;
         build
@@ -193,25 +167,6 @@ pub fn standard_output_evm(
 
     let solc_compiler = solx_solc::Compiler::default();
 
-    let cbor_data = if append_cbor {
-        Some(vec![
-            (
-                crate::r#const::DEFAULT_EXECUTABLE_NAME.to_owned(),
-                crate::r#const::version().parse().expect("Always valid"),
-            ),
-            (
-                crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
-                solc_compiler.version.default.to_owned(),
-            ),
-            (
-                crate::r#const::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
-                solc_compiler.version.llvm_revision.to_owned(),
-            ),
-        ])
-    } else {
-        None
-    };
-
     let run_solc_standard_json = profiler.start_pipeline_element("solc_Solidity_Standard_JSON");
     let mut solc_output = solc_compiler.standard_json(
         &mut solc_input,
@@ -242,6 +197,7 @@ pub fn standard_output_evm(
         messages,
         &solc_input.settings.output_selection,
         metadata_hash_type,
+        append_cbor,
         optimizer_settings.clone(),
         llvm_options,
         debug_config.clone(),
@@ -256,7 +212,7 @@ pub fn standard_output_evm(
         .is_bytecode_set_for_any()
     {
         let run_solx_link = profiler.start_pipeline_element("solx_Linking");
-        let mut build = build.link(linker_symbols, cbor_data);
+        let mut build = build.link(linker_symbols);
         run_solx_link.borrow_mut().finish();
         build.take_and_write_warnings();
         build.check_errors()?;
@@ -316,29 +272,6 @@ pub fn standard_json_evm(
 
     let metadata_hash_type = solc_input.settings.metadata.bytecode_hash;
     let append_cbor = solc_input.settings.metadata.append_cbor;
-
-    let cbor_data = if append_cbor {
-        let mut cbor_data = Vec::with_capacity(3);
-        cbor_data.push((
-            crate::r#const::DEFAULT_EXECUTABLE_NAME.to_owned(),
-            crate::r#const::version().parse().expect("Always valid"),
-        ));
-        if let solx_standard_json::InputLanguage::Solidity
-        | solx_standard_json::InputLanguage::Yul = language
-        {
-            cbor_data.push((
-                crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
-                solc_compiler.version.default.to_owned(),
-            ));
-            cbor_data.push((
-                crate::r#const::SOLC_LLVM_REVISION_METADATA_TAG.to_owned(),
-                solc_compiler.version.llvm_revision.to_owned(),
-            ));
-        };
-        Some(cbor_data)
-    } else {
-        None
-    };
 
     let mut profiler = era_compiler_llvm_context::EVMProfiler::default();
     let (mut solc_output, project) = match language {
@@ -422,6 +355,7 @@ pub fn standard_json_evm(
         messages,
         &solc_input.settings.output_selection,
         metadata_hash_type,
+        append_cbor,
         optimizer_settings.clone(),
         llvm_options,
         debug_config.clone(),
@@ -439,7 +373,7 @@ pub fn standard_json_evm(
     }
     let build = if output_selection.is_bytecode_set_for_any() {
         let run_solx_link = profiler.start_pipeline_element("solx_Linking");
-        let build = build.link(linker_symbols, cbor_data);
+        let build = build.link(linker_symbols);
         run_solx_link.borrow_mut().finish();
         build
     } else {
