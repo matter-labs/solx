@@ -41,7 +41,7 @@ fn evmla() {
             .expect("Always exists")
             .get("SimpleContract")
             .expect("Always exists")
-            .ir
+            .ir_optimized
             .is_none(),
         "Yul is present although not requested",
     );
@@ -69,7 +69,7 @@ fn yul() {
             .expect("Always exists")
             .get("SimpleContract")
             .expect("Always exists")
-            .ir
+            .ir_optimized
             .is_some(),
         "Yul is missing"
     );
