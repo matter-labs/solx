@@ -217,9 +217,16 @@ jobs:
 
                 # Install dependencies
                 ${BUILD_BIN} install
+          
+                # Downgrade hardhat
+                ${BUILD_BIN} add -D hardhat@2.20.1
 
                 # Clean project
                 ${BUILD_BIN} run clean
+          
+                # Replace all pragmas
+                find . -name "*.sol" -type f -exec \
+                  sed -i -E 's/pragma solidity[[:space:]]*[^\s]*[0-9]+\.[0-9]+\.[0-9]+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
 
                 # Build project
                 [ ${COMPILER} == 'solx' ] && USE_SOLX="true" || USE_SOLX="false"
@@ -230,6 +237,14 @@ jobs:
                 start_ms=$(date +%s%3N)
                 set +e
                 USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run compile > ${BUILD_LOG} 2>&1
+          
+                if [[ ${PROJECT} == "zksafe" ]]; then
+                  # Run compilation one more time replacing generated pragmas
+                  find . -name "circuits.sol" -type f -exec \
+                    sed -i -E '/^[[:space:]]*pragma[[:space:]]+solidity\b/d' {} +
+                  USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run compile > ${BUILD_LOG} 2>&1
+                fi
+          
                 COMPILE_STATUS="$?"
                 set -e
                 end_ms=$(date +%s%3N)
