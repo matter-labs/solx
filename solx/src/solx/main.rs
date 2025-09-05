@@ -183,7 +183,7 @@ fn main_inner(
     if arguments.output_asm_solc_json {
         selectors.insert(solx_standard_json::InputSelector::EVMLegacyAssembly);
     }
-    if arguments.output_ir {
+    if arguments.output_ir_optimized {
         selectors.insert(solx_standard_json::InputSelector::Yul);
     }
     if arguments.output_benchmarks {

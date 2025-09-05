@@ -2,6 +2,10 @@
 //! The `solc --standard-json` input settings optimizer.
 //!
 
+pub mod details;
+
+use self::details::Details;
+
 ///
 /// The `solc --standard-json` input settings optimizer.
 ///
@@ -20,6 +24,18 @@ pub struct Optimizer {
         skip_serializing_if = "Option::is_none"
     )]
     pub size_fallback: Option<bool>,
+
+    /// Enable the `solc` optimizer.
+    /// Always `true` in order to allow library inlining.
+    #[serde(default = "Optimizer::default_enabled")]
+    pub enabled: bool,
+    /// Enable the Yul optimizer in `solc`.
+    /// Always `true` in order to explicitly disable the Yul stack allocation.
+    #[serde(
+        default = "Optimizer::default_details",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub details: Option<Details>,
 }
 
 impl Default for Optimizer {
@@ -39,6 +55,9 @@ impl Optimizer {
         Self {
             mode: Some(mode),
             size_fallback: Some(size_fallback),
+
+            enabled: Self::default_enabled(),
+            details: Self::default_details(),
         }
     }
 
@@ -50,9 +69,23 @@ impl Optimizer {
     }
 
     ///
-    /// The default flag for the size fallback.
+    /// The default flag to enable the size fallback.
     ///
     pub fn default_size_fallback() -> Option<bool> {
         Some(false)
+    }
+
+    ///
+    /// The default flag to enable the `solc` optimizer.
+    ///
+    pub fn default_enabled() -> bool {
+        true
+    }
+
+    ///
+    /// The default `details` for the optimizer.
+    ///
+    pub fn default_details() -> Option<Details> {
+        Some(Details::default())
     }
 }
