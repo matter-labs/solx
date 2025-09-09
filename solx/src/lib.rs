@@ -48,9 +48,9 @@ pub fn yul_to_evm(
     messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
-    optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+    optimizer_settings: solx_codegen_evm::OptimizerSettings,
     llvm_options: Vec<String>,
-    debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+    debug_config: Option<solx_codegen_evm::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
     let libraries = era_compiler_common::Libraries::try_from(libraries)?;
     let linker_symbols = libraries.as_linker_symbols()?;
@@ -98,9 +98,9 @@ pub fn llvm_ir_to_evm(
     messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     append_cbor: bool,
-    optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+    optimizer_settings: solx_codegen_evm::OptimizerSettings,
     llvm_options: Vec<String>,
-    debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+    debug_config: Option<solx_codegen_evm::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
     let libraries = era_compiler_common::Libraries::try_from(libraries)?;
     let linker_symbols = libraries.as_linker_symbols()?;
@@ -147,11 +147,11 @@ pub fn standard_output_evm(
     allow_paths: Option<String>,
     use_import_callback: bool,
     remappings: BTreeSet<String>,
-    optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+    optimizer_settings: solx_codegen_evm::OptimizerSettings,
     llvm_options: Vec<String>,
-    debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+    debug_config: Option<solx_codegen_evm::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
-    let mut profiler = era_compiler_llvm_context::EVMProfiler::default();
+    let mut profiler = solx_codegen_evm::Profiler::default();
 
     let mut solc_input = solx_standard_json::Input::try_from_solidity_paths(
         paths,
@@ -234,7 +234,7 @@ pub fn standard_json_evm(
     include_paths: Vec<String>,
     allow_paths: Option<String>,
     use_import_callback: bool,
-    debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+    debug_config: Option<solx_codegen_evm::DebugConfig>,
 ) -> anyhow::Result<()> {
     let solc_compiler = solx_solc::Compiler::default();
 
@@ -258,7 +258,7 @@ pub fn standard_json_evm(
             .unwrap_or(solx_standard_json::InputOptimizer::default_mode().expect("Always exists"))
     };
     let mut optimizer_settings =
-        era_compiler_llvm_context::OptimizerSettings::try_from_cli(optimization_mode)?;
+        solx_codegen_evm::OptimizerSettings::try_from_cli(optimization_mode)?;
     if solc_input
         .settings
         .optimizer
@@ -273,7 +273,7 @@ pub fn standard_json_evm(
     let metadata_hash_type = solc_input.settings.metadata.bytecode_hash;
     let append_cbor = solc_input.settings.metadata.append_cbor;
 
-    let mut profiler = era_compiler_llvm_context::EVMProfiler::default();
+    let mut profiler = solx_codegen_evm::Profiler::default();
     let (mut solc_output, project) = match language {
         solx_standard_json::InputLanguage::Solidity => {
             let run_solc_standard_json =

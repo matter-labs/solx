@@ -21,12 +21,9 @@ impl Literal {
     ///
     /// Converts the literal into its LLVM.
     ///
-    pub fn into_llvm<'ctx, C>(
-        self,
-        context: &C,
-    ) -> anyhow::Result<era_compiler_llvm_context::Value<'ctx>>
+    pub fn into_llvm<'ctx, C>(self, context: &C) -> anyhow::Result<solx_codegen_evm::Value<'ctx>>
     where
-        C: era_compiler_llvm_context::IContext<'ctx>,
+        C: solx_codegen_evm::IContext<'ctx>,
     {
         match self.0.inner {
             LexicalLiteral::Boolean(inner) => {
@@ -50,9 +47,7 @@ impl Literal {
                     BooleanLiteral::True => num::BigUint::one(),
                 };
 
-                Ok(era_compiler_llvm_context::Value::new_with_constant(
-                    value, constant,
-                ))
+                Ok(solx_codegen_evm::Value::new_with_constant(value, constant))
             }
             LexicalLiteral::Integer(inner) => {
                 let r#type = self
@@ -86,9 +81,7 @@ impl Literal {
                 }
                 .expect("Always valid");
 
-                Ok(era_compiler_llvm_context::Value::new_with_constant(
-                    value, constant,
-                ))
+                Ok(solx_codegen_evm::Value::new_with_constant(value, constant))
             }
             LexicalLiteral::String(inner) => {
                 let string = inner.inner;
@@ -163,7 +156,7 @@ impl Literal {
                 };
 
                 if hex_string.len() > era_compiler_common::BYTE_LENGTH_FIELD * 2 {
-                    return Ok(era_compiler_llvm_context::Value::new_with_original(
+                    return Ok(solx_codegen_evm::Value::new_with_original(
                         r#type.const_zero().as_basic_value_enum(),
                         string,
                     ));
@@ -183,9 +176,7 @@ impl Literal {
                     )
                     .expect("The value is valid")
                     .as_basic_value_enum();
-                Ok(era_compiler_llvm_context::Value::new_with_original(
-                    value, string,
-                ))
+                Ok(solx_codegen_evm::Value::new_with_original(value, string))
             }
         }
     }

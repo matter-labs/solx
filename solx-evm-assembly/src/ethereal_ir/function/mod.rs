@@ -22,8 +22,8 @@ use num::One;
 use num::ToPrimitive;
 use num::Zero;
 
-use era_compiler_llvm_context::IContext;
-use era_compiler_llvm_context::IEVMLAFunction;
+use solx_codegen_evm::IContext;
+use solx_codegen_evm::IEVMLAFunction;
 
 use crate::assembly::instruction::name::Name as InstructionName;
 use crate::assembly::instruction::Instruction;
@@ -52,7 +52,7 @@ pub struct Function {
     /// The optional code segment. Only used for the EVM target.
     pub code_segment: Option<era_compiler_common::CodeSegment>,
     /// The separately labelled blocks.
-    pub blocks: BTreeMap<era_compiler_llvm_context::BlockKey, Vec<Block>>,
+    pub blocks: BTreeMap<solx_codegen_evm::BlockKey, Vec<Block>>,
     /// The function type.
     pub r#type: Type,
     /// The function stack size.
@@ -92,8 +92,8 @@ impl Function {
     ///
     pub fn traverse(
         &mut self,
-        blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
-        functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
+        blocks: &HashMap<solx_codegen_evm::BlockKey, Block>,
+        functions: &mut BTreeMap<solx_codegen_evm::BlockKey, Self>,
         extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
     ) -> anyhow::Result<()> {
@@ -117,10 +117,7 @@ impl Function {
                         visited_functions,
                         &mut visited_blocks,
                         QueueElement::new(
-                            era_compiler_llvm_context::BlockKey::new(
-                                code_segment,
-                                num::BigUint::zero(),
-                            ),
+                            solx_codegen_evm::BlockKey::new(code_segment, num::BigUint::zero()),
                             None,
                             Stack::new(),
                         ),
@@ -163,8 +160,8 @@ impl Function {
     ///
     fn consume_block(
         &mut self,
-        blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
-        functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
+        blocks: &HashMap<solx_codegen_evm::BlockKey, Block>,
+        functions: &mut BTreeMap<solx_codegen_evm::BlockKey, Self>,
         extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         visited_blocks: &mut BTreeSet<VisitedElement>,
@@ -241,8 +238,8 @@ impl Function {
     /// the invalid part is truncated after terminating with an `INVALID` instruction.
     ///
     fn handle_instruction(
-        blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
-        functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
+        blocks: &HashMap<solx_codegen_evm::BlockKey, Block>,
+        functions: &mut BTreeMap<solx_codegen_evm::BlockKey, Self>,
         extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
         code_segment: era_compiler_common::CodeSegment,
@@ -274,15 +271,14 @@ impl Function {
                     .ok_or_else(|| anyhow::anyhow!("Destination tag is missing"))?
                 {
                     Element::Tag(destination) if destination > &num::BigUint::from(u32::MAX) => {
-                        era_compiler_llvm_context::BlockKey::new(
+                        solx_codegen_evm::BlockKey::new(
                             era_compiler_common::CodeSegment::Runtime,
                             destination.to_owned() - num::BigUint::from(1u64 << 32),
                         )
                     }
-                    Element::Tag(destination) => era_compiler_llvm_context::BlockKey::new(
-                        code_segment,
-                        destination.to_owned(),
-                    ),
+                    Element::Tag(destination) => {
+                        solx_codegen_evm::BlockKey::new(code_segment, destination.to_owned())
+                    }
                     Element::ReturnAddress(output_size) => {
                         block_element.instruction =
                             Instruction::recursive_return(1 + output_size, instruction);
@@ -337,15 +333,14 @@ impl Function {
                     .ok_or_else(|| anyhow::anyhow!("Destination tag is missing"))?
                 {
                     Element::Tag(destination) if destination > &num::BigUint::from(u32::MAX) => {
-                        era_compiler_llvm_context::BlockKey::new(
+                        solx_codegen_evm::BlockKey::new(
                             era_compiler_common::CodeSegment::Runtime,
                             destination.to_owned() - num::BigUint::from(1u64 << 32),
                         )
                     }
-                    Element::Tag(destination) => era_compiler_llvm_context::BlockKey::new(
-                        code_segment,
-                        destination.to_owned(),
-                    ),
+                    Element::Tag(destination) => {
+                        solx_codegen_evm::BlockKey::new(code_segment, destination.to_owned())
+                    }
                     element => {
                         return Err(anyhow::anyhow!(
                             "The {} instruction expected a tag or return address, found {}",
@@ -370,7 +365,7 @@ impl Function {
                 ..
             } => {
                 let tag: num::BigUint = tag.parse().expect("Always valid");
-                let block_key = era_compiler_llvm_context::BlockKey::new(code_segment, tag);
+                let block_key = solx_codegen_evm::BlockKey::new(code_segment, tag);
 
                 queue_element.predecessor = Some((queue_element.block_key.clone(), instance));
                 queue_element.block_key = block_key.clone();
@@ -1032,24 +1027,23 @@ impl Function {
     ///
     fn handle_recursive_function_call(
         recursive_function: &ExtraMetadataRecursiveFunction,
-        blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
-        functions: &mut BTreeMap<era_compiler_llvm_context::BlockKey, Self>,
+        blocks: &HashMap<solx_codegen_evm::BlockKey, Block>,
+        functions: &mut BTreeMap<solx_codegen_evm::BlockKey, Self>,
         extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
-        block_key: era_compiler_llvm_context::BlockKey,
+        block_key: solx_codegen_evm::BlockKey,
         block_stack: &mut Stack,
         block_element: &mut BlockElement,
         version: &semver::Version,
-    ) -> anyhow::Result<(era_compiler_llvm_context::BlockKey, Vec<Element>)> {
+    ) -> anyhow::Result<(solx_codegen_evm::BlockKey, Vec<Element>)> {
         let return_address_offset = block_stack.elements.len() - 2 - recursive_function.input_size;
         let input_arguments_offset = return_address_offset + 1;
         let callee_tag_offset = input_arguments_offset + recursive_function.input_size;
 
         let return_address = match block_stack.elements[return_address_offset] {
-            Element::Tag(ref return_address) => era_compiler_llvm_context::BlockKey::new(
-                block_key.code_segment,
-                return_address.to_owned(),
-            ),
+            Element::Tag(ref return_address) => {
+                solx_codegen_evm::BlockKey::new(block_key.code_segment, return_address.to_owned())
+            }
             ref element => anyhow::bail!("Expected the function return address, found {element}"),
         };
         let mut stack = Stack::with_capacity(1 + recursive_function.input_size);
@@ -1131,13 +1125,13 @@ impl Function {
     /// Checks both deploy and runtime code.
     ///
     fn is_tag_value_valid(
-        blocks: &HashMap<era_compiler_llvm_context::BlockKey, Block>,
+        blocks: &HashMap<solx_codegen_evm::BlockKey, Block>,
         tag: &num::BigUint,
     ) -> bool {
-        blocks.contains_key(&era_compiler_llvm_context::BlockKey::new(
+        blocks.contains_key(&solx_codegen_evm::BlockKey::new(
             era_compiler_common::CodeSegment::Deploy,
             tag & num::BigUint::from(u32::MAX),
-        )) || blocks.contains_key(&era_compiler_llvm_context::BlockKey::new(
+        )) || blocks.contains_key(&solx_codegen_evm::BlockKey::new(
             era_compiler_common::CodeSegment::Runtime,
             tag & num::BigUint::from(u32::MAX),
         ))
@@ -1162,11 +1156,8 @@ impl Function {
     }
 }
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Function {
-    fn declare(
-        &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Function {
+    fn declare(&mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let (function_type, output_size) = match self.r#type {
             Type::Initial => {
                 let output_size = 0;
@@ -1199,14 +1190,12 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Function {
         )?;
         function
             .borrow_mut()
-            .set_evmla_data(era_compiler_llvm_context::FunctionEVMLAData::new(
-                self.stack_size,
-            ));
+            .set_evmla_data(solx_codegen_evm::FunctionEVMLAData::new(self.stack_size));
 
         Ok(())
     }
 
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         context.set_current_function(self.name.as_str())?;
 
         for (key, blocks) in self.blocks.iter() {
@@ -1214,9 +1203,8 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Function {
                 let inner = context.append_basic_block(format!("block_{key}/{index}").as_str());
                 let mut stack_hashes = vec![block.initial_stack.hash()];
                 stack_hashes.extend_from_slice(block.extra_hashes.as_slice());
-                let evmla_data =
-                    era_compiler_llvm_context::FunctionBlockEVMLAData::new(stack_hashes);
-                let mut block = era_compiler_llvm_context::FunctionBlock::new(inner);
+                let evmla_data = solx_codegen_evm::FunctionBlockEVMLAData::new(stack_hashes);
+                let mut block = solx_codegen_evm::FunctionBlock::new(inner);
                 block.set_evmla_data(evmla_data);
                 context
                     .current_function()
@@ -1248,7 +1236,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Function {
                 _ => context.field_const(0).as_basic_value_enum(),
             };
             context.build_store(pointer, value)?;
-            stack_variables.push(era_compiler_llvm_context::Value::new(
+            stack_variables.push(solx_codegen_evm::Value::new(
                 pointer.value.as_basic_value_enum(),
             ));
         }
@@ -1257,7 +1245,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Function {
         match self.r#type {
             Type::Initial => {
                 let initial_block = context.current_function().borrow().find_block(
-                    &era_compiler_llvm_context::BlockKey::new(
+                    &solx_codegen_evm::BlockKey::new(
                         context.code_segment().expect("Must be set at this point"),
                         num::BigUint::zero(),
                     ),
@@ -1300,14 +1288,14 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Function {
 
         context.set_basic_block(context.current_function().borrow().return_block());
         match context.current_function().borrow().r#return() {
-            era_compiler_llvm_context::FunctionReturn::None => {
+            solx_codegen_evm::FunctionReturn::None => {
                 context.build_return(None)?;
             }
-            era_compiler_llvm_context::FunctionReturn::Primitive { pointer } => {
+            solx_codegen_evm::FunctionReturn::Primitive { pointer } => {
                 let return_value = context.build_load(pointer, "return_value")?;
                 context.build_return(Some(&return_value))?;
             }
-            era_compiler_llvm_context::FunctionReturn::Compound { pointer, .. } => {
+            solx_codegen_evm::FunctionReturn::Compound { pointer, .. } => {
                 let return_value = context.build_load(pointer, "return_value")?;
                 context.build_return(Some(&return_value))?;
             }

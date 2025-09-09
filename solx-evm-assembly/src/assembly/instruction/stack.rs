@@ -4,7 +4,7 @@
 
 use inkwell::values::BasicValue;
 
-use era_compiler_llvm_context::IEVMLAData;
+use solx_codegen_evm::IEVMLAData;
 
 ///
 /// Translates the ordinar value push.
@@ -14,7 +14,7 @@ pub fn push<'ctx, C>(
     value: String,
 ) -> anyhow::Result<inkwell::values::BasicValueEnum<'ctx>>
 where
-    C: era_compiler_llvm_context::IContext<'ctx>,
+    C: solx_codegen_evm::IContext<'ctx>,
 {
     let result = context
         .field_type()
@@ -35,7 +35,7 @@ pub fn push_tag<'ctx, C>(
     value: String,
 ) -> anyhow::Result<inkwell::values::BasicValueEnum<'ctx>>
 where
-    C: era_compiler_llvm_context::IContext<'ctx>,
+    C: solx_codegen_evm::IContext<'ctx>,
 {
     let result = context
         .field_type()
@@ -54,17 +54,14 @@ pub fn dup<'ctx, C>(
     original: &mut Option<String>,
 ) -> anyhow::Result<inkwell::values::BasicValueEnum<'ctx>>
 where
-    C: era_compiler_llvm_context::IContext<'ctx>,
+    C: solx_codegen_evm::IContext<'ctx>,
 {
     let element = context
         .evmla()
         .expect("Always exists")
         .get_element(height - offset - 1);
     let value = context.build_load(
-        era_compiler_llvm_context::Pointer::new_stack_field(
-            context,
-            element.to_llvm().into_pointer_value(),
-        ),
+        solx_codegen_evm::Pointer::new_stack_field(context, element.to_llvm().into_pointer_value()),
         format!("dup{offset}").as_str(),
     )?;
 
@@ -78,14 +75,14 @@ where
 ///
 pub fn swap<'ctx, C>(context: &mut C, offset: usize, height: usize) -> anyhow::Result<()>
 where
-    C: era_compiler_llvm_context::IContext<'ctx>,
+    C: solx_codegen_evm::IContext<'ctx>,
 {
     let top_element = context
         .evmla()
         .expect("Always exists")
         .get_element(height - 1)
         .to_owned();
-    let top_pointer = era_compiler_llvm_context::Pointer::new_stack_field(
+    let top_pointer = solx_codegen_evm::Pointer::new_stack_field(
         context,
         top_element.to_llvm().into_pointer_value(),
     );
@@ -96,7 +93,7 @@ where
         .expect("Always exists")
         .get_element(height - offset - 1)
         .to_owned();
-    let swap_pointer = era_compiler_llvm_context::Pointer::new_stack_field(
+    let swap_pointer = solx_codegen_evm::Pointer::new_stack_field(
         context,
         swap_element.to_llvm().into_pointer_value(),
     );
@@ -127,7 +124,7 @@ where
 ///
 pub fn pop<'ctx, C>(_context: &mut C) -> anyhow::Result<()>
 where
-    C: era_compiler_llvm_context::IContext<'ctx>,
+    C: solx_codegen_evm::IContext<'ctx>,
 {
     Ok(())
 }

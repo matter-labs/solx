@@ -10,9 +10,9 @@ use crate::ethereal_ir::function::block::element::stack::Stack;
 #[derive(Debug)]
 pub struct QueueElement {
     /// The block key.
-    pub block_key: era_compiler_llvm_context::BlockKey,
+    pub block_key: solx_codegen_evm::BlockKey,
     /// The block predecessor.
-    pub predecessor: Option<(era_compiler_llvm_context::BlockKey, usize)>,
+    pub predecessor: Option<(solx_codegen_evm::BlockKey, usize)>,
     /// The predecessor's last stack state.
     pub stack: Stack,
 }
@@ -22,8 +22,8 @@ impl QueueElement {
     /// A shortcut constructor.
     ///
     pub fn new(
-        block_key: era_compiler_llvm_context::BlockKey,
-        predecessor: Option<(era_compiler_llvm_context::BlockKey, usize)>,
+        block_key: solx_codegen_evm::BlockKey,
+        predecessor: Option<(solx_codegen_evm::BlockKey, usize)>,
         stack: Stack,
     ) -> Self {
         Self {

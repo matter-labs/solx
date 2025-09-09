@@ -2,8 +2,8 @@
 //! The function definition statement.
 //!
 
-use era_compiler_llvm_context::IContext;
 use inkwell::types::BasicType;
+use solx_codegen_evm::IContext;
 
 use crate::declare_wrapper;
 use crate::yul::parser::dialect::era::EraDialect;
@@ -14,11 +14,8 @@ declare_wrapper!(
     FunctionDefinition
 );
 
-impl era_compiler_llvm_context::EVMWriteLLVM for FunctionDefinition {
-    fn declare(
-        &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for FunctionDefinition {
+    fn declare(&mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let argument_types: Vec<_> = self
             .0
             .arguments
@@ -41,17 +38,14 @@ impl era_compiler_llvm_context::EVMWriteLLVM for FunctionDefinition {
         Ok(())
     }
 
-    fn into_llvm(
-        mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+    fn into_llvm(mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         context.set_current_function(self.0.identifier.as_str())?;
         let r#return = context.current_function().borrow().r#return();
 
         context.set_basic_block(context.current_function().borrow().entry_block());
         match r#return {
-            era_compiler_llvm_context::FunctionReturn::None => {}
-            era_compiler_llvm_context::FunctionReturn::Primitive { pointer } => {
+            solx_codegen_evm::FunctionReturn::None => {}
+            solx_codegen_evm::FunctionReturn::Primitive { pointer } => {
                 let identifier = self.0.result.pop().expect("Always exists");
                 let r#type = identifier.r#type.unwrap_or_default();
                 context.build_store(pointer, r#type.wrap().into_llvm(context).const_zero())?;
@@ -60,7 +54,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for FunctionDefinition {
                     .borrow_mut()
                     .insert_stack_pointer(identifier.inner, pointer);
             }
-            era_compiler_llvm_context::FunctionReturn::Compound { pointer, .. } => {
+            solx_codegen_evm::FunctionReturn::Compound { pointer, .. } => {
                 for (index, identifier) in self.0.result.into_iter().enumerate() {
                     let r#type = identifier
                         .r#type
@@ -122,14 +116,14 @@ impl era_compiler_llvm_context::EVMWriteLLVM for FunctionDefinition {
 
         context.set_basic_block(context.current_function().borrow().return_block());
         match context.current_function().borrow().r#return() {
-            era_compiler_llvm_context::FunctionReturn::None => {
+            solx_codegen_evm::FunctionReturn::None => {
                 context.build_return(None)?;
             }
-            era_compiler_llvm_context::FunctionReturn::Primitive { pointer } => {
+            solx_codegen_evm::FunctionReturn::Primitive { pointer } => {
                 let return_value = context.build_load(pointer, "return_value")?;
                 context.build_return(Some(&return_value))?;
             }
-            era_compiler_llvm_context::FunctionReturn::Compound { pointer, .. } => {
+            solx_codegen_evm::FunctionReturn::Compound { pointer, .. } => {
                 let return_value = context.build_load(pointer, "return_value")?;
                 context.build_return(Some(&return_value))?;
             }

@@ -60,13 +60,13 @@ pub fn build_solidity_standard_json(
     metadata_hash_type: era_compiler_common::EVMMetadataHashType,
     remappings: BTreeSet<String>,
     via_ir: bool,
-    optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+    optimizer_settings: solx_codegen_evm::OptimizerSettings,
 ) -> anyhow::Result<solx_standard_json::Output> {
     self::setup()?;
 
     let solc_compiler = solx_solc::Compiler::default();
 
-    era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
+    solx_codegen_evm::initialize_target();
 
     let sources: BTreeMap<String, solx_standard_json::InputSource> = sources
         .into_iter()
@@ -162,9 +162,9 @@ pub fn build_yul_standard_json(
 
     let solc_compiler = solx_solc::Compiler::default();
 
-    era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
+    solx_codegen_evm::initialize_target();
 
-    let optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
+    let optimizer_settings = solx_codegen_evm::OptimizerSettings::try_from_cli(
         input.settings.optimizer.mode.unwrap_or_else(|| {
             solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
         }),
@@ -216,9 +216,9 @@ pub fn build_llvm_ir_standard_json(
 ) -> anyhow::Result<solx_standard_json::Output> {
     self::setup()?;
 
-    era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
+    solx_codegen_evm::initialize_target();
 
-    let optimizer_settings = era_compiler_llvm_context::OptimizerSettings::try_from_cli(
+    let optimizer_settings = solx_codegen_evm::OptimizerSettings::try_from_cli(
         input.settings.optimizer.mode.unwrap_or_else(|| {
             solx_standard_json::InputOptimizer::default_mode().expect("Always exists")
         }),

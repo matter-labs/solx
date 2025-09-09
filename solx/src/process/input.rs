@@ -29,11 +29,11 @@ pub struct Input {
     /// The metadata bytes.
     pub metadata_bytes: Option<Vec<u8>>,
     /// The optimizer settings.
-    pub optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+    pub optimizer_settings: solx_codegen_evm::OptimizerSettings,
     /// The extra LLVM arguments.
     pub llvm_options: Vec<String>,
     /// The debug output config.
-    pub debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+    pub debug_config: Option<solx_codegen_evm::DebugConfig>,
 }
 
 impl Input {
@@ -48,9 +48,9 @@ impl Input {
         output_selection: solx_standard_json::InputSelection,
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
         metadata_bytes: Option<Vec<u8>>,
-        optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+        optimizer_settings: solx_codegen_evm::OptimizerSettings,
         llvm_options: Vec<String>,
-        debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<solx_codegen_evm::DebugConfig>,
     ) -> Self {
         Self {
             contract_name,

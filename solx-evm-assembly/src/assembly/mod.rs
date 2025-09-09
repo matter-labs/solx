@@ -12,7 +12,7 @@ use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 use twox_hash::XxHash3_64;
 
-use era_compiler_llvm_context::IContext;
+use solx_codegen_evm::IContext;
 
 use crate::ethereal_ir::entry_link::EntryLink;
 use crate::ethereal_ir::EtherealIR;
@@ -341,15 +341,12 @@ impl Assembly {
     }
 }
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
-    fn declare(
-        &mut self,
-        _context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Assembly {
+    fn declare(&mut self, _context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         Ok(())
     }
 
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let full_path = self.full_path().to_owned();
 
         let (code_segment, blocks) = if let Ok(runtime_code) = self.runtime_code() {
@@ -396,8 +393,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Assembly {
             (era_compiler_common::CodeSegment::Runtime, blocks)
         };
 
-        let mut entry =
-            era_compiler_llvm_context::EVMEntryFunction::new(EntryLink::new(code_segment));
+        let mut entry = solx_codegen_evm::EntryFunction::new(EntryLink::new(code_segment));
         entry.declare(context)?;
 
         let mut ethereal_ir = EtherealIR::new(

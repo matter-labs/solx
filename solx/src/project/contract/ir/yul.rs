@@ -27,7 +27,7 @@ impl Yul {
     pub fn try_from_source(
         path: &str,
         source_code: &str,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Option<Self>> {
         if source_code.is_empty() {
             return Ok(None);

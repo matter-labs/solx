@@ -17,7 +17,7 @@ fn evmla() {
         era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         false,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
     assert!(
@@ -58,7 +58,7 @@ fn yul() {
         era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         true,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
 
@@ -101,7 +101,7 @@ fn yul_empty_solidity_interface() {
         era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         true,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
 

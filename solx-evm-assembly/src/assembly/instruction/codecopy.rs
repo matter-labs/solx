@@ -4,13 +4,13 @@
 
 use inkwell::values::BasicValue;
 
-use era_compiler_llvm_context::IContext;
+use solx_codegen_evm::IContext;
 
 ///
 /// Translates the contract hash copying.
 ///
 pub fn dependency<'ctx>(
-    context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
+    context: &mut solx_codegen_evm::Context<'ctx>,
     offset: inkwell::values::IntValue<'ctx>,
     value: inkwell::values::IntValue<'ctx>,
 ) -> anyhow::Result<()> {
@@ -22,7 +22,7 @@ pub fn dependency<'ctx>(
         "datacopy_dependency_offset",
     )?;
 
-    era_compiler_llvm_context::evm_memory::store(context, offset, value)?;
+    solx_codegen_evm::memory::store(context, offset, value)?;
 
     Ok(())
 }
@@ -31,7 +31,7 @@ pub fn dependency<'ctx>(
 /// Translates the static data copying.
 ///
 pub fn static_data<'ctx>(
-    context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
+    context: &mut solx_codegen_evm::Context<'ctx>,
     destination: inkwell::values::IntValue<'ctx>,
     source: &str,
 ) -> anyhow::Result<()> {
@@ -39,7 +39,7 @@ pub fn static_data<'ctx>(
     let source_type = context.array_type(context.byte_type(), source.len());
     let source_global = context.module().add_global(
         source_type,
-        Some(era_compiler_llvm_context::EVMAddressSpace::Code.into()),
+        Some(solx_codegen_evm::AddressSpace::Code.into()),
         "codecopy_bytes_global",
     );
     source_global.set_initializer(
@@ -50,15 +50,15 @@ pub fn static_data<'ctx>(
     );
     source_global.set_constant(true);
     source_global.set_linkage(inkwell::module::Linkage::Private);
-    let source_pointer = era_compiler_llvm_context::Pointer::new(
+    let source_pointer = solx_codegen_evm::Pointer::new(
         source_type,
-        era_compiler_llvm_context::EVMAddressSpace::Code,
+        solx_codegen_evm::AddressSpace::Code,
         source_global.as_pointer_value(),
     );
 
-    let destination_pointer = era_compiler_llvm_context::Pointer::new_with_offset(
+    let destination_pointer = solx_codegen_evm::Pointer::new_with_offset(
         context,
-        era_compiler_llvm_context::EVMAddressSpace::Heap,
+        solx_codegen_evm::AddressSpace::Heap,
         context.field_type(),
         destination,
         "codecopy_bytes_destination_pointer",

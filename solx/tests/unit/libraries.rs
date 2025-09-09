@@ -18,7 +18,7 @@ fn not_specified(via_ir: bool) {
         era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
 
@@ -65,7 +65,7 @@ fn specified(via_ir: bool) {
         era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
     assert!(

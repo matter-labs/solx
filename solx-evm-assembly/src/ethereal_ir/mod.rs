@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 
-use era_compiler_llvm_context::IContext;
+use solx_codegen_evm::IContext;
 
 use crate::assembly::instruction::Instruction;
 use crate::extra_metadata::ExtraMetadata;
@@ -35,7 +35,7 @@ pub struct EtherealIR {
     /// The all-inlined function.
     pub entry_function: Function,
     /// The recursive functions.
-    pub recursive_functions: BTreeMap<era_compiler_llvm_context::BlockKey, Function>,
+    pub recursive_functions: BTreeMap<solx_codegen_evm::BlockKey, Function>,
 }
 
 impl EtherealIR {
@@ -52,7 +52,7 @@ impl EtherealIR {
         solc_version: semver::Version,
         extra_metadata: ExtraMetadata,
         code_segment: Option<era_compiler_common::CodeSegment>,
-        blocks: HashMap<era_compiler_llvm_context::BlockKey, Block>,
+        blocks: HashMap<solx_codegen_evm::BlockKey, Block>,
     ) -> anyhow::Result<Self> {
         let mut entry_function =
             Function::new(solc_version, code_segment, FunctionType::new_initial());
@@ -78,7 +78,7 @@ impl EtherealIR {
         solc_version: semver::Version,
         code_segment: era_compiler_common::CodeSegment,
         instructions: &[Instruction],
-    ) -> anyhow::Result<HashMap<era_compiler_llvm_context::BlockKey, Block>> {
+    ) -> anyhow::Result<HashMap<solx_codegen_evm::BlockKey, Block>> {
         let mut blocks = HashMap::with_capacity(Self::BLOCKS_HASHMAP_DEFAULT_CAPACITY);
         let mut offset = 0;
 
@@ -89,7 +89,7 @@ impl EtherealIR {
                 &instructions[offset..],
             )?;
             blocks.insert(
-                era_compiler_llvm_context::BlockKey::new(code_segment, block.key.tag.clone()),
+                solx_codegen_evm::BlockKey::new(code_segment, block.key.tag.clone()),
                 block,
             );
             offset += size;
@@ -99,11 +99,8 @@ impl EtherealIR {
     }
 }
 
-impl era_compiler_llvm_context::EVMWriteLLVM for EtherealIR {
-    fn declare(
-        &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for EtherealIR {
+    fn declare(&mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         self.entry_function.declare(context)?;
 
         for (_key, function) in self.recursive_functions.iter_mut() {
@@ -113,7 +110,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for EtherealIR {
         Ok(())
     }
 
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         context.evmla_mut().expect("Always exists").stack = vec![];
 
         self.entry_function.into_llvm(context)?;

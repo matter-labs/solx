@@ -18,7 +18,7 @@ fn default(via_ir: bool) {
         era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Build failure");
     let build_optimized_for_size = crate::common::build_solidity_standard_json(
@@ -27,7 +27,7 @@ fn default(via_ir: bool) {
         era_compiler_common::EVMMetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
-        era_compiler_llvm_context::OptimizerSettings::size(),
+        solx_codegen_evm::OptimizerSettings::size(),
     )
     .expect("Build failure");
 

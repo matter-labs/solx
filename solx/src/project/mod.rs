@@ -85,7 +85,7 @@ impl Project {
         libraries: era_compiler_common::Libraries,
         via_ir: bool,
         solc_output: &mut solx_standard_json::Output,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Self> {
         if !via_ir {
             let legacy_assemblies: BTreeMap<
@@ -213,7 +213,7 @@ impl Project {
         libraries: era_compiler_common::Libraries,
         output_selection: &solx_standard_json::InputSelection,
         solc_output: Option<&mut solx_standard_json::Output>,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Self> {
         let sources = paths
             .iter()
@@ -247,7 +247,7 @@ impl Project {
         libraries: era_compiler_common::Libraries,
         output_selection: &solx_standard_json::InputSelection,
         mut solc_output: Option<&mut solx_standard_json::Output>,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Self> {
         let results = sources
             .into_par_iter()
@@ -377,7 +377,7 @@ impl Project {
                         era_compiler_common::Keccak256Hash::from_slice(source_code.as_bytes());
                     let metadata_json = serde_json::json!({
                         "source_hash": source_hash.to_string(),
-                        "llvm_version": era_compiler_llvm_context::LLVM_VERSION,
+                        "llvm_version": solx_codegen_evm::LLVM_VERSION,
                     });
                     Some(serde_json::to_string(&metadata_json).expect("Always valid"))
                 } else {
@@ -436,9 +436,9 @@ impl Project {
         output_selection: &solx_standard_json::InputSelection,
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         append_cbor: bool,
-        optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+        optimizer_settings: solx_codegen_evm::OptimizerSettings,
         llvm_options: Vec<String>,
-        debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<EVMBuild> {
         let results = self
             .contracts
@@ -478,7 +478,7 @@ impl Project {
                         let deploy_code = ContractLLVMIR::new(
                             deploy_code_identifier.clone(),
                             era_compiler_common::CodeSegment::Deploy,
-                            era_compiler_llvm_context::evm_minimal_deploy_code(
+                            solx_codegen_evm::minimal_deploy_code(
                                 deploy_code_identifier.as_str(),
                                 runtime_code_identifier.as_str(),
                             ),
@@ -578,7 +578,7 @@ impl Project {
     fn cbor_metadata(
         metadata: Option<&str>,
         solc_version: Option<&solx_standard_json::Version>,
-        optimizer_settings: &era_compiler_llvm_context::OptimizerSettings,
+        optimizer_settings: &solx_codegen_evm::OptimizerSettings,
         llvm_options: &[String],
         metadata_hash_type: era_compiler_common::EVMMetadataHashType,
         append_cbor: bool,

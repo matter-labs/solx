@@ -368,7 +368,7 @@ pub enum Name {
         /// The called function name.
         name: String,
         /// The called function key.
-        entry_key: era_compiler_llvm_context::BlockKey,
+        entry_key: solx_codegen_evm::BlockKey,
         /// The stack state hash after return.
         stack_hash: u64,
         /// The input size.
@@ -376,7 +376,7 @@ pub enum Name {
         /// The output size.
         output_size: usize,
         /// The return address.
-        return_address: era_compiler_llvm_context::BlockKey,
+        return_address: solx_codegen_evm::BlockKey,
     },
     /// The recursive function return instruction.
     #[serde(skip)]

@@ -20,13 +20,13 @@ use self::element::Element;
 #[derive(Debug, Clone)]
 pub struct Block {
     /// The block key.
-    pub key: era_compiler_llvm_context::BlockKey,
+    pub key: solx_codegen_evm::BlockKey,
     /// The block instance.
     pub instance: Option<usize>,
     /// The block elements relevant to the stack consistency.
     pub elements: Vec<Element>,
     /// The block predecessors.
-    pub predecessors: BTreeSet<(era_compiler_llvm_context::BlockKey, usize)>,
+    pub predecessors: BTreeSet<(solx_codegen_evm::BlockKey, usize)>,
     /// The initial stack state.
     pub initial_stack: ElementStack,
     /// The stack.
@@ -64,7 +64,7 @@ impl Block {
         };
 
         let mut block = Self {
-            key: era_compiler_llvm_context::BlockKey::new(code_segment, tag),
+            key: solx_codegen_evm::BlockKey::new(code_segment, tag),
             instance: None,
             elements: Vec::with_capacity(Self::ELEMENTS_VECTOR_DEFAULT_CAPACITY),
             predecessors: BTreeSet::new(),
@@ -107,17 +107,13 @@ impl Block {
     ///
     /// Inserts a predecessor tag.
     ///
-    pub fn insert_predecessor(
-        &mut self,
-        key: era_compiler_llvm_context::BlockKey,
-        instance: usize,
-    ) {
+    pub fn insert_predecessor(&mut self, key: solx_codegen_evm::BlockKey, instance: usize) {
         self.predecessors.insert((key, instance));
     }
 }
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Block {
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Block {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         for element in self.elements.into_iter() {
             element.into_llvm(context)?;
         }

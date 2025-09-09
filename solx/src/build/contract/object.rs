@@ -39,7 +39,7 @@ pub struct Object {
     /// Whether the size fallback was activated during the compilation.
     pub is_size_fallback: bool,
     /// Compilation warnings.
-    pub warnings: Vec<era_compiler_llvm_context::EVMWarning>,
+    pub warnings: Vec<solx_codegen_evm::Warning>,
     /// Compilation pipeline benchmarks.
     pub benchmarks: Vec<(String, u64)>,
 }
@@ -62,7 +62,7 @@ impl Object {
         metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
         is_size_fallback: bool,
-        warnings: Vec<era_compiler_llvm_context::EVMWarning>,
+        warnings: Vec<solx_codegen_evm::Warning>,
         benchmarks: Vec<(String, u64)>,
     ) -> Self {
         let bytecode_hex = bytecode.as_ref().map(hex::encode);
@@ -103,10 +103,8 @@ impl Object {
         if let (era_compiler_common::CodeSegment::Runtime, Some(metadata_bytes)) =
             (self.code_segment, &self.metadata_bytes)
         {
-            memory_buffer = era_compiler_llvm_context::evm_append_metadata(
-                memory_buffer,
-                metadata_bytes.as_slice(),
-            )?;
+            memory_buffer =
+                solx_codegen_evm::append_metadata(memory_buffer, metadata_bytes.as_slice())?;
         }
 
         Ok(memory_buffer)
@@ -150,7 +148,7 @@ impl Object {
             .iter()
             .map(|(identifier, _memory_buffer)| identifier.as_str())
             .collect::<Vec<&str>>();
-        era_compiler_llvm_context::evm_assemble(
+        solx_codegen_evm::assemble(
             bytecode_buffers.as_slice(),
             bytecode_ids.as_slice(),
             self.code_segment,
@@ -173,8 +171,8 @@ impl Object {
             false,
         );
 
-        let linked_object = era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
-        let linked_object_with_placeholders = era_compiler_llvm_context::evm_link(
+        let linked_object = solx_codegen_evm::link(memory_buffer, linker_symbols)?;
+        let linked_object_with_placeholders = solx_codegen_evm::link(
             linked_object,
             &self
                 .unlinked_symbols

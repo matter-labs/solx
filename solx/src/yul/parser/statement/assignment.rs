@@ -2,8 +2,8 @@
 //! The assignment expression statement.
 //!
 
-use era_compiler_llvm_context::IContext;
 use inkwell::types::BasicType;
+use solx_codegen_evm::IContext;
 
 use crate::declare_wrapper;
 use crate::yul::parser::wrapper::Wrap;
@@ -13,11 +13,8 @@ declare_wrapper!(
     Assignment
 );
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Assignment {
-    fn into_llvm(
-        mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Assignment {
+    fn into_llvm(mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let value = match self.0.initializer.wrap().into_llvm(context)? {
             Some(value) => value,
             None => return Ok(()),
