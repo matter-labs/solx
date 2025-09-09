@@ -95,12 +95,12 @@ pub trait IContext<'ctx> {
     ///
     /// Sets the code type.
     ///
-    fn set_code_segment(&mut self, code_segment: era_compiler_common::CodeSegment);
+    fn set_code_segment(&mut self, code_segment: solx_utils::CodeSegment);
 
     ///
     /// Returns the code type.
     ///
-    fn code_segment(&self) -> Option<era_compiler_common::CodeSegment>;
+    fn code_segment(&self) -> Option<solx_utils::CodeSegment>;
 
     ///
     /// Appends a new basic block to the current function.
@@ -180,7 +180,7 @@ pub trait IContext<'ctx> {
         self.basic_block()
             .get_last_instruction()
             .expect("Always exists")
-            .set_alignment(era_compiler_common::BYTE_LENGTH_FIELD as u32)
+            .set_alignment(solx_utils::BYTE_LENGTH_FIELD as u32)
             .map_err(|error| anyhow::anyhow!(error))?;
         Ok(Pointer::new(r#type, Self::AddressSpace::stack(), pointer))
     }
@@ -200,9 +200,9 @@ pub trait IContext<'ctx> {
             .build_load(pointer.r#type, pointer.value, name)?;
 
         let alignment = if Self::AddressSpace::stack() == pointer.address_space {
-            era_compiler_common::BYTE_LENGTH_FIELD
+            solx_utils::BYTE_LENGTH_FIELD
         } else {
-            era_compiler_common::BYTE_LENGTH_BYTE
+            solx_utils::BYTE_LENGTH_BYTE
         };
 
         self.basic_block()
@@ -229,9 +229,9 @@ pub trait IContext<'ctx> {
         let instruction = self.builder().build_store(pointer.value, value)?;
 
         let alignment = if Self::AddressSpace::stack() == pointer.address_space {
-            era_compiler_common::BYTE_LENGTH_FIELD
+            solx_utils::BYTE_LENGTH_FIELD
         } else {
-            era_compiler_common::BYTE_LENGTH_BYTE
+            solx_utils::BYTE_LENGTH_BYTE
         };
 
         instruction
@@ -455,7 +455,7 @@ pub trait IContext<'ctx> {
     /// Returns the default byte type.
     ///
     fn byte_type(&self) -> inkwell::types::IntType<'ctx> {
-        self.integer_type(era_compiler_common::BIT_LENGTH_BYTE)
+        self.integer_type(solx_utils::BIT_LENGTH_BYTE)
     }
 
     ///
@@ -469,7 +469,7 @@ pub trait IContext<'ctx> {
     /// Returns the default field type.
     ///
     fn field_type(&self) -> inkwell::types::IntType<'ctx> {
-        self.integer_type(era_compiler_common::BIT_LENGTH_FIELD)
+        self.integer_type(solx_utils::BIT_LENGTH_FIELD)
     }
 
     ///

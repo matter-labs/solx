@@ -46,13 +46,13 @@ pub fn yul_to_evm(
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
     messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
-    metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+    metadata_hash_type: solx_utils::MetadataHashType,
     append_cbor: bool,
     optimizer_settings: solx_codegen_evm::OptimizerSettings,
     llvm_options: Vec<String>,
     debug_config: Option<solx_codegen_evm::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
-    let libraries = era_compiler_common::Libraries::try_from(libraries)?;
+    let libraries = solx_utils::Libraries::try_from(libraries)?;
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let solc_compiler = solx_solc::Compiler::default();
@@ -96,13 +96,13 @@ pub fn llvm_ir_to_evm(
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
     messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
-    metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+    metadata_hash_type: solx_utils::MetadataHashType,
     append_cbor: bool,
     optimizer_settings: solx_codegen_evm::OptimizerSettings,
     llvm_options: Vec<String>,
     debug_config: Option<solx_codegen_evm::DebugConfig>,
 ) -> anyhow::Result<EVMBuild> {
-    let libraries = era_compiler_common::Libraries::try_from(libraries)?;
+    let libraries = solx_utils::Libraries::try_from(libraries)?;
     let linker_symbols = libraries.as_linker_symbols()?;
 
     let project = Project::try_from_llvm_ir_paths(paths, libraries, output_selection, None)?;
@@ -137,9 +137,9 @@ pub fn standard_output_evm(
     libraries: &[String],
     output_selection: &solx_standard_json::InputSelection,
     messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
-    evm_version: Option<era_compiler_common::EVMVersion>,
+    evm_version: Option<solx_utils::EVMVersion>,
     via_ir: bool,
-    metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+    metadata_hash_type: solx_utils::MetadataHashType,
     metadata_literal: bool,
     append_cbor: bool,
     base_path: Option<String>,

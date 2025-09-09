@@ -57,7 +57,7 @@ impl Build {
     ///
     pub fn link(
         mut self,
-        linker_symbols: BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
+        linker_symbols: BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> Self {
         let ast_jsons = self.ast_jsons.take();
 
@@ -128,11 +128,11 @@ impl Build {
                     .get_mut(full_path.as_str())
                     .expect("Always exists");
                 let object = match code_segment {
-                    era_compiler_common::CodeSegment::Deploy => contract
+                    solx_utils::CodeSegment::Deploy => contract
                         .deploy_object_result
                         .as_mut()
                         .expect("Always exists"),
-                    era_compiler_common::CodeSegment::Runtime => contract
+                    solx_utils::CodeSegment::Runtime => contract
                         .runtime_object_result
                         .as_mut()
                         .expect("Always exists"),
@@ -251,8 +251,8 @@ impl Build {
 
                 let output_name = format!(
                     "{path}_{}.{}",
-                    era_compiler_common::EXTENSION_JSON,
-                    era_compiler_common::EXTENSION_SOLIDITY_AST
+                    solx_utils::EXTENSION_JSON,
+                    solx_utils::EXTENSION_SOLIDITY_AST
                 );
                 let mut output_path = output_directory.to_owned();
                 output_path.push(output_name.as_str());

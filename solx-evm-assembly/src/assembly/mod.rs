@@ -141,8 +141,7 @@ impl Assembly {
                         let is_runtime_code = dependencies.identifier
                             == dependency
                                 .strip_suffix(
-                                    format!(".{}", era_compiler_common::CodeSegment::Runtime)
-                                        .as_str(),
+                                    format!(".{}", solx_utils::CodeSegment::Runtime).as_str(),
                                 )
                                 .unwrap_or(dependencies.identifier.as_str());
                         dependencies.push(dependency, is_runtime_code);
@@ -175,10 +174,8 @@ impl Assembly {
                 let deploy_code_path = format!("{path}:{name}");
                 let deploy_code_hash = deploy_code_assembly.hash();
 
-                let runtime_code_path = format!(
-                    "{path}:{name}.{}",
-                    era_compiler_common::CodeSegment::Runtime
-                );
+                let runtime_code_path =
+                    format!("{path}:{name}.{}", solx_utils::CodeSegment::Runtime);
                 let runtime_code_assembly = deploy_code_assembly.runtime_code()?;
                 let runtime_code_hash = runtime_code_assembly.hash();
 
@@ -255,10 +252,10 @@ impl Assembly {
         hash_data_mapping: &BTreeMap<u64, String>,
     ) -> anyhow::Result<BTreeMap<String, String>> {
         let mut index_path_mapping = BTreeMap::new();
-        let index = "0".repeat(era_compiler_common::BYTE_LENGTH_FIELD * 2);
+        let index = "0".repeat(solx_utils::BYTE_LENGTH_FIELD * 2);
         index_path_mapping.insert(
             index,
-            format!("{full_path}.{}", era_compiler_common::CodeSegment::Runtime),
+            format!("{full_path}.{}", solx_utils::CodeSegment::Runtime),
         );
 
         let dependencies = match self.data.as_mut() {
@@ -270,8 +267,7 @@ impl Assembly {
                 continue;
             }
 
-            let mut index_extended =
-                "0".repeat(era_compiler_common::BYTE_LENGTH_FIELD * 2 - index.len());
+            let mut index_extended = "0".repeat(solx_utils::BYTE_LENGTH_FIELD * 2 - index.len());
             index_extended.push_str(index.as_str());
 
             *data = match data {
@@ -315,8 +311,7 @@ impl Assembly {
             None => return Ok(index_path_mapping),
         };
         for (index, data) in dependencies.iter_mut() {
-            let mut index_extended =
-                "0".repeat(era_compiler_common::BYTE_LENGTH_FIELD * 2 - index.len());
+            let mut index_extended = "0".repeat(solx_utils::BYTE_LENGTH_FIELD * 2 - index.len());
             index_extended.push_str(index.as_str());
 
             *data = match data {
@@ -356,7 +351,7 @@ impl solx_codegen_evm::WriteLLVM for Assembly {
 
             let deploy_code_blocks = EtherealIR::get_blocks(
                 context.evmla().expect("Always exists").version.to_owned(),
-                era_compiler_common::CodeSegment::Deploy,
+                solx_utils::CodeSegment::Deploy,
                 self.code
                     .as_deref()
                     .ok_or_else(|| anyhow::anyhow!("Deploy code instructions not found"))?,
@@ -368,29 +363,29 @@ impl solx_codegen_evm::WriteLLVM for Assembly {
                 .ok_or_else(|| anyhow::anyhow!("Runtime code instructions not found"))?;
             let runtime_code_blocks = EtherealIR::get_blocks(
                 context.evmla().expect("Always exists").version.to_owned(),
-                era_compiler_common::CodeSegment::Runtime,
+                solx_utils::CodeSegment::Runtime,
                 runtime_code_instructions.as_slice(),
             )?;
 
             let mut blocks = deploy_code_blocks;
             blocks.extend(runtime_code_blocks);
-            (era_compiler_common::CodeSegment::Deploy, blocks)
+            (solx_utils::CodeSegment::Deploy, blocks)
         } else {
             if let Some(debug_config) = context.debug_config() {
                 debug_config.dump_evmla(
-                    format!("{full_path}.{}", era_compiler_common::CodeSegment::Runtime).as_str(),
+                    format!("{full_path}.{}", solx_utils::CodeSegment::Runtime).as_str(),
                     self.to_string().as_str(),
                 )?;
             }
 
             let blocks = EtherealIR::get_blocks(
                 context.evmla().expect("Always exists").version.to_owned(),
-                era_compiler_common::CodeSegment::Runtime,
+                solx_utils::CodeSegment::Runtime,
                 self.code
                     .as_deref()
                     .ok_or_else(|| anyhow::anyhow!("Deploy code instructions not found"))?,
             )?;
-            (era_compiler_common::CodeSegment::Runtime, blocks)
+            (solx_utils::CodeSegment::Runtime, blocks)
         };
 
         let mut entry = solx_codegen_evm::EntryFunction::new(EntryLink::new(code_segment));
@@ -404,7 +399,7 @@ impl solx_codegen_evm::WriteLLVM for Assembly {
         )?;
         if let Some(debug_config) = context.debug_config() {
             let mut path = full_path.to_owned();
-            if let era_compiler_common::CodeSegment::Runtime = code_segment {
+            if let solx_utils::CodeSegment::Runtime = code_segment {
                 path.push_str(format!(".{code_segment}").as_str());
             }
             debug_config.dump_ethir(path.as_str(), ethereal_ir.to_string().as_str())?;

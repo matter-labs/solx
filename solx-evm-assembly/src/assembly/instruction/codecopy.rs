@@ -16,9 +16,7 @@ pub fn dependency<'ctx>(
 ) -> anyhow::Result<()> {
     let offset = context.builder().build_int_add(
         offset,
-        context.field_const(
-            (era_compiler_common::BYTE_LENGTH_X32 + era_compiler_common::BYTE_LENGTH_FIELD) as u64,
-        ),
+        context.field_const((solx_utils::BYTE_LENGTH_X32 + solx_utils::BYTE_LENGTH_FIELD) as u64),
         "datacopy_dependency_offset",
     )?;
 

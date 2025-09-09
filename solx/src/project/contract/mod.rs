@@ -21,7 +21,7 @@ use self::ir::IR;
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Contract {
     /// Contract name.
-    pub name: era_compiler_common::ContractName,
+    pub name: solx_utils::ContractName,
     /// IR source code data.
     pub ir: IR,
     /// solc metadata.
@@ -49,7 +49,7 @@ impl Contract {
     /// A shortcut constructor.
     ///
     pub fn new(
-        name: era_compiler_common::ContractName,
+        name: solx_utils::ContractName,
         ir: IR,
         metadata: Option<String>,
         abi: Option<serde_json::Value>,
@@ -94,9 +94,9 @@ impl Contract {
     /// Compiles the specified contract to EVM, returning its build artifacts.
     ///
     pub fn compile_to_evm(
-        contract_name: era_compiler_common::ContractName,
+        contract_name: solx_utils::ContractName,
         contract_ir: IR,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         identifier_paths: BTreeMap<String, String>,
         output_selection: solx_standard_json::InputSelection,
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
@@ -118,7 +118,7 @@ impl Contract {
         let output_bytecode = output_selection.is_bytecode_set_for_any();
 
         match (contract_ir, code_segment) {
-            (IR::Yul(mut yul), era_compiler_common::CodeSegment::Deploy) => {
+            (IR::Yul(mut yul), solx_utils::CodeSegment::Deploy) => {
                 let deploy_code_identifier = yul.object.0.identifier.clone();
 
                 let deploy_llvm = inkwell::context::Context::create();
@@ -174,7 +174,7 @@ impl Contract {
                 );
                 Ok(deploy_object)
             }
-            (IR::Yul(mut yul), era_compiler_common::CodeSegment::Runtime) => {
+            (IR::Yul(mut yul), solx_utils::CodeSegment::Runtime) => {
                 let runtime_code_identifier = yul.object.0.identifier.clone();
 
                 let runtime_llvm = inkwell::context::Context::create();
@@ -235,7 +235,7 @@ impl Contract {
                 );
                 Ok(runtime_object)
             }
-            (IR::EVMLegacyAssembly(mut deploy_code), era_compiler_common::CodeSegment::Deploy) => {
+            (IR::EVMLegacyAssembly(mut deploy_code), solx_utils::CodeSegment::Deploy) => {
                 let evmla_data = solx_codegen_evm::ContextEVMLAData::new(solc_version.default);
                 let deploy_code_identifier = contract_name.full_path.to_owned();
                 let mut deploy_code_dependencies =
@@ -299,10 +299,7 @@ impl Contract {
                 );
                 Ok(deploy_object)
             }
-            (
-                IR::EVMLegacyAssembly(mut runtime_code),
-                era_compiler_common::CodeSegment::Runtime,
-            ) => {
+            (IR::EVMLegacyAssembly(mut runtime_code), solx_utils::CodeSegment::Runtime) => {
                 let runtime_code_identifier = format!("{}.{code_segment}", contract_name.full_path);
                 let evmla_data = solx_codegen_evm::ContextEVMLAData::new(solc_version.default);
 
@@ -362,7 +359,7 @@ impl Contract {
                 );
                 Ok(runtime_object)
             }
-            (IR::LLVMIR(deploy_llvm_ir), era_compiler_common::CodeSegment::Deploy) => {
+            (IR::LLVMIR(deploy_llvm_ir), solx_utils::CodeSegment::Deploy) => {
                 let deploy_code_identifier = contract_name.full_path.to_owned();
                 let deploy_memory_buffer =
                     inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
@@ -413,7 +410,7 @@ impl Contract {
                 );
                 Ok(deploy_object)
             }
-            (IR::LLVMIR(runtime_llvm_ir), era_compiler_common::CodeSegment::Runtime) => {
+            (IR::LLVMIR(runtime_llvm_ir), solx_utils::CodeSegment::Runtime) => {
                 let runtime_code_identifier = format!("{}.{code_segment}", contract_name.full_path);
                 let runtime_memory_buffer =
                     inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(

@@ -36,22 +36,12 @@ impl PartialOrd for VisitedElement {
 impl Ord for VisitedElement {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self.block_key.code_segment, other.block_key.code_segment) {
-            (
-                era_compiler_common::CodeSegment::Deploy,
-                era_compiler_common::CodeSegment::Runtime,
-            ) => Ordering::Less,
-            (
-                era_compiler_common::CodeSegment::Runtime,
-                era_compiler_common::CodeSegment::Deploy,
-            ) => Ordering::Greater,
-            (
-                era_compiler_common::CodeSegment::Deploy,
-                era_compiler_common::CodeSegment::Deploy,
-            )
-            | (
-                era_compiler_common::CodeSegment::Runtime,
-                era_compiler_common::CodeSegment::Runtime,
-            ) => {
+            (solx_utils::CodeSegment::Deploy, solx_utils::CodeSegment::Runtime) => Ordering::Less,
+            (solx_utils::CodeSegment::Runtime, solx_utils::CodeSegment::Deploy) => {
+                Ordering::Greater
+            }
+            (solx_utils::CodeSegment::Deploy, solx_utils::CodeSegment::Deploy)
+            | (solx_utils::CodeSegment::Runtime, solx_utils::CodeSegment::Runtime) => {
                 let tag_comparison = self.block_key.tag.cmp(&other.block_key.tag);
                 if tag_comparison == Ordering::Equal {
                     if self.stack_hash == other.stack_hash {

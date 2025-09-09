@@ -14,14 +14,14 @@ use crate::ethereal_ir::EtherealIR;
 #[derive(Debug)]
 pub struct EntryLink {
     /// The code segment.
-    pub code_segment: era_compiler_common::CodeSegment,
+    pub code_segment: solx_utils::CodeSegment,
 }
 
 impl EntryLink {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(code_segment: era_compiler_common::CodeSegment) -> Self {
+    pub fn new(code_segment: solx_utils::CodeSegment) -> Self {
         Self { code_segment }
     }
 }

@@ -29,13 +29,12 @@ semver = { version = "1.0", features = [ "serde" ] }
 hex = "0.4"
 num = "0.4"
 
-era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
-
 solx-solc = { path = "../solx-solc" }
 solx-standard-json = { path = "../solx-standard-json" }
 solx-evm-assembly = { path = "../solx-evm-assembly" }
 solx-yul = { path = "../solx-yul" }
 solx-codegen-evm = { path = "../solx-codegen-evm" }
+solx-utils = { path = "../solx-utils" }
 
 [dev-dependencies]
 assert_cmd = "2.0"

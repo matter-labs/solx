@@ -14,8 +14,8 @@ fn default(via_ir: bool) {
 
     let build_optimized_for_cycles = crate::common::build_solidity_standard_json(
         sources.clone(),
-        era_compiler_common::Libraries::default(),
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::Libraries::default(),
+        solx_utils::MetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
         solx_codegen_evm::OptimizerSettings::cycles(),
@@ -23,8 +23,8 @@ fn default(via_ir: bool) {
     .expect("Build failure");
     let build_optimized_for_size = crate::common::build_solidity_standard_json(
         sources,
-        era_compiler_common::Libraries::default(),
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::Libraries::default(),
+        solx_utils::MetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
         solx_codegen_evm::OptimizerSettings::size(),

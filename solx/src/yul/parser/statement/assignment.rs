@@ -47,7 +47,7 @@ impl solx_codegen_evm::WriteLLVM for Assignment {
                 &[
                     context.field_const(0),
                     context
-                        .integer_type(era_compiler_common::BIT_LENGTH_X32)
+                        .integer_type(solx_utils::BIT_LENGTH_X32)
                         .const_int(index as u64, false),
                 ],
                 context.field_type().as_basic_type_enum(),

@@ -50,7 +50,7 @@ pub struct Function {
     /// The function name.
     pub name: String,
     /// The optional code segment. Only used for the EVM target.
-    pub code_segment: Option<era_compiler_common::CodeSegment>,
+    pub code_segment: Option<solx_utils::CodeSegment>,
     /// The separately labelled blocks.
     pub blocks: BTreeMap<solx_codegen_evm::BlockKey, Vec<Block>>,
     /// The function type.
@@ -65,7 +65,7 @@ impl Function {
     ///
     pub fn new(
         solc_version: semver::Version,
-        code_segment: Option<era_compiler_common::CodeSegment>,
+        code_segment: Option<solx_utils::CodeSegment>,
         r#type: Type,
     ) -> Self {
         let name = match r#type {
@@ -102,8 +102,8 @@ impl Function {
         let code_segments = match self.code_segment {
             Some(ref code_segment) => vec![*code_segment],
             None => vec![
-                era_compiler_common::CodeSegment::Deploy,
-                era_compiler_common::CodeSegment::Runtime,
+                solx_utils::CodeSegment::Deploy,
+                solx_utils::CodeSegment::Runtime,
             ],
         };
 
@@ -242,7 +242,7 @@ impl Function {
         functions: &mut BTreeMap<solx_codegen_evm::BlockKey, Self>,
         extra_metadata: &ExtraMetadata,
         visited_functions: &mut BTreeSet<VisitedElement>,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         instance: usize,
         block_stack: &mut Stack,
         block_element: &mut BlockElement,
@@ -272,7 +272,7 @@ impl Function {
                 {
                     Element::Tag(destination) if destination > &num::BigUint::from(u32::MAX) => {
                         solx_codegen_evm::BlockKey::new(
-                            era_compiler_common::CodeSegment::Runtime,
+                            solx_utils::CodeSegment::Runtime,
                             destination.to_owned() - num::BigUint::from(1u64 << 32),
                         )
                     }
@@ -334,7 +334,7 @@ impl Function {
                 {
                     Element::Tag(destination) if destination > &num::BigUint::from(u32::MAX) => {
                         solx_codegen_evm::BlockKey::new(
-                            era_compiler_common::CodeSegment::Runtime,
+                            solx_utils::CodeSegment::Runtime,
                             destination.to_owned() - num::BigUint::from(1u64 << 32),
                         )
                     }
@@ -596,11 +596,10 @@ impl Function {
                 value: Some(ref constant),
                 ..
             } => (
-                vec![num::BigUint::from_str_radix(
-                    constant.as_str(),
-                    era_compiler_common::BASE_HEXADECIMAL,
-                )
-                .map(StackElement::Constant)?],
+                vec![
+                    num::BigUint::from_str_radix(constant.as_str(), solx_utils::BASE_HEXADECIMAL)
+                        .map(StackElement::Constant)?,
+                ],
                 None,
             ),
             Instruction {
@@ -789,7 +788,7 @@ impl Function {
 
                 let result = match (&operands[0], &operands[1]) {
                     (Element::Tag(tag), Element::Constant(offset)) => {
-                        let offset = offset % era_compiler_common::BIT_LENGTH_FIELD;
+                        let offset = offset % solx_utils::BIT_LENGTH_FIELD;
                         let offset = offset.to_u64().expect("Always valid");
                         let result = tag << offset;
                         if Self::is_tag_value_valid(blocks, &result) {
@@ -799,7 +798,7 @@ impl Function {
                         }
                     }
                     (Element::Constant(constant), Element::Constant(offset)) => {
-                        let offset = offset % era_compiler_common::BIT_LENGTH_FIELD;
+                        let offset = offset % solx_utils::BIT_LENGTH_FIELD;
                         let offset = offset.to_u64().expect("Always valid");
                         Element::Constant(constant << offset)
                     }
@@ -816,7 +815,7 @@ impl Function {
 
                 let result = match (&operands[0], &operands[1]) {
                     (Element::Tag(tag), Element::Constant(offset)) => {
-                        let offset = offset % era_compiler_common::BIT_LENGTH_FIELD;
+                        let offset = offset % solx_utils::BIT_LENGTH_FIELD;
                         let offset = offset.to_u64().expect("Always valid");
                         let result = tag >> offset;
                         if Self::is_tag_value_valid(blocks, &result) {
@@ -826,7 +825,7 @@ impl Function {
                         }
                     }
                     (Element::Constant(constant), Element::Constant(offset)) => {
-                        let offset = offset % era_compiler_common::BIT_LENGTH_FIELD;
+                        let offset = offset % solx_utils::BIT_LENGTH_FIELD;
                         let offset = offset.to_u64().expect("Always valid");
                         Element::Constant(constant >> offset)
                     }
@@ -1129,10 +1128,10 @@ impl Function {
         tag: &num::BigUint,
     ) -> bool {
         blocks.contains_key(&solx_codegen_evm::BlockKey::new(
-            era_compiler_common::CodeSegment::Deploy,
+            solx_utils::CodeSegment::Deploy,
             tag & num::BigUint::from(u32::MAX),
         )) || blocks.contains_key(&solx_codegen_evm::BlockKey::new(
-            era_compiler_common::CodeSegment::Runtime,
+            solx_utils::CodeSegment::Runtime,
             tag & num::BigUint::from(u32::MAX),
         ))
     }
@@ -1173,7 +1172,7 @@ impl solx_codegen_evm::WriteLLVM for Function {
                 let r#type = context.function_type(
                     vec![
                         context
-                            .integer_type(era_compiler_common::BIT_LENGTH_FIELD)
+                            .integer_type(solx_utils::BIT_LENGTH_FIELD)
                             .as_basic_type_enum();
                         input_size
                     ],

@@ -10,7 +10,7 @@ pub enum Warning {
     /// Deploy code size warning.
     #[error(
         "{0} bytecode size is {found}B that exceeds the EVM limit of {1}B",
-        era_compiler_common::CodeSegment::Deploy,
+        solx_utils::CodeSegment::Deploy,
         crate::r#const::DEPLOY_CODE_SIZE_LIMIT
     )]
     DeployCodeSize {
@@ -21,7 +21,7 @@ pub enum Warning {
     /// Runtime code size warning.
     #[error(
         "{0} bytecode size is {found}B that exceeds the EVM limit of {1}B",
-        era_compiler_common::CodeSegment::Runtime,
+        solx_utils::CodeSegment::Runtime,
         crate::r#const::RUNTIME_CODE_SIZE_LIMIT
     )]
     RuntimeCodeSize {

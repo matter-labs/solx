@@ -44,7 +44,7 @@ impl Block {
     ///
     pub fn try_from_instructions(
         solc_version: semver::Version,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         slice: &[Instruction],
     ) -> anyhow::Result<(Self, usize)> {
         let mut cursor = 0;

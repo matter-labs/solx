@@ -38,8 +38,8 @@ pub fn store<'ctx>(
     value: inkwell::values::IntValue<'ctx>,
 ) -> anyhow::Result<()> {
     match context.code_segment() {
-        Some(era_compiler_common::CodeSegment::Deploy) => {}
-        Some(era_compiler_common::CodeSegment::Runtime) => {
+        Some(solx_utils::CodeSegment::Deploy) => {}
+        Some(solx_utils::CodeSegment::Runtime) => {
             anyhow::bail!("Setting immutables is only allowed in deploy code");
         }
         None => {

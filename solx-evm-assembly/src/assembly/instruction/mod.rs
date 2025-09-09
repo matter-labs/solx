@@ -307,7 +307,7 @@ impl Instruction {
                     ..
                 } => {
                     let mut key_extended =
-                        "0".repeat(era_compiler_common::BYTE_LENGTH_FIELD * 2 - value.len());
+                        "0".repeat(solx_utils::BYTE_LENGTH_FIELD * 2 - value.len());
                     key_extended.push_str(value.as_str());
 
                     *value = mapping.get(key_extended.as_str()).cloned().ok_or_else(|| {

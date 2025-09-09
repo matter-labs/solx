@@ -20,9 +20,9 @@ where
         .code_segment()
         .ok_or_else(|| anyhow::anyhow!("Contract code segment is undefined"))?;
     let block_key = match code_segment {
-        era_compiler_common::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
+        solx_utils::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
             solx_codegen_evm::BlockKey::new(
-                era_compiler_common::CodeSegment::Runtime,
+                solx_utils::CodeSegment::Runtime,
                 destination.to_owned() - num::BigUint::from(1u64 << 32),
             )
         }
@@ -54,9 +54,9 @@ where
         .code_segment()
         .ok_or_else(|| anyhow::anyhow!("Contract code segment is undefined"))?;
     let block_key = match code_segment {
-        era_compiler_common::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
+        solx_utils::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
             solx_codegen_evm::BlockKey::new(
-                era_compiler_common::CodeSegment::Runtime,
+                solx_utils::CodeSegment::Runtime,
                 destination.to_owned() - num::BigUint::from(1u64 << 32),
             )
         }

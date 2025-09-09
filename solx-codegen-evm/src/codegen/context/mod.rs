@@ -52,7 +52,7 @@ pub struct Context<'ctx> {
     /// The extra LLVM options.
     llvm_options: Vec<String>,
     /// The current contract code type, which can be deploy or runtime.
-    code_segment: era_compiler_common::CodeSegment,
+    code_segment: solx_utils::CodeSegment,
     /// The LLVM intrinsic functions, defined on the LLVM side.
     intrinsics: Intrinsics<'ctx>,
     /// The declared functions.
@@ -87,7 +87,7 @@ impl<'ctx> Context<'ctx> {
         llvm: &'ctx inkwell::context::Context,
         module: inkwell::module::Module<'ctx>,
         llvm_options: Vec<String>,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         optimizer: Optimizer,
         debug_config: Option<DebugConfig>,
     ) -> Self {
@@ -200,7 +200,6 @@ impl<'ctx> Context<'ctx> {
                 let assembly_text = String::from_utf8_lossy(assembly_buffer.as_slice());
                 debug_config.dump_assembly(
                     contract_path,
-                    era_compiler_common::Target::EVM,
                     assembly_text.as_ref(),
                     is_size_fallback,
                     spill_area,
@@ -230,17 +229,13 @@ impl<'ctx> Context<'ctx> {
             run_emit_bytecode.borrow_mut().finish();
 
             let immutables = match self.code_segment {
-                era_compiler_common::CodeSegment::Deploy => None,
-                era_compiler_common::CodeSegment::Runtime => {
-                    Some(bytecode_buffer.get_immutables_evm())
-                }
+                solx_utils::CodeSegment::Deploy => None,
+                solx_utils::CodeSegment::Runtime => Some(bytecode_buffer.get_immutables_evm()),
             };
 
             let bytecode_size_limit = match self.code_segment {
-                era_compiler_common::CodeSegment::Deploy => crate::r#const::DEPLOY_CODE_SIZE_LIMIT,
-                era_compiler_common::CodeSegment::Runtime => {
-                    crate::r#const::RUNTIME_CODE_SIZE_LIMIT
-                }
+                solx_utils::CodeSegment::Deploy => crate::r#const::DEPLOY_CODE_SIZE_LIMIT,
+                solx_utils::CodeSegment::Runtime => crate::r#const::RUNTIME_CODE_SIZE_LIMIT,
             };
 
             let mut warnings = Vec::with_capacity(1);
@@ -265,10 +260,10 @@ impl<'ctx> Context<'ctx> {
                     return self.build(output_assembly, output_bytecode, true, profiler);
                 } else {
                     warnings.push(match self.code_segment {
-                        era_compiler_common::CodeSegment::Deploy => Warning::DeployCodeSize {
+                        solx_utils::CodeSegment::Deploy => Warning::DeployCodeSize {
                             found: bytecode_size,
                         },
-                        era_compiler_common::CodeSegment::Runtime => Warning::RuntimeCodeSize {
+                        solx_utils::CodeSegment::Runtime => Warning::RuntimeCodeSize {
                             found: bytecode_size,
                         },
                     })
@@ -352,7 +347,7 @@ impl<'ctx> Context<'ctx> {
             if argument.is_pointer_value() {
                 call_site_value.set_alignment_attribute(
                     inkwell::attributes::AttributeLoc::Param(index as u32),
-                    era_compiler_common::BYTE_LENGTH_FIELD as u32,
+                    solx_utils::BYTE_LENGTH_FIELD as u32,
                 );
                 call_site_value.add_attribute(
                     inkwell::attributes::AttributeLoc::Param(index as u32),
@@ -393,14 +388,14 @@ impl<'ctx> Context<'ctx> {
                         inkwell::attributes::AttributeLoc::Param(index as u32),
                         self.llvm.create_enum_attribute(
                             Attribute::Dereferenceable as u32,
-                            (era_compiler_common::BIT_LENGTH_FIELD * 2) as u64,
+                            (solx_utils::BIT_LENGTH_FIELD * 2) as u64,
                         ),
                     );
                     call_site_value.add_attribute(
                         inkwell::attributes::AttributeLoc::Return,
                         self.llvm.create_enum_attribute(
                             Attribute::Dereferenceable as u32,
-                            (era_compiler_common::BIT_LENGTH_FIELD * 2) as u64,
+                            (solx_utils::BIT_LENGTH_FIELD * 2) as u64,
                         ),
                     );
                 }
@@ -425,7 +420,7 @@ impl<'ctx> Context<'ctx> {
         {
             call_site_value.set_alignment_attribute(
                 inkwell::attributes::AttributeLoc::Return,
-                era_compiler_common::BYTE_LENGTH_FIELD as u32,
+                solx_utils::BYTE_LENGTH_FIELD as u32,
             );
             call_site_value.add_attribute(
                 inkwell::attributes::AttributeLoc::Return,
@@ -479,11 +474,11 @@ impl<'ctx> IContext<'ctx> for Context<'ctx> {
         self.debug_config.as_ref()
     }
 
-    fn set_code_segment(&mut self, code_segment: era_compiler_common::CodeSegment) {
+    fn set_code_segment(&mut self, code_segment: solx_utils::CodeSegment) {
         self.code_segment = code_segment;
     }
 
-    fn code_segment(&self) -> Option<era_compiler_common::CodeSegment> {
+    fn code_segment(&self) -> Option<solx_utils::CodeSegment> {
         Some(self.code_segment.to_owned())
     }
 

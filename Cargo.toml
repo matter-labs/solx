@@ -6,6 +6,7 @@ members = [
     "solx-evm-assembly",
     "solx-yul",
     "solx-codegen-evm",
+    "solx-utils",
 ]
 resolver = "2"
 

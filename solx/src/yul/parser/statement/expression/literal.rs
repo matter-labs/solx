@@ -70,13 +70,12 @@ impl Literal {
                 .as_basic_value_enum();
 
                 let constant = match inner {
-                    IntegerLiteral::Decimal { ref inner } => num::BigUint::from_str_radix(
-                        inner.as_str(),
-                        era_compiler_common::BASE_DECIMAL,
-                    ),
+                    IntegerLiteral::Decimal { ref inner } => {
+                        num::BigUint::from_str_radix(inner.as_str(), solx_utils::BASE_DECIMAL)
+                    }
                     IntegerLiteral::Hexadecimal { ref inner } => num::BigUint::from_str_radix(
                         &inner["0x".len()..],
-                        era_compiler_common::BASE_HEXADECIMAL,
+                        solx_utils::BASE_HEXADECIMAL,
                     ),
                 }
                 .expect("Always valid");
@@ -95,8 +94,7 @@ impl Literal {
                 let mut hex_string = if inner.is_hexadecimal {
                     string.clone()
                 } else {
-                    let mut hex_string =
-                        String::with_capacity(era_compiler_common::BYTE_LENGTH_FIELD * 2);
+                    let mut hex_string = String::with_capacity(solx_utils::BYTE_LENGTH_FIELD * 2);
                     let mut index = 0;
                     loop {
                         if index >= string.len() {
@@ -113,7 +111,7 @@ impl Literal {
                                 let codepoint_str = &string[index + 1..index + 5];
                                 let codepoint = u32::from_str_radix(
                                     codepoint_str,
-                                    era_compiler_common::BASE_HEXADECIMAL,
+                                    solx_utils::BASE_HEXADECIMAL,
                                 )
                                 .map_err(|error| {
                                     anyhow::anyhow!("Invalid codepoint `{codepoint_str}`: {error}")
@@ -155,16 +153,16 @@ impl Literal {
                     hex_string
                 };
 
-                if hex_string.len() > era_compiler_common::BYTE_LENGTH_FIELD * 2 {
+                if hex_string.len() > solx_utils::BYTE_LENGTH_FIELD * 2 {
                     return Ok(solx_codegen_evm::Value::new_with_original(
                         r#type.const_zero().as_basic_value_enum(),
                         string,
                     ));
                 }
 
-                if hex_string.len() < era_compiler_common::BYTE_LENGTH_FIELD * 2 {
+                if hex_string.len() < solx_utils::BYTE_LENGTH_FIELD * 2 {
                     hex_string.push_str(
-                        "0".repeat((era_compiler_common::BYTE_LENGTH_FIELD * 2) - hex_string.len())
+                        "0".repeat((solx_utils::BYTE_LENGTH_FIELD * 2) - hex_string.len())
                             .as_str(),
                     );
                 }

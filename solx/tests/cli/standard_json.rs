@@ -170,7 +170,7 @@ fn invalid_path() -> anyhow::Result<()> {
         .stdout(predicate::str::contains(
             "Standard JSON file \\\"tests/data/standard_json_input/non_existent.json\\\" reading",
         ))
-        .code(era_compiler_common::EXIT_CODE_SUCCESS);
+        .code(solx_utils::EXIT_CODE_SUCCESS);
 
     Ok(())
 }

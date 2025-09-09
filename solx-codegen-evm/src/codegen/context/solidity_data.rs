@@ -55,7 +55,7 @@ impl SolidityData {
     /// Returns the current number of immutables values in the contract.
     ///
     pub fn immutables_dummy_size(&self) -> usize {
-        self.immutables_dummy.len() * era_compiler_common::BYTE_LENGTH_FIELD
+        self.immutables_dummy.len() * solx_utils::BYTE_LENGTH_FIELD
     }
 
     ///
@@ -65,7 +65,7 @@ impl SolidityData {
     ///
     pub fn allocate_dummy_immutable(&mut self, identifier: &str) -> u64 {
         let number_of_elements = self.immutables_dummy.len();
-        let new_offset = number_of_elements * era_compiler_common::BYTE_LENGTH_FIELD;
+        let new_offset = number_of_elements * solx_utils::BYTE_LENGTH_FIELD;
         *self
             .immutables_dummy
             .entry(identifier.to_owned())

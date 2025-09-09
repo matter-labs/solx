@@ -19,7 +19,7 @@ use self::object::Object;
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Contract {
     /// Contract name.
-    pub name: era_compiler_common::ContractName,
+    pub name: solx_utils::ContractName,
     /// Deploy code object compilation result.
     pub deploy_object_result: crate::Result<Object>,
     /// Runtime code object.
@@ -49,7 +49,7 @@ impl Contract {
     /// A shortcut constructor.
     ///
     pub fn new(
-        name: era_compiler_common::ContractName,
+        name: solx_utils::ContractName,
         deploy_object_result: crate::Result<Object>,
         runtime_object_result: crate::Result<Object>,
         metadata: Option<String>,
@@ -319,7 +319,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_EVM_BINARY
+                solx_utils::EXTENSION_EVM_BINARY
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -341,8 +341,8 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}.{}-{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_EVM_BINARY,
-                era_compiler_common::CodeSegment::Runtime,
+                solx_utils::EXTENSION_EVM_BINARY,
+                solx_utils::CodeSegment::Runtime,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -368,16 +368,16 @@ impl Contract {
             ]
             .iter_mut()
             .zip([
-                era_compiler_common::CodeSegment::Deploy,
-                era_compiler_common::CodeSegment::Runtime,
+                solx_utils::CodeSegment::Deploy,
+                solx_utils::CodeSegment::Runtime,
             ]) {
                 let output_name = format!(
                     "{contract_path}_{}_llvm.{}{}",
                     self.name.name.as_deref().unwrap_or(contract_name),
-                    era_compiler_common::EXTENSION_EVM_ASSEMBLY,
+                    solx_utils::EXTENSION_EVM_ASSEMBLY,
                     match code_segment {
-                        era_compiler_common::CodeSegment::Deploy => "".to_owned(),
-                        era_compiler_common::CodeSegment::Runtime => format!("-{code_segment}"),
+                        solx_utils::CodeSegment::Deploy => "".to_owned(),
+                        solx_utils::CodeSegment::Runtime => format!("-{code_segment}"),
                     },
                 );
                 let mut output_path = output_directory.to_owned();
@@ -401,7 +401,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}_meta.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_JSON,
+                solx_utils::EXTENSION_JSON,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -418,7 +418,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_SOLIDITY_ABI,
+                solx_utils::EXTENSION_SOLIDITY_ABI,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -435,7 +435,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_SOLIDITY_SIGNATURES,
+                solx_utils::EXTENSION_SOLIDITY_SIGNATURES,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -457,7 +457,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}_storage.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_JSON,
+                solx_utils::EXTENSION_JSON,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -473,7 +473,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}_transient_storage.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_JSON,
+                solx_utils::EXTENSION_JSON,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -494,7 +494,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_SOLIDITY_DOCDEV,
+                solx_utils::EXTENSION_SOLIDITY_DOCDEV,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -510,7 +510,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_SOLIDITY_DOCUSER,
+                solx_utils::EXTENSION_SOLIDITY_DOCUSER,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -527,7 +527,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}_evm.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_JSON,
+                solx_utils::EXTENSION_JSON,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());
@@ -543,7 +543,7 @@ impl Contract {
             let output_name = format!(
                 "{contract_path}_{}_opt.{}",
                 self.name.name.as_deref().unwrap_or(contract_name),
-                era_compiler_common::EXTENSION_YUL,
+                solx_utils::EXTENSION_YUL,
             );
             let mut output_path = output_directory.to_owned();
             output_path.push(output_name.as_str());

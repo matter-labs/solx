@@ -408,23 +408,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
-name = "era-compiler-common"
-version = "2.0.0"
-source = "git+https://github.com/matter-labs/era-compiler-common?branch=main#c7c7cb3d92f1c185daa52f7868594763385085e9"
-dependencies = [
- "anyhow",
- "base58",
- "hex",
- "ipfs-hasher",
- "semver",
- "serde",
- "serde_arrays",
- "serde_json",
- "serde_stacker",
- "sha3 0.10.8",
-]
-
-[[package]]
 name = "errno"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1100,7 +1083,6 @@ dependencies = [
  "assert_cmd",
  "ciborium",
  "clap",
- "era-compiler-common",
  "hex",
  "inkwell",
  "normpath",
@@ -1115,6 +1097,7 @@ dependencies = [
  "solx-evm-assembly",
  "solx-solc",
  "solx-standard-json",
+ "solx-utils",
  "solx-yul",
  "tempfile",
  "test-case",
@@ -1126,13 +1109,13 @@ name = "solx-codegen-evm"
 version = "0.1.2"
 dependencies = [
  "anyhow",
- "era-compiler-common",
  "indexmap",
  "inkwell",
  "itertools",
  "num",
  "semver",
  "serde",
+ "solx-utils",
  "thiserror 2.0.16",
 ]
 
@@ -1142,7 +1125,6 @@ version = "0.1.2"
 dependencies = [
  "anyhow",
  "ciborium",
- "era-compiler-common",
  "hex",
  "inkwell",
  "num",
@@ -1150,6 +1132,7 @@ dependencies = [
  "semver",
  "serde",
  "solx-codegen-evm",
+ "solx-utils",
  "solx-yul",
  "twox-hash",
 ]
@@ -1159,12 +1142,12 @@ name = "solx-solc"
 version = "0.1.2"
 dependencies = [
  "anyhow",
- "era-compiler-common",
  "libc",
  "semver",
  "serde",
  "serde_json",
  "solx-standard-json",
+ "solx-utils",
 ]
 
 [[package]]
@@ -1172,13 +1155,29 @@ name = "solx-standard-json"
 version = "0.1.2"
 dependencies = [
  "anyhow",
- "era-compiler-common",
  "num",
  "rayon",
  "semver",
  "serde",
  "serde_json",
  "solx-evm-assembly",
+ "solx-utils",
+]
+
+[[package]]
+name = "solx-utils"
+version = "0.1.2"
+dependencies = [
+ "anyhow",
+ "base58",
+ "hex",
+ "ipfs-hasher",
+ "semver",
+ "serde",
+ "serde_arrays",
+ "serde_json",
+ "serde_stacker",
+ "sha3 0.10.8",
 ]
 
 [[package]]
@@ -1186,8 +1185,8 @@ name = "solx-yul"
 version = "0.1.2"
 dependencies = [
  "anyhow",
- "era-compiler-common",
  "serde",
+ "solx-utils",
  "thiserror 2.0.16",
 ]
 

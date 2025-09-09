@@ -103,7 +103,7 @@ impl solx_codegen_evm::WriteLLVM for VariableDeclaration {
                 &[
                     context.field_const(0),
                     context
-                        .integer_type(era_compiler_common::BIT_LENGTH_X32)
+                        .integer_type(solx_utils::BIT_LENGTH_X32)
                         .const_int(index as u64, false),
                 ],
                 binding.r#type.unwrap_or_default().wrap().into_llvm(context),

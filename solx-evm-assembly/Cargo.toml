@@ -22,8 +22,7 @@ num = "0.4"
 
 solx-yul = { path = "../solx-yul" }
 solx-codegen-evm = { path = "../solx-codegen-evm" }
-
-era-compiler-common = { git = "https://github.com/matter-labs/era-compiler-common", branch = "main" }
+solx-utils = { path = "../solx-utils" }
 
 [dependencies.inkwell]
 git = "https://github.com/matter-labs-forks/inkwell"

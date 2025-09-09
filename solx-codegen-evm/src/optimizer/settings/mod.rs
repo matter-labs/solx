@@ -185,27 +185,13 @@ impl Settings {
     ///
     /// Used only for testing purposes.
     ///
-    pub fn combinations(target: era_compiler_common::Target) -> Vec<Self> {
-        let middle_end_levels = match target {
-            era_compiler_common::Target::EraVM => vec![
-                inkwell::OptimizationLevel::None,
-                inkwell::OptimizationLevel::Less,
-                inkwell::OptimizationLevel::Default,
-                inkwell::OptimizationLevel::Aggressive,
-            ],
-            era_compiler_common::Target::EVM => vec![
-                inkwell::OptimizationLevel::Less,
-                inkwell::OptimizationLevel::Default,
-                inkwell::OptimizationLevel::Aggressive,
-            ],
-        };
-        let back_end_levels = match target {
-            era_compiler_common::Target::EraVM => vec![
-                inkwell::OptimizationLevel::None,
-                inkwell::OptimizationLevel::Aggressive,
-            ],
-            era_compiler_common::Target::EVM => vec![inkwell::OptimizationLevel::Aggressive],
-        };
+    pub fn combinations() -> Vec<Self> {
+        let middle_end_levels = vec![
+            inkwell::OptimizationLevel::Less,
+            inkwell::OptimizationLevel::Default,
+            inkwell::OptimizationLevel::Aggressive,
+        ];
+        let back_end_levels = vec![inkwell::OptimizationLevel::Aggressive];
 
         let performance_combinations: Vec<Self> = middle_end_levels
             .into_iter()

@@ -15,7 +15,7 @@ pub struct Object {
     /// Object identifier.
     pub identifier: String,
     /// Contract full name.
-    pub contract_name: era_compiler_common::ContractName,
+    pub contract_name: solx_utils::ContractName,
     /// Text assembly.
     pub assembly: Option<String>,
     /// Bytecode.
@@ -25,7 +25,7 @@ pub struct Object {
     /// Whether IR codegen is used.
     pub via_ir: bool,
     /// Code segment.
-    pub code_segment: era_compiler_common::CodeSegment,
+    pub code_segment: solx_utils::CodeSegment,
     /// The metadata bytes. Only appended to runtime code.
     pub metadata_bytes: Option<Vec<u8>>,
     /// Immutables of the runtime code.
@@ -53,11 +53,11 @@ impl Object {
     ///
     pub fn new(
         identifier: String,
-        contract_name: era_compiler_common::ContractName,
+        contract_name: solx_utils::ContractName,
         assembly: Option<String>,
         bytecode: Option<Vec<u8>>,
         via_ir: bool,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
         metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
@@ -100,7 +100,7 @@ impl Object {
             false,
         );
 
-        if let (era_compiler_common::CodeSegment::Runtime, Some(metadata_bytes)) =
+        if let (solx_utils::CodeSegment::Runtime, Some(metadata_bytes)) =
             (self.code_segment, &self.metadata_bytes)
         {
             memory_buffer =
@@ -163,7 +163,7 @@ impl Object {
     ///
     pub fn link(
         &mut self,
-        linker_symbols: &BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
+        linker_symbols: &BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> anyhow::Result<()> {
         let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
             self.bytecode.as_deref().expect("Bytecode is not set"),
@@ -180,15 +180,15 @@ impl Object {
                 .map(|symbol| {
                     (
                         symbol.to_owned(),
-                        [0u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS],
+                        [0u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS],
                     )
                 })
-                .collect::<BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>>(),
+                .collect::<BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>>(),
         )?;
 
         let mut bytecode_hex = hex::encode(linked_object_with_placeholders.as_slice());
         for (symbol, offsets) in self.unlinked_symbols.iter() {
-            let hash = era_compiler_common::Keccak256Hash::from_slice(symbol.as_bytes()).to_vec();
+            let hash = solx_utils::Keccak256Hash::from_slice(symbol.as_bytes()).to_vec();
             let placeholder = format!(
                 "__${}$__",
                 hex::encode(&hash[0..Self::LIBRARY_PLACEHOLDER_LENGTH])
@@ -197,7 +197,7 @@ impl Object {
                 let offset = *offset as usize;
                 unsafe {
                     bytecode_hex.as_bytes_mut()
-                        [(offset * 2)..(offset + era_compiler_common::BYTE_LENGTH_ETH_ADDRESS) * 2]
+                        [(offset * 2)..(offset + solx_utils::BYTE_LENGTH_ETH_ADDRESS) * 2]
                         .copy_from_slice(placeholder.as_bytes());
                 }
             }

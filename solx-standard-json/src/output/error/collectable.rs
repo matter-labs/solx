@@ -50,7 +50,7 @@ pub trait Collectable {
         std::io::stderr()
             .write_all(self.error_strings().join("\n").as_bytes())
             .expect("Stderr writing error");
-        std::process::exit(era_compiler_common::EXIT_CODE_FAILURE);
+        std::process::exit(solx_utils::EXIT_CODE_FAILURE);
     }
 
     ///

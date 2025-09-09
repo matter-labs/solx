@@ -17,7 +17,7 @@ pub struct TargetMachine {
 
 impl TargetMachine {
     /// The EVM target identifier.
-    const TARGET: era_compiler_common::Target = era_compiler_common::Target::EVM;
+    const TARGET: solx_utils::Target = solx_utils::Target::EVM;
 
     ///
     /// A shortcut constructor.

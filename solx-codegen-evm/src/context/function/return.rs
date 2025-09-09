@@ -82,7 +82,7 @@ where
     /// Returns the return data size in bytes, based on the default stack alignment.
     ///
     pub fn return_data_size(&self) -> usize {
-        era_compiler_common::BYTE_LENGTH_FIELD
+        solx_utils::BYTE_LENGTH_FIELD
             * match self {
                 Self::None => 0,
                 Self::Primitive { .. } => 1,

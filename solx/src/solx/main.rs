@@ -62,9 +62,9 @@ fn main() -> anyhow::Result<()> {
         .iter()
         .any(|error| error.severity == "error")
     {
-        era_compiler_common::EXIT_CODE_FAILURE
+        solx_utils::EXIT_CODE_FAILURE
     } else {
-        era_compiler_common::EXIT_CODE_SUCCESS
+        solx_utils::EXIT_CODE_SUCCESS
     };
     std::io::stderr()
         .write_all(
@@ -219,7 +219,7 @@ fn main_inner(
 
     let metadata_hash_type = arguments
         .metadata_hash
-        .unwrap_or(era_compiler_common::EVMMetadataHashType::IPFS);
+        .unwrap_or(solx_utils::MetadataHashType::IPFS);
     let append_cbor = !arguments.no_cbor_metadata;
     let use_import_callback = !arguments.no_import_callback;
 

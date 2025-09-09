@@ -51,7 +51,7 @@ impl EtherealIR {
     pub fn new(
         solc_version: semver::Version,
         extra_metadata: ExtraMetadata,
-        code_segment: Option<era_compiler_common::CodeSegment>,
+        code_segment: Option<solx_utils::CodeSegment>,
         blocks: HashMap<solx_codegen_evm::BlockKey, Block>,
     ) -> anyhow::Result<Self> {
         let mut entry_function =
@@ -76,7 +76,7 @@ impl EtherealIR {
     ///
     pub fn get_blocks(
         solc_version: semver::Version,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         instructions: &[Instruction],
     ) -> anyhow::Result<HashMap<solx_codegen_evm::BlockKey, Block>> {
         let mut blocks = HashMap::with_capacity(Self::BLOCKS_HASHMAP_DEFAULT_CAPACITY);

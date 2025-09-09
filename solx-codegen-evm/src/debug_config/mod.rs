@@ -149,7 +149,6 @@ impl DebugConfig {
     pub fn dump_assembly(
         &self,
         contract_path: &str,
-        target: era_compiler_common::Target,
         code: &str,
         is_size_fallback: bool,
         spill_area: Option<(u64, u64)>,
@@ -166,14 +165,8 @@ impl DebugConfig {
         }
 
         let mut file_path = self.output_directory.to_owned();
-        let full_file_name = Self::full_file_name(
-            contract_path,
-            suffix.as_deref(),
-            match target {
-                era_compiler_common::Target::EraVM => IRType::EraVMAssembly,
-                era_compiler_common::Target::EVM => IRType::EVMAssembly,
-            },
-        );
+        let full_file_name =
+            Self::full_file_name(contract_path, suffix.as_deref(), IRType::EVMAssembly);
         file_path.push(full_file_name);
         std::fs::write(file_path, code)?;
 

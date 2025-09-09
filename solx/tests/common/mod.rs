@@ -56,8 +56,8 @@ pub fn read_sources(paths: &[&str]) -> BTreeMap<String, String> {
 ///
 pub fn build_solidity_standard_json(
     sources: BTreeMap<String, String>,
-    libraries: era_compiler_common::Libraries,
-    metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+    libraries: solx_utils::Libraries,
+    metadata_hash_type: solx_utils::MetadataHashType,
     remappings: BTreeSet<String>,
     via_ir: bool,
     optimizer_settings: solx_codegen_evm::OptimizerSettings,
@@ -177,7 +177,7 @@ pub fn build_yul_standard_json(
 
     let project = solx::Project::try_from_yul_sources(
         input.sources,
-        era_compiler_common::Libraries::default(),
+        solx_utils::Libraries::default(),
         &input.settings.output_selection,
         Some(&mut solc_output),
         None,
@@ -185,7 +185,7 @@ pub fn build_yul_standard_json(
     let build = project.compile_to_evm(
         Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::MetadataHashType::IPFS,
         input.settings.metadata.append_cbor,
         optimizer_settings,
         vec![],
@@ -235,7 +235,7 @@ pub fn build_llvm_ir_standard_json(
     let build = project.compile_to_evm(
         Arc::new(Mutex::new(vec![])),
         &input.settings.output_selection,
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::MetadataHashType::IPFS,
         input.settings.metadata.append_cbor,
         optimizer_settings,
         vec![],

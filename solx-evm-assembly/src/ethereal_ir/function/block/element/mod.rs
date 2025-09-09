@@ -153,7 +153,7 @@ impl solx_codegen_evm::WriteLLVM for Element {
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?;
 
-                if value.len() > era_compiler_common::BYTE_LENGTH_FIELD * 2 {
+                if value.len() > solx_utils::BYTE_LENGTH_FIELD * 2 {
                     Ok(Some(context.field_const(0).as_basic_value_enum()))
                 } else {
                     crate::assembly::instruction::stack::push(context, value).map(Some)
@@ -1167,10 +1167,7 @@ impl solx_codegen_evm::WriteLLVM for Element {
                                 pointer,
                                 &[
                                     context.field_const(0),
-                                    context.integer_const(
-                                        era_compiler_common::BIT_LENGTH_X32,
-                                        index as u64,
-                                    ),
+                                    context.integer_const(solx_utils::BIT_LENGTH_X32, index as u64),
                                 ],
                                 context.field_type(),
                                 format!("return_value_pointer_element_{index}").as_str(),

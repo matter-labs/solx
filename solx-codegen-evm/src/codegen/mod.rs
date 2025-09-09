@@ -47,11 +47,11 @@ pub static IS_SIZE_FALLBACK: AtomicBool = AtomicBool::new(false);
 pub fn assemble(
     bytecode_buffers: &[&inkwell::memory_buffer::MemoryBuffer],
     bytecode_buffer_ids: &[&str],
-    code_segment: era_compiler_common::CodeSegment,
+    code_segment: solx_utils::CodeSegment,
 ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
     let code_segment = match code_segment {
-        era_compiler_common::CodeSegment::Deploy => inkwell::memory_buffer::CodeSegment::Deploy,
-        era_compiler_common::CodeSegment::Runtime => inkwell::memory_buffer::CodeSegment::Runtime,
+        solx_utils::CodeSegment::Deploy => inkwell::memory_buffer::CodeSegment::Deploy,
+        solx_utils::CodeSegment::Runtime => inkwell::memory_buffer::CodeSegment::Runtime,
     };
     inkwell::memory_buffer::MemoryBuffer::assemble_evm(
         bytecode_buffers,
@@ -66,7 +66,7 @@ pub fn assemble(
 ///
 pub fn link(
     bytecode_buffer: inkwell::memory_buffer::MemoryBuffer,
-    linker_symbols: &BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
+    linker_symbols: &BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>,
 ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
     if !bytecode_buffer.is_elf_evm() {
         return Ok(bytecode_buffer);

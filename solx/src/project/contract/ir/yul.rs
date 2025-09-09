@@ -38,7 +38,7 @@ impl Yul {
         }
 
         let mut lexer = Lexer::new(source_code);
-        let mut object = Object::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy)
+        let mut object = Object::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy)
             .map_err(|error| anyhow::anyhow!("Yul parsing: {error:?}"))?;
 
         let runtime_code = object.inner_object.take().map(|object| {

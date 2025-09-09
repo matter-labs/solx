@@ -31,13 +31,13 @@ impl IRType {
     ///
     pub fn file_extension(&self) -> &'static str {
         match self {
-            Self::Yul => era_compiler_common::EXTENSION_YUL,
-            Self::EthIR => era_compiler_common::EXTENSION_ETHIR,
-            Self::EVMLA => era_compiler_common::EXTENSION_EVMLA,
-            Self::LLL => era_compiler_common::EXTENSION_LLL,
-            Self::LLVM => era_compiler_common::EXTENSION_LLVM_SOURCE,
-            Self::EraVMAssembly => era_compiler_common::EXTENSION_ERAVM_ASSEMBLY,
-            Self::EVMAssembly => era_compiler_common::EXTENSION_EVM_ASSEMBLY,
+            Self::Yul => solx_utils::EXTENSION_YUL,
+            Self::EthIR => solx_utils::EXTENSION_ETHIR,
+            Self::EVMLA => solx_utils::EXTENSION_EVMLA,
+            Self::LLL => solx_utils::EXTENSION_LLL,
+            Self::LLVM => solx_utils::EXTENSION_LLVM_SOURCE,
+            Self::EraVMAssembly => solx_utils::EXTENSION_ERAVM_ASSEMBLY,
+            Self::EVMAssembly => solx_utils::EXTENSION_EVM_ASSEMBLY,
         }
     }
 }

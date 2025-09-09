@@ -10,7 +10,7 @@
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Key {
     /// The block code type.
-    pub code_segment: era_compiler_common::CodeSegment,
+    pub code_segment: solx_utils::CodeSegment,
     /// The block tag.
     pub tag: num::BigUint,
 }
@@ -19,7 +19,7 @@ impl Key {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(code_segment: era_compiler_common::CodeSegment, tag: num::BigUint) -> Self {
+    pub fn new(code_segment: solx_utils::CodeSegment, tag: num::BigUint) -> Self {
         Self { code_segment, tag }
     }
 }
@@ -30,8 +30,8 @@ impl std::fmt::Display for Key {
             f,
             "{}_{}",
             match self.code_segment {
-                era_compiler_common::CodeSegment::Deploy => "dt",
-                era_compiler_common::CodeSegment::Runtime => "rt",
+                solx_utils::CodeSegment::Deploy => "dt",
+                solx_utils::CodeSegment::Runtime => "rt",
             },
             self.tag
         )

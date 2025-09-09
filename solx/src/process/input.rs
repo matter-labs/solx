@@ -15,11 +15,11 @@ use crate::project::contract::ir::IR as ContractIR;
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Input {
     /// The input contract name.
-    pub contract_name: era_compiler_common::ContractName,
+    pub contract_name: solx_utils::ContractName,
     /// The input contract IR.
     pub contract_ir: ContractIR,
     /// The code segment.
-    pub code_segment: era_compiler_common::CodeSegment,
+    pub code_segment: solx_utils::CodeSegment,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
     /// Output selection for the compilation.
@@ -41,9 +41,9 @@ impl Input {
     /// A shortcut constructor.
     ///
     pub fn new(
-        contract_name: era_compiler_common::ContractName,
+        contract_name: solx_utils::ContractName,
         contract_ir: ContractIR,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         identifier_paths: BTreeMap<String, String>,
         output_selection: solx_standard_json::InputSelection,
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,

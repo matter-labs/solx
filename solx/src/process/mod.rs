@@ -125,7 +125,7 @@ where
         panic!("{executable:?} subprocess output reading error: {error:?}")
     });
 
-    if result.status.code() != Some(era_compiler_common::EXIT_CODE_SUCCESS) {
+    if result.status.code() != Some(solx_utils::EXIT_CODE_SUCCESS) {
         let message = format!(
             "{executable:?} subprocess failed {}:\n{}\n{}",
             match result.status.code() {
@@ -177,5 +177,5 @@ pub unsafe extern "C" fn evm_stack_error_handler(spill_area_size: u64) {
         .write_all(buffer.as_slice())
         .unwrap_or_else(|error| panic!("Stdout stack-too-deep error writing error: {error}"));
     unsafe { inkwell::support::shutdown_llvm() };
-    std::process::exit(era_compiler_common::EXIT_CODE_SUCCESS);
+    std::process::exit(solx_utils::EXIT_CODE_SUCCESS);
 }

@@ -42,7 +42,7 @@ impl Profiler {
     pub fn start_evm_translation_unit(
         &mut self,
         full_path: &str,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         description: &str,
         optimizer_settings: &OptimizerSettings,
     ) -> Rc<RefCell<Run>> {
