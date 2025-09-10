@@ -23,7 +23,7 @@ pub struct Contract {
     /// Contract name.
     pub name: era_compiler_common::ContractName,
     /// IR source code data.
-    pub ir: IR,
+    pub ir: Option<IR>,
     /// solc metadata.
     pub metadata: Option<String>,
     /// solc ABI.
@@ -50,7 +50,7 @@ impl Contract {
     ///
     pub fn new(
         name: era_compiler_common::ContractName,
-        ir: IR,
+        ir: Option<IR>,
         metadata: Option<String>,
         abi: Option<serde_json::Value>,
         method_identifiers: Option<BTreeMap<String, String>>,
@@ -84,9 +84,10 @@ impl Contract {
     ///
     pub fn identifier(&self) -> &str {
         match self.ir {
-            IR::Yul(ref yul) => yul.object.0.identifier.as_str(),
-            IR::EVMLegacyAssembly(ref evm) => evm.assembly.full_path(),
-            IR::LLVMIR(ref llvm_ir) => llvm_ir.path.as_str(),
+            Some(IR::Yul(ref yul)) => yul.object.0.identifier.as_str(),
+            Some(IR::EVMLegacyAssembly(ref evm)) => evm.assembly.full_path(),
+            Some(IR::LLVMIR(ref llvm_ir)) => llvm_ir.path.as_str(),
+            None => self.name.full_path.as_str(),
         }
     }
 
