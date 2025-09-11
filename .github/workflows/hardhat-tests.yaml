@@ -167,7 +167,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 23
 
       - name: Install Yarn
         run: npm install -g yarn bun pnpm
@@ -218,8 +218,10 @@ jobs:
                 # Install dependencies
                 ${BUILD_BIN} install
           
-                # Downgrade hardhat
-                ${BUILD_BIN} add -D hardhat@2.20.1
+                if [[ ${PROJECT} != "hardhat-v3" ]]; then
+                  # Downgrade hardhat
+                  ${BUILD_BIN} add -D hardhat@2.20.1
+                fi
 
                 # Clean project
                 ${BUILD_BIN} run clean

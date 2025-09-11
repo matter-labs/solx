@@ -29,6 +29,10 @@ build_system = "pnpm"
 [zksafe.env]
 EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
+[hardhat-v3]
+repo = "https://github.com/antonbaliasnikov/solx-hh3"
+description = "A sample hardhat v3 project with solx support."
+
 #[ens-contracts]
 #repo = "https://github.com/antonbaliasnikov/ens-contracts"
 #description = "The core contracts of the ENS protocol."
