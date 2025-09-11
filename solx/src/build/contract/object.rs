@@ -32,7 +32,8 @@ pub struct Object {
     pub immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
     /// Dependencies.
     pub dependencies: solx_yul::Dependencies,
-    /// The unlinked symbols, such as libraries.
+    /// Linker symbols that were not provided at compile time.
+    /// Such symbols must be resolved by tooling before deployment.
     pub unlinked_symbols: BTreeMap<String, Vec<u64>>,
     /// Whether the object is already assembled.
     pub is_assembled: bool,
@@ -172,9 +173,8 @@ impl Object {
         );
 
         let linked_object = solx_codegen_evm::link(memory_buffer, linker_symbols)?;
-        let linked_object_with_placeholders = solx_codegen_evm::link(
-            linked_object,
-            &self
+        let linked_object_with_placeholders = if !self.unlinked_symbols.is_empty() {
+            let linker_placeholders = self
                 .unlinked_symbols
                 .keys()
                 .map(|symbol| {
@@ -183,8 +183,11 @@ impl Object {
                         [0u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS],
                     )
                 })
-                .collect::<BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>>(),
-        )?;
+                .collect::<BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>>();
+            solx_codegen_evm::link(linked_object, &linker_placeholders)?
+        } else {
+            linked_object
+        };
 
         let mut bytecode_hex = hex::encode(linked_object_with_placeholders.as_slice());
         for (symbol, offsets) in self.unlinked_symbols.iter() {

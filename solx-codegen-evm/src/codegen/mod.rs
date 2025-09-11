@@ -68,10 +68,6 @@ pub fn link(
     bytecode_buffer: inkwell::memory_buffer::MemoryBuffer,
     linker_symbols: &BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>,
 ) -> anyhow::Result<inkwell::memory_buffer::MemoryBuffer> {
-    if !bytecode_buffer.is_elf_evm() {
-        return Ok(bytecode_buffer);
-    }
-
     let bytecode_buffer_linked = bytecode_buffer
         .link_evm(linker_symbols)
         .map_err(|error| anyhow::anyhow!("linking: {error}"))?;
