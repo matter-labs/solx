@@ -95,6 +95,25 @@ fn stack_too_deep_llvm() -> anyhow::Result<()> {
 }
 
 #[test]
+fn fuzzed_linker_error() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        crate::common::TEST_SOLIDITY_CONTRACT_FUZZED_LINKER_ERROR_PATH,
+        "--bin-runtime",
+        "-O1",
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+
+    result
+        .success()
+        .stdout(predicate::str::contains("Binary of the runtime part").count(3));
+
+    Ok(())
+}
+
+#[test]
 fn invalid_input() -> anyhow::Result<()> {
     crate::common::setup()?;
 
