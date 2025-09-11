@@ -19,10 +19,10 @@ impl EVMLegacyAssembly {
     ///
     /// Transforms the `solc` standard JSON output contract into an EVM legacy assembly object.
     ///
-    pub fn try_from_contract(
+    pub fn from_contract(
         mut assembly: solx_evm_assembly::Assembly,
         extra_metadata: Option<solx_evm_assembly::ExtraMetadata>,
-    ) -> Option<Self> {
+    ) -> Self {
         assembly.extra_metadata = extra_metadata.clone();
         if let Ok(runtime_code) = assembly.runtime_code_mut() {
             runtime_code.extra_metadata = extra_metadata;
@@ -31,8 +31,7 @@ impl EVMLegacyAssembly {
 
         let mut runtime_code_assembly = assembly.runtime_code().expect("Always exists").to_owned();
         runtime_code_assembly.set_full_path(full_path.clone());
-        let runtime_code_identifier =
-            format!("{full_path}.{}", era_compiler_common::CodeSegment::Runtime);
+        let runtime_code_identifier = format!("{full_path}.{}", solx_utils::CodeSegment::Runtime);
         let mut runtime_code_dependencies =
             solx_yul::Dependencies::new(runtime_code_identifier.as_str());
         runtime_code_assembly.accumulate_evm_dependencies(&mut runtime_code_dependencies);
@@ -45,10 +44,10 @@ impl EVMLegacyAssembly {
         let mut deploy_code_dependencies = solx_yul::Dependencies::new(full_path.as_str());
         assembly.accumulate_evm_dependencies(&mut deploy_code_dependencies);
 
-        Some(Self {
+        Self {
             assembly,
             dependencies: deploy_code_dependencies,
             runtime_code,
-        })
+        }
     }
 }

@@ -15,7 +15,7 @@ pub struct Object {
     /// Object identifier.
     pub identifier: String,
     /// Contract full name.
-    pub contract_name: era_compiler_common::ContractName,
+    pub contract_name: solx_utils::ContractName,
     /// Text assembly.
     pub assembly: Option<String>,
     /// Bytecode.
@@ -25,21 +25,22 @@ pub struct Object {
     /// Whether IR codegen is used.
     pub via_ir: bool,
     /// Code segment.
-    pub code_segment: era_compiler_common::CodeSegment,
+    pub code_segment: solx_utils::CodeSegment,
     /// The metadata bytes. Only appended to runtime code.
     pub metadata_bytes: Option<Vec<u8>>,
     /// Immutables of the runtime code.
     pub immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
     /// Dependencies.
     pub dependencies: solx_yul::Dependencies,
-    /// The unlinked symbols, such as libraries.
+    /// Linker symbols that were not provided at compile time.
+    /// Such symbols must be resolved by tooling before deployment.
     pub unlinked_symbols: BTreeMap<String, Vec<u64>>,
     /// Whether the object is already assembled.
     pub is_assembled: bool,
     /// Whether the size fallback was activated during the compilation.
     pub is_size_fallback: bool,
     /// Compilation warnings.
-    pub warnings: Vec<era_compiler_llvm_context::EVMWarning>,
+    pub warnings: Vec<solx_codegen_evm::Warning>,
     /// Compilation pipeline benchmarks.
     pub benchmarks: Vec<(String, u64)>,
 }
@@ -53,16 +54,16 @@ impl Object {
     ///
     pub fn new(
         identifier: String,
-        contract_name: era_compiler_common::ContractName,
+        contract_name: solx_utils::ContractName,
         assembly: Option<String>,
         bytecode: Option<Vec<u8>>,
         via_ir: bool,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
         metadata_bytes: Option<Vec<u8>>,
         dependencies: solx_yul::Dependencies,
         is_size_fallback: bool,
-        warnings: Vec<era_compiler_llvm_context::EVMWarning>,
+        warnings: Vec<solx_codegen_evm::Warning>,
         benchmarks: Vec<(String, u64)>,
     ) -> Self {
         let bytecode_hex = bytecode.as_ref().map(hex::encode);
@@ -100,13 +101,11 @@ impl Object {
             false,
         );
 
-        if let (era_compiler_common::CodeSegment::Runtime, Some(metadata_bytes)) =
+        if let (solx_utils::CodeSegment::Runtime, Some(metadata_bytes)) =
             (self.code_segment, &self.metadata_bytes)
         {
-            memory_buffer = era_compiler_llvm_context::evm_append_metadata(
-                memory_buffer,
-                metadata_bytes.as_slice(),
-            )?;
+            memory_buffer =
+                solx_codegen_evm::append_metadata(memory_buffer, metadata_bytes.as_slice())?;
         }
 
         Ok(memory_buffer)
@@ -150,7 +149,7 @@ impl Object {
             .iter()
             .map(|(identifier, _memory_buffer)| identifier.as_str())
             .collect::<Vec<&str>>();
-        era_compiler_llvm_context::evm_assemble(
+        solx_codegen_evm::assemble(
             bytecode_buffers.as_slice(),
             bytecode_ids.as_slice(),
             self.code_segment,
@@ -165,7 +164,7 @@ impl Object {
     ///
     pub fn link(
         &mut self,
-        linker_symbols: &BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
+        linker_symbols: &BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> anyhow::Result<()> {
         let memory_buffer = inkwell::memory_buffer::MemoryBuffer::create_from_memory_range(
             self.bytecode.as_deref().expect("Bytecode is not set"),
@@ -173,24 +172,26 @@ impl Object {
             false,
         );
 
-        let linked_object = era_compiler_llvm_context::evm_link(memory_buffer, linker_symbols)?;
-        let linked_object_with_placeholders = era_compiler_llvm_context::evm_link(
-            linked_object,
-            &self
+        let linked_object = solx_codegen_evm::link(memory_buffer, linker_symbols)?;
+        let linked_object_with_placeholders = if !self.unlinked_symbols.is_empty() {
+            let linker_placeholders = self
                 .unlinked_symbols
                 .keys()
                 .map(|symbol| {
                     (
                         symbol.to_owned(),
-                        [0u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS],
+                        [0u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS],
                     )
                 })
-                .collect::<BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>>(),
-        )?;
+                .collect::<BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>>();
+            solx_codegen_evm::link(linked_object, &linker_placeholders)?
+        } else {
+            linked_object
+        };
 
         let mut bytecode_hex = hex::encode(linked_object_with_placeholders.as_slice());
         for (symbol, offsets) in self.unlinked_symbols.iter() {
-            let hash = era_compiler_common::Keccak256Hash::from_slice(symbol.as_bytes()).to_vec();
+            let hash = solx_utils::Keccak256Hash::from_slice(symbol.as_bytes()).to_vec();
             let placeholder = format!(
                 "__${}$__",
                 hex::encode(&hash[0..Self::LIBRARY_PLACEHOLDER_LENGTH])
@@ -199,7 +200,7 @@ impl Object {
                 let offset = *offset as usize;
                 unsafe {
                     bytecode_hex.as_bytes_mut()
-                        [(offset * 2)..(offset + era_compiler_common::BYTE_LENGTH_ETH_ADDRESS) * 2]
+                        [(offset * 2)..(offset + solx_utils::BYTE_LENGTH_ETH_ADDRESS) * 2]
                         .copy_from_slice(placeholder.as_bytes());
                 }
             }

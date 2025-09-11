@@ -57,7 +57,7 @@ impl Build {
     ///
     pub fn link(
         mut self,
-        linker_symbols: BTreeMap<String, [u8; era_compiler_common::BYTE_LENGTH_ETH_ADDRESS]>,
+        linker_symbols: BTreeMap<String, [u8; solx_utils::BYTE_LENGTH_ETH_ADDRESS]>,
     ) -> Self {
         let ast_jsons = self.ast_jsons.take();
 
@@ -66,18 +66,7 @@ impl Build {
                 let all_objects = self
                     .contracts
                     .values()
-                    .flat_map(|contract| {
-                        vec![
-                            contract
-                                .deploy_object_result
-                                .as_ref()
-                                .expect("Always exists"),
-                            contract
-                                .runtime_object_result
-                                .as_ref()
-                                .expect("Always exists"),
-                        ]
-                    })
+                    .flat_map(|contract| contract.objects_ref())
                     .collect::<Vec<&ContractObject>>();
 
                 let assembleable_objects = all_objects
@@ -127,15 +116,9 @@ impl Build {
                     .contracts
                     .get_mut(full_path.as_str())
                     .expect("Always exists");
-                let object = match code_segment {
-                    era_compiler_common::CodeSegment::Deploy => contract
-                        .deploy_object_result
-                        .as_mut()
-                        .expect("Always exists"),
-                    era_compiler_common::CodeSegment::Runtime => contract
-                        .runtime_object_result
-                        .as_mut()
-                        .expect("Always exists"),
+                let object = match contract.object_mut_by_code_segment(code_segment) {
+                    Some(object) => object,
+                    None => continue,
                 };
                 object.bytecode = Some(assembled_object.as_slice().to_owned());
                 for undefined_reference in assembled_object
@@ -154,18 +137,7 @@ impl Build {
         }
 
         for contract in self.contracts.values_mut() {
-            for object in [
-                contract
-                    .deploy_object_result
-                    .as_mut()
-                    .expect("Always exists"),
-                contract
-                    .runtime_object_result
-                    .as_mut()
-                    .expect("Always exists"),
-            ]
-            .into_iter()
-            {
+            for object in contract.objects_mut().into_iter() {
                 if let Err(error) = object.link(&linker_symbols) {
                     self.messages.lock().expect("Sync").push(
                         solx_standard_json::OutputError::new_error(None, &error, None, None),
@@ -251,8 +223,8 @@ impl Build {
 
                 let output_name = format!(
                     "{path}_{}.{}",
-                    era_compiler_common::EXTENSION_JSON,
-                    era_compiler_common::EXTENSION_SOLIDITY_AST
+                    solx_utils::EXTENSION_JSON,
+                    solx_utils::EXTENSION_SOLIDITY_AST
                 );
                 let mut output_path = output_directory.to_owned();
                 output_path.push(output_name.as_str());
@@ -314,33 +286,40 @@ impl Build {
         }
 
         for mut contract in self.contracts.into_values() {
-            standard_json.errors.extend(
-                contract
-                    .deploy_object_result
-                    .as_mut()
-                    .map(|object| {
-                        object.take_warnings_standard_json(contract.name.full_path.as_str())
-                    })
-                    .unwrap_or_default(),
-            );
-            standard_json.errors.extend(
-                contract
-                    .runtime_object_result
-                    .as_mut()
-                    .map(|object| {
-                        object.take_warnings_standard_json(contract.name.full_path.as_str())
-                    })
-                    .unwrap_or_default(),
-            );
-            if contract.deploy_object_result.is_err() || contract.runtime_object_result.is_err() {
-                if let Err(Error::StandardJson(error)) = contract.deploy_object_result {
-                    standard_json.errors.push(error);
+            if let (Some(deploy_object_result), Some(runtime_object_result)) = (
+                contract.deploy_object_result.as_mut(),
+                contract.runtime_object_result.as_mut(),
+            ) {
+                standard_json.errors.extend(
+                    deploy_object_result
+                        .as_mut()
+                        .map(|object| {
+                            object.take_warnings_standard_json(contract.name.full_path.as_str())
+                        })
+                        .unwrap_or_default(),
+                );
+                standard_json.errors.extend(
+                    runtime_object_result
+                        .as_mut()
+                        .map(|object| {
+                            object.take_warnings_standard_json(contract.name.full_path.as_str())
+                        })
+                        .unwrap_or_default(),
+                );
+                if deploy_object_result.is_err() || runtime_object_result.is_err() {
+                    if let Some(Err(Error::StandardJson(error))) =
+                        contract.deploy_object_result.take()
+                    {
+                        standard_json.errors.push(error);
+                    }
+                    if let Some(Err(Error::StandardJson(error))) =
+                        contract.runtime_object_result.take()
+                    {
+                        standard_json.errors.push(error);
+                    }
+                    continue;
                 }
-                if let Err(Error::StandardJson(error)) = contract.runtime_object_result {
-                    standard_json.errors.push(error);
-                }
-                continue;
-            }
+            };
 
             let name = contract.name.clone();
 
@@ -396,12 +375,15 @@ impl solx_standard_json::CollectableError for Build {
             .contracts
             .values()
             .flat_map(|contract| {
-                vec![
-                    contract.deploy_object_result.as_ref().err(),
-                    contract.runtime_object_result.as_ref().err(),
-                ]
+                let mut errors = Vec::with_capacity(2);
+                if let Some(Err(error)) = contract.deploy_object_result.as_ref() {
+                    errors.push(error);
+                }
+                if let Some(Err(error)) = contract.runtime_object_result.as_ref() {
+                    errors.push(error);
+                }
+                errors
             })
-            .flatten()
             .map(|error| error.unwrap_standard_json_ref().to_string())
             .collect();
         errors.extend(
@@ -428,9 +410,19 @@ impl solx_standard_json::CollectableError for Build {
             .extract_if(.., |message| message.severity == "warning")
             .collect();
         for contract in self.contracts.values_mut() {
+            let (mut deploy_object_result, mut runtime_object_result) = match (
+                contract.deploy_object_result.as_mut(),
+                contract.runtime_object_result.as_mut(),
+            ) {
+                (Some(deploy_object_result), Some(runtime_object_result)) => (
+                    deploy_object_result.as_mut(),
+                    runtime_object_result.as_mut(),
+                ),
+                _ => continue,
+            };
+
             warnings.extend(
-                contract
-                    .deploy_object_result
+                deploy_object_result
                     .as_mut()
                     .map(|object| {
                         object.take_warnings_standard_json(contract.name.full_path.as_str())
@@ -438,8 +430,7 @@ impl solx_standard_json::CollectableError for Build {
                     .unwrap_or_default(),
             );
             warnings.extend(
-                contract
-                    .runtime_object_result
+                runtime_object_result
                     .as_mut()
                     .map(|object| {
                         object.take_warnings_standard_json(contract.name.full_path.as_str())
@@ -452,7 +443,16 @@ impl solx_standard_json::CollectableError for Build {
 
     fn has_errors(&self) -> bool {
         self.contracts.values().any(|contract| {
-            contract.deploy_object_result.is_err() || contract.runtime_object_result.is_err()
+            contract
+                .deploy_object_result
+                .as_ref()
+                .map(|result| result.is_err())
+                .unwrap_or_default()
+                || contract
+                    .runtime_object_result
+                    .as_ref()
+                    .map(|result| result.is_err())
+                    .unwrap_or_default()
         }) || self
             .messages
             .lock()

@@ -23,12 +23,12 @@ impl ExtraMetadata {
     ///
     pub fn get(
         &self,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         tag: &num::BigUint,
     ) -> Option<&RecursiveFunction> {
         for function in self.recursive_functions.iter() {
             match code_segment {
-                era_compiler_common::CodeSegment::Deploy => {
+                solx_utils::CodeSegment::Deploy => {
                     if function
                         .creation_tag
                         .map(|creation_tag| &num::BigUint::from(creation_tag) == tag)
@@ -37,7 +37,7 @@ impl ExtraMetadata {
                         return Some(function);
                     }
                 }
-                era_compiler_common::CodeSegment::Runtime => {
+                solx_utils::CodeSegment::Runtime => {
                     if function
                         .runtime_tag
                         .map(|runtime_tag| &num::BigUint::from(runtime_tag) == tag)

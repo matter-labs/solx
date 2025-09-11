@@ -27,18 +27,18 @@ impl Yul {
     pub fn try_from_source(
         path: &str,
         source_code: &str,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Option<Self>> {
         if source_code.is_empty() {
             return Ok(None);
-        };
+        }
 
         if let Some(debug_config) = debug_config {
             debug_config.dump_yul(path, source_code)?;
         }
 
         let mut lexer = Lexer::new(source_code);
-        let mut object = Object::parse(&mut lexer, None, era_compiler_common::CodeSegment::Deploy)
+        let mut object = Object::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy)
             .map_err(|error| anyhow::anyhow!("Yul parsing: {error:?}"))?;
 
         let runtime_code = object.inner_object.take().map(|object| {

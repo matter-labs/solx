@@ -45,6 +45,10 @@ pub const TEST_SOLIDITY_CONTRACT_INTERFACE_EMPTY_YUL_PATH: &str =
     "tests/data/contracts/solidity/InterfaceEmptyYul.sol";
 
 /// A test input file.
+pub const TEST_SOLIDITY_CONTRACT_FUZZED_LINKER_ERROR_PATH: &str =
+    "tests/data/contracts/solidity/FuzzedLinkerError.sol";
+
+/// A test input file.
 pub const TEST_YUL_CONTRACT_PATH: &str = "tests/data/contracts/yul/Test.yul";
 
 /// A test input file.

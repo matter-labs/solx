@@ -10,7 +10,7 @@ fn default() -> anyhow::Result<()> {
 
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
-        "--llvm-options='-eravm-disable-system-request-memoization 10'",
+        "--llvm-options='-evm-metadata-size 10'",
         "--bin",
     ];
 
@@ -27,7 +27,7 @@ fn standard_json() -> anyhow::Result<()> {
     let args = &[
         "--standard-json",
         crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,
-        "--llvm-options='-eravm-disable-system-request-memoization 10'",
+        "--llvm-options='-evm-metadata-size 10'",
     ];
 
     let result = crate::cli::execute_solx(args)?;

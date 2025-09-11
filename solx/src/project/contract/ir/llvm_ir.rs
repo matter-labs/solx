@@ -19,22 +19,17 @@ impl LLVMIR {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(
-        path: String,
-        code_segment: era_compiler_common::CodeSegment,
-        mut source: String,
-    ) -> Self {
+    pub fn new(path: String, code_segment: solx_utils::CodeSegment, mut source: String) -> Self {
         source.push(char::from(0));
 
-        let runtime_code_identifier =
-            format!("{path}.{}", era_compiler_common::CodeSegment::Runtime);
+        let runtime_code_identifier = format!("{path}.{}", solx_utils::CodeSegment::Runtime);
         let dependencies = match code_segment {
-            era_compiler_common::CodeSegment::Deploy => {
+            solx_utils::CodeSegment::Deploy => {
                 let mut dependencies = solx_yul::Dependencies::new(path.as_str());
                 dependencies.push(runtime_code_identifier.to_owned(), true);
                 dependencies
             }
-            era_compiler_common::CodeSegment::Runtime => {
+            solx_utils::CodeSegment::Runtime => {
                 let dependencies = solx_yul::Dependencies::new(runtime_code_identifier.as_str());
                 dependencies
             }

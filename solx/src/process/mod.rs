@@ -125,7 +125,7 @@ where
         panic!("{executable:?} subprocess output reading error: {error:?}")
     });
 
-    if result.status.code() != Some(era_compiler_common::EXIT_CODE_SUCCESS) {
+    if result.status.code() != Some(solx_utils::EXIT_CODE_SUCCESS) {
         let message = format!(
             "{executable:?} subprocess failed {}:\n{}\n{}",
             match result.status.code() {
@@ -168,7 +168,7 @@ where
 pub unsafe extern "C" fn evm_stack_error_handler(spill_area_size: u64) {
     let result: Result<EVMOutput, Error> = Err(Error::stack_too_deep(
         spill_area_size,
-        era_compiler_llvm_context::EVM_IS_SIZE_FALLBACK.load(std::sync::atomic::Ordering::Relaxed),
+        solx_codegen_evm::IS_SIZE_FALLBACK.load(std::sync::atomic::Ordering::Relaxed),
     ));
     let mut buffer = Vec::with_capacity(crate::r#const::DEFAULT_SERDE_BUFFER_SIZE);
     ciborium::into_writer(&result, &mut buffer)
@@ -177,5 +177,5 @@ pub unsafe extern "C" fn evm_stack_error_handler(spill_area_size: u64) {
         .write_all(buffer.as_slice())
         .unwrap_or_else(|error| panic!("Stdout stack-too-deep error writing error: {error}"));
     unsafe { inkwell::support::shutdown_llvm() };
-    std::process::exit(era_compiler_common::EXIT_CODE_SUCCESS);
+    std::process::exit(solx_utils::EXIT_CODE_SUCCESS);
 }

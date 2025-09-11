@@ -2,8 +2,8 @@
 //! Translates the jump operations.
 //!
 
-use era_compiler_llvm_context::IEVMLAData;
-use era_compiler_llvm_context::IEVMLAFunction;
+use solx_codegen_evm::IEVMLAData;
+use solx_codegen_evm::IEVMLAFunction;
 
 ///
 /// Translates the unconditional jump.
@@ -14,19 +14,19 @@ pub fn unconditional<'ctx, C>(
     stack_hash: u64,
 ) -> anyhow::Result<()>
 where
-    C: era_compiler_llvm_context::IContext<'ctx>,
+    C: solx_codegen_evm::IContext<'ctx>,
 {
     let code_segment = context
         .code_segment()
         .ok_or_else(|| anyhow::anyhow!("Contract code segment is undefined"))?;
     let block_key = match code_segment {
-        era_compiler_common::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
-            era_compiler_llvm_context::BlockKey::new(
-                era_compiler_common::CodeSegment::Runtime,
+        solx_utils::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
+            solx_codegen_evm::BlockKey::new(
+                solx_utils::CodeSegment::Runtime,
                 destination.to_owned() - num::BigUint::from(1u64 << 32),
             )
         }
-        code_segment => era_compiler_llvm_context::BlockKey::new(code_segment, destination),
+        code_segment => solx_codegen_evm::BlockKey::new(code_segment, destination),
     };
 
     let block = context
@@ -48,19 +48,19 @@ pub fn conditional<'ctx, C>(
     stack_height: usize,
 ) -> anyhow::Result<()>
 where
-    C: era_compiler_llvm_context::IContext<'ctx>,
+    C: solx_codegen_evm::IContext<'ctx>,
 {
     let code_segment = context
         .code_segment()
         .ok_or_else(|| anyhow::anyhow!("Contract code segment is undefined"))?;
     let block_key = match code_segment {
-        era_compiler_common::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
-            era_compiler_llvm_context::BlockKey::new(
-                era_compiler_common::CodeSegment::Runtime,
+        solx_utils::CodeSegment::Deploy if destination > num::BigUint::from(u32::MAX) => {
+            solx_codegen_evm::BlockKey::new(
+                solx_utils::CodeSegment::Runtime,
                 destination.to_owned() - num::BigUint::from(1u64 << 32),
             )
         }
-        code_segment => era_compiler_llvm_context::BlockKey::new(code_segment, destination),
+        code_segment => solx_codegen_evm::BlockKey::new(code_segment, destination),
     };
 
     let condition_pointer = context
@@ -70,7 +70,7 @@ where
         .to_llvm()
         .into_pointer_value();
     let condition = context.build_load(
-        era_compiler_llvm_context::Pointer::new_stack_field(context, condition_pointer),
+        solx_codegen_evm::Pointer::new_stack_field(context, condition_pointer),
         format!("conditional_{block_key}_condition").as_str(),
     )?;
     let condition = context.builder().build_int_compare(

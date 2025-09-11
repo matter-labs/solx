@@ -23,18 +23,15 @@ pub struct Settings {
     pub optimizer: Optimizer,
 
     /// The linker library addresses.
-    #[serde(
-        default,
-        skip_serializing_if = "era_compiler_common::Libraries::is_empty"
-    )]
-    pub libraries: era_compiler_common::Libraries,
+    #[serde(default, skip_serializing_if = "solx_utils::Libraries::is_empty")]
+    pub libraries: solx_utils::Libraries,
     /// The sorted list of remappings.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub remappings: BTreeSet<String>,
 
     /// The target EVM version.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub evm_version: Option<era_compiler_common::EVMVersion>,
+    pub evm_version: Option<solx_utils::EVMVersion>,
     /// Whether to compile Solidity via IR.
     #[serde(
         default,
@@ -62,10 +59,10 @@ impl Settings {
     pub fn new(
         optimizer: Optimizer,
 
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         remappings: BTreeSet<String>,
 
-        evm_version: Option<era_compiler_common::EVMVersion>,
+        evm_version: Option<solx_utils::EVMVersion>,
         via_ir: bool,
 
         mut output_selection: Selection,

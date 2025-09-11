@@ -11,16 +11,13 @@ declare_wrapper!(
     Object
 );
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Object {
-    fn declare(
-        &mut self,
-        _context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Object {
+    fn declare(&mut self, _context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         Ok(())
     }
 
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
-        let mut entry = era_compiler_llvm_context::EVMEntryFunction::new(self.0.code.wrap());
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
+        let mut entry = solx_codegen_evm::EntryFunction::new(self.0.code.wrap());
         entry.declare(context)?;
         entry.into_llvm(context)?;
         Ok(())

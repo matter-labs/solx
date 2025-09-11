@@ -42,7 +42,7 @@ pub struct Project {
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
     /// The library addresses.
-    pub libraries: era_compiler_common::Libraries,
+    pub libraries: solx_utils::Libraries,
 }
 
 impl Project {
@@ -53,7 +53,7 @@ impl Project {
         language: solx_standard_json::InputLanguage,
         contracts: BTreeMap<String, Contract>,
         ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
     ) -> Self {
         let mut identifier_paths = BTreeMap::new();
         for (path, contract) in contracts.iter() {
@@ -82,10 +82,10 @@ impl Project {
     /// Parses the Solidity `sources` and returns a Solidity project.
     ///
     pub fn try_from_solc_output(
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         via_ir: bool,
         solc_output: &mut solx_standard_json::Output,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Self> {
         if !via_ir {
             let legacy_assemblies: BTreeMap<
@@ -132,14 +132,14 @@ impl Project {
                 .remove(path.as_str())
                 .expect("Always exists");
             for (name, contract) in file.into_iter() {
-                let name = era_compiler_common::ContractName::new(path.clone(), Some(name));
+                let name = solx_utils::ContractName::new(path.clone(), Some(name));
                 input_contracts.push((name, contract));
             }
         }
 
         let results = input_contracts
             .into_par_iter()
-            .filter_map(|(name, mut contract)| {
+            .map(|(name, mut contract)| {
                 let method_identifiers = contract
                     .evm
                     .as_mut()
@@ -154,22 +154,24 @@ impl Project {
                     .and_then(|evm| evm.extra_metadata.take());
 
                 let result = if via_ir {
-                    ContractYul::try_from_source(
-                        name.full_path.as_str(),
-                        contract.ir.as_deref()?,
-                        debug_config,
-                    )
-                    .map(|yul| yul.map(ContractIR::from))
+                    contract.ir.as_deref().map(|ir| {
+                        ContractYul::try_from_source(name.full_path.as_str(), ir, debug_config)
+                            .map(|yul| yul.map(ContractIR::from))
+                    })
                 } else {
-                    Ok(ContractEVMLegacyAssembly::try_from_contract(
-                        legacy_assembly.clone()?,
-                        extra_metadata,
-                    )
-                    .map(ContractIR::from))
+                    legacy_assembly.as_ref().map(|legacy_assembly| {
+                        Ok(Some(ContractIR::from(
+                            ContractEVMLegacyAssembly::from_contract(
+                                legacy_assembly.to_owned(),
+                                extra_metadata,
+                            ),
+                        )))
+                    })
                 };
                 let ir = match result {
-                    Ok(ir) => ir?,
-                    Err(error) => return Some((name.full_path, Err(error))),
+                    Some(Ok(Some(ir))) => Some(ir),
+                    Some(Err(error)) => return (name.full_path, Err(error)),
+                    Some(Ok(None)) | None => None,
                 };
                 let contract = Contract::new(
                     name.clone(),
@@ -184,7 +186,7 @@ impl Project {
                     legacy_assembly,
                     contract.ir,
                 );
-                Some((name.full_path, Ok(contract)))
+                (name.full_path, Ok(contract))
             })
             .collect::<BTreeMap<String, anyhow::Result<Contract>>>();
 
@@ -210,10 +212,10 @@ impl Project {
     ///
     pub fn try_from_yul_paths(
         paths: &[PathBuf],
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         output_selection: &solx_standard_json::InputSelection,
         solc_output: Option<&mut solx_standard_json::Output>,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Self> {
         let sources = paths
             .iter()
@@ -244,17 +246,17 @@ impl Project {
     ///
     pub fn try_from_yul_sources(
         sources: BTreeMap<String, solx_standard_json::InputSource>,
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         output_selection: &solx_standard_json::InputSelection,
         mut solc_output: Option<&mut solx_standard_json::Output>,
-        debug_config: Option<&era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<&solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<Self> {
         let results = sources
             .into_par_iter()
-            .filter_map(|(path, mut source)| {
+            .map(|(path, mut source)| {
                 let source_code = match source.try_resolve() {
                     Ok(()) => source.take_content().expect("Always exists"),
-                    Err(error) => return Some((path, Err(error))),
+                    Err(error) => return (path, Err(error)),
                 };
 
                 let metadata = if output_selection.check_selection(
@@ -262,8 +264,7 @@ impl Project {
                     None,
                     solx_standard_json::InputSelector::Metadata,
                 ) {
-                    let source_hash =
-                        era_compiler_common::Keccak256Hash::from_slice(source_code.as_bytes());
+                    let source_hash = solx_utils::Keccak256Hash::from_slice(source_code.as_bytes());
                     let metadata_json = serde_json::json!({
                         "source_hash": source_hash.to_string(),
                         "solc_version": solx_solc::Compiler::default().version,
@@ -278,18 +279,18 @@ impl Project {
                     source_code.as_str(),
                     debug_config,
                 ) {
-                    Ok(ir) => ir?,
-                    Err(error) => return Some((path, Err(error))),
+                    Ok(ir) => ir,
+                    Err(error) => return (path, Err(error)),
                 };
 
-                let name = era_compiler_common::ContractName::new(
+                let name = solx_utils::ContractName::new(
                     path.clone(),
-                    Some(ir.object.0.identifier.clone()),
+                    ir.as_ref().map(|ir| ir.object.0.identifier.to_owned()),
                 );
                 let full_path = name.full_path.clone();
                 let contract = Contract::new(
                     name,
-                    ir.into(),
+                    ir.map(ContractIR::from),
                     metadata,
                     None,
                     None,
@@ -300,7 +301,7 @@ impl Project {
                     None,
                     None,
                 );
-                Some((full_path, Ok(contract)))
+                (full_path, Ok(contract))
             })
             .collect::<BTreeMap<String, anyhow::Result<Contract>>>();
 
@@ -329,7 +330,7 @@ impl Project {
     ///
     pub fn try_from_llvm_ir_paths(
         paths: &[PathBuf],
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         output_selection: &solx_standard_json::InputSelection,
         solc_output: Option<&mut solx_standard_json::Output>,
     ) -> anyhow::Result<Self> {
@@ -356,7 +357,7 @@ impl Project {
     ///
     pub fn try_from_llvm_ir_sources(
         sources: BTreeMap<String, solx_standard_json::InputSource>,
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         output_selection: &solx_standard_json::InputSelection,
         mut solc_output: Option<&mut solx_standard_json::Output>,
     ) -> anyhow::Result<Self> {
@@ -373,11 +374,10 @@ impl Project {
                     None,
                     solx_standard_json::InputSelector::Metadata,
                 ) {
-                    let source_hash =
-                        era_compiler_common::Keccak256Hash::from_slice(source_code.as_bytes());
+                    let source_hash = solx_utils::Keccak256Hash::from_slice(source_code.as_bytes());
                     let metadata_json = serde_json::json!({
                         "source_hash": source_hash.to_string(),
-                        "llvm_version": era_compiler_llvm_context::LLVM_VERSION,
+                        "llvm_version": solx_codegen_evm::LLVM_VERSION,
                     });
                     Some(serde_json::to_string(&metadata_json).expect("Always valid"))
                 } else {
@@ -385,13 +385,15 @@ impl Project {
                 };
 
                 let contract = Contract::new(
-                    era_compiler_common::ContractName::new(path.clone(), None),
-                    ContractLLVMIR::new(
-                        path.clone(),
-                        era_compiler_common::CodeSegment::Runtime,
-                        source_code,
-                    )
-                    .into(),
+                    solx_utils::ContractName::new(path.clone(), None),
+                    Some(
+                        ContractLLVMIR::new(
+                            path.clone(),
+                            solx_utils::CodeSegment::Runtime,
+                            source_code,
+                        )
+                        .into(),
+                    ),
                     metadata,
                     None,
                     None,
@@ -434,11 +436,11 @@ impl Project {
         self,
         messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
         output_selection: &solx_standard_json::InputSelection,
-        metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+        metadata_hash_type: solx_utils::MetadataHashType,
         append_cbor: bool,
-        optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+        optimizer_settings: solx_codegen_evm::OptimizerSettings,
         llvm_options: Vec<String>,
-        debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<solx_codegen_evm::DebugConfig>,
     ) -> anyhow::Result<EVMBuild> {
         let results = self
             .contracts
@@ -458,32 +460,49 @@ impl Project {
 
                 let (deploy_code_ir, runtime_code_ir): (ContractIR, ContractIR) = match contract.ir
                 {
-                    ContractIR::Yul(mut deploy_code) => {
+                    Some(ContractIR::Yul(mut deploy_code)) => {
                         let runtime_code: ContractYul =
                             *deploy_code.runtime_code.take().expect("Always exists");
                         (deploy_code.into(), runtime_code.into())
                     }
-                    ContractIR::EVMLegacyAssembly(mut deploy_code) => {
+                    Some(ContractIR::EVMLegacyAssembly(mut deploy_code)) => {
                         let runtime_code: ContractEVMLegacyAssembly =
                             *deploy_code.runtime_code.take().expect("Always exists");
                         (deploy_code.into(), runtime_code.into())
                     }
-                    ContractIR::LLVMIR(runtime_code) => {
+                    Some(ContractIR::LLVMIR(runtime_code)) => {
                         let deploy_code_identifier = contract.name.full_path.to_owned();
                         let runtime_code_identifier = format!(
                             "{deploy_code_identifier}.{}",
-                            era_compiler_common::CodeSegment::Runtime
+                            solx_utils::CodeSegment::Runtime
                         );
 
                         let deploy_code = ContractLLVMIR::new(
                             deploy_code_identifier.clone(),
-                            era_compiler_common::CodeSegment::Deploy,
-                            era_compiler_llvm_context::evm_minimal_deploy_code(
+                            solx_utils::CodeSegment::Deploy,
+                            solx_codegen_evm::minimal_deploy_code(
                                 deploy_code_identifier.as_str(),
                                 runtime_code_identifier.as_str(),
                             ),
                         );
                         (deploy_code.into(), runtime_code.into())
+                    }
+                    None => {
+                        let build = EVMContractBuild::new(
+                            contract_name,
+                            None,
+                            None,
+                            metadata,
+                            abi,
+                            method_identifiers,
+                            userdoc,
+                            devdoc,
+                            storage_layout,
+                            transient_storage_layout,
+                            legacy_assembly,
+                            yul,
+                        );
+                        return (path, build);
                     }
                 };
 
@@ -500,7 +519,7 @@ impl Project {
                     let mut input = EVMProcessInput::new(
                         contract_name.clone(),
                         runtime_code_ir,
-                        era_compiler_common::CodeSegment::Runtime,
+                        solx_utils::CodeSegment::Runtime,
                         self.identifier_paths.clone(),
                         output_selection.to_owned(),
                         None,
@@ -527,7 +546,7 @@ impl Project {
                     let mut input = EVMProcessInput::new(
                         contract_name.clone(),
                         deploy_code_ir,
-                        era_compiler_common::CodeSegment::Deploy,
+                        solx_utils::CodeSegment::Deploy,
                         self.identifier_paths.clone(),
                         output_selection.to_owned(),
                         immutables,
@@ -547,8 +566,10 @@ impl Project {
 
                 let build = EVMContractBuild::new(
                     contract_name,
-                    deploy_object_result.map(|deploy_code_output| deploy_code_output.object),
-                    runtime_object_result.map(|runtime_code_output| runtime_code_output.object),
+                    Some(deploy_object_result.map(|deploy_code_output| deploy_code_output.object)),
+                    Some(
+                        runtime_object_result.map(|runtime_code_output| runtime_code_output.object),
+                    ),
                     metadata,
                     abi,
                     method_identifiers,
@@ -578,9 +599,9 @@ impl Project {
     fn cbor_metadata(
         metadata: Option<&str>,
         solc_version: Option<&solx_standard_json::Version>,
-        optimizer_settings: &era_compiler_llvm_context::OptimizerSettings,
+        optimizer_settings: &solx_codegen_evm::OptimizerSettings,
         llvm_options: &[String],
-        metadata_hash_type: era_compiler_common::EVMMetadataHashType,
+        metadata_hash_type: solx_utils::MetadataHashType,
         append_cbor: bool,
     ) -> Option<Vec<u8>> {
         if !append_cbor {
@@ -593,9 +614,9 @@ impl Project {
         let metadata_hash = metadata
             .as_ref()
             .and_then(|metadata| match metadata_hash_type {
-                era_compiler_common::EVMMetadataHashType::None => None,
-                era_compiler_common::EVMMetadataHashType::IPFS => {
-                    Some(era_compiler_common::IPFSHash::from_slice(metadata.as_bytes()).to_vec())
+                solx_utils::MetadataHashType::None => None,
+                solx_utils::MetadataHashType::IPFS => {
+                    Some(solx_utils::IPFSHash::from_slice(metadata.as_bytes()).to_vec())
                 }
             });
 
@@ -621,19 +642,15 @@ impl Project {
 
         match metadata_hash {
             Some(hash) => {
-                let cbor = era_compiler_common::CBOR::new(
-                    Some((
-                        era_compiler_common::EVMMetadataHashType::IPFS,
-                        hash.as_slice(),
-                    )),
+                let cbor = solx_utils::CBOR::new(
+                    Some((solx_utils::MetadataHashType::IPFS, hash.as_slice())),
                     cbor_data.0,
                     cbor_data.1,
                 );
                 Some(cbor.to_vec())
             }
             None => {
-                let cbor =
-                    era_compiler_common::CBOR::<'_, String>::new(None, cbor_data.0, cbor_data.1);
+                let cbor = solx_utils::CBOR::<'_, String>::new(None, cbor_data.0, cbor_data.1);
                 Some(cbor.to_vec())
             }
         }
@@ -647,7 +664,7 @@ impl Project {
     ///
     fn run_multi_pass_pipeline(
         path: &str,
-        contract_name: &era_compiler_common::ContractName,
+        contract_name: &solx_utils::ContractName,
         input: &mut EVMProcessInput,
         messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     ) -> crate::Result<EVMProcessOutput> {

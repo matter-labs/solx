@@ -16,7 +16,7 @@ pub struct Metadata<'a> {
     /// The `solx` compiler version.
     pub solx_version: semver::Version,
     /// The LLVM compiler optimizer settings.
-    pub optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+    pub optimizer_settings: solx_codegen_evm::OptimizerSettings,
     /// The LLVM extra arguments.
     pub llvm_options: &'a [String],
 }
@@ -26,7 +26,7 @@ impl<'a> Metadata<'a> {
     /// A shortcut constructor.
     ///
     pub fn new(
-        optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+        optimizer_settings: solx_codegen_evm::OptimizerSettings,
         llvm_options: &'a [String],
     ) -> Self {
         let solc_version = solx_solc::Compiler::default().version;

@@ -21,7 +21,7 @@ impl LinkReference {
     pub fn new(start: u64) -> Self {
         Self {
             start,
-            length: era_compiler_common::BYTE_LENGTH_ETH_ADDRESS,
+            length: solx_utils::BYTE_LENGTH_ETH_ADDRESS,
         }
     }
 }
