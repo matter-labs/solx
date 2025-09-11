@@ -14,7 +14,7 @@ pub enum Type {
         /// The function name.
         name: String,
         /// The function initial block key.
-        block_key: era_compiler_llvm_context::BlockKey,
+        block_key: solx_codegen_evm::BlockKey,
         /// The size of stack input (in cells or 256-bit words).
         input_size: usize,
         /// The size of stack output (in cells or 256-bit words).
@@ -35,7 +35,7 @@ impl Type {
     ///
     pub fn new_recursive(
         name: String,
-        block_key: era_compiler_llvm_context::BlockKey,
+        block_key: solx_codegen_evm::BlockKey,
         input_size: usize,
         output_size: usize,
     ) -> Self {

@@ -2,7 +2,7 @@
 //! The if-conditional statement.
 //!
 
-use era_compiler_llvm_context::IContext;
+use solx_codegen_evm::IContext;
 
 use crate::declare_wrapper;
 use crate::yul::parser::dialect::era::EraDialect;
@@ -13,8 +13,8 @@ declare_wrapper!(
     IfConditional
 );
 
-impl era_compiler_llvm_context::EVMWriteLLVM for IfConditional {
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for IfConditional {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let condition = self
             .0
             .condition

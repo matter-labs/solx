@@ -31,8 +31,7 @@ impl EVMLegacyAssembly {
 
         let mut runtime_code_assembly = assembly.runtime_code().expect("Always exists").to_owned();
         runtime_code_assembly.set_full_path(full_path.clone());
-        let runtime_code_identifier =
-            format!("{full_path}.{}", era_compiler_common::CodeSegment::Runtime);
+        let runtime_code_identifier = format!("{full_path}.{}", solx_utils::CodeSegment::Runtime);
         let mut runtime_code_dependencies =
             solx_yul::Dependencies::new(runtime_code_identifier.as_str());
         runtime_code_assembly.accumulate_evm_dependencies(&mut runtime_code_dependencies);

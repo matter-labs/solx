@@ -95,7 +95,7 @@ where
                 Statement::Object(Object::parse(
                     lexer,
                     Some(token.to_owned()),
-                    era_compiler_common::CodeSegment::Deploy,
+                    solx_utils::CodeSegment::Deploy,
                 )?),
                 None,
             )),

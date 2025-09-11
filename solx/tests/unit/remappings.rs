@@ -19,11 +19,11 @@ fn default(via_ir: bool) {
 
     crate::common::build_solidity_standard_json(
         sources,
-        era_compiler_common::Libraries::default(),
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::Libraries::default(),
+        solx_utils::MetadataHashType::IPFS,
         remappings,
         via_ir,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
 }

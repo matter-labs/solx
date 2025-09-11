@@ -113,11 +113,8 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input);
-        let result = Object::<DefaultDialect>::parse(
-            &mut lexer,
-            None,
-            era_compiler_common::CodeSegment::Deploy,
-        );
+        let result =
+            Object::<DefaultDialect>::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy);
         assert_eq!(
             result,
             Err(Error::InvalidToken {

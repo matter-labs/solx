@@ -54,7 +54,7 @@ impl Input {
                 anyhow::anyhow!("Standard JSON input debug file `{output_path}` writing: {error}")
             })?;
         }
-        era_compiler_common::deserialize_from_str::<Self>(input_json.as_str())
+        solx_utils::deserialize_from_str::<Self>(input_json.as_str())
             .map_err(|error| anyhow::anyhow!("Standard JSON parsing: {error}"))
     }
 
@@ -66,14 +66,14 @@ impl Input {
         libraries: &[String],
         remappings: BTreeSet<String>,
         optimizer: InputSettingsOptimizer,
-        evm_version: Option<era_compiler_common::EVMVersion>,
+        evm_version: Option<solx_utils::EVMVersion>,
         via_ir: bool,
         output_selection: &InputSettingsSelection,
         metadata: InputSettingsMetadata,
         llvm_options: Vec<String>,
     ) -> anyhow::Result<Self> {
         let mut paths: BTreeSet<PathBuf> = paths.iter().cloned().collect();
-        let libraries = era_compiler_common::Libraries::try_from(libraries)?;
+        let libraries = solx_utils::Libraries::try_from(libraries)?;
         for library_file in libraries.as_inner().keys() {
             paths.insert(PathBuf::from(library_file));
         }
@@ -109,10 +109,10 @@ impl Input {
     ///
     pub fn try_from_solidity_sources(
         sources: BTreeMap<String, Source>,
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         remappings: BTreeSet<String>,
         optimizer: InputSettingsOptimizer,
-        evm_version: Option<era_compiler_common::EVMVersion>,
+        evm_version: Option<solx_utils::EVMVersion>,
         via_ir: bool,
         output_selection: &InputSettingsSelection,
         metadata: InputSettingsMetadata,
@@ -139,7 +139,7 @@ impl Input {
     ///
     pub fn from_yul_paths(
         paths: &[PathBuf],
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         optimizer: InputSettingsOptimizer,
         output_selection: &InputSettingsSelection,
         metadata: InputSettingsMetadata,
@@ -170,7 +170,7 @@ impl Input {
     ///
     pub fn from_yul_sources(
         sources: BTreeMap<String, Source>,
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         optimizer: InputSettingsOptimizer,
         output_selection: &InputSettingsSelection,
         metadata: InputSettingsMetadata,
@@ -197,7 +197,7 @@ impl Input {
     ///
     pub fn from_llvm_ir_paths(
         paths: &[PathBuf],
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         optimizer: InputSettingsOptimizer,
         output_selection: &InputSettingsSelection,
         metadata: InputSettingsMetadata,
@@ -228,7 +228,7 @@ impl Input {
     ///
     pub fn from_llvm_ir_sources(
         sources: BTreeMap<String, Source>,
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
         optimizer: InputSettingsOptimizer,
         output_selection: &InputSettingsSelection,
         metadata: InputSettingsMetadata,

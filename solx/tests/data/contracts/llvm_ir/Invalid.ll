@@ -25,7 +25,7 @@ wrong:
   store i256 42, i256 addrspace(1)* inttoptr (i256 0 to i256 addrspace(1)*), align 32
 
   %abi_data = shl i256 32, 96
-  tail call void @llvm.eravm.return(i256 %abi_data) #1
+  tail call void @llvm.unknown.return(i256 %abi_data) #1
   unreachable
 }
 
@@ -35,12 +35,12 @@ define private void @__constructor() local_unnamed_addr #0 personality i32 ()* @
   store i256 0, i256 addrspace(1)* inttoptr (i256 32 to i256 addrspace(1)*), align 32
 
   %abi_data = shl i256 64, 96
-  tail call void @llvm.eravm.return(i256 %abi_data) #1
+  tail call void @llvm.unknown.return(i256 %abi_data) #1
   unreachable
 }
 
 ; Function Attrs: noreturn nounwind
-declare void @llvm.eravm.return(i256) #0
+declare void @llvm.unknown.return(i256) #0
 
 attributes #0 = { noreturn nounwind }
 attributes #1 = { nounwind }

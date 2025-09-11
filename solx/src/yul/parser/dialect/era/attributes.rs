@@ -19,7 +19,7 @@ pub const LLVM_ATTRIBUTE_SUFFIX: &str = "_llvm$";
 ///
 pub(crate) fn get_llvm_attributes(
     identifier: &Identifier,
-) -> Result<BTreeSet<era_compiler_llvm_context::Attribute>, YulError> {
+) -> Result<BTreeSet<solx_codegen_evm::Attribute>, YulError> {
     let mut valid_attributes = BTreeSet::new();
 
     let llvm_begin = identifier.inner.find(LLVM_ATTRIBUTE_PREFIX);
@@ -36,7 +36,7 @@ pub(crate) fn get_llvm_attributes(
 
     let mut invalid_attributes = BTreeSet::new();
     for value in attribute_string.split('_') {
-        match era_compiler_llvm_context::Attribute::try_from(value) {
+        match solx_codegen_evm::Attribute::try_from(value) {
             Ok(attribute) => valid_attributes.insert(attribute),
             Err(value) => invalid_attributes.insert(value),
         };
@@ -72,15 +72,13 @@ mod tests {
         }
     }
 
-    fn attribute_helper(s: &&str) -> era_compiler_llvm_context::Attribute {
-        era_compiler_llvm_context::Attribute::try_from(*s).expect(
-            "Internal error in test: trying to create an instance of `era_compiler_llvm_context::Attribute` from an invalid string representation.",
+    fn attribute_helper(s: &&str) -> solx_codegen_evm::Attribute {
+        solx_codegen_evm::Attribute::try_from(*s).expect(
+            "Internal error in test: trying to create an instance of `solx_codegen_evm::Attribute` from an invalid string representation.",
         )
     }
 
-    fn immediate_attributes(
-        representations: &[&str],
-    ) -> BTreeSet<era_compiler_llvm_context::Attribute> {
+    fn immediate_attributes(representations: &[&str]) -> BTreeSet<solx_codegen_evm::Attribute> {
         representations.iter().map(attribute_helper).collect()
     }
 

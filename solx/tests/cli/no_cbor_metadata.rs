@@ -2,14 +2,14 @@
 //! CLI tests for the eponymous option.
 //!
 
-use era_compiler_common::EVMMetadataHashType;
 use predicates::prelude::*;
+use solx_utils::MetadataHashType;
 
 #[test]
 fn none() -> anyhow::Result<()> {
     let _ = crate::common::setup();
 
-    let hash_type = EVMMetadataHashType::None.to_string();
+    let hash_type = MetadataHashType::None.to_string();
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--metadata-hash",
@@ -32,7 +32,7 @@ fn none() -> anyhow::Result<()> {
 fn ipfs_solidity() -> anyhow::Result<()> {
     let _ = crate::common::setup();
 
-    let hash_type = EVMMetadataHashType::IPFS.to_string();
+    let hash_type = MetadataHashType::IPFS.to_string();
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_PATH,
         "--metadata-hash",
@@ -55,7 +55,7 @@ fn ipfs_solidity() -> anyhow::Result<()> {
 fn ipfs_yul() -> anyhow::Result<()> {
     let _ = crate::common::setup();
 
-    let hash_type = EVMMetadataHashType::IPFS.to_string();
+    let hash_type = MetadataHashType::IPFS.to_string();
     let args = &[
         "--yul",
         crate::common::TEST_YUL_CONTRACT_PATH,
@@ -79,7 +79,7 @@ fn ipfs_yul() -> anyhow::Result<()> {
 fn ipfs_llvm_ir() -> anyhow::Result<()> {
     let _ = crate::common::setup();
 
-    let hash_type = EVMMetadataHashType::IPFS.to_string();
+    let hash_type = MetadataHashType::IPFS.to_string();
     let args = &[
         "--llvm-ir",
         crate::common::TEST_LLVM_IR_CONTRACT_PATH,

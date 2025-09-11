@@ -8,7 +8,7 @@ use predicates::prelude::*;
 fn default() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let evm_version = era_compiler_common::EVMVersion::Cancun.to_string();
+    let evm_version = solx_utils::EVMVersion::Cancun.to_string();
     let args = &[
         "--evm-version",
         evm_version.as_str(),
@@ -28,7 +28,7 @@ fn default() -> anyhow::Result<()> {
 fn yul() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let evm_version = era_compiler_common::EVMVersion::Cancun.to_string();
+    let evm_version = solx_utils::EVMVersion::Cancun.to_string();
     let args = &[
         "--evm-version",
         evm_version.as_str(),
@@ -49,7 +49,7 @@ fn yul() -> anyhow::Result<()> {
 fn llvm_ir() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let evm_version = era_compiler_common::EVMVersion::Cancun.to_string();
+    let evm_version = solx_utils::EVMVersion::Cancun.to_string();
     let args = &[
         "--evm-version",
         evm_version.as_str(),
@@ -70,7 +70,7 @@ fn llvm_ir() -> anyhow::Result<()> {
 fn standard_json() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let evm_version = era_compiler_common::EVMVersion::Cancun.to_string();
+    let evm_version = solx_utils::EVMVersion::Cancun.to_string();
     let args = &[
         "--standard-json",
         crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH,

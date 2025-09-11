@@ -62,9 +62,9 @@ fn main() -> anyhow::Result<()> {
         .iter()
         .any(|error| error.severity == "error")
     {
-        era_compiler_common::EXIT_CODE_FAILURE
+        solx_utils::EXIT_CODE_FAILURE
     } else {
-        era_compiler_common::EXIT_CODE_SUCCESS
+        solx_utils::EXIT_CODE_SUCCESS
     };
     std::io::stderr()
         .write_all(
@@ -113,7 +113,7 @@ fn main_inner(
         .expect("Thread pool configuration failure");
 
     inkwell::support::enable_llvm_pretty_stack_trace();
-    era_compiler_llvm_context::initialize_target(era_compiler_common::Target::EVM);
+    solx_codegen_evm::initialize_target();
 
     if arguments.recursive_process {
         return solx::run_recursive();
@@ -122,7 +122,7 @@ fn main_inner(
     let (input_files, remappings) = arguments.split_input_files_and_remappings()?;
 
     let mut optimizer_settings = match arguments.optimization {
-        Some(mode) => era_compiler_llvm_context::OptimizerSettings::try_from_cli(mode)?,
+        Some(mode) => solx_codegen_evm::OptimizerSettings::try_from_cli(mode)?,
         None if arguments.standard_json.is_none() => {
             if let Ok(optimization) = std::env::var("SOLX_OPTIMIZATION") {
                 if !["1", "2", "3", "s", "z"].contains(&optimization.as_str()) {
@@ -130,14 +130,14 @@ fn main_inner(
                         "Invalid value `{optimization}` for environment variable 'SOLX_OPTIMIZATION': only values 1, 2, 3, s, z are supported."
                     );
                 }
-                era_compiler_llvm_context::OptimizerSettings::try_from_cli(
+                solx_codegen_evm::OptimizerSettings::try_from_cli(
                     optimization.chars().next().expect("Always exists"),
                 )?
             } else {
-                era_compiler_llvm_context::OptimizerSettings::cycles()
+                solx_codegen_evm::OptimizerSettings::cycles()
             }
         }
-        None => era_compiler_llvm_context::OptimizerSettings::cycles(),
+        None => solx_codegen_evm::OptimizerSettings::cycles(),
     };
     if arguments.size_fallback || std::env::var("SOLX_OPTIMIZATION_SIZE_FALLBACK").is_ok() {
         optimizer_settings.enable_fallback_to_size();
@@ -210,7 +210,7 @@ fn main_inner(
     {
         Some(ref debug_output_directory) => {
             std::fs::create_dir_all(debug_output_directory.as_path())?;
-            Some(era_compiler_llvm_context::DebugConfig::new(
+            Some(solx_codegen_evm::DebugConfig::new(
                 debug_output_directory.to_owned(),
             ))
         }
@@ -219,7 +219,7 @@ fn main_inner(
 
     let metadata_hash_type = arguments
         .metadata_hash
-        .unwrap_or(era_compiler_common::EVMMetadataHashType::IPFS);
+        .unwrap_or(solx_utils::MetadataHashType::IPFS);
     let append_cbor = !arguments.no_cbor_metadata;
     let use_import_callback = !arguments.no_import_callback;
 

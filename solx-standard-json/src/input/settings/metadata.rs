@@ -22,7 +22,7 @@ pub struct Metadata {
 
     /// The metadata hash type.
     #[serde(default = "Metadata::default_bytecode_hash", skip_serializing)]
-    pub bytecode_hash: era_compiler_common::EVMMetadataHashType,
+    pub bytecode_hash: solx_utils::MetadataHashType,
 }
 
 impl Default for Metadata {
@@ -38,7 +38,7 @@ impl Metadata {
     pub fn new(
         use_literal_content: bool,
         append_cbor: bool,
-        hash_type: era_compiler_common::EVMMetadataHashType,
+        hash_type: solx_utils::MetadataHashType,
     ) -> Self {
         Self {
             bytecode_hash: hash_type,
@@ -50,8 +50,8 @@ impl Metadata {
     ///
     /// The default metadata hash type.
     ///
-    fn default_bytecode_hash() -> era_compiler_common::EVMMetadataHashType {
-        era_compiler_common::EVMMetadataHashType::IPFS
+    fn default_bytecode_hash() -> solx_utils::MetadataHashType {
+        solx_utils::MetadataHashType::IPFS
     }
 
     ///

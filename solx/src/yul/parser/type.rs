@@ -17,10 +17,10 @@ impl Type {
     ///
     pub fn into_llvm<'ctx, C>(self, context: &C) -> inkwell::types::IntType<'ctx>
     where
-        C: era_compiler_llvm_context::IContext<'ctx>,
+        C: solx_codegen_evm::IContext<'ctx>,
     {
         match self.0 {
-            YulType::Bool => context.integer_type(era_compiler_common::BIT_LENGTH_BOOLEAN),
+            YulType::Bool => context.integer_type(solx_utils::BIT_LENGTH_BOOLEAN),
             YulType::Int(bitlength) => context.integer_type(bitlength),
             YulType::UInt(bitlength) => context.integer_type(bitlength),
             YulType::Custom(_) => context.field_type(),

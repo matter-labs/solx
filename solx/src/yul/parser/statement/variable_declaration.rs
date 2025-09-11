@@ -2,9 +2,9 @@
 //! The variable declaration statement.
 //!
 
-use era_compiler_llvm_context::IContext;
 use inkwell::types::BasicType;
 use inkwell::values::BasicValue;
+use solx_codegen_evm::IContext;
 
 use crate::declare_wrapper;
 use crate::yul::parser::wrapper::Wrap;
@@ -14,10 +14,10 @@ declare_wrapper!(
     VariableDeclaration
 );
 
-impl era_compiler_llvm_context::EVMWriteLLVM for VariableDeclaration {
+impl solx_codegen_evm::WriteLLVM for VariableDeclaration {
     fn into_llvm<'ctx>(
         mut self,
-        context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
+        context: &mut solx_codegen_evm::Context<'ctx>,
     ) -> anyhow::Result<()> {
         if self.0.bindings.len() == 1 {
             let identifier = self.0.bindings.remove(0);
@@ -103,7 +103,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for VariableDeclaration {
                 &[
                     context.field_const(0),
                     context
-                        .integer_type(era_compiler_common::BIT_LENGTH_X32)
+                        .integer_type(solx_utils::BIT_LENGTH_X32)
                         .const_int(index as u64, false),
                 ],
                 binding.r#type.unwrap_or_default().wrap().into_llvm(context),

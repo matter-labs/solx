@@ -67,7 +67,7 @@ pub struct Arguments {
     /// EVM version `solc` will produce Yul or EVM assembly for.
     /// The default is chosen by `solc`.
     #[arg(long)]
-    pub evm_version: Option<era_compiler_common::EVMVersion>,
+    pub evm_version: Option<solx_utils::EVMVersion>,
 
     /// Specify addresses of deployable libraries. Syntax: `<libraryFullPath1>=<address1> ... <libraryFullPathN>=<addressN>`.
     /// Addresses are interpreted as hexadecimal strings prefixed with `0x`.
@@ -104,7 +104,7 @@ pub struct Arguments {
     /// Available types: `none`, `ipfs`.
     /// The default is `ipfs`.
     #[arg(long)]
-    pub metadata_hash: Option<era_compiler_common::EVMMetadataHashType>,
+    pub metadata_hash: Option<solx_utils::MetadataHashType>,
 
     /// Sets the literal content flag for contract metadata.
     /// If enabled, the metadata will contain the literal content of the source files.

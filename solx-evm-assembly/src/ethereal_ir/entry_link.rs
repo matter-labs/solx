@@ -2,7 +2,7 @@
 //! The Ethereal IR entry function link.
 //!
 
-use era_compiler_llvm_context::IContext;
+use solx_codegen_evm::IContext;
 
 use crate::ethereal_ir::EtherealIR;
 
@@ -14,20 +14,20 @@ use crate::ethereal_ir::EtherealIR;
 #[derive(Debug)]
 pub struct EntryLink {
     /// The code segment.
-    pub code_segment: era_compiler_common::CodeSegment,
+    pub code_segment: solx_utils::CodeSegment,
 }
 
 impl EntryLink {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(code_segment: era_compiler_common::CodeSegment) -> Self {
+    pub fn new(code_segment: solx_utils::CodeSegment) -> Self {
         Self { code_segment }
     }
 }
 
-impl era_compiler_llvm_context::EVMWriteLLVM for EntryLink {
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for EntryLink {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let target = context
             .get_function(EtherealIR::DEFAULT_ENTRY_FUNCTION_NAME)
             .expect("Always exists")

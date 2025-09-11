@@ -2,7 +2,7 @@
 //! The function call subexpression.
 //!
 
-use era_compiler_llvm_context::IContext;
+use solx_codegen_evm::IContext;
 
 use solx_yul::yul::parser::statement::expression::function_call::name::Name;
 
@@ -20,7 +20,7 @@ impl FunctionCall {
     ///
     pub fn into_llvm<'ctx>(
         mut self,
-        context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
+        context: &mut solx_codegen_evm::Context<'ctx>,
     ) -> anyhow::Result<Option<inkwell::values::BasicValueEnum<'ctx>>> {
         let location = self.0.location;
 
@@ -60,7 +60,7 @@ impl FunctionCall {
 
             Name::Add => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_arithmetic::addition(
+                solx_codegen_evm::arithmetic::addition(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -69,7 +69,7 @@ impl FunctionCall {
             }
             Name::Sub => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_arithmetic::subtraction(
+                solx_codegen_evm::arithmetic::subtraction(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -78,7 +78,7 @@ impl FunctionCall {
             }
             Name::Mul => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_arithmetic::multiplication(
+                solx_codegen_evm::arithmetic::multiplication(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -87,7 +87,7 @@ impl FunctionCall {
             }
             Name::Div => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_arithmetic::division(
+                solx_codegen_evm::arithmetic::division(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -96,7 +96,7 @@ impl FunctionCall {
             }
             Name::Mod => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_arithmetic::remainder(
+                solx_codegen_evm::arithmetic::remainder(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -105,7 +105,7 @@ impl FunctionCall {
             }
             Name::Sdiv => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_arithmetic::division_signed(
+                solx_codegen_evm::arithmetic::division_signed(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -114,7 +114,7 @@ impl FunctionCall {
             }
             Name::Smod => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_arithmetic::remainder_signed(
+                solx_codegen_evm::arithmetic::remainder_signed(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -124,7 +124,7 @@ impl FunctionCall {
 
             Name::Lt => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -134,7 +134,7 @@ impl FunctionCall {
             }
             Name::Gt => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -144,7 +144,7 @@ impl FunctionCall {
             }
             Name::Eq => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -154,7 +154,7 @@ impl FunctionCall {
             }
             Name::IsZero => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     context.field_const(0),
@@ -164,7 +164,7 @@ impl FunctionCall {
             }
             Name::Slt => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -174,7 +174,7 @@ impl FunctionCall {
             }
             Name::Sgt => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -185,7 +185,7 @@ impl FunctionCall {
 
             Name::Or => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_bitwise::or(
+                solx_codegen_evm::bitwise::or(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -194,7 +194,7 @@ impl FunctionCall {
             }
             Name::Xor => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_bitwise::xor(
+                solx_codegen_evm::bitwise::xor(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -203,7 +203,7 @@ impl FunctionCall {
             }
             Name::Not => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_bitwise::xor(
+                solx_codegen_evm::bitwise::xor(
                     context,
                     arguments[0].into_int_value(),
                     context.field_type().const_all_ones(),
@@ -212,7 +212,7 @@ impl FunctionCall {
             }
             Name::And => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_bitwise::and(
+                solx_codegen_evm::bitwise::and(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -221,7 +221,7 @@ impl FunctionCall {
             }
             Name::Shl => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_bitwise::shift_left(
+                solx_codegen_evm::bitwise::shift_left(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -230,7 +230,7 @@ impl FunctionCall {
             }
             Name::Shr => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_bitwise::shift_right(
+                solx_codegen_evm::bitwise::shift_right(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -239,7 +239,7 @@ impl FunctionCall {
             }
             Name::Sar => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_bitwise::shift_right_arithmetic(
+                solx_codegen_evm::bitwise::shift_right_arithmetic(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -248,7 +248,7 @@ impl FunctionCall {
             }
             Name::Byte => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_bitwise::byte(
+                solx_codegen_evm::bitwise::byte(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -262,7 +262,7 @@ impl FunctionCall {
 
             Name::AddMod => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                era_compiler_llvm_context::evm_math::add_mod(
+                solx_codegen_evm::math::add_mod(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -272,7 +272,7 @@ impl FunctionCall {
             }
             Name::MulMod => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                era_compiler_llvm_context::evm_math::mul_mod(
+                solx_codegen_evm::math::mul_mod(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -282,7 +282,7 @@ impl FunctionCall {
             }
             Name::Exp => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_math::exponent(
+                solx_codegen_evm::math::exponent(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -291,7 +291,7 @@ impl FunctionCall {
             }
             Name::SignExtend => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_math::sign_extend(
+                solx_codegen_evm::math::sign_extend(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -300,7 +300,7 @@ impl FunctionCall {
             }
             Name::Keccak256 => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_math::keccak256(
+                solx_codegen_evm::math::keccak256(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -310,12 +310,11 @@ impl FunctionCall {
 
             Name::MLoad => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_memory::load(context, arguments[0].into_int_value())
-                    .map(Some)
+                solx_codegen_evm::memory::load(context, arguments[0].into_int_value()).map(Some)
             }
             Name::MStore => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_memory::store(
+                solx_codegen_evm::memory::store(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -324,7 +323,7 @@ impl FunctionCall {
             }
             Name::MStore8 => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_memory::store_byte(
+                solx_codegen_evm::memory::store_byte(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -333,16 +332,16 @@ impl FunctionCall {
             }
             Name::MCopy => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                let destination = era_compiler_llvm_context::Pointer::new_with_offset(
+                let destination = solx_codegen_evm::Pointer::new_with_offset(
                     context,
-                    era_compiler_llvm_context::EVMAddressSpace::Heap,
+                    solx_codegen_evm::AddressSpace::Heap,
                     context.byte_type(),
                     arguments[0].into_int_value(),
                     "mcopy_destination",
                 )?;
-                let source = era_compiler_llvm_context::Pointer::new_with_offset(
+                let source = solx_codegen_evm::Pointer::new_with_offset(
                     context,
-                    era_compiler_llvm_context::EVMAddressSpace::Heap,
+                    solx_codegen_evm::AddressSpace::Heap,
                     context.byte_type(),
                     arguments[1].into_int_value(),
                     "mcopy_source",
@@ -360,12 +359,11 @@ impl FunctionCall {
 
             Name::SLoad => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_storage::load(context, arguments[0].into_int_value())
-                    .map(Some)
+                solx_codegen_evm::storage::load(context, arguments[0].into_int_value()).map(Some)
             }
             Name::SStore => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_storage::store(
+                solx_codegen_evm::storage::store(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -374,15 +372,12 @@ impl FunctionCall {
             }
             Name::TLoad => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_storage::transient_load(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::storage::transient_load(context, arguments[0].into_int_value())
+                    .map(Some)
             }
             Name::TStore => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_storage::transient_store(
+                solx_codegen_evm::storage::transient_store(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -394,7 +389,7 @@ impl FunctionCall {
                 let id = arguments[0].original.take().ok_or_else(|| {
                     anyhow::anyhow!("{location} `loadimmutable` literal is missing")
                 })?;
-                era_compiler_llvm_context::evm_immutable::load(context, id.as_str()).map(Some)
+                solx_codegen_evm::immutable::load(context, id.as_str()).map(Some)
             }
             Name::SetImmutable => {
                 let mut arguments = self.pop_arguments::<3>(context)?;
@@ -405,27 +400,18 @@ impl FunctionCall {
 
                 let base_offset = arguments[0].to_llvm().into_int_value();
                 let value = arguments[2].to_llvm().into_int_value();
-                era_compiler_llvm_context::evm_immutable::store(
-                    context,
-                    id.as_str(),
-                    base_offset,
-                    value,
-                )
-                .map(|_| None)
+                solx_codegen_evm::immutable::store(context, id.as_str(), base_offset, value)
+                    .map(|_| None)
             }
 
             Name::CallDataLoad => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_calldata::load(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::calldata::load(context, arguments[0].into_int_value()).map(Some)
             }
-            Name::CallDataSize => era_compiler_llvm_context::evm_calldata::size(context).map(Some),
+            Name::CallDataSize => solx_codegen_evm::calldata::size(context).map(Some),
             Name::CallDataCopy => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                era_compiler_llvm_context::evm_calldata::copy(
+                solx_codegen_evm::calldata::copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -434,12 +420,10 @@ impl FunctionCall {
                 Ok(None)
             }
 
-            Name::ReturnDataSize => {
-                era_compiler_llvm_context::evm_return_data::size(context).map(Some)
-            }
+            Name::ReturnDataSize => solx_codegen_evm::r#return_data::size(context).map(Some),
             Name::ReturnDataCopy => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                era_compiler_llvm_context::evm_return_data::copy(
+                solx_codegen_evm::r#return_data::copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -448,10 +432,10 @@ impl FunctionCall {
                 Ok(None)
             }
 
-            Name::CodeSize => era_compiler_llvm_context::evm_code::size(context).map(Some),
+            Name::CodeSize => solx_codegen_evm::code::size(context).map(Some),
             Name::CodeCopy => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                era_compiler_llvm_context::evm_code::copy(
+                solx_codegen_evm::code::copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -461,15 +445,11 @@ impl FunctionCall {
             }
             Name::ExtCodeSize => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_code::ext_size(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::code::ext_size(context, arguments[0].into_int_value()).map(Some)
             }
             Name::ExtCodeCopy => {
                 let arguments = self.pop_arguments_llvm::<4>(context)?;
-                era_compiler_llvm_context::evm_code::ext_copy(
+                solx_codegen_evm::code::ext_copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -480,16 +460,12 @@ impl FunctionCall {
             }
             Name::ExtCodeHash => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
-                era_compiler_llvm_context::evm_code::ext_hash(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::code::ext_hash(context, arguments[0].into_int_value()).map(Some)
             }
 
             Name::Return => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_return::r#return(
+                solx_codegen_evm::r#return::r#return(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -498,19 +474,19 @@ impl FunctionCall {
             }
             Name::Revert => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_return::revert(
+                solx_codegen_evm::r#return::revert(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
                 )
                 .map(|_| None)
             }
-            Name::Stop => era_compiler_llvm_context::evm_return::stop(context).map(|_| None),
-            Name::Invalid => era_compiler_llvm_context::evm_return::invalid(context).map(|_| None),
+            Name::Stop => solx_codegen_evm::r#return::stop(context).map(|_| None),
+            Name::Invalid => solx_codegen_evm::r#return::invalid(context).map(|_| None),
 
             Name::Log0 => {
                 let arguments = self.pop_arguments_llvm::<2>(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -520,7 +496,7 @@ impl FunctionCall {
             }
             Name::Log1 => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -533,7 +509,7 @@ impl FunctionCall {
             }
             Name::Log2 => {
                 let arguments = self.pop_arguments_llvm::<4>(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -546,7 +522,7 @@ impl FunctionCall {
             }
             Name::Log3 => {
                 let arguments = self.pop_arguments_llvm::<5>(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -559,7 +535,7 @@ impl FunctionCall {
             }
             Name::Log4 => {
                 let arguments = self.pop_arguments_llvm::<6>(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -582,7 +558,7 @@ impl FunctionCall {
                 let output_offset = arguments[5].value.into_int_value();
                 let output_size = arguments[6].value.into_int_value();
 
-                Ok(Some(era_compiler_llvm_context::evm_call::call(
+                Ok(Some(solx_codegen_evm::call::call(
                     context,
                     gas,
                     address,
@@ -603,7 +579,7 @@ impl FunctionCall {
                 let output_offset = arguments[4].value.into_int_value();
                 let output_size = arguments[5].value.into_int_value();
 
-                Ok(Some(era_compiler_llvm_context::evm_call::static_call(
+                Ok(Some(solx_codegen_evm::call::static_call(
                     context,
                     gas,
                     address,
@@ -623,7 +599,7 @@ impl FunctionCall {
                 let output_offset = arguments[4].value.into_int_value();
                 let output_size = arguments[5].value.into_int_value();
 
-                Ok(Some(era_compiler_llvm_context::evm_call::delegate_call(
+                Ok(Some(solx_codegen_evm::call::delegate_call(
                     context,
                     gas,
                     address,
@@ -641,13 +617,8 @@ impl FunctionCall {
                 let input_offset = arguments[1].into_int_value();
                 let input_length = arguments[2].into_int_value();
 
-                era_compiler_llvm_context::evm_create::create(
-                    context,
-                    value,
-                    input_offset,
-                    input_length,
-                )
-                .map(Some)
+                solx_codegen_evm::create::create(context, value, input_offset, input_length)
+                    .map(Some)
             }
             Name::Create2 => {
                 let arguments = self.pop_arguments_llvm::<4>(context)?;
@@ -657,14 +628,8 @@ impl FunctionCall {
                 let input_length = arguments[2].into_int_value();
                 let salt = arguments[3].into_int_value();
 
-                era_compiler_llvm_context::evm_create::create2(
-                    context,
-                    value,
-                    input_offset,
-                    input_length,
-                    salt,
-                )
-                .map(Some)
+                solx_codegen_evm::create::create2(context, value, input_offset, input_length, salt)
+                    .map(Some)
             }
             Name::DataOffset => {
                 let mut arguments = self.pop_arguments::<1>(context)?;
@@ -672,7 +637,7 @@ impl FunctionCall {
                     anyhow::anyhow!("{} `dataoffset` literal is missing", location)
                 })?;
                 let object_name = object_name.split('.').next_back().expect("Always exists");
-                era_compiler_llvm_context::evm_code::data_offset(context, object_name).map(Some)
+                solx_codegen_evm::code::data_offset(context, object_name).map(Some)
             }
             Name::DataSize => {
                 let mut arguments = self.pop_arguments::<1>(context)?;
@@ -681,11 +646,11 @@ impl FunctionCall {
                     .take()
                     .ok_or_else(|| anyhow::anyhow!("{} `datasize` literal is missing", location))?;
                 let object_name = object_name.split('.').next_back().expect("Always exists");
-                era_compiler_llvm_context::evm_code::data_size(context, object_name).map(Some)
+                solx_codegen_evm::code::data_size(context, object_name).map(Some)
             }
             Name::DataCopy => {
                 let arguments = self.pop_arguments_llvm::<3>(context)?;
-                era_compiler_llvm_context::evm_code::copy(
+                solx_codegen_evm::code::copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -699,7 +664,7 @@ impl FunctionCall {
                 let path = arguments[0].original.take().ok_or_else(|| {
                     anyhow::anyhow!("{location} Linker symbol literal is missing")
                 })?;
-                era_compiler_llvm_context::evm_call::linker_symbol(context, path.as_str()).map(Some)
+                solx_codegen_evm::call::linker_symbol(context, path.as_str()).map(Some)
             }
             Name::MemoryGuard => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
@@ -708,7 +673,7 @@ impl FunctionCall {
                     .settings()
                     .spill_area_size()
                     .unwrap_or_default();
-                era_compiler_llvm_context::evm_arithmetic::addition(
+                solx_codegen_evm::arithmetic::addition(
                     context,
                     arguments[0].into_int_value(),
                     context.field_const(spill_area),
@@ -719,57 +684,36 @@ impl FunctionCall {
             Name::Address => context.build_call(context.intrinsics().address, &[], "address"),
             Name::Caller => context.build_call(context.intrinsics().caller, &[], "caller"),
 
-            Name::CallValue => {
-                era_compiler_llvm_context::evm_ether_gas::callvalue(context).map(Some)
-            }
-            Name::Gas => era_compiler_llvm_context::evm_ether_gas::gas(context).map(Some),
+            Name::CallValue => solx_codegen_evm::ether_gas::callvalue(context).map(Some),
+            Name::Gas => solx_codegen_evm::ether_gas::gas(context).map(Some),
             Name::Balance => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
 
                 let address = arguments[0].into_int_value();
-                era_compiler_llvm_context::evm_ether_gas::balance(context, address).map(Some)
+                solx_codegen_evm::ether_gas::balance(context, address).map(Some)
             }
-            Name::SelfBalance => {
-                era_compiler_llvm_context::evm_ether_gas::self_balance(context).map(Some)
-            }
+            Name::SelfBalance => solx_codegen_evm::ether_gas::self_balance(context).map(Some),
 
-            Name::GasLimit => {
-                era_compiler_llvm_context::evm_contract_context::gas_limit(context).map(Some)
-            }
-            Name::GasPrice => {
-                era_compiler_llvm_context::evm_contract_context::gas_price(context).map(Some)
-            }
-            Name::Origin => {
-                era_compiler_llvm_context::evm_contract_context::origin(context).map(Some)
-            }
-            Name::ChainId => {
-                era_compiler_llvm_context::evm_contract_context::chain_id(context).map(Some)
-            }
+            Name::GasLimit => solx_codegen_evm::contract_context::gas_limit(context).map(Some),
+            Name::GasPrice => solx_codegen_evm::contract_context::gas_price(context).map(Some),
+            Name::Origin => solx_codegen_evm::contract_context::origin(context).map(Some),
+            Name::ChainId => solx_codegen_evm::contract_context::chain_id(context).map(Some),
             Name::Timestamp => {
-                era_compiler_llvm_context::evm_contract_context::block_timestamp(context).map(Some)
+                solx_codegen_evm::contract_context::block_timestamp(context).map(Some)
             }
-            Name::Number => {
-                era_compiler_llvm_context::evm_contract_context::block_number(context).map(Some)
-            }
+            Name::Number => solx_codegen_evm::contract_context::block_number(context).map(Some),
             Name::BlockHash => {
                 let arguments = self.pop_arguments_llvm::<1>(context)?;
                 let index = arguments[0].into_int_value();
 
-                era_compiler_llvm_context::evm_contract_context::block_hash(context, index)
-                    .map(Some)
+                solx_codegen_evm::contract_context::block_hash(context, index).map(Some)
             }
             Name::Difficulty | Name::Prevrandao => {
-                era_compiler_llvm_context::evm_contract_context::difficulty(context).map(Some)
+                solx_codegen_evm::contract_context::difficulty(context).map(Some)
             }
-            Name::CoinBase => {
-                era_compiler_llvm_context::evm_contract_context::coinbase(context).map(Some)
-            }
-            Name::BaseFee => {
-                era_compiler_llvm_context::evm_contract_context::basefee(context).map(Some)
-            }
-            Name::MSize => {
-                era_compiler_llvm_context::evm_contract_context::msize(context).map(Some)
-            }
+            Name::CoinBase => solx_codegen_evm::contract_context::coinbase(context).map(Some),
+            Name::BaseFee => solx_codegen_evm::contract_context::basefee(context).map(Some),
+            Name::MSize => solx_codegen_evm::contract_context::msize(context).map(Some),
 
             Name::CallCode => {
                 let _arguments = self.pop_arguments_llvm::<7>(context)?;
@@ -790,7 +734,7 @@ impl FunctionCall {
     ///
     fn pop_arguments_llvm<'ctx, const N: usize>(
         &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
+        context: &mut solx_codegen_evm::Context<'ctx>,
     ) -> anyhow::Result<[inkwell::values::BasicValueEnum<'ctx>; N]> {
         let mut arguments = Vec::with_capacity(N);
         for expression in self.0.arguments.drain(0..N).rev() {
@@ -812,8 +756,8 @@ impl FunctionCall {
     ///
     fn pop_arguments<'ctx, const N: usize>(
         &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
-    ) -> anyhow::Result<[era_compiler_llvm_context::Value<'ctx>; N]> {
+        context: &mut solx_codegen_evm::Context<'ctx>,
+    ) -> anyhow::Result<[solx_codegen_evm::Value<'ctx>; N]> {
         let mut arguments = Vec::with_capacity(N);
         for expression in self.0.arguments.drain(0..N).rev() {
             arguments.push(

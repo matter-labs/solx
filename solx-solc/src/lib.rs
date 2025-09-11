@@ -155,10 +155,9 @@ impl Compiler {
                 .into_owned()
         };
 
-        let mut solc_output = match era_compiler_common::deserialize_from_str::<
-            solx_standard_json::Output,
-        >(output_string.as_str())
-        {
+        let mut solc_output = match solx_utils::deserialize_from_str::<solx_standard_json::Output>(
+            output_string.as_str(),
+        ) {
             Ok(solc_output) => solc_output,
             Err(error) => {
                 anyhow::bail!("solc standard JSON output parsing: {error:?}");
@@ -190,7 +189,7 @@ impl Compiler {
     pub fn validate_yul_paths(
         &self,
         paths: &[PathBuf],
-        libraries: era_compiler_common::Libraries,
+        libraries: solx_utils::Libraries,
     ) -> anyhow::Result<solx_standard_json::Output> {
         let mut solc_input = solx_standard_json::Input::from_yul_paths(
             paths,

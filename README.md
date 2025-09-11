@@ -9,7 +9,6 @@
 > [!WARNING]  
 > The project is in beta state and must be used with caution. Please use it only for testing and experimentation.
 > If you want to use it in production, make sure to test your contracts thoroughly, or [contact us](#contact-us) first.
-> The main issue is the EVM bytecode size limit of 24KB, which is not always respected by the compiler. But we are working on it!
 
 **solx** passes [our test suite](https://github.com/matter-labs/era-compiler-tester), which includes:
 
@@ -81,7 +80,7 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 ## License
 
 - Crates **solx** and **solx-solc** are licensed under [GNU General Public License v3.0](./solx/LICENSE.txt)
-- Crates **solx-standard-json**, **solx-evm-assembly**, **solx-yul** are licensed under the terms of either
+- Crates **solx-standard-json**, **solx-evm-assembly**, **solx-yul**, **solx-codegen-evm**, **solx-utils** are licensed under the terms of either
   - Apache License, Version 2.0 ([LICENSE-APACHE](./solx-standard-json/LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
   - MIT license ([LICENSE-MIT](./solx-standard-json/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 - [`era-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.30/LICENSE.txt)

@@ -7,8 +7,8 @@ pub mod stack;
 use inkwell::values::BasicValue;
 use num::ToPrimitive;
 
-use era_compiler_llvm_context::IContext;
-use era_compiler_llvm_context::IEVMLAFunction;
+use solx_codegen_evm::IContext;
+use solx_codegen_evm::IEVMLAFunction;
 
 use crate::assembly::instruction::name::Name as InstructionName;
 use crate::assembly::instruction::Instruction;
@@ -52,7 +52,7 @@ impl Element {
     ///
     fn pop_arguments_llvm<'ctx>(
         &mut self,
-        context: &mut era_compiler_llvm_context::EVMContext<'ctx>,
+        context: &mut solx_codegen_evm::Context<'ctx>,
     ) -> anyhow::Result<Vec<inkwell::values::BasicValueEnum<'ctx>>> {
         let input_size = self
             .instruction
@@ -65,7 +65,7 @@ impl Element {
                 .to_llvm()
                 .into_pointer_value();
             let value = context.build_load(
-                era_compiler_llvm_context::Pointer::new_stack_field(context, pointer),
+                solx_codegen_evm::Pointer::new_stack_field(context, pointer),
                 format!("argument_{index}").as_str(),
             )?;
             arguments.push(value);
@@ -74,11 +74,8 @@ impl Element {
     }
 }
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Element {
-    fn into_llvm(
-        mut self,
-        context: &mut era_compiler_llvm_context::EVMContext,
-    ) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Element {
+    fn into_llvm(mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let mut original = self.instruction.value.clone();
 
         let result = match self.instruction.name.clone() {
@@ -133,16 +130,14 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     .instruction
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Data offset identifier is missing"))?;
-                era_compiler_llvm_context::evm_code::data_offset(context, object_name.as_str())
-                    .map(Some)
+                solx_codegen_evm::code::data_offset(context, object_name.as_str()).map(Some)
             }
             InstructionName::PUSH_DataSize => {
                 let object_name = self
                     .instruction
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Data size identifier is missing"))?;
-                era_compiler_llvm_context::evm_code::data_size(context, object_name.as_str())
-                    .map(Some)
+                solx_codegen_evm::code::data_size(context, object_name.as_str()).map(Some)
             }
             InstructionName::PUSHLIB => {
                 let path = self
@@ -150,7 +145,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?;
 
-                era_compiler_llvm_context::evm_call::linker_symbol(context, path.as_str()).map(Some)
+                solx_codegen_evm::call::linker_symbol(context, path.as_str()).map(Some)
             }
             InstructionName::PUSH_Data => {
                 let value = self
@@ -158,7 +153,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?;
 
-                if value.len() > era_compiler_common::BYTE_LENGTH_FIELD * 2 {
+                if value.len() > solx_utils::BYTE_LENGTH_FIELD * 2 {
                     Ok(Some(context.field_const(0).as_basic_value_enum()))
                 } else {
                     crate::assembly::instruction::stack::push(context, value).map(Some)
@@ -176,7 +171,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     .settings()
                     .spill_area_size()
                     .unwrap_or_default();
-                era_compiler_llvm_context::evm_arithmetic::addition(
+                solx_codegen_evm::arithmetic::addition(
                     context,
                     arguments[0].into_int_value(),
                     context.field_const(spill_area),
@@ -432,7 +427,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
             InstructionName::ADD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_arithmetic::addition(
+                solx_codegen_evm::arithmetic::addition(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -441,7 +436,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SUB => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_arithmetic::subtraction(
+                solx_codegen_evm::arithmetic::subtraction(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -450,7 +445,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::MUL => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_arithmetic::multiplication(
+                solx_codegen_evm::arithmetic::multiplication(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -459,7 +454,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::DIV => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_arithmetic::division(
+                solx_codegen_evm::arithmetic::division(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -468,7 +463,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::MOD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_arithmetic::remainder(
+                solx_codegen_evm::arithmetic::remainder(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -477,7 +472,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SDIV => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_arithmetic::division_signed(
+                solx_codegen_evm::arithmetic::division_signed(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -486,7 +481,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SMOD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_arithmetic::remainder_signed(
+                solx_codegen_evm::arithmetic::remainder_signed(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -496,7 +491,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
             InstructionName::LT => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -506,7 +501,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::GT => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -516,7 +511,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::EQ => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -526,7 +521,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::ISZERO => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     context.field_const(0),
@@ -536,7 +531,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SLT => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -546,7 +541,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SGT => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_comparison::compare(
+                solx_codegen_evm::comparison::compare(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -557,7 +552,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
             InstructionName::OR => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::or(
+                solx_codegen_evm::bitwise::or(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -566,7 +561,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::XOR => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::xor(
+                solx_codegen_evm::bitwise::xor(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -575,7 +570,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::NOT => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::xor(
+                solx_codegen_evm::bitwise::xor(
                     context,
                     arguments[0].into_int_value(),
                     context.field_type().const_all_ones(),
@@ -584,7 +579,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::AND => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::and(
+                solx_codegen_evm::bitwise::and(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -593,7 +588,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SHL => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::shift_left(
+                solx_codegen_evm::bitwise::shift_left(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -602,7 +597,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SHR => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::shift_right(
+                solx_codegen_evm::bitwise::shift_right(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -611,7 +606,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SAR => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::shift_right_arithmetic(
+                solx_codegen_evm::bitwise::shift_right_arithmetic(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -620,7 +615,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::BYTE => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_bitwise::byte(
+                solx_codegen_evm::bitwise::byte(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -630,7 +625,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
             InstructionName::ADDMOD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_math::add_mod(
+                solx_codegen_evm::math::add_mod(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -640,7 +635,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::MULMOD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_math::mul_mod(
+                solx_codegen_evm::math::mul_mod(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -650,7 +645,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::EXP => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_math::exponent(
+                solx_codegen_evm::math::exponent(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -659,7 +654,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::SIGNEXTEND => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_math::sign_extend(
+                solx_codegen_evm::math::sign_extend(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -669,7 +664,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
             InstructionName::SHA3 | InstructionName::KECCAK256 => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_math::keccak256(
+                solx_codegen_evm::math::keccak256(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -679,12 +674,11 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
             InstructionName::MLOAD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_memory::load(context, arguments[0].into_int_value())
-                    .map(Some)
+                solx_codegen_evm::memory::load(context, arguments[0].into_int_value()).map(Some)
             }
             InstructionName::MSTORE => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_memory::store(
+                solx_codegen_evm::memory::store(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -693,7 +687,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::MSTORE8 => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_memory::store_byte(
+                solx_codegen_evm::memory::store_byte(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -702,16 +696,16 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::MCOPY => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                let destination = era_compiler_llvm_context::Pointer::new_with_offset(
+                let destination = solx_codegen_evm::Pointer::new_with_offset(
                     context,
-                    era_compiler_llvm_context::EVMAddressSpace::Heap,
+                    solx_codegen_evm::AddressSpace::Heap,
                     context.byte_type(),
                     arguments[0].into_int_value(),
                     "mcopy_destination",
                 )?;
-                let source = era_compiler_llvm_context::Pointer::new_with_offset(
+                let source = solx_codegen_evm::Pointer::new_with_offset(
                     context,
-                    era_compiler_llvm_context::EVMAddressSpace::Heap,
+                    solx_codegen_evm::AddressSpace::Heap,
                     context.byte_type(),
                     arguments[1].into_int_value(),
                     "mcopy_source",
@@ -729,12 +723,11 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
             InstructionName::SLOAD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_storage::load(context, arguments[0].into_int_value())
-                    .map(Some)
+                solx_codegen_evm::storage::load(context, arguments[0].into_int_value()).map(Some)
             }
             InstructionName::SSTORE => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_storage::store(
+                solx_codegen_evm::storage::store(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -743,15 +736,12 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::TLOAD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_storage::transient_load(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::storage::transient_load(context, arguments[0].into_int_value())
+                    .map(Some)
             }
             InstructionName::TSTORE => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_storage::transient_store(
+                solx_codegen_evm::storage::transient_store(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -763,7 +753,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                     .instruction
                     .value
                     .ok_or_else(|| anyhow::anyhow!("Instruction value missing"))?;
-                era_compiler_llvm_context::evm_immutable::load(context, id.as_str()).map(Some)
+                solx_codegen_evm::immutable::load(context, id.as_str()).map(Some)
             }
             InstructionName::ASSIGNIMMUTABLE => {
                 let arguments = self.pop_arguments_llvm(context)?;
@@ -775,29 +765,18 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
 
                 let base_offset = arguments[0].into_int_value();
                 let value = arguments[1].into_int_value();
-                era_compiler_llvm_context::evm_immutable::store(
-                    context,
-                    id.as_str(),
-                    base_offset,
-                    value,
-                )
-                .map(|_| None)
+                solx_codegen_evm::immutable::store(context, id.as_str(), base_offset, value)
+                    .map(|_| None)
             }
 
             InstructionName::CALLDATALOAD => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_calldata::load(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::calldata::load(context, arguments[0].into_int_value()).map(Some)
             }
-            InstructionName::CALLDATASIZE => {
-                era_compiler_llvm_context::evm_calldata::size(context).map(Some)
-            }
+            InstructionName::CALLDATASIZE => solx_codegen_evm::calldata::size(context).map(Some),
             InstructionName::CALLDATACOPY => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_calldata::copy(
+                solx_codegen_evm::calldata::copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -805,9 +784,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 )?;
                 Ok(None)
             }
-            InstructionName::CODESIZE => {
-                era_compiler_llvm_context::evm_code::size(context).map(Some)
-            }
+            InstructionName::CODESIZE => solx_codegen_evm::code::size(context).map(Some),
             InstructionName::CODECOPY => {
                 let arguments = self.pop_arguments_llvm(context)?;
 
@@ -819,7 +796,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                             data.as_str(),
                         )
                     }
-                    _ => era_compiler_llvm_context::evm_code::copy(
+                    _ => solx_codegen_evm::code::copy(
                         context,
                         arguments[0].into_int_value(),
                         arguments[1].into_int_value(),
@@ -830,15 +807,14 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::PUSHSIZE => {
                 let object_name = context.module().get_name().to_string_lossy().to_string();
-                era_compiler_llvm_context::evm_code::data_size(context, object_name.as_str())
-                    .map(Some)
+                solx_codegen_evm::code::data_size(context, object_name.as_str()).map(Some)
             }
             InstructionName::RETURNDATASIZE => {
-                era_compiler_llvm_context::evm_return_data::size(context).map(Some)
+                solx_codegen_evm::r#return_data::size(context).map(Some)
             }
             InstructionName::RETURNDATACOPY => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_return_data::copy(
+                solx_codegen_evm::r#return_data::copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -848,15 +824,11 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::EXTCODESIZE => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_code::ext_size(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::code::ext_size(context, arguments[0].into_int_value()).map(Some)
             }
             InstructionName::EXTCODECOPY => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_code::ext_copy(
+                solx_codegen_evm::code::ext_copy(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -867,16 +839,12 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::EXTCODEHASH => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_code::ext_hash(
-                    context,
-                    arguments[0].into_int_value(),
-                )
-                .map(Some)
+                solx_codegen_evm::code::ext_hash(context, arguments[0].into_int_value()).map(Some)
             }
 
             InstructionName::RETURN => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_return::r#return(
+                solx_codegen_evm::r#return::r#return(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -885,23 +853,19 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::REVERT => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_return::revert(
+                solx_codegen_evm::r#return::revert(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
                 )
                 .map(|_| None)
             }
-            InstructionName::STOP => {
-                era_compiler_llvm_context::evm_return::stop(context).map(|_| None)
-            }
-            InstructionName::INVALID => {
-                era_compiler_llvm_context::evm_return::invalid(context).map(|_| None)
-            }
+            InstructionName::STOP => solx_codegen_evm::r#return::stop(context).map(|_| None),
+            InstructionName::INVALID => solx_codegen_evm::r#return::invalid(context).map(|_| None),
 
             InstructionName::LOG0 => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -911,7 +875,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::LOG1 => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -924,7 +888,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::LOG2 => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -937,7 +901,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::LOG3 => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -950,7 +914,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
             }
             InstructionName::LOG4 => {
                 let arguments = self.pop_arguments_llvm(context)?;
-                era_compiler_llvm_context::evm_event::log(
+                solx_codegen_evm::event::log(
                     context,
                     arguments[0].into_int_value(),
                     arguments[1].into_int_value(),
@@ -973,7 +937,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 let output_offset = arguments.remove(0).into_int_value();
                 let output_size = arguments.remove(0).into_int_value();
 
-                Ok(Some(era_compiler_llvm_context::evm_call::call(
+                Ok(Some(solx_codegen_evm::call::call(
                     context,
                     gas,
                     address,
@@ -994,7 +958,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 let output_offset = arguments.remove(0).into_int_value();
                 let output_size = arguments.remove(0).into_int_value();
 
-                Ok(Some(era_compiler_llvm_context::evm_call::static_call(
+                Ok(Some(solx_codegen_evm::call::static_call(
                     context,
                     gas,
                     address,
@@ -1014,7 +978,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 let output_offset = arguments.remove(0).into_int_value();
                 let output_size = arguments.remove(0).into_int_value();
 
-                Ok(Some(era_compiler_llvm_context::evm_call::delegate_call(
+                Ok(Some(solx_codegen_evm::call::delegate_call(
                     context,
                     gas,
                     address,
@@ -1032,13 +996,8 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 let input_offset = arguments[1].into_int_value();
                 let input_length = arguments[2].into_int_value();
 
-                era_compiler_llvm_context::evm_create::create(
-                    context,
-                    value,
-                    input_offset,
-                    input_length,
-                )
-                .map(Some)
+                solx_codegen_evm::create::create(context, value, input_offset, input_length)
+                    .map(Some)
             }
             InstructionName::CREATE2 => {
                 let arguments = self.pop_arguments_llvm(context)?;
@@ -1048,14 +1007,8 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 let input_length = arguments[2].into_int_value();
                 let salt = arguments[3].into_int_value();
 
-                era_compiler_llvm_context::evm_create::create2(
-                    context,
-                    value,
-                    input_offset,
-                    input_length,
-                    salt,
-                )
-                .map(Some)
+                solx_codegen_evm::create::create2(context, value, input_offset, input_length, salt)
+                    .map(Some)
             }
 
             InstructionName::ADDRESS => {
@@ -1065,66 +1018,59 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 context.build_call(context.intrinsics().caller, &[], "caller")
             }
 
-            InstructionName::CALLVALUE => {
-                era_compiler_llvm_context::evm_ether_gas::callvalue(context).map(Some)
-            }
-            InstructionName::GAS => {
-                era_compiler_llvm_context::evm_ether_gas::gas(context).map(Some)
-            }
+            InstructionName::CALLVALUE => solx_codegen_evm::ether_gas::callvalue(context).map(Some),
+            InstructionName::GAS => solx_codegen_evm::ether_gas::gas(context).map(Some),
             InstructionName::BALANCE => {
                 let arguments = self.pop_arguments_llvm(context)?;
 
                 let address = arguments[0].into_int_value();
-                era_compiler_llvm_context::evm_ether_gas::balance(context, address).map(Some)
+                solx_codegen_evm::ether_gas::balance(context, address).map(Some)
             }
             InstructionName::SELFBALANCE => {
-                era_compiler_llvm_context::evm_ether_gas::self_balance(context).map(Some)
+                solx_codegen_evm::ether_gas::self_balance(context).map(Some)
             }
 
             InstructionName::GASLIMIT => {
-                era_compiler_llvm_context::evm_contract_context::gas_limit(context).map(Some)
+                solx_codegen_evm::contract_context::gas_limit(context).map(Some)
             }
             InstructionName::GASPRICE => {
-                era_compiler_llvm_context::evm_contract_context::gas_price(context).map(Some)
+                solx_codegen_evm::contract_context::gas_price(context).map(Some)
             }
             InstructionName::ORIGIN => {
-                era_compiler_llvm_context::evm_contract_context::origin(context).map(Some)
+                solx_codegen_evm::contract_context::origin(context).map(Some)
             }
             InstructionName::CHAINID => {
-                era_compiler_llvm_context::evm_contract_context::chain_id(context).map(Some)
+                solx_codegen_evm::contract_context::chain_id(context).map(Some)
             }
             InstructionName::TIMESTAMP => {
-                era_compiler_llvm_context::evm_contract_context::block_timestamp(context).map(Some)
+                solx_codegen_evm::contract_context::block_timestamp(context).map(Some)
             }
             InstructionName::NUMBER => {
-                era_compiler_llvm_context::evm_contract_context::block_number(context).map(Some)
+                solx_codegen_evm::contract_context::block_number(context).map(Some)
             }
             InstructionName::BLOCKHASH => {
                 let arguments = self.pop_arguments_llvm(context)?;
                 let index = arguments[0].into_int_value();
 
-                era_compiler_llvm_context::evm_contract_context::block_hash(context, index)
-                    .map(Some)
+                solx_codegen_evm::contract_context::block_hash(context, index).map(Some)
             }
             InstructionName::BLOBHASH => {
                 let _arguments = self.pop_arguments_llvm(context)?;
                 anyhow::bail!("The `BLOBHASH` instruction is not supported");
             }
             InstructionName::DIFFICULTY | InstructionName::PREVRANDAO => {
-                era_compiler_llvm_context::evm_contract_context::difficulty(context).map(Some)
+                solx_codegen_evm::contract_context::difficulty(context).map(Some)
             }
             InstructionName::COINBASE => {
-                era_compiler_llvm_context::evm_contract_context::coinbase(context).map(Some)
+                solx_codegen_evm::contract_context::coinbase(context).map(Some)
             }
             InstructionName::BASEFEE => {
-                era_compiler_llvm_context::evm_contract_context::basefee(context).map(Some)
+                solx_codegen_evm::contract_context::basefee(context).map(Some)
             }
             InstructionName::BLOBBASEFEE => {
                 anyhow::bail!("The `BLOBBASEFEE` instruction is not supported");
             }
-            InstructionName::MSIZE => {
-                era_compiler_llvm_context::evm_contract_context::msize(context).map(Some)
-            }
+            InstructionName::MSIZE => solx_codegen_evm::contract_context::msize(context).map(Some),
 
             InstructionName::CALLCODE => {
                 let mut _arguments = self.pop_arguments_llvm(context)?;
@@ -1168,7 +1114,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                             .to_llvm()
                             .into_pointer_value();
                         context.build_store(
-                            era_compiler_llvm_context::Pointer::new_stack_field(context, pointer),
+                            solx_codegen_evm::Pointer::new_stack_field(context, pointer),
                             value,
                         )?;
                     }
@@ -1180,9 +1126,9 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                                 index as u32,
                                 format!("return_value_element_{index}").as_str(),
                             )?;
-                            let pointer = era_compiler_llvm_context::Pointer::new(
+                            let pointer = solx_codegen_evm::Pointer::new(
                                 context.field_type(),
-                                era_compiler_llvm_context::EVMAddressSpace::Stack,
+                                solx_codegen_evm::AddressSpace::Stack,
                                 context.evmla().expect("Always exists").stack
                                     [self.stack.elements.len() - output_size + index]
                                     .to_llvm()
@@ -1210,21 +1156,18 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 arguments.pop();
 
                 match context.current_function().borrow().r#return() {
-                    era_compiler_llvm_context::FunctionReturn::None => {}
-                    era_compiler_llvm_context::FunctionReturn::Primitive { pointer } => {
+                    solx_codegen_evm::FunctionReturn::None => {}
+                    solx_codegen_evm::FunctionReturn::Primitive { pointer } => {
                         assert_eq!(arguments.len(), 1);
                         context.build_store(pointer, arguments.remove(0))?;
                     }
-                    era_compiler_llvm_context::FunctionReturn::Compound { pointer, .. } => {
+                    solx_codegen_evm::FunctionReturn::Compound { pointer, .. } => {
                         for (index, argument) in arguments.into_iter().enumerate() {
                             let element_pointer = context.build_gep(
                                 pointer,
                                 &[
                                     context.field_const(0),
-                                    context.integer_const(
-                                        era_compiler_common::BIT_LENGTH_X32,
-                                        index as u64,
-                                    ),
+                                    context.integer_const(solx_utils::BIT_LENGTH_X32, index as u64),
                                 ],
                                 context.field_type(),
                                 format!("return_value_pointer_element_{index}").as_str(),
@@ -1246,7 +1189,7 @@ impl era_compiler_llvm_context::EVMWriteLLVM for Element {
                 .to_llvm()
                 .into_pointer_value();
             context.build_store(
-                era_compiler_llvm_context::Pointer::new_stack_field(context, pointer),
+                solx_codegen_evm::Pointer::new_stack_field(context, pointer),
                 result,
             )?;
             context.evmla_mut().expect("Always exists").stack[self.stack.elements.len() - 1]

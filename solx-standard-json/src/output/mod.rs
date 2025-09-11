@@ -129,7 +129,7 @@ impl Output {
         });
 
         serde_json::to_writer(std::io::stdout(), &self).expect("Stdout writing error");
-        std::process::exit(era_compiler_common::EXIT_CODE_SUCCESS);
+        std::process::exit(solx_utils::EXIT_CODE_SUCCESS);
     }
 
     ///
