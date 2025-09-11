@@ -31,7 +31,7 @@ impl Yul {
     ) -> anyhow::Result<Option<Self>> {
         if source_code.is_empty() {
             return Ok(None);
-        };
+        }
 
         if let Some(debug_config) = debug_config {
             debug_config.dump_yul(path, source_code)?;

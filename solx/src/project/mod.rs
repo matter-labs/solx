@@ -139,7 +139,7 @@ impl Project {
 
         let results = input_contracts
             .into_par_iter()
-            .filter_map(|(name, mut contract)| {
+            .map(|(name, mut contract)| {
                 let method_identifiers = contract
                     .evm
                     .as_mut()
@@ -154,22 +154,24 @@ impl Project {
                     .and_then(|evm| evm.extra_metadata.take());
 
                 let result = if via_ir {
-                    ContractYul::try_from_source(
-                        name.full_path.as_str(),
-                        contract.ir.as_deref()?,
-                        debug_config,
-                    )
-                    .map(|yul| yul.map(ContractIR::from))
+                    contract.ir.as_deref().map(|ir| {
+                        ContractYul::try_from_source(name.full_path.as_str(), ir, debug_config)
+                            .map(|yul| yul.map(ContractIR::from))
+                    })
                 } else {
-                    Ok(ContractEVMLegacyAssembly::try_from_contract(
-                        legacy_assembly.clone()?,
-                        extra_metadata,
-                    )
-                    .map(ContractIR::from))
+                    legacy_assembly.as_ref().map(|legacy_assembly| {
+                        Ok(Some(ContractIR::from(
+                            ContractEVMLegacyAssembly::from_contract(
+                                legacy_assembly.to_owned(),
+                                extra_metadata,
+                            ),
+                        )))
+                    })
                 };
                 let ir = match result {
-                    Ok(ir) => ir?,
-                    Err(error) => return Some((name.full_path, Err(error))),
+                    Some(Ok(Some(ir))) => Some(ir),
+                    Some(Err(error)) => return (name.full_path, Err(error)),
+                    Some(Ok(None)) | None => None,
                 };
                 let contract = Contract::new(
                     name.clone(),
@@ -184,7 +186,7 @@ impl Project {
                     legacy_assembly,
                     contract.ir,
                 );
-                Some((name.full_path, Ok(contract)))
+                (name.full_path, Ok(contract))
             })
             .collect::<BTreeMap<String, anyhow::Result<Contract>>>();
 
@@ -251,10 +253,10 @@ impl Project {
     ) -> anyhow::Result<Self> {
         let results = sources
             .into_par_iter()
-            .filter_map(|(path, mut source)| {
+            .map(|(path, mut source)| {
                 let source_code = match source.try_resolve() {
                     Ok(()) => source.take_content().expect("Always exists"),
-                    Err(error) => return Some((path, Err(error))),
+                    Err(error) => return (path, Err(error)),
                 };
 
                 let metadata = if output_selection.check_selection(
@@ -277,18 +279,18 @@ impl Project {
                     source_code.as_str(),
                     debug_config,
                 ) {
-                    Ok(ir) => ir?,
-                    Err(error) => return Some((path, Err(error))),
+                    Ok(ir) => ir,
+                    Err(error) => return (path, Err(error)),
                 };
 
                 let name = solx_utils::ContractName::new(
                     path.clone(),
-                    Some(ir.object.0.identifier.clone()),
+                    ir.as_ref().map(|ir| ir.object.0.identifier.to_owned()),
                 );
                 let full_path = name.full_path.clone();
                 let contract = Contract::new(
                     name,
-                    ir.into(),
+                    ir.map(ContractIR::from),
                     metadata,
                     None,
                     None,
@@ -299,7 +301,7 @@ impl Project {
                     None,
                     None,
                 );
-                Some((full_path, Ok(contract)))
+                (full_path, Ok(contract))
             })
             .collect::<BTreeMap<String, anyhow::Result<Contract>>>();
 
@@ -384,12 +386,14 @@ impl Project {
 
                 let contract = Contract::new(
                     solx_utils::ContractName::new(path.clone(), None),
-                    ContractLLVMIR::new(
-                        path.clone(),
-                        solx_utils::CodeSegment::Runtime,
-                        source_code,
-                    )
-                    .into(),
+                    Some(
+                        ContractLLVMIR::new(
+                            path.clone(),
+                            solx_utils::CodeSegment::Runtime,
+                            source_code,
+                        )
+                        .into(),
+                    ),
                     metadata,
                     None,
                     None,
@@ -456,17 +460,17 @@ impl Project {
 
                 let (deploy_code_ir, runtime_code_ir): (ContractIR, ContractIR) = match contract.ir
                 {
-                    ContractIR::Yul(mut deploy_code) => {
+                    Some(ContractIR::Yul(mut deploy_code)) => {
                         let runtime_code: ContractYul =
                             *deploy_code.runtime_code.take().expect("Always exists");
                         (deploy_code.into(), runtime_code.into())
                     }
-                    ContractIR::EVMLegacyAssembly(mut deploy_code) => {
+                    Some(ContractIR::EVMLegacyAssembly(mut deploy_code)) => {
                         let runtime_code: ContractEVMLegacyAssembly =
                             *deploy_code.runtime_code.take().expect("Always exists");
                         (deploy_code.into(), runtime_code.into())
                     }
-                    ContractIR::LLVMIR(runtime_code) => {
+                    Some(ContractIR::LLVMIR(runtime_code)) => {
                         let deploy_code_identifier = contract.name.full_path.to_owned();
                         let runtime_code_identifier = format!(
                             "{deploy_code_identifier}.{}",
@@ -482,6 +486,23 @@ impl Project {
                             ),
                         );
                         (deploy_code.into(), runtime_code.into())
+                    }
+                    None => {
+                        let build = EVMContractBuild::new(
+                            contract_name,
+                            None,
+                            None,
+                            metadata,
+                            abi,
+                            method_identifiers,
+                            userdoc,
+                            devdoc,
+                            storage_layout,
+                            transient_storage_layout,
+                            legacy_assembly,
+                            yul,
+                        );
+                        return (path, build);
                     }
                 };
 
@@ -545,8 +566,10 @@ impl Project {
 
                 let build = EVMContractBuild::new(
                     contract_name,
-                    deploy_object_result.map(|deploy_code_output| deploy_code_output.object),
-                    runtime_object_result.map(|runtime_code_output| runtime_code_output.object),
+                    Some(deploy_object_result.map(|deploy_code_output| deploy_code_output.object)),
+                    Some(
+                        runtime_object_result.map(|runtime_code_output| runtime_code_output.object),
+                    ),
                     metadata,
                     abi,
                     method_identifiers,
