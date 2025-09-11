@@ -20,7 +20,6 @@ pub use self::codegen::context::address_space::AddressSpace;
 pub use self::codegen::context::evmla_data::EVMLAData as ContextEVMLAData;
 pub use self::codegen::context::function::intrinsics::Intrinsics;
 pub use self::codegen::context::function::runtime::entry::Entry as EntryFunction;
-pub use self::codegen::context::function::vyper_data::VyperData;
 pub use self::codegen::context::function::Function;
 pub use self::codegen::context::solidity_data::SolidityData as ContextSolidityData;
 pub use self::codegen::context::yul_data::YulData as ContextYulData;

@@ -74,18 +74,6 @@ impl DebugConfig {
     }
 
     ///
-    /// Dumps the LLL IR.
-    ///
-    pub fn dump_lll(&self, contract_path: &str, code: &str) -> anyhow::Result<()> {
-        let mut file_path = self.output_directory.to_owned();
-        let full_file_name = Self::full_file_name(contract_path, None, IRType::LLL);
-        file_path.push(full_file_name);
-        std::fs::write(file_path, code)?;
-
-        Ok(())
-    }
-
-    ///
     /// Dumps the unoptimized LLVM IR.
     ///
     pub fn dump_llvm_ir_unoptimized(

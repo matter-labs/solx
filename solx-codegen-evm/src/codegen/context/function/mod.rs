@@ -4,7 +4,6 @@
 
 pub mod intrinsics;
 pub mod runtime;
-pub mod vyper_data;
 
 use std::collections::HashMap;
 
@@ -19,8 +18,6 @@ use crate::context::pointer::Pointer;
 use crate::context::traits::evmla_function::IEVMLAFunction;
 use crate::optimizer::settings::size_level::SizeLevel;
 use crate::optimizer::Optimizer;
-
-use self::vyper_data::VyperData;
 
 ///
 /// The LLVM IR generator function.
@@ -46,8 +43,6 @@ pub struct Function<'ctx> {
 
     /// The EVM legacy assembly compiler data.
     evmla_data: Option<FunctionEVMLAData<'ctx>>,
-    /// The Vyper data.
-    vyper_data: Option<VyperData>,
 }
 
 impl<'ctx> Function<'ctx> {
@@ -81,7 +76,6 @@ impl<'ctx> Function<'ctx> {
             return_block,
 
             evmla_data: None,
-            vyper_data: None,
         }
     }
 
@@ -290,37 +284,6 @@ impl<'ctx> Function<'ctx> {
         self.evmla_data
             .as_mut()
             .expect("The EVM data must have been initialized")
-    }
-
-    ///
-    /// Sets the Vyper data.
-    ///
-    pub fn set_vyper_data(&mut self, data: VyperData) {
-        self.vyper_data = Some(data);
-    }
-
-    ///
-    /// Returns the Vyper data reference.
-    ///
-    /// # Panics
-    /// If the Vyper data has not been initialized.
-    ///
-    pub fn vyper(&self) -> &VyperData {
-        self.vyper_data
-            .as_ref()
-            .expect("The Vyper data must have been initialized")
-    }
-
-    ///
-    /// Returns the Vyper data mutable reference.
-    ///
-    /// # Panics
-    /// If the Vyper data has not been initialized.
-    ///
-    pub fn vyper_mut(&mut self) -> &mut VyperData {
-        self.vyper_data
-            .as_mut()
-            .expect("The Vyper data must have been initialized")
     }
 }
 

@@ -32,23 +32,11 @@ pub static EXTENSION_EVM_BINARY: &str = "bin";
 /// The Solidity file extension.
 pub static EXTENSION_SOLIDITY: &str = "sol";
 
-/// The LLL IR file extension.
-pub static EXTENSION_LLL: &str = "lll";
-
-/// The Vyper file extension.
-pub static EXTENSION_VYPER: &str = "vy";
-
 /// The LLVM source code file extension.
 pub static EXTENSION_LLVM_SOURCE: &str = "ll";
 
 /// The LLVM bitcode file extension.
 pub static EXTENSION_LLVM_BINARY: &str = "bc";
-
-/// The EraVM assembly file extension.
-pub static EXTENSION_ERAVM_ASSEMBLY: &str = "zasm";
-
-/// The EraVM bytecode file extension.
-pub static EXTENSION_ERAVM_BINARY: &str = "zbin";
 
 /// The Solidity AST file extension.
 pub static EXTENSION_SOLIDITY_AST: &str = "ast";

@@ -15,12 +15,8 @@ pub enum IRType {
     EVMLA,
     /// Whether to dump the Ethereal IR code.
     EthIR,
-    /// Whether to dump the Vyper LLL IR code.
-    LLL,
     /// Whether to dump the LLVM IR code.
     LLVM,
-    /// Whether to dump the EraVM assembly code.
-    EraVMAssembly,
     /// Whether to dump the EVM assembly code.
     EVMAssembly,
 }
@@ -34,9 +30,7 @@ impl IRType {
             Self::Yul => solx_utils::EXTENSION_YUL,
             Self::EthIR => solx_utils::EXTENSION_ETHIR,
             Self::EVMLA => solx_utils::EXTENSION_EVMLA,
-            Self::LLL => solx_utils::EXTENSION_LLL,
             Self::LLVM => solx_utils::EXTENSION_LLVM_SOURCE,
-            Self::EraVMAssembly => solx_utils::EXTENSION_ERAVM_ASSEMBLY,
             Self::EVMAssembly => solx_utils::EXTENSION_EVM_ASSEMBLY,
         }
     }

@@ -452,8 +452,6 @@ impl<'ctx> IContext<'ctx> for Context<'ctx> {
 
     type EVMLAData = EVMLAData<'ctx>;
 
-    type VyperData = ();
-
     fn llvm(&self) -> &'ctx inkwell::context::Context {
         self.llvm
     }
@@ -652,17 +650,5 @@ impl<'ctx> IContext<'ctx> for Context<'ctx> {
 
     fn evmla_mut(&mut self) -> Option<&mut Self::EVMLAData> {
         self.evmla_data.as_mut()
-    }
-
-    fn set_vyper_data(&mut self, _data: Self::VyperData) {
-        panic!("Unused with the EVM target");
-    }
-
-    fn vyper(&self) -> Option<&Self::VyperData> {
-        panic!("Unused with the EVM target");
-    }
-
-    fn vyper_mut(&mut self) -> Option<&mut Self::VyperData> {
-        panic!("Unused with the EVM target");
     }
 }

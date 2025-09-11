@@ -63,11 +63,6 @@ pub trait IContext<'ctx> {
     type EVMLAData: IEVMLAData<'ctx>;
 
     ///
-    /// The Solidity extra data type.
-    ///
-    type VyperData;
-
-    ///
     /// Returns the inner LLVM context.
     ///
     fn llvm(&self) -> &'ctx inkwell::context::Context;
@@ -563,25 +558,4 @@ pub trait IContext<'ctx> {
     /// If the EVM data has not been initialized.
     ///
     fn evmla_mut(&mut self) -> Option<&mut Self::EVMLAData>;
-
-    ///
-    /// Sets the EVM legacy assembly data.
-    ///
-    fn set_vyper_data(&mut self, data: Self::VyperData);
-
-    ///
-    /// Returns the Vyper data reference.
-    ///
-    /// # Panics
-    /// If the Vyper data has not been initialized.
-    ///
-    fn vyper(&self) -> Option<&Self::VyperData>;
-
-    ///
-    /// Returns the Vyper data mutable reference.
-    ///
-    /// # Panics
-    /// If the Vyper data has not been initialized.
-    ///
-    fn vyper_mut(&mut self) -> Option<&mut Self::VyperData>;
 }

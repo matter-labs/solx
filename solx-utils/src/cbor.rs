@@ -137,26 +137,6 @@ mod tests {
     }
 
     #[test]
-    fn ipfs_hash_and_zkvyper_version_data() {
-        let hash_type = MetadataHashType::IPFS.to_string();
-        let ipfs = IPFSHash::from_slice("LLVM is the Endgame".as_bytes());
-
-        let cbor = super::CBOR::new(
-            Some((hash_type.as_str(), ipfs.as_bytes())),
-            "vyper".to_owned(),
-            vec![
-                ("zkvyper".to_owned(), semver::Version::new(1, 5, 10)),
-                ("vyper".to_owned(), semver::Version::new(0, 4, 1)),
-            ],
-        );
-
-        assert_eq!(
-            hex::encode(cbor.to_vec()),
-            "a264697066735822122060d9c5c201b8c2ed8ac8de1e21afc4ef115ad9f47863e21ffd29f272544b5125657679706572781a7a6b76797065723a312e352e31303b76797065723a302e342e31004c"
-        );
-    }
-
-    #[test]
     fn ipfs_hash_and_extended_version_data() {
         let hash_type = MetadataHashType::IPFS.to_string();
         let ipfs = IPFSHash::from_slice("LLVM is the Endgame".as_bytes());
