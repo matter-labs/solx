@@ -14,11 +14,11 @@ fn not_specified(via_ir: bool) {
 
     let output = crate::common::build_solidity_standard_json(
         sources,
-        era_compiler_common::Libraries::default(),
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::Libraries::default(),
+        solx_utils::MetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
 
@@ -51,7 +51,7 @@ fn specified(via_ir: bool) {
     let sources =
         crate::common::read_sources(&[crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH]);
 
-    let mut libraries = era_compiler_common::Libraries::default();
+    let mut libraries = solx_utils::Libraries::default();
     libraries
         .as_inner_mut()
         .entry(crate::common::TEST_SOLIDITY_CONTRACT_SIMPLE_CONTRACT_PATH.to_string())
@@ -62,10 +62,10 @@ fn specified(via_ir: bool) {
     let output = crate::common::build_solidity_standard_json(
         sources,
         libraries,
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::MetadataHashType::IPFS,
         BTreeSet::new(),
         via_ir,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
     assert!(

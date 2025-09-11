@@ -19,7 +19,7 @@ use self::attributes::get_llvm_attributes;
 pub struct EraDialect {}
 
 impl Dialect for EraDialect {
-    type FunctionAttribute = era_compiler_llvm_context::Attribute;
+    type FunctionAttribute = solx_codegen_evm::Attribute;
 
     fn extract_attributes(
         identifier: &Identifier,

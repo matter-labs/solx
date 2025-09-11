@@ -1,5 +1,5 @@
 //!
-//! Proxy trait for `era_compiler_llvm_context::WriteLLVM`.
+//! Proxy trait for `solx_codegen_evm::WriteLLVM`.
 //!
 
 ///

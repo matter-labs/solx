@@ -15,11 +15,11 @@ use crate::project::contract::ir::IR as ContractIR;
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Input {
     /// The input contract name.
-    pub contract_name: era_compiler_common::ContractName,
+    pub contract_name: solx_utils::ContractName,
     /// The input contract IR.
     pub contract_ir: ContractIR,
     /// The code segment.
-    pub code_segment: era_compiler_common::CodeSegment,
+    pub code_segment: solx_utils::CodeSegment,
     /// The mapping of auxiliary identifiers, e.g. Yul object names, to full contract paths.
     pub identifier_paths: BTreeMap<String, String>,
     /// Output selection for the compilation.
@@ -29,11 +29,11 @@ pub struct Input {
     /// The metadata bytes.
     pub metadata_bytes: Option<Vec<u8>>,
     /// The optimizer settings.
-    pub optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+    pub optimizer_settings: solx_codegen_evm::OptimizerSettings,
     /// The extra LLVM arguments.
     pub llvm_options: Vec<String>,
     /// The debug output config.
-    pub debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+    pub debug_config: Option<solx_codegen_evm::DebugConfig>,
 }
 
 impl Input {
@@ -41,16 +41,16 @@ impl Input {
     /// A shortcut constructor.
     ///
     pub fn new(
-        contract_name: era_compiler_common::ContractName,
+        contract_name: solx_utils::ContractName,
         contract_ir: ContractIR,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
         identifier_paths: BTreeMap<String, String>,
         output_selection: solx_standard_json::InputSelection,
         immutables: Option<BTreeMap<String, BTreeSet<u64>>>,
         metadata_bytes: Option<Vec<u8>>,
-        optimizer_settings: era_compiler_llvm_context::OptimizerSettings,
+        optimizer_settings: solx_codegen_evm::OptimizerSettings,
         llvm_options: Vec<String>,
-        debug_config: Option<era_compiler_llvm_context::DebugConfig>,
+        debug_config: Option<solx_codegen_evm::DebugConfig>,
     ) -> Self {
         Self {
             contract_name,

@@ -11,8 +11,8 @@ declare_wrapper!(
     Code
 );
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Code {
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Code {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         self.0.block.wrap().into_llvm(context)?;
 
         Ok(())

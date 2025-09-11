@@ -50,7 +50,7 @@ where
     pub fn parse(
         lexer: &mut Lexer,
         initial: Option<Token>,
-        code_segment: era_compiler_common::CodeSegment,
+        code_segment: solx_utils::CodeSegment,
     ) -> Result<Self, Error> {
         let token = crate::yul::parser::take_or_next(initial, lexer)?;
 
@@ -104,14 +104,13 @@ where
         let mut inner_object = None;
         let mut factory_dependencies = HashSet::new();
 
-        if let era_compiler_common::CodeSegment::Deploy = code_segment {
+        if let solx_utils::CodeSegment::Deploy = code_segment {
             inner_object = match lexer.peek()? {
                 Token {
                     lexeme: Lexeme::Identifier(identifier),
                     ..
                 } if identifier.inner.as_str() == "object" => {
-                    let mut object =
-                        Self::parse(lexer, None, era_compiler_common::CodeSegment::Runtime)?;
+                    let mut object = Self::parse(lexer, None, solx_utils::CodeSegment::Runtime)?;
 
                     factory_dependencies.extend(object.factory_dependencies.drain());
                     Some(Box::new(object))
@@ -145,7 +144,7 @@ where
                     let dependency = Self::parse(
                         lexer,
                         Some(token.to_owned()),
-                        era_compiler_common::CodeSegment::Deploy,
+                        solx_utils::CodeSegment::Deploy,
                     )?;
                     factory_dependencies.insert(dependency.identifier);
                 }
@@ -234,11 +233,8 @@ object "Init" {
     "#;
 
         let mut lexer = Lexer::new(input);
-        let result = Object::<DefaultDialect>::parse(
-            &mut lexer,
-            None,
-            era_compiler_common::CodeSegment::Deploy,
-        );
+        let result =
+            Object::<DefaultDialect>::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy);
         assert!(result.is_ok());
     }
 
@@ -262,11 +258,8 @@ class "Test" {
     "#;
 
         let mut lexer = Lexer::new(input);
-        let result = Object::<DefaultDialect>::parse(
-            &mut lexer,
-            None,
-            era_compiler_common::CodeSegment::Deploy,
-        );
+        let result =
+            Object::<DefaultDialect>::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy);
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -298,11 +291,8 @@ object 256 {
     "#;
 
         let mut lexer = Lexer::new(input);
-        let result = Object::<DefaultDialect>::parse(
-            &mut lexer,
-            None,
-            era_compiler_common::CodeSegment::Deploy,
-        );
+        let result =
+            Object::<DefaultDialect>::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy);
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -334,11 +324,8 @@ object "Test" (
     "#;
 
         let mut lexer = Lexer::new(input);
-        let result = Object::<DefaultDialect>::parse(
-            &mut lexer,
-            None,
-            era_compiler_common::CodeSegment::Deploy,
-        );
+        let result =
+            Object::<DefaultDialect>::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy);
         assert_eq!(
             result,
             Err(Error::InvalidToken {
@@ -370,11 +357,8 @@ object "Test" {
     "#;
 
         let mut lexer = Lexer::new(input);
-        let result = Object::<DefaultDialect>::parse(
-            &mut lexer,
-            None,
-            era_compiler_common::CodeSegment::Deploy,
-        );
+        let result =
+            Object::<DefaultDialect>::parse(&mut lexer, None, solx_utils::CodeSegment::Deploy);
         assert_eq!(
             result,
             Err(Error::InvalidToken {

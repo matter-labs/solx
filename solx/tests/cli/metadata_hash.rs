@@ -2,14 +2,14 @@
 //! CLI tests for the eponymous option.
 //!
 
-use era_compiler_common::EVMMetadataHashType;
 use predicates::prelude::*;
+use solx_utils::MetadataHashType;
 
 #[test]
 fn none() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let hash_type = EVMMetadataHashType::None.to_string();
+    let hash_type = MetadataHashType::None.to_string();
     let args = &[
         "--metadata-hash",
         hash_type.as_str(),
@@ -27,7 +27,7 @@ fn none() -> anyhow::Result<()> {
 fn ipfs() -> anyhow::Result<()> {
     crate::common::setup()?;
 
-    let hash_type = EVMMetadataHashType::IPFS.to_string();
+    let hash_type = MetadataHashType::IPFS.to_string();
     let args = &[
         "--metadata-hash",
         hash_type.as_str(),

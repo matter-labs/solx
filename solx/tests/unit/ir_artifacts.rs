@@ -13,11 +13,11 @@ fn evmla() {
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        era_compiler_common::Libraries::default(),
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::Libraries::default(),
+        solx_utils::MetadataHashType::IPFS,
         BTreeSet::new(),
         false,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
     assert!(
@@ -54,11 +54,11 @@ fn yul() {
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        era_compiler_common::Libraries::default(),
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::Libraries::default(),
+        solx_utils::MetadataHashType::IPFS,
         BTreeSet::new(),
         true,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
 
@@ -97,11 +97,11 @@ fn yul_empty_solidity_interface() {
 
     let build = crate::common::build_solidity_standard_json(
         sources,
-        era_compiler_common::Libraries::default(),
-        era_compiler_common::EVMMetadataHashType::IPFS,
+        solx_utils::Libraries::default(),
+        solx_utils::MetadataHashType::IPFS,
         BTreeSet::new(),
         true,
-        era_compiler_llvm_context::OptimizerSettings::cycles(),
+        solx_codegen_evm::OptimizerSettings::cycles(),
     )
     .expect("Test failure");
 

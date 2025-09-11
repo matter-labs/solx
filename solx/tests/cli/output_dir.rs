@@ -43,9 +43,9 @@ fn default() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[test_case(format!(".{}", era_compiler_common::EXTENSION_EVM_BINARY))]
-#[test_case(format!("_llvm.{}", era_compiler_common::EXTENSION_EVM_ASSEMBLY))]
-#[test_case(format!("_meta.{}", era_compiler_common::EXTENSION_JSON))]
+#[test_case(format!(".{}", solx_utils::EXTENSION_EVM_BINARY))]
+#[test_case(format!("_llvm.{}", solx_utils::EXTENSION_EVM_ASSEMBLY))]
+#[test_case(format!("_meta.{}", solx_utils::EXTENSION_JSON))]
 fn yul(extension: String) -> anyhow::Result<()> {
     crate::common::setup()?;
 

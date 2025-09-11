@@ -2,7 +2,7 @@
 //! The source code block.
 //!
 
-use era_compiler_llvm_context::IContext;
+use solx_codegen_evm::IContext;
 use solx_yul::yul::parser::statement::Statement;
 
 use crate::declare_wrapper;
@@ -14,8 +14,8 @@ declare_wrapper!(
     Block
 );
 
-impl era_compiler_llvm_context::EVMWriteLLVM for Block {
-    fn into_llvm(self, context: &mut era_compiler_llvm_context::EVMContext) -> anyhow::Result<()> {
+impl solx_codegen_evm::WriteLLVM for Block {
+    fn into_llvm(self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         let current_function = context.current_function().borrow().name().to_owned();
         let current_block = context.basic_block();
 
