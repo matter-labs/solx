@@ -80,6 +80,10 @@ pub const TEST_SOLIDITY_STANDARD_JSON_DEPLOY_TIME_LINKING_PATH: &str =
     "tests/data/standard_json_input/solidity_deploy_time_linking.json";
 
 /// A test input file.
+pub const TEST_SOLIDITY_STANDARD_JSON_FUZZED_SIMPLE_USE_EXPRESSION_PATH: &str =
+    "tests/data/standard_json_input/solidity_fuzzed_simple_use_expression.json";
+
+/// A test input file.
 pub const TEST_SOLIDITY_STANDARD_JSON_EMPTY_SOURCES_PATH: &str =
     "tests/data/standard_json_input/solidity_empty_sources.json";
 
