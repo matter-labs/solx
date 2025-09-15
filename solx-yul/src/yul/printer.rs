@@ -305,6 +305,8 @@ pub fn name_identifier(name: &Name) -> String {
             Name::BlobBaseFee => "blobbasefee",
             Name::MSize => "msize",
 
+            Name::UnsafeAsm => "unsafeasm",
+
             Name::CallCode => "callcode",
             Name::Pc => "pc",
             Name::ExtCodeCopy => "extcodecopy",

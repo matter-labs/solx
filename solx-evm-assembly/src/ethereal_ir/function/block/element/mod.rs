@@ -1072,6 +1072,16 @@ impl solx_codegen_evm::WriteLLVM for Element {
             }
             InstructionName::MSIZE => solx_codegen_evm::contract_context::msize(context).map(Some),
 
+            InstructionName::UNSAFEASM => {
+                if context.optimizer().settings().spill_area_size().is_some()
+                    && std::env::var(solx_utils::ENV_DISABLE_UNSAFE_MEMORY_ASM_STACK_TOO_DEEP_CHECK)
+                        .is_err()
+                {
+                    anyhow::bail!(solx_utils::ERROR_UNSAFE_MEMORY_ASM_STACK_TOO_DEEP);
+                }
+                Ok(None)
+            }
+
             InstructionName::CALLCODE => {
                 let mut _arguments = self.pop_arguments_llvm(context)?;
                 anyhow::bail!("The `CALLCODE` instruction is not supported");
