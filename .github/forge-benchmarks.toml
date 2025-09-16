@@ -60,6 +60,8 @@ description = "Gas optimized Solidity snippets."
 [unix]
 repo = "https://github.com/refcell/unix"
 description = "A lightweight, extensible foundry library for shell scripting."
+[unix.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [foundry-upgrades]
 repo = "https://github.com/odyslam/foundry-upgrades"
@@ -73,8 +75,6 @@ description = "A decentralized art factory and marketplace. Fork with fixed test
 repo = "https://github.com/lens-protocol/core"
 description = "Lens protocol, non-custodial social graph."
 requires_yarn = true
-[lens-core.env]
-EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [balance-snapshot]
 repo = "https://github.com/pilagod/balance-snapshot"
@@ -83,6 +83,8 @@ description = "A Solidity library to improve balance change check in Foundry tes
 [diamond-foundry]
 repo = "https://github.com/FydeTreasury/Diamond-Foundry"
 description = "a reference implementation for EIP-2535 Diamonds."
+[diamond-foundry.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [fixed-term-loan]
 repo = "https://github.com/maple-labs/fixed-term-loan"
@@ -92,12 +94,12 @@ disabled = true
 [forge-std]
 repo = "https://github.com/foundry-rs/forge-std"
 description = "Forge Standard Library is a collection of helpful contracts and libraries for use with Forge and Foundry."
-[forge-std.env]
-EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [tokenlon]
 repo = "https://github.com/consenlabs/tokenlon-contracts"
 description = "A decentralized exchange and payment settlement protocol."
+[tokenlon.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [uniswap-v4]
 repo = "https://github.com/Uniswap/v4-core"
@@ -107,8 +109,6 @@ description = "A new automated market maker protocol."
 repo = "https://github.com/beefyfinance/beefy-contracts"
 description = "Official repo for strategies and vaults from Beefy."
 requires_yarn = true
-[beefy.env]
-EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [gov-of-venice]
 repo = "https://github.com/pentagonxyz/gov-of-venice"
@@ -117,6 +117,8 @@ description = "A new paradigm in DAO governance."
 [cicada]
 repo = "https://github.com/a16z/cicada"
 description = "A private on-chain voting protocol based on homomorphic time-lock puzzles."
+[cicada.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [seaport]
 repo = "https://github.com/ProjectOpenSea/seaport"
@@ -128,8 +130,6 @@ disabled = true # compilation hangs, required to disable fuzzing tests
 repo = "https://github.com/lens-protocol/lens-v3"
 description = "Lens Protocol V3"
 requires_yarn = true
-[lens-v3.env]
-EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [morpho-blue]
 repo = "https://github.com/morpho-org/morpho-blue"
@@ -140,3 +140,5 @@ requires_yarn = true
 repo = "https://github.com/aave-dao/aave-v3-origin"
 description = "A non-custodial liquidity protocol on Ethereum."
 requires_yarn = true
+[aave-v3.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
