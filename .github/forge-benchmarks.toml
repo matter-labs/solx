@@ -75,6 +75,8 @@ description = "A decentralized art factory and marketplace. Fork with fixed test
 repo = "https://github.com/lens-protocol/core"
 description = "Lens protocol, non-custodial social graph."
 requires_yarn = true
+[lens-core.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [balance-snapshot]
 repo = "https://github.com/pilagod/balance-snapshot"
@@ -109,6 +111,8 @@ description = "A new automated market maker protocol."
 repo = "https://github.com/beefyfinance/beefy-contracts"
 description = "Official repo for strategies and vaults from Beefy."
 requires_yarn = true
+[beefy.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [gov-of-venice]
 repo = "https://github.com/pentagonxyz/gov-of-venice"
@@ -130,6 +134,8 @@ disabled = true # compilation hangs, required to disable fuzzing tests
 repo = "https://github.com/lens-protocol/lens-v3"
 description = "Lens Protocol V3"
 requires_yarn = true
+[lens-v3.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [morpho-blue]
 repo = "https://github.com/morpho-org/morpho-blue"
