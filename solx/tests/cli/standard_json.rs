@@ -74,6 +74,24 @@ fn recursion() -> anyhow::Result<()> {
 }
 
 #[test]
+fn fuzzed_simple_use_expression() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        crate::common::TEST_SOLIDITY_STANDARD_JSON_FUZZED_SIMPLE_USE_EXPRESSION_PATH,
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"))
+        .stdout(predicate::str::contains("object"));
+
+    Ok(())
+}
+
+#[test]
 fn yul() -> anyhow::Result<()> {
     crate::common::setup()?;
 
