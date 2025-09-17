@@ -22,7 +22,7 @@ repo = "https://github.com/antonbaliasnikov/solx-hh3"
 description = "A sample Hardhat v3 project with solx support."
 
 [openzeppelin]
-repo = "https://github.com/hedgar2017/openzeppelin-contracts"
+repo = "https://github.com/antonbaliasnikov/openzeppelin-contracts"
 description = "A library for secure smart contract development."
 build_system = "pnpm"
 [openzeppelin.env]
@@ -32,6 +32,7 @@ EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 repo = "https://github.com/antonbaliasnikov/zksafe"
 description = "A Safe module for privacy of Safe transaction signing."
 build_system = "pnpm"
+disabled = true # some verification failures
 [zksafe.env]
 EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
