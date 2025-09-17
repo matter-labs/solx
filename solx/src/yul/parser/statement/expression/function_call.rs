@@ -715,6 +715,16 @@ impl FunctionCall {
             Name::BaseFee => solx_codegen_evm::contract_context::basefee(context).map(Some),
             Name::MSize => solx_codegen_evm::contract_context::msize(context).map(Some),
 
+            Name::UnsafeAsm => {
+                if context.optimizer().settings().spill_area_size().is_some()
+                    && std::env::var(solx_utils::ENV_DISABLE_UNSAFE_MEMORY_ASM_STACK_TOO_DEEP_CHECK)
+                        .is_err()
+                {
+                    anyhow::bail!(solx_utils::ERROR_UNSAFE_MEMORY_ASM_STACK_TOO_DEEP);
+                }
+                Ok(None)
+            }
+
             Name::CallCode => {
                 let _arguments = self.pop_arguments_llvm::<7>(context)?;
                 anyhow::bail!("{location} The `CALLCODE` instruction is not supported")

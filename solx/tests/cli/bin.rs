@@ -82,14 +82,34 @@ fn stack_too_deep_llvm() -> anyhow::Result<()> {
     let args = &[
         crate::common::TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_LLVM_PATH,
         "--bin",
-        "-Oz",
+        "-O1",
     ];
 
     let result = crate::cli::execute_solx(args)?;
 
     result
         .success()
-        .stdout(predicate::str::contains("Binary").count(1));
+        .stderr(predicate::str::contains("Warning: Performance of this contract can be compromised due to the presence of this memory-unsafe assembly block."));
+
+    Ok(())
+}
+
+#[test]
+fn stack_too_deep_llvm_suppressed() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        crate::common::TEST_SOLIDITY_CONTRACT_STACK_TOO_DEEP_LLVM_PATH,
+        "--bin",
+        "-O1",
+    ];
+    let env_vars = vec![("EVM_DISABLE_MEMORY_SAFE_ASM_CHECK", "1".to_owned())];
+
+    let result = crate::cli::execute_solx_with_env_vars(args, env_vars)?;
+
+    result
+        .success()
+        .stdout(predicate::str::contains("Binary").count(2));
 
     Ok(())
 }

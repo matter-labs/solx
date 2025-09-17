@@ -362,6 +362,9 @@ pub enum Name {
     /// The eponymous EVM instruction.
     SELFDESTRUCT,
 
+    /// Special solx-specific instruction that detects unsafe assembly blocks.
+    UNSAFEASM,
+
     /// The recursive function call instruction.
     #[serde(skip)]
     RecursiveCall {
