@@ -529,12 +529,7 @@ impl Project {
                         debug_config.clone(),
                     );
 
-                    let result = Self::run_multi_pass_pipeline(
-                        path.as_str(),
-                        &contract_name,
-                        &mut input,
-                        messages.clone(),
-                    );
+                    let result = Self::run_multi_pass_pipeline(path.as_str(), &mut input);
                     (result, metadata)
                 };
 
@@ -556,12 +551,7 @@ impl Project {
                         debug_config.clone(),
                     );
 
-                    Self::run_multi_pass_pipeline(
-                        path.as_str(),
-                        &contract_name,
-                        &mut input,
-                        messages.clone(),
-                    )
+                    Self::run_multi_pass_pipeline(path.as_str(), &mut input)
                 };
 
                 let build = EVMContractBuild::new(
@@ -583,12 +573,6 @@ impl Project {
                 (path, build)
             })
             .collect::<BTreeMap<String, EVMContractBuild>>();
-
-        messages.lock().expect("Sync").retain(|message| {
-            !(message.severity == "warning"
-                && message.error_code.as_deref()
-                    == Some(solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE))
-        });
 
         Ok(EVMBuild::new(results, self.ast_jsons, messages))
     }
@@ -664,9 +648,7 @@ impl Project {
     ///
     fn run_multi_pass_pipeline(
         path: &str,
-        contract_name: &solx_utils::ContractName,
         input: &mut EVMProcessInput,
-        messages: Arc<Mutex<Vec<solx_standard_json::OutputError>>>,
     ) -> crate::Result<EVMProcessOutput> {
         let mut result: crate::Result<EVMProcessOutput>;
         let mut pass_count = 0;
@@ -675,26 +657,6 @@ impl Project {
             pass_count += 1;
             match result {
                 Err(Error::StackTooDeep(ref stack_too_deep)) => {
-                    if std::env::var(
-                        solx_standard_json::OutputError::EVM_DISABLE_MEMORY_SAFE_ASM_CHECK_ENV,
-                    )
-                    .is_err()
-                    {
-                        for message in messages.lock().expect("Sync").iter_mut() {
-                            if let (Some(path), Some(error_code)) = (
-                                message
-                                    .source_location
-                                    .as_ref()
-                                    .map(|location| location.file.as_str()),
-                                message.error_code.as_ref(),
-                            ) {
-                                if contract_name.path.as_str() == path && error_code == solx_standard_json::OutputError::MEMORY_UNSAFE_ASSEMBLY_WARNING_CODE {
-                                    message.make_error();
-                                }
-                            }
-                        }
-                    }
-
                     assert!(pass_count <= 2, "Stack too deep error is not resolved after {pass_count} passes: {stack_too_deep}");
 
                     if stack_too_deep.is_size_fallback {
@@ -703,6 +665,7 @@ impl Project {
                     input
                         .optimizer_settings
                         .set_spill_area_size(stack_too_deep.spill_area_size);
+
                     continue;
                 }
                 _ => break,

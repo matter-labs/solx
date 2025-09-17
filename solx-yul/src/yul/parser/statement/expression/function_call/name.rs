@@ -202,8 +202,15 @@ pub enum Name {
     Prevrandao,
     /// current mining beneficiary
     CoinBase,
+    /// current block’s base fee (EIP-3198 and EIP-1559)
+    BaseFee,
+    /// current block’s blob base fee (EIP-7516 and EIP-4844)
+    BlobBaseFee,
     /// size of memory, i.e. largest accessed memory index
     MSize,
+
+    /// Special solx-specific instruction that detects unsafe assembly blocks.
+    UnsafeAsm,
 
     /// verbatim instruction with 0 inputs and 0 outputs
     /// only works in the Yul mode, so it is mostly used as a tool for extending Yul
@@ -214,10 +221,6 @@ pub enum Name {
         output_size: usize,
     },
 
-    /// current block’s base fee (EIP-3198 and EIP-1559)
-    BaseFee,
-    /// current block’s blob base fee (EIP-7516 and EIP-4844)
-    BlobBaseFee,
     /// current position in code
     Pc,
     /// like `codecopy(t, f, s)` but take code at address `a`
@@ -330,6 +333,8 @@ impl From<&str> for Name {
             "basefee" => Self::BaseFee,
             "blobbasefee" => Self::BlobBaseFee,
             "msize" => Self::MSize,
+
+            "unsafeasm" => Self::UnsafeAsm,
 
             "callcode" => Self::CallCode,
             "pc" => Self::Pc,
