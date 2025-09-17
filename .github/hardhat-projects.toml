@@ -12,15 +12,21 @@
 # TEST_ENV = "123"
 # ANOTHER_ENV = "321"
 
-[hardhat-template]
+[hardhat-v2]
 repo = "https://github.com/antonbaliasnikov/hardhat-template"
-description = "A template for Hardhat projects."
+description = "A sample Hardhat v2 project with solx support."
 build_system = "bun"
+
+[hardhat-v3]
+repo = "https://github.com/antonbaliasnikov/solx-hh3"
+description = "A sample Hardhat v3 project with solx support."
 
 [openzeppelin]
 repo = "https://github.com/antonbaliasnikov/openzeppelin-contracts"
 description = "A library for secure smart contract development."
 build_system = "pnpm"
+[openzeppelin.env]
+EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [zksafe]
 repo = "https://github.com/antonbaliasnikov/zksafe"
@@ -28,10 +34,6 @@ description = "A Safe module for privacy of Safe transaction signing."
 build_system = "pnpm"
 [zksafe.env]
 EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
-
-[hardhat-v3]
-repo = "https://github.com/antonbaliasnikov/solx-hh3"
-description = "A sample hardhat v3 project with solx support."
 
 #[ens-contracts]
 #repo = "https://github.com/antonbaliasnikov/ens-contracts"
