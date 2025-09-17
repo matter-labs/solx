@@ -22,7 +22,7 @@ repo = "https://github.com/antonbaliasnikov/solx-hh3"
 description = "A sample Hardhat v3 project with solx support."
 
 [openzeppelin]
-repo = "https://github.com/antonbaliasnikov/openzeppelin-contracts"
+repo = "https://github.com/hedgar2017/openzeppelin-contracts"
 description = "A library for secure smart contract development."
 build_system = "pnpm"
 [openzeppelin.env]
