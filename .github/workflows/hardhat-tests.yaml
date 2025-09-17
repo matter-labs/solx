@@ -311,11 +311,38 @@ jobs:
 
       - name: Prepare compatibility table
         run: |
-          echo "| Project     | Mode     | Compilation, solc / solx | Solc, Passed / Total | Solx, Passed / Total |" > report.md
-          echo "|-------------|----------|--------------------------|----------------------|----------------------|" >> report.md
-
+          echo "| Project     | Mode     | Compilation, solc / solx | Passed (solc / solx / Total) |" > report.md
+          echo "|-------------|----------|--------------------------|------------------------------|" >> report.md
+          
           PROJECTS=$(yq '. as $root | keys[]' .github/hardhat-projects.toml | tr '\n' ' ')
-
+          
+          # --- Single-bar generator (10 slots, filled by solx vs solc reference) ---
+          gen_bar() {
+            local passed=$1   # numerator (solx)
+            local total=$2    # denominator (solc reference)
+            local percent=0
+            if (( total > 0 )); then
+              percent=$(( passed * 100 / total ))
+            fi
+            (( percent < 0 )) && percent=0
+            (( percent > 100 )) && percent=100
+          
+            local filled=$(( percent / 10 ))
+            local fill_char="🟥"
+            (( percent == 100 )) && fill_char="🟩"
+          
+            local empty_char="⬜"
+            local bar=""
+            for (( i=1; i<=10; i++ )); do
+              if (( i <= filled )); then
+                bar+="$fill_char"
+              else
+                bar+="$empty_char"
+              fi
+            done
+            echo "$bar"
+          }
+          
           for PROJECT in ${PROJECTS}; do
             for MODE in "default" "viaIR"; do
               if [ "${MODE}" = "default" ]; then
@@ -330,59 +357,78 @@ jobs:
                 SOLC_TEST_JSON="data/solc-via-ir/test_${PROJECT}.json"
               fi
 
-              # Compilation results
               SOLC_COMPILE_STATUS="N/A"
               SOLX_COMPILE_STATUS="N/A"
               if [ -f "$SOLC_BUILD_JSON" ]; then
-                STATUS=$(jq -r '.compile_status' "$SOLC_BUILD_JSON")
+                STATUS=$(jq -r '.compile_status' "$SOLC_BUILD_JSON" 2>/dev/null)
                 SOLC_COMPILE_STATUS=$([ "$STATUS" -eq 0 ] && echo "✅" || echo "❌")
               fi
               if [ -f "$SOLX_BUILD_JSON" ]; then
-                STATUS=$(jq -r '.compile_status' "$SOLX_BUILD_JSON")
+                STATUS=$(jq -r '.compile_status' "$SOLX_BUILD_JSON" 2>/dev/null)
                 SOLX_COMPILE_STATUS=$([ "$STATUS" -eq 0 ] && echo "✅" || echo "❌")
               fi
               COMPILE_COLUMN="${SOLC_COMPILE_STATUS} / ${SOLX_COMPILE_STATUS}"
 
-              # Test results
-              read_solc_test() {
-                if [ -s "$SOLC_TEST_JSON" ]; then
-                  TESTS=$(jq -r '.stats.tests' "$SOLC_TEST_JSON")
-                  PASSES=$(jq -r '.stats.passes' "$SOLC_TEST_JSON")
-                  echo "${PASSES} / ${TESTS}"
-                else
-                  COMPILE_STATUS=$(jq -r '.compile_status' "$SOLC_BUILD_JSON")
+              # solc (reference) totals + passes
+              REF_TEST_TOTAL=0
+              REF_TEST_PASSED=0
+              HAS_SOLC_NUM=0
+              SOLC_PART_TXT="0"
+          
+              if [ -s "$SOLC_TEST_JSON" ]; then
+                REF_TEST_TOTAL=$(jq -r '.stats.tests' "$SOLC_TEST_JSON" 2>/dev/null)
+                REF_TEST_PASSED=$(jq -r '.stats.passes' "$SOLC_TEST_JSON" 2>/dev/null)
+                [[ -z "$REF_TEST_TOTAL" || "$REF_TEST_TOTAL" == "null" ]] && REF_TEST_TOTAL=0
+                [[ -z "$REF_TEST_PASSED" || "$REF_TEST_PASSED" == "null" ]] && REF_TEST_PASSED=0
+                HAS_SOLC_NUM=1
+                SOLC_PART_TXT="${REF_TEST_PASSED}"
+              else
+                if [ -f "$SOLC_BUILD_JSON" ]; then
+                  COMPILE_STATUS=$(jq -r '.compile_status' "$SOLC_BUILD_JSON" 2>/dev/null)
                   if [ "$COMPILE_STATUS" -eq 0 ]; then
-                    echo "❌ Run failed"
+                    SOLC_PART_TXT="❌ Run failed"
                   else
-                    echo "N/A"
+                    SOLC_PART_TXT="0"
                   fi
                 fi
-              }
-
-              read_solx_test() {
-                if [ -s "$SOLX_TEST_JSON" ]; then
-                  TESTS=$(jq -r '.stats.tests' "$SOLX_TEST_JSON")
-                  PASSES=$(jq -r '.stats.passes' "$SOLX_TEST_JSON")
-                  echo "${PASSES} / ${TESTS}"
-                else
-                  COMPILE_STATUS=$(jq -r '.compile_status' "$SOLX_BUILD_JSON")
+              fi
+          
+              # solx passes
+              SOLX_TEST_PASSED=0
+              HAS_SOLX_NUM=0
+              SOLX_PART_TXT="0"
+          
+              if [ -s "$SOLX_TEST_JSON" ]; then
+                SOLX_TEST_PASSED=$(jq -r '.stats.passes' "$SOLX_TEST_JSON" 2>/dev/null)
+                [[ -z "$SOLX_TEST_PASSED" || "$SOLX_TEST_PASSED" == "null" ]] && SOLX_TEST_PASSED=0
+                HAS_SOLX_NUM=1
+                SOLX_PART_TXT="${SOLX_TEST_PASSED}"
+              else
+                if [ -f "$SOLX_BUILD_JSON" ]; then
+                  COMPILE_STATUS=$(jq -r '.compile_status' "$SOLX_BUILD_JSON" 2>/dev/null)
                   if [ "$COMPILE_STATUS" -eq 0 ]; then
-                    echo "❌ Run failed"
+                    SOLX_PART_TXT="❌ Run failed"
                   else
-                    echo "N/A"
+                    SOLX_PART_TXT="0"
                   fi
                 fi
-              }
+              fi
 
-              SOLC_TEST_COLUMN=$(read_solc_test)
-              SOLX_TEST_COLUMN=$(read_solx_test)
+              TEST_BAR=$(gen_bar "$SOLX_TEST_PASSED" "$REF_TEST_PASSED")
+              # If solc reference has no passes (0 or missing), show full green to avoid implying failure
+              if [ "$REF_TEST_PASSED" -eq 0 ]; then
+                TEST_BAR="🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩"
+              fi
+          
+              TOTAL_PART_TXT=$([ "$HAS_SOLC_NUM" -eq 1 ] && echo "$REF_TEST_TOTAL" || echo "0")
+              PASSED_COLUMN="${TEST_BAR} ${SOLC_PART_TXT} / ${SOLX_PART_TXT} / ${TOTAL_PART_TXT}"
 
               if [ "$MODE" = "default" ]; then
-                printf "| %-11s | %-8s | %-24s | %-20s | %-20s |\n" \
-                  "${PROJECT}" "${MODE}" "${COMPILE_COLUMN}" "${SOLC_TEST_COLUMN}" "${SOLX_TEST_COLUMN}" >> report.md
+                printf "| %-11s | %-8s | %-24s | %-37s |\n" \
+                  "${PROJECT}" "${MODE}" "${COMPILE_COLUMN}" "${PASSED_COLUMN}" >> report.md
               else
-                printf "| %-11s | %-8s | %-24s | %-20s | %-20s |\n" \
-                  "" "${MODE}" "${COMPILE_COLUMN}" "${SOLC_TEST_COLUMN}" "${SOLX_TEST_COLUMN}" >> report.md
+                printf "| %-11s | %-8s | %-24s | %-37s |\n" \
+                  "" "${MODE}" "${COMPILE_COLUMN}" "${PASSED_COLUMN}" >> report.md
               fi
             done
           done
