@@ -19,15 +19,6 @@ anyhow = "1.0"
 serde = { version = "1.0", features = [ "derive" ] }
 toml = "0.8"
 
-num_cpus = "1.16"
 fs_extra = "1.3"
 path-slash = "0.2"
 regex = "1.11"
-
-solx-utils = { path = "../solx-utils" }
-
-[dev-dependencies]
-assert_cmd = "2.0"
-predicates = "3.1"
-assert_fs = "1.1"
-rstest = "0.25"
