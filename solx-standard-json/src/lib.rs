@@ -30,3 +30,6 @@ pub use self::output::error::Error as OutputError;
 pub use self::output::source::Source as OutputSource;
 pub use self::output::Output;
 pub use self::version::Version;
+
+/// The standard JSON debug environment variable.
+pub const STANDARD_JSON_DEBUG_ENV: &str = "SOLX_STANDARD_JSON_DEBUG";

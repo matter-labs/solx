@@ -15,7 +15,7 @@ use path_slash::PathExt;
 /// Solidity compiler arguments.
 ///
 #[derive(Debug, Parser)]
-#[command(about, long_about = None, arg_required_else_help = true)]
+#[command(about, long_about = None)]
 pub struct Arguments {
     /// Print the version and exit.
     #[arg(long)]
@@ -203,12 +203,27 @@ impl Arguments {
     pub fn validate(&self) -> Arc<Mutex<Vec<solx_standard_json::OutputError>>> {
         let mut messages = vec![];
 
-        if self.version && std::env::args().count() > 2 {
+        if self.recursive_process {
+            if std::env::args().count() > 3 {
+                messages.push(solx_standard_json::OutputError::new_error(
+                    "No other options are allowed while running in the recursive process mode.",
+                ));
+            }
+            return Arc::new(Mutex::new(messages));
+        }
+
+        if self.version {
+            if std::env::args().count() > 2 {
+                messages.push(solx_standard_json::OutputError::new_error(
+                    "No other options are allowed while getting the compiler version.",
+                ));
+            }
+            return Arc::new(Mutex::new(messages));
+        }
+
+        if self.standard_json.is_none() && self.inputs.is_empty() {
             messages.push(solx_standard_json::OutputError::new_error(
-                None,
-                "No other options are allowed while getting the compiler version.",
-                None,
-                None,
+                format!("No input files given. For standard input, specify `{}` explicitly, or visit `--help` to see all options.", solx_standard_json::InputSource::STDIN_INPUT_IDENTIFIER).as_str(),
             ));
         }
 
@@ -218,36 +233,24 @@ impl Arguments {
             .count();
         if modes_count > 1 {
             messages.push(solx_standard_json::OutputError::new_error(
-                None,
                 "Only one mode is allowed at the same time: Yul, LLVM IR, standard JSON.",
-                None,
-                None,
             ));
         }
 
         if self.yul || self.llvm_ir {
             if self.base_path.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "`base-path` is only allowed in Solidity mode.",
-                    None,
-                    None,
                 ));
             }
             if !self.include_path.is_empty() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "`include-path` is only allowed in Solidity mode.",
-                    None,
-                    None,
                 ));
             }
             if self.allow_paths.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "`allow-paths` is only allowed in Solidity mode.",
-                    None,
-                    None,
                 ));
             }
 
@@ -263,28 +266,19 @@ impl Arguments {
                 || self.output_benchmarks
             {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "ABI, hashes, userdoc, devdoc, storage layout, transient storage layout, AST, EVM assembly, Yul can be only emitted for Solidity contracts.",
-                    None,
-                    None,
                 ));
             }
 
             if self.evm_version.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "EVM version is only allowed in Solidity mode.",
-                    None,
-                    None,
                 ));
             }
 
             if self.via_ir {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "IR codegen settings are only available in Solidity mode.",
-                    None,
-                    None,
                 ));
             }
         }
@@ -306,101 +300,65 @@ impl Arguments {
                 || self.output_benchmarks
             {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Cannot output data outside of JSON in standard JSON mode.",
-                    None,
-                    None,
                 ));
             }
 
             if !self.inputs.is_empty() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Input files must be passed via standard JSON input.",
-                    None,
-                    None,
                 ));
             }
             if !self.libraries.is_empty() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Libraries must be passed via standard JSON input.",
-                    None,
-                    None,
                 ));
             }
 
             if self.via_ir {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "IR codegen must be passed via standard JSON input.",
-                    None,
-                    None,
                 ));
             }
             if self.evm_version.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "EVM version must be passed via standard JSON input.",
-                    None,
-                    None,
                 ));
             }
 
             if self.output_dir.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Output directory cannot be used in standard JSON mode.",
-                    None,
-                    None,
                 ));
             }
             if self.overwrite {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Overwriting flag cannot be used in standard JSON mode.",
-                    None,
-                    None,
                 ));
             }
             if self.optimization.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "LLVM optimizations must be specified in standard JSON input settings.",
-                    None,
-                    None,
                 ));
             }
             if self.size_fallback {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Size optimization fallback must be specified in standard JSON input settings.",
-                    None,
-                    None,
                 ));
             }
             if self.llvm_options.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "LLVM options must be specified in standard JSON input settings.",
-                    None,
-                    None,
                 ));
             }
             if self.metadata_hash.is_some() {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Metadata hash mode must be specified in standard JSON input settings.",
-                    None,
-                    None,
                 ));
             }
             if self.metadata_literal {
                 messages.push(solx_standard_json::OutputError::new_error(
-                    None,
                     "Metadata literal content flag must be specified in standard JSON input settings.",
-                    None,
-                    None,
                 ));
             }
         }
@@ -430,8 +388,7 @@ impl Arguments {
                 }
                 if parts.len() != 2 {
                     anyhow::bail!(
-                        "Invalid remapping `{}`: expected two parts separated by '='.",
-                        input
+                        "Invalid remapping `{input}`: expected two parts separated by '='."
                     );
                 }
                 remappings.insert(parts.join("="));
@@ -451,7 +408,7 @@ impl Arguments {
     fn path_to_posix(path: &Path) -> anyhow::Result<PathBuf> {
         let path = path
             .to_slash()
-            .ok_or_else(|| anyhow::anyhow!("Input path {:?} POSIX conversion error.", path))?
+            .ok_or_else(|| anyhow::anyhow!("Input path {path:?} POSIX conversion error."))?
             .to_string();
         let path = PathBuf::from(path.as_str());
         Ok(path)

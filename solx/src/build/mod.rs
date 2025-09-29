@@ -94,11 +94,10 @@ impl Build {
                     let assembled_object = match object.assemble(all_objects.as_slice()) {
                         Ok(assembled_object) => assembled_object,
                         Err(error) => {
-                            self.messages.lock().expect("Sync").push(
-                                solx_standard_json::OutputError::new_error(
-                                    None, &error, None, None,
-                                ),
-                            );
+                            self.messages
+                                .lock()
+                                .expect("Sync")
+                                .push(solx_standard_json::OutputError::new_error(&error));
                             return Self::new(BTreeMap::new(), ast_jsons, self.messages);
                         }
                     };
@@ -139,9 +138,10 @@ impl Build {
         for contract in self.contracts.values_mut() {
             for object in contract.objects_mut().into_iter() {
                 if let Err(error) = object.link(&linker_symbols) {
-                    self.messages.lock().expect("Sync").push(
-                        solx_standard_json::OutputError::new_error(None, &error, None, None),
-                    );
+                    self.messages
+                        .lock()
+                        .expect("Sync")
+                        .push(solx_standard_json::OutputError::new_error(&error));
                     return Self::new(BTreeMap::new(), ast_jsons, self.messages);
                 }
             }

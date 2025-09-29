@@ -20,6 +20,14 @@ Alternatively, the input JSON can be fed to **solx** via *stdin*:
 cat './input.json' | solx --standard-json
 ```
 
+You can also insert your standard JSON input directly into the command line:
+
+```shell
+solx --standard-json
+
+<paste into stdin here and press Ctrl-D>
+```
+
 > For the sake of interface unification, **solx** will always return with exit code 0 and have its standard JSON output printed to *stdout*.
 > It differs from **solc** that may return with exit code 1 and a free-formed error in some cases, such as when the standard JSON input file is missing, even though [the **solc** documentation claims otherwise](https://docs.soliditylang.org/en/latest/using-the-compiler.html#compiler-input-and-output-json-description).
 

@@ -44,12 +44,16 @@ impl Input {
     ///
     pub fn try_from(path: Option<&Path>) -> anyhow::Result<Self> {
         let input_json = match path {
+            Some(path) if path.to_string_lossy() == Source::STDIN_INPUT_IDENTIFIER => {
+                std::io::read_to_string(std::io::stdin())
+                    .map_err(|error| anyhow::anyhow!("Standard JSON reading from stdin: {error}"))
+            }
             Some(path) => std::fs::read_to_string(path)
                 .map_err(|error| anyhow::anyhow!("Standard JSON file {path:?} reading: {error}")),
             None => std::io::read_to_string(std::io::stdin())
                 .map_err(|error| anyhow::anyhow!("Standard JSON reading from stdin: {error}")),
         }?;
-        if let Ok(output_path) = std::env::var("SOLX_STANDARD_JSON_DEBUG") {
+        if let Ok(output_path) = std::env::var(crate::STANDARD_JSON_DEBUG_ENV) {
             std::fs::write(output_path.as_str(), input_json.as_str()).map_err(|error| {
                 anyhow::anyhow!("Standard JSON input debug file `{output_path}` writing: {error}")
             })?;

@@ -221,7 +221,7 @@ impl Object {
         self.warnings
             .drain(..)
             .map(|warning| {
-                solx_standard_json::OutputError::new_warning(
+                solx_standard_json::OutputError::new_warning_with_data(
                     warning.code(),
                     warning.to_string(),
                     Some(solx_standard_json::OutputErrorSourceLocation::new(

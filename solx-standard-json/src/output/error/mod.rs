@@ -87,9 +87,19 @@ impl Error {
     }
 
     ///
-    /// A shortcut constructor.
+    /// Creates a new simple error without extra data.
     ///
-    pub fn new_error<S>(
+    pub fn new_error<S>(message: S) -> Self
+    where
+        S: std::fmt::Display,
+    {
+        Self::new_error_with_data(None, message, None, None)
+    }
+
+    ///
+    /// Creates a new error with optional code location and error code.
+    ///
+    pub fn new_error_with_data<S>(
         error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
@@ -102,9 +112,19 @@ impl Error {
     }
 
     ///
-    /// A shortcut constructor.
+    /// Creates a new warning with optional code location and error code.
     ///
-    pub fn new_warning<S>(
+    pub fn new_warning<S>(message: S) -> Self
+    where
+        S: std::fmt::Display,
+    {
+        Self::new_warning_with_data(None, message, None, None)
+    }
+
+    ///
+    /// Creates a new warning with optional code location and error code.
+    ///
+    pub fn new_warning_with_data<S>(
         error_code: Option<isize>,
         message: S,
         source_location: Option<SourceLocation>,
