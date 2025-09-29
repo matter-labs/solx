@@ -12,7 +12,7 @@ fn missing_input() -> anyhow::Result<()> {
 
     let result = crate::cli::execute_solx(args)?;
     result.failure().stderr(predicate::str::contains(
-        "Error: Input length prefix reading error",
+        "Input length prefix reading error: failed to fill whole buffer",
     ));
 
     Ok(())

@@ -40,6 +40,25 @@ fn stdin() -> anyhow::Result<()> {
 }
 
 #[test]
+fn stdin_hyphen() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        solx_standard_json::InputSource::STDIN_INPUT_IDENTIFIER,
+    ];
+
+    let result =
+        crate::cli::execute_solx_with_stdin(args, crate::common::TEST_SOLIDITY_STANDARD_JSON_PATH)?;
+    result
+        .success()
+        .stdout(predicate::str::contains("bytecode"))
+        .stdout(predicate::str::contains("object"));
+
+    Ok(())
+}
+
+#[test]
 fn deploy_time_linking() -> anyhow::Result<()> {
     crate::common::setup()?;
 
@@ -215,6 +234,23 @@ fn stdin_missing() -> anyhow::Result<()> {
     crate::common::setup()?;
 
     let args = &["--standard-json"];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.success().stdout(predicate::str::contains(
+        "Standard JSON parsing: EOF while parsing",
+    ));
+
+    Ok(())
+}
+
+#[test]
+fn stdin_hyphen_missing() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--standard-json",
+        solx_standard_json::InputSource::STDIN_INPUT_IDENTIFIER,
+    ];
 
     let result = crate::cli::execute_solx(args)?;
     result.success().stdout(predicate::str::contains(

@@ -15,7 +15,7 @@ use path_slash::PathExt;
 /// Solidity compiler arguments.
 ///
 #[derive(Debug, Parser)]
-#[command(about, long_about = None, arg_required_else_help = true)]
+#[command(about, long_about = None)]
 pub struct Arguments {
     /// Print the version and exit.
     #[arg(long)]
@@ -203,10 +203,34 @@ impl Arguments {
     pub fn validate(&self) -> Arc<Mutex<Vec<solx_standard_json::OutputError>>> {
         let mut messages = vec![];
 
-        if self.version && std::env::args().count() > 2 {
+        if self.recursive_process {
+            if std::env::args().count() > 3 {
+                messages.push(solx_standard_json::OutputError::new_error(
+                    None,
+                    "No other options are allowed while running in the recursive process mode.",
+                    None,
+                    None,
+                ));
+            }
+            return Arc::new(Mutex::new(messages));
+        }
+
+        if self.version {
+            if std::env::args().count() > 2 {
+                messages.push(solx_standard_json::OutputError::new_error(
+                    None,
+                    "No other options are allowed while getting the compiler version.",
+                    None,
+                    None,
+                ));
+            }
+            return Arc::new(Mutex::new(messages));
+        }
+
+        if self.standard_json.is_none() && self.inputs.is_empty() {
             messages.push(solx_standard_json::OutputError::new_error(
                 None,
-                "No other options are allowed while getting the compiler version.",
+                format!("No input files given. For standard input, specify `{}` explicitly, or visit `--help` to see all options.", solx_standard_json::InputSource::STDIN_INPUT_IDENTIFIER).as_str(),
                 None,
                 None,
             ));
@@ -430,8 +454,7 @@ impl Arguments {
                 }
                 if parts.len() != 2 {
                     anyhow::bail!(
-                        "Invalid remapping `{}`: expected two parts separated by '='.",
-                        input
+                        "Invalid remapping `{input}`: expected two parts separated by '='."
                     );
                 }
                 remappings.insert(parts.join("="));
@@ -451,7 +474,7 @@ impl Arguments {
     fn path_to_posix(path: &Path) -> anyhow::Result<PathBuf> {
         let path = path
             .to_slash()
-            .ok_or_else(|| anyhow::anyhow!("Input path {:?} POSIX conversion error.", path))?
+            .ok_or_else(|| anyhow::anyhow!("Input path {path:?} POSIX conversion error."))?
             .to_string();
         let path = PathBuf::from(path.as_str());
         Ok(path)

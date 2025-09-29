@@ -18,7 +18,17 @@ use self::arguments::Arguments;
 /// The application entry point.
 ///
 fn main() -> anyhow::Result<()> {
-    let arguments = Arguments::try_parse()?;
+    let arguments = match Arguments::try_parse() {
+        Ok(arguments) => arguments,
+        Err(error) => {
+            let error: String = error.to_string();
+            eprintln!(
+                "{}",
+                error.strip_prefix("Error: ").unwrap_or(error.as_str())
+            );
+            std::process::exit(solx_utils::EXIT_CODE_FAILURE);
+        }
+    };
     let is_standard_json = arguments.standard_json.is_some();
     let messages = arguments.validate();
     if messages
@@ -257,7 +267,7 @@ fn main_inner(
             use_import_callback,
             debug_config,
         );
-    } else if !output_selection.is_empty() {
+    } else {
         solx::standard_output_evm(
             input_files.as_slice(),
             arguments.libraries.as_slice(),
@@ -277,13 +287,15 @@ fn main_inner(
             llvm_options,
             debug_config,
         )
-    } else {
+    }?;
+
+    if output_selection.is_empty() {
         writeln!(
             std::io::stdout(),
             "Compiler run successful. No output generated."
         )?;
         return Ok(());
-    }?;
+    }
 
     if let Some(output_directory) = arguments.output_dir {
         build.write_to_directory(&output_directory, &output_selection, arguments.overwrite)?;
