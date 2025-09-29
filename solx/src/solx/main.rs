@@ -55,9 +55,7 @@ fn main() -> anyhow::Result<()> {
             messages
                 .lock()
                 .expect("Sync")
-                .push(solx_standard_json::OutputError::new_error(
-                    None, error, None, None,
-                ));
+                .push(solx_standard_json::OutputError::new_error(error));
         }
     }
 

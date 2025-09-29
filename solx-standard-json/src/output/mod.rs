@@ -138,7 +138,7 @@ impl Output {
     /// Please do not push project-general errors without paths here.
     ///
     pub fn push_error(&mut self, path: Option<String>, error: anyhow::Error) {
-        self.errors.push(JsonOutputError::new_error(
+        self.errors.push(JsonOutputError::new_error_with_data(
             None,
             error,
             path.map(JsonOutputErrorSourceLocation::new),

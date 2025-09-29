@@ -60,7 +60,7 @@ pub fn run() -> anyhow::Result<()> {
             )
             .map(EVMOutput::new)
             .map_err(|error| match error {
-                Error::Generic(error) => solx_standard_json::OutputError::new_error(
+                Error::Generic(error) => solx_standard_json::OutputError::new_error_with_data(
                     None,
                     error,
                     Some(source_location),
@@ -135,7 +135,7 @@ where
             String::from_utf8_lossy(result.stdout.as_slice()),
             String::from_utf8_lossy(result.stderr.as_slice()),
         );
-        Err(solx_standard_json::OutputError::new_error(
+        Err(solx_standard_json::OutputError::new_error_with_data(
             None,
             message,
             Some(solx_standard_json::OutputErrorSourceLocation::new(
