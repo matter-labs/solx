@@ -17,3 +17,21 @@ fn missing_input() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn excess_args() -> anyhow::Result<()> {
+    crate::common::setup()?;
+
+    let args = &[
+        "--recursive-process",
+        crate::common::TEST_SOLIDITY_CONTRACT_PATH,
+        "excess",
+    ];
+
+    let result = crate::cli::execute_solx(args)?;
+    result.failure().stderr(predicate::str::contains(
+        "No other options are allowed while running in the recursive process mode.",
+    ));
+
+    Ok(())
+}
