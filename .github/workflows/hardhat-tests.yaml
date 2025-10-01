@@ -344,6 +344,11 @@ jobs:
           }
           
           for PROJECT in ${PROJECTS}; do
+            DISABLED=$(yq ".${PROJECT}.disabled" .github/hardhat-projects.toml)
+            if [[ "${DISABLED}" == "true" ]]; then
+              echo "Skipping ${PROJECT} as it is disabled"
+              continue
+            fi
             for MODE in "default" "viaIR"; do
               if [ "${MODE}" = "default" ]; then
                 SOLX_BUILD_JSON="data/solx/build_${PROJECT}.json"
