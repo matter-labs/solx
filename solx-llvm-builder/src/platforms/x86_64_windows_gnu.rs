@@ -10,7 +10,6 @@ use crate::build_type::BuildType;
 use crate::ccache_variant::CcacheVariant;
 use crate::llvm_path::LLVMPath;
 use crate::llvm_project::LLVMProject;
-use crate::platforms::Platform;
 use crate::sanitizer::Sanitizer;
 
 ///
@@ -67,18 +66,8 @@ pub fn build(
                 )
                 .as_str(),
                 "-DLLVM_USE_LINKER='lld'",
-                "-DLLVM_TARGETS_TO_BUILD=''",
-                format!(
-                    "-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD='{}'",
-                    [Platform::EVM, Platform::EraVM]
-                        .into_iter()
-                        .map(|platform| platform.to_string())
-                        .collect::<Vec<String>>()
-                        .join(";")
-                )
-                .as_str(),
-                format!("-DLLVM_DEFAULT_TARGET_TRIPLE='{}'", Platform::EVM).as_str(),
             ])
+            .args(crate::platforms::shared::shared_build_opts_targets())
             .args(crate::platforms::shared::shared_build_opts_tests(
                 enable_tests,
             ))

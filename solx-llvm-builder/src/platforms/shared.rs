@@ -3,6 +3,7 @@
 //!
 
 use crate::ccache_variant::CcacheVariant;
+use crate::platforms::Platform;
 use crate::sanitizer::Sanitizer;
 
 /// The build options shared by all platforms.
@@ -93,6 +94,24 @@ pub fn shared_build_opts_valgrind(enabled: bool, valgrind_options: Vec<String>) 
         .join(" ");
 
     vec![format!("-DLLVM_LIT_ARGS='-sv --vg --vg-leak {vg_args}'")]
+}
+
+///
+/// The LLVM targets build options shared by all platforms.
+///
+pub fn shared_build_opts_targets() -> Vec<String> {
+    vec![
+        "-DLLVM_TARGETS_TO_BUILD=''".to_owned(),
+        format!(
+            "-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD='{}'",
+            [Platform::EVM, Platform::EraVM]
+                .into_iter()
+                .map(|platform| platform.to_string())
+                .collect::<Vec<String>>()
+                .join(";")
+        ),
+        format!("-DLLVM_DEFAULT_TARGET_TRIPLE='{}'", Platform::EVM),
+    ]
 }
 
 ///
