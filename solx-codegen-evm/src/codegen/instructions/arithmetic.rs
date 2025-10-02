@@ -66,35 +66,16 @@ pub fn division<'ctx>(
     operand_1: inkwell::values::IntValue<'ctx>,
     operand_2: inkwell::values::IntValue<'ctx>,
 ) -> anyhow::Result<inkwell::values::BasicValueEnum<'ctx>> {
-    let zero_block = context.append_basic_block("division_zero");
-    let non_zero_block = context.append_basic_block("division_non_zero");
-    let join_block = context.append_basic_block("division_join");
-
-    let result_pointer = context.build_alloca(context.field_type(), "division_result_pointer")?;
-    let condition = context.builder().build_int_compare(
-        inkwell::IntPredicate::EQ,
-        operand_2,
-        context.field_const(0),
-        "division_is_divider_zero",
-    )?;
-    context.build_conditional_branch(condition, zero_block, non_zero_block)?;
-
-    context.set_basic_block(non_zero_block);
-    let result = context.builder().build_int_unsigned_div(
-        operand_1,
-        operand_2,
-        "division_result_non_zero",
-    )?;
-    context.build_store(result_pointer, result)?;
-    context.build_unconditional_branch(join_block)?;
-
-    context.set_basic_block(zero_block);
-    context.build_store(result_pointer, context.field_const(0))?;
-    context.build_unconditional_branch(join_block)?;
-
-    context.set_basic_block(join_block);
-    let result = context.build_load(result_pointer, "division_result")?;
-    Ok(result)
+    Ok(context
+        .build_call(
+            context.intrinsics().div,
+            &[
+                operand_1.as_basic_value_enum(),
+                operand_2.as_basic_value_enum(),
+            ],
+            "div",
+        )?
+        .expect("Always exists"))
 }
 
 ///
