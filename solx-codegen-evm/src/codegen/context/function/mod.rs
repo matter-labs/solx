@@ -294,23 +294,23 @@ impl<'ctx> IEVMLAFunction<'ctx> for Function<'ctx> {
         if evmla_data
             .blocks
             .get(key)
-            .ok_or_else(|| anyhow::anyhow!("Undeclared function block {}", key))?
+            .ok_or_else(|| anyhow::anyhow!("Undeclared function block {key}"))?
             .len()
             == 1
         {
             return evmla_data
                 .blocks
                 .get(key)
-                .ok_or_else(|| anyhow::anyhow!("Undeclared function block {}", key))?
+                .ok_or_else(|| anyhow::anyhow!("Undeclared function block {key}"))?
                 .first()
                 .cloned()
-                .ok_or_else(|| anyhow::anyhow!("Undeclared function block {}", key));
+                .ok_or_else(|| anyhow::anyhow!("Undeclared function block {key}"));
         }
 
         evmla_data
             .blocks
             .get(key)
-            .ok_or_else(|| anyhow::anyhow!("Undeclared function block {}", key))?
+            .ok_or_else(|| anyhow::anyhow!("Undeclared function block {key}"))?
             .iter()
             .find(|block| {
                 block
@@ -320,6 +320,6 @@ impl<'ctx> IEVMLAFunction<'ctx> for Function<'ctx> {
                     .any(|hash| hash == stack_hash)
             })
             .cloned()
-            .ok_or_else(|| anyhow::anyhow!("Undeclared function block {}", key))
+            .ok_or_else(|| anyhow::anyhow!("Undeclared function block {key}"))
     }
 }
