@@ -173,7 +173,7 @@ pub fn standard_output_evm(
         use_import_callback,
         base_path.as_deref(),
         include_paths.as_slice(),
-        allow_paths.as_deref(),
+        allow_paths,
     )?;
     run_solc_standard_json.borrow_mut().finish();
     solc_output.take_and_write_warnings();
@@ -283,7 +283,7 @@ pub fn standard_json_evm(
                 use_import_callback,
                 base_path.as_deref(),
                 include_paths.as_slice(),
-                allow_paths.as_deref(),
+                allow_paths,
             )?;
             run_solc_standard_json.borrow_mut().finish();
             if solc_output.has_errors() {

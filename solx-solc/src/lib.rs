@@ -75,7 +75,7 @@ impl Compiler {
         use_import_callback: bool,
         base_path: Option<&str>,
         include_paths: &[String],
-        allow_paths: Option<&str>,
+        mut allow_paths: Option<String>,
     ) -> anyhow::Result<solx_standard_json::Output> {
         let original_output_selection = input_json.settings.output_selection.to_owned();
         input_json.settings.output_selection.normalize();
@@ -114,6 +114,20 @@ impl Compiler {
             include_paths.as_ptr()
         };
 
+        for path in input_json.sources.keys() {
+            let mut path = PathBuf::from(path);
+            if path.is_file() {
+                path.pop();
+            }
+            if path.is_dir() {
+                if let Some(allow_paths) = allow_paths.as_mut() {
+                    allow_paths.push(',');
+                    allow_paths.push_str(path.to_str().expect("Always valid"));
+                } else {
+                    allow_paths = Some(path.to_str().expect("Always valid").to_owned());
+                }
+            }
+        }
         let allow_paths = allow_paths
             .map(|allow_paths| {
                 allow_paths

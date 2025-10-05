@@ -30,10 +30,9 @@ impl Expression {
                 .into_llvm(context)
                 .map_err(|error| {
                     anyhow::anyhow!(
-                        "{} Invalid literal `{}`: {}",
+                        "{} Invalid literal `{}`: {error}",
                         literal.location,
-                        literal.inner.to_string(),
-                        error
+                        literal.inner,
                     )
                 })
                 .map(Some),

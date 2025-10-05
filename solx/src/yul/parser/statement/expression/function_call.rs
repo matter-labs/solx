@@ -36,9 +36,9 @@ impl FunctionCall {
                     values.push(value);
                 }
                 values.reverse();
-                let function = context.get_function(name.as_str()).ok_or_else(|| {
-                    anyhow::anyhow!("{} Undeclared function `{}`", location, name)
-                })?;
+                let function = context
+                    .get_function(name.as_str())
+                    .ok_or_else(|| anyhow::anyhow!("{location} Undeclared function `{name}`"))?;
 
                 let expected_arguments_count =
                     function.borrow().declaration().value.count_params() as usize;
@@ -633,9 +633,10 @@ impl FunctionCall {
             }
             Name::DataOffset => {
                 let mut arguments = self.pop_arguments::<1>(context)?;
-                let object_name = arguments[0].original.take().ok_or_else(|| {
-                    anyhow::anyhow!("{} `dataoffset` literal is missing", location)
-                })?;
+                let object_name = arguments[0]
+                    .original
+                    .take()
+                    .ok_or_else(|| anyhow::anyhow!("{location} `dataoffset` literal is missing"))?;
                 let object_name = object_name.split('.').next_back().expect("Always exists");
                 solx_codegen_evm::code::data_offset(context, object_name).map(Some)
             }
@@ -644,7 +645,7 @@ impl FunctionCall {
                 let object_name = arguments[0]
                     .original
                     .take()
-                    .ok_or_else(|| anyhow::anyhow!("{} `datasize` literal is missing", location))?;
+                    .ok_or_else(|| anyhow::anyhow!("{location} `datasize` literal is missing"))?;
                 let object_name = object_name.split('.').next_back().expect("Always exists");
                 solx_codegen_evm::code::data_size(context, object_name).map(Some)
             }

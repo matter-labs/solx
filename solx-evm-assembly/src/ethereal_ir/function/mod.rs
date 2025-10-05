@@ -1275,7 +1275,7 @@ impl solx_codegen_evm::WriteLLVM for Function {
                 .blocks
                 .get(&key)
                 .cloned()
-                .ok_or_else(|| anyhow::anyhow!("Undeclared function block {}", key))?
+                .ok_or_else(|| anyhow::anyhow!("Undeclared function block {key}"))?
                 .into_iter()
                 .map(|block| block.inner())
                 .zip(blocks)

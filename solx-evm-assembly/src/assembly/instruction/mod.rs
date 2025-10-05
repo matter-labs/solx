@@ -298,7 +298,7 @@ impl Instruction {
                     ..
                 } => {
                     *value = mapping.get(value.as_str()).cloned().ok_or_else(|| {
-                        anyhow::anyhow!("Contract alias `{}` data not found", value)
+                        anyhow::anyhow!("Contract alias `{value}` data not found")
                     })?;
                 }
                 Instruction {
@@ -311,7 +311,7 @@ impl Instruction {
                     key_extended.push_str(value.as_str());
 
                     *value = mapping.get(key_extended.as_str()).cloned().ok_or_else(|| {
-                        anyhow::anyhow!("Data chunk alias `{}` data not found", key_extended)
+                        anyhow::anyhow!("Data chunk alias `{key_extended}` data not found")
                     })?;
                 }
                 _ => {}

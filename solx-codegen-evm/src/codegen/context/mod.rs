@@ -570,9 +570,10 @@ impl<'ctx> IContext<'ctx> for Context<'ctx> {
     }
 
     fn set_current_function(&mut self, name: &str) -> anyhow::Result<()> {
-        let function = self.functions.get(name).cloned().ok_or_else(|| {
-            anyhow::anyhow!("Failed to activate an undeclared function `{}`", name)
-        })?;
+        let function =
+            self.functions.get(name).cloned().ok_or_else(|| {
+                anyhow::anyhow!("Failed to activate an undeclared function `{name}`")
+            })?;
         self.current_function = Some(function);
         Ok(())
     }
