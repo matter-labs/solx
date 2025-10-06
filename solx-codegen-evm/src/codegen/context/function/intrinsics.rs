@@ -26,6 +26,8 @@ pub struct Intrinsics<'ctx> {
     pub mulmod: FunctionDeclaration<'ctx>,
     /// The corresponding intrinsic function name.
     pub byte: FunctionDeclaration<'ctx>,
+    /// The corresponding intrinsic function name.
+    pub div: FunctionDeclaration<'ctx>,
 
     /// The corresponding intrinsic function name.
     pub mstore8: FunctionDeclaration<'ctx>,
@@ -153,6 +155,9 @@ impl<'ctx> Intrinsics<'ctx> {
 
     /// The corresponding intrinsic function name.
     pub const FUNCTION_BYTE: &'static str = "llvm.evm.byte";
+
+    /// The corresponding intrinsic function name.
+    pub const FUNCTION_DIV: &'static str = "llvm.evm.div";
 
     /// The corresponding intrinsic function name.
     pub const FUNCTION_MSTORE8: &'static str = "llvm.evm.mstore8";
@@ -360,6 +365,18 @@ impl<'ctx> Intrinsics<'ctx> {
             field_type.fn_type(
                 &[
                     field_type.as_basic_type_enum().into(),
+                    field_type.as_basic_type_enum().into(),
+                    field_type.as_basic_type_enum().into(),
+                ],
+                false,
+            ),
+        );
+        let div = Self::declare(
+            llvm,
+            module,
+            Self::FUNCTION_DIV,
+            field_type.fn_type(
+                &[
                     field_type.as_basic_type_enum().into(),
                     field_type.as_basic_type_enum().into(),
                 ],
@@ -852,6 +869,7 @@ impl<'ctx> Intrinsics<'ctx> {
             addmod,
             mulmod,
             byte,
+            div,
 
             mstore8,
             msize,
