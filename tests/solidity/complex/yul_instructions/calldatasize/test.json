@@ -1,0 +1,218 @@
+{
+    "cases": [
+        {
+            "name": "zero_runtime",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "runtime",
+                    "calldata": [
+                        "0"
+                    ]
+                }
+            ],
+            "expected": [
+                "1",
+                "0"
+            ]
+        }, {
+            "name": "one_runtime",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "runtime",
+                    "calldata": [
+                        "1"
+                    ]
+                }
+            ],
+            "expected": [
+                "1",
+                "1"
+            ]
+        }, {
+            "name": "small_ordinar_runtime",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "runtime",
+                    "calldata": [
+                        "19"
+                    ]
+                }
+            ],
+            "expected": [
+                "1",
+                "19"
+            ]
+        }, {
+            "name": "word_runtime",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "runtime",
+                    "calldata": [
+                        "32"
+                    ]
+                }
+            ],
+            "expected": [
+                "1",
+                "32"
+            ]
+        }, {
+            "name": "ordinar_runtime",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "runtime",
+                    "calldata": [
+                        "2383"
+                    ]
+                }
+            ],
+            "expected": [
+                "1",
+                "2383"
+            ]
+        }, {
+            "name": "ordinar_words_runtime",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "runtime",
+                    "calldata": [
+                        "0xF100"
+                    ]
+                }
+            ],
+            "expected": [
+                "1",
+                "0xF100"
+            ]
+        }, {
+            "name": "zero_deploy",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "deploy",
+                    "calldata": [
+                        "0"
+                    ]
+                }
+            ],
+            "expected": {
+                "return_data": ["1"],
+                "events": [
+                    {
+                        "topics": [],
+                        "values": ["0"]
+                    }
+                ]
+            }
+        }, {
+            "name": "one_deploy",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "deploy",
+                    "calldata": [
+                        "1"
+                    ]
+                }
+            ],
+            "expected": {
+                "return_data": ["1"],
+                "events": [
+                    {
+                        "topics": [],
+                        "values": ["0"]
+                    }
+                ]
+            }
+        }, {
+            "name": "small_ordinar_deploy",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "deploy",
+                    "calldata": [
+                        "19"
+                    ]
+                }
+            ],
+            "expected": {
+                "return_data": ["1"],
+                "events": [
+                    {
+                        "topics": [],
+                        "values": ["0"]
+                    }
+                ]
+            }
+        }, {
+            "name": "word_deploy",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "deploy",
+                    "calldata": [
+                        "32"
+                    ]
+                }
+            ],
+            "expected": {
+                "return_data": ["1"],
+                "events": [
+                    {
+                        "topics": [],
+                        "values": ["0"]
+                    }
+                ]
+            }
+        }, {
+            "name": "ordinar_deploy",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "deploy",
+                    "calldata": [
+                        "2383"
+                    ]
+                }
+            ],
+            "expected": {
+                "return_data": ["1"],
+                "events": [
+                    {
+                        "topics": [],
+                        "values": ["0"]
+                    }
+                ]
+            }
+        }, {
+            "name": "ordinar_words_deploy",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "deploy",
+                    "calldata": [
+                        "49020"
+                    ]
+                }
+            ],
+            "expected": {
+                "return_data": ["1"],
+                "events": [
+                    {
+                        "topics": [],
+                        "values": ["0"]
+                    }
+                ]
+            }
+        }
+    ],
+    "contracts": {
+        "Main": "main.sol:Main"
+    }
+}

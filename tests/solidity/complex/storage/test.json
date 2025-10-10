@@ -1,0 +1,74 @@
+{ "cases": [ {
+    "name": "first",
+    "inputs": [
+        {
+            "instance": "Storage",
+            "method": "#deployer",
+            "calldata": [
+            ],
+            "expected": [
+                "Storage.address"
+            ]
+        },
+        {
+            "instance": "Main",
+            "method": "#deployer",
+            "calldata": [
+                "37",
+                "Storage.address"
+            ],
+            "expected": [
+                "Main.address"
+            ]
+        },
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "10", "5"
+            ]
+        }
+    ],
+    "expected": [
+        "42"
+    ]
+}, {
+    "name": "second",
+    "inputs": [
+        {
+            "instance": "Storage",
+            "method": "#deployer",
+            "calldata": [
+            ],
+            "expected": [
+                "Storage.address"
+            ]
+        },
+        {
+            "instance": "Main",
+            "method": "#deployer",
+            "calldata": [
+                "4",
+                "Storage.address"
+            ],
+            "expected": [
+                "Main.address"
+            ]
+        },
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "1233", "38"
+            ]
+        }
+    ],
+    "expected": [
+        "42"
+    ]
+} ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "Storage": "storage.sol:Storage"
+    }
+}

@@ -1,5 +1,5 @@
 //!
-//! The ZKsync LLVM arm64 `linux-gnu` builder.
+//! The `solx` LLVM arm64 `linux-gnu` builder.
 //!
 
 use std::collections::HashSet;

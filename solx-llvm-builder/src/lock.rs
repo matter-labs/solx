@@ -1,5 +1,5 @@
 //!
-//! The ZKsync LLVM builder lock file.
+//! The `solx` LLVM builder lock file.
 //!
 
 use anyhow::Context;

@@ -1,0 +1,69 @@
+[package]
+name = "solx-tester"
+authors.workspace = true
+edition.workspace = true
+version.workspace = true
+description = "Integration testing framework for solx"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "solx-tester"
+path = "src/solx_tester/main.rs"
+
+[lib]
+doctest = false
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1.0"
+which = "7.0"
+colored = "3.0"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+md5 = "0.7"
+hex = "0.4"
+sha3 = "0.10"
+ron = "0.9"
+rlp = "0.5"
+regex = "1.11"
+glob = "0.3"
+semver = { version = "1.0", features = ["serde"] }
+itertools = "0.4"
+once_cell = "1.20"
+rayon = "1.10"
+lazy_static = "1.5"
+bincode = "1.3"
+
+revm = "29.0"
+
+solx-standard-json = { git = "https://github.com/matter-labs/solx", branch = "main" }
+solx-codegen-evm = { git = "https://github.com/matter-labs/solx", branch = "main" }
+solx-utils = { git = "https://github.com/matter-labs/solx", branch = "main" }
+
+solx-benchmark-converter = { path = "../solx-benchmark-converter" }
+solx-solc-test-adapter = { path = "../solx-solc-test-adapter" }
+solx-compiler-downloader = { path = "../solx-compiler-downloader" }
+
+[dependencies.web3]
+git = "https://github.com/jacques-kigo/rust-web3"
+branch = "master"
+default-features = false
+features = ["http-rustls-tls", "test", "signing"]
+
+[dependencies.reqwest]
+version = "0.12"
+default-features = false
+features = ["blocking"]
+
+[dependencies.inkwell]
+git = "https://github.com/matter-labs-forks/inkwell"
+branch = "llvm-19"
+default-features = false
+features = [
+    "llvm19-1",
+    "serde",
+    "no-libffi-linking",
+    "target-evm",
+]

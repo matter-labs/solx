@@ -1,0 +1,14 @@
+{ "modes": [
+    "Y >=0.8.1",
+    "E", "I"
+],"cases": [ {
+    "name": "entry",
+    "inputs": [
+    ],
+    "expected": [
+    ]
+} ],
+    "contracts": {
+        "Todos": "main.sol:Todos"
+    }
+}

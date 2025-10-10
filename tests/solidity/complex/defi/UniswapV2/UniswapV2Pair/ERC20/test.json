@@ -1,0 +1,355 @@
+{ "cases": [ {
+    "name": "decimals",
+    "inputs": [
+        {
+            "instance": "ERC20",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "ERC20.address"
+            ]
+        },
+        {
+            "instance": "ERC20",
+            "method": "decimals",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "18"
+    ]
+}, {
+    "name": "double_mint_&_burn",
+    "inputs": [
+        {
+            "instance": "ERC20",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "ERC20.address"
+            ]
+        },
+        {
+            "instance": "ERC20",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1000000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "1000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1000000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "1000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "_burn",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1900000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000"
+                        ],
+                        "values": [
+                            "1900000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "balanceOf",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ]
+        }
+    ],
+    "expected": [
+        "100000"
+    ]
+}, {
+    "name": "approve",
+    "inputs": [
+        {
+            "instance": "ERC20",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "ERC20.address"
+            ]
+        },
+        {
+            "instance": "ERC20",
+            "method": "approve",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000025",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "1000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "increaseAllowance",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000025",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "2000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "decreaseAllowance",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1900000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000025",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "100000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "allowance",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000025",
+                "0xdeadbeef00000000000000000000000000000042"
+            ]
+        }
+    ],
+    "expected": [
+        "100000"
+    ]
+}, {
+    "name": "transfer",
+    "inputs": [
+        {
+            "instance": "ERC20",
+            "method": "#deployer",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "ERC20.address"
+            ]
+        },
+        {
+            "instance": "ERC20",
+            "method": "_mint",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000025",
+                "1000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0",
+                            "0xdeadbeef00000000000000000000000000000025"
+                        ],
+                        "values": [
+                            "1000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000025"
+            ],
+            "expected": [
+                "1000000000000000000"
+            ]
+        },
+        {
+            "instance": "ERC20",
+            "method": "transfer(address,uint256)",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "578237812731823878"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000025",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "578237812731823878"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "ERC20",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000025"
+            ],
+            "expected": [
+                "421762187268176122"
+            ]
+        },
+        {
+            "instance": "ERC20",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000025",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "578237812731823878"
+            ]
+        }
+    ],
+    "expected": [
+        "100000"
+    ]
+} ],
+    "contracts": {
+        "ERC20": "ERC20.sol:ERC20"
+    },
+    "group": "Real life"
+}

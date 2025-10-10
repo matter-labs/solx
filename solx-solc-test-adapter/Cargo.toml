@@ -1,0 +1,33 @@
+[package]
+name = "solx-solc-test-adapter"
+authors.workspace = true
+edition.workspace = true
+version.workspace = true
+description = "Solidity test adapter for solx"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "solx-test-updater"
+path = "src/solx_solc_test_updater/main.rs"
+
+[lib]
+doctest = false
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1.0"
+colored = "3.0"
+
+serde = { version = "1.0", features = [ "derive" ] }
+serde_yaml = "0.9"
+semver = { version = "1.0", features = [ "serde" ] }
+regex = "1.11"
+md5 = "0.7"
+
+solx-utils = { path = "../solx-utils" }
+
+[dependencies.web3]
+git = "https://github.com/jacques-kigo/rust-web3"
+branch = "master"
+default-features = false
+features = ["http-rustls-tls", "test", "signing"]

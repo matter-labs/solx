@@ -1,5 +1,5 @@
 //!
-//! The ZKsync LLVM arm64 `macos-aarch64` builder.
+//! The `solx` LLVM arm64 `macos-aarch64` builder.
 //!
 
 use std::collections::HashSet;

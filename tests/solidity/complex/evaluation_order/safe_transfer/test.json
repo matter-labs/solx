@@ -1,0 +1,41 @@
+{ "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "method": "#deployer",
+            "instance": "ERC20Minimal",
+            "calldata": [],
+            "expected": [
+                "ERC20Minimal.address"
+            ]
+        },
+        {
+            "method": "#deployer",
+            "instance": "Main",
+            "calldata": [
+                "ERC20Minimal.address"
+            ],
+            "expected": [
+                "Main.address"
+            ]
+        },
+        {
+            "method": "test",
+            "instance": "Main",
+            "calldata": [
+                "10000"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [
+            "0xe465903e00000000000000000000000000000000000000000000000000000000"
+        ],
+        "exception": true
+    }
+} ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "ERC20Minimal": "ERC20Minimal.sol:ERC20Minimal"
+    }
+}

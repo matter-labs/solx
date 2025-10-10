@@ -1,11 +1,11 @@
 //!
-//! The ZKsync LLVM builder arguments.
+//! The `solx` LLVM builder arguments.
 //!
 
 use clap::Parser;
 
 ///
-/// The ZKsync LLVM builder arguments.
+/// The `solx` LLVM builder arguments.
 ///
 #[derive(Parser)]
 #[command(version, about, long_about = None)]

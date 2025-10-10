@@ -1,5 +1,5 @@
 //!
-//! The ZKsync LLVM builder platforms.
+//! The `solx` LLVM builder platforms.
 //!
 
 pub mod aarch64_linux_gnu;

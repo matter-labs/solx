@@ -1,0 +1,36 @@
+{ "cases": [ {
+    "name": "first",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "5",
+                "Storage.address"
+            ]
+        }
+    ],
+    "expected": [
+        "10"
+    ]
+},{
+    "name": "second",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "3224423423",
+                "Storage.address"
+            ]
+        }
+    ],
+    "expected": [
+        "6448846846"
+    ]
+} ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "Storage": "storage.sol:Storage"
+    }
+}

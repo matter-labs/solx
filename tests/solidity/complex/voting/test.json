@@ -1,0 +1,100 @@
+{
+    "modes": [
+        "Y >=0.8.1",
+        "E", "I"
+    ],
+    "cases": [ {
+    "name": "first",
+    "inputs": [
+        {
+            "instance": "Ballot",
+            "method": "#deployer",
+            "calldata": [
+                "32",
+                "3",
+                "70",
+                "5",
+                "10"
+            ],
+            "expected": [
+                "Ballot.address"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "giveRightToVote",
+            "calldata": [
+                "0x0000000000000000000000000000000000000002"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "giveRightToVote",
+            "calldata": [
+                "0x0000000000000000000000000000000000000003"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "giveRightToVote",
+            "calldata": [
+                "0x0000000000000000000000000000000000000004"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "giveRightToVote",
+            "calldata": [
+                "0x0000000000000000000000000000000000000005"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "vote(uint256)",
+            "caller": "0x0000000000000000000000000000000000000002",
+            "calldata": [
+                "1"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "vote(uint256)",
+            "caller": "0x0000000000000000000000000000000000000003",
+            "calldata": [
+                "0"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "vote(uint256)",
+            "caller": "0x0000000000000000000000000000000000000004",
+            "calldata": [
+                "2"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "vote(uint256)",
+            "caller": "0x0000000000000000000000000000000000000005",
+            "calldata": [
+                "1"
+            ]
+        },
+        {
+            "instance": "Ballot",
+            "method": "winnerName",
+            "calldata": [
+            ],
+            "expected": [
+                "5"
+            ]
+        }
+    ],
+    "expected": [
+        "5"
+    ]
+} ],
+    "contracts": {
+        "Ballot": "ballot.sol:Ballot"
+    }
+}

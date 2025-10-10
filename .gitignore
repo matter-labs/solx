@@ -18,5 +18,10 @@
 # Accidentally created backup files
 *.bak
 
-# Test solc versions
-**/solc-bin/
+# External compilers
+/solc-bin*/
+
+# Debug and benchmark artifacts
+/debug/
+/*.json
+/*.txt

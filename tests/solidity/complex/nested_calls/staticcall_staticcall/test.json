@@ -1,0 +1,23 @@
+{ "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "instance": "A",
+            "method": "main",
+            "calldata": [
+                "B.address",
+                "C.address"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [],
+        "exception": true
+    }
+} ],
+    "contracts": {
+        "A": "A.sol:A",
+        "B": "B.sol:B",
+        "C": "C.sol:C"
+    }
+}

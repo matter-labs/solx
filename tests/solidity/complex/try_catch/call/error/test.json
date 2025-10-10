@@ -1,0 +1,298 @@
+{ "cases": [ {
+    "name": "withoutMessage1",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withoutMessage",
+            "calldata": [
+                "1",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0"
+    ]
+}, {
+    "name": "withoutMessage2",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withoutMessage",
+            "calldata": [
+                "2",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0"
+    ]
+}, {
+    "name": "withoutMessage3",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withoutMessage",
+            "calldata": [
+                "3",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0"
+    ]
+}, {
+    "name": "withoutMessage4",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withoutMessage",
+            "calldata": [
+                "4",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0"
+    ]
+}, {
+    "name": "withoutMessage5",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withoutMessage",
+            "calldata": [
+                "5",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0"
+    ]
+}, {
+    "name": "withoutMessage",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withoutMessage",
+            "calldata": [
+                "0",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "1"
+    ]
+}, {
+    "name": "withMessage1",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withMessage",
+            "calldata": [
+                "1",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+}, {
+    "name": "withMessage2",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withMessage",
+            "calldata": [
+                "2",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "0x08c379a000000000000000000000000000000000000000000000000000000000",
+        "0x0000002000000000000000000000000000000000000000000000000000000000",
+        "0x000000066572726f723100000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+}, {
+    "name": "withMessage3",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withMessage",
+            "calldata": [
+                "3",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+}, {
+    "name": "withMessage4",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withMessage",
+            "calldata": [
+                "4",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0000000000000000000000000000000000000000000000000000000000000064",
+        "0x08c379a000000000000000000000000000000000000000000000000000000000",
+        "0x0000002000000000000000000000000000000000000000000000000000000000",
+        "0x000000066572726f723200000000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+}, {
+    "name": "withMessage5",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withMessage",
+            "calldata": [
+                "5",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+}, {
+    "name": "withMessage",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withMessage",
+            "calldata": [
+                "0",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+}, {
+    "name": "withStringMessage1",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withStringMessage",
+            "calldata": [
+                "1",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+}, {
+    "name": "withStringMessage2",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withStringMessage",
+            "calldata": [
+                "2",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0000000000000000000000000000000000000000000000000000000000000006",
+        "0x6572726f72310000000000000000000000000000000000000000000000000000"
+    ]
+}, {
+    "name": "withStringMessage3",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withStringMessage",
+            "calldata": [
+                "3",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+}, {
+    "name": "withStringMessage4",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withStringMessage",
+            "calldata": [
+                "4",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0000000000000000000000000000000000000000000000000000000000000006",
+        "0x6572726f72320000000000000000000000000000000000000000000000000000"
+    ]
+}, {
+    "name": "withStringMessage5",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withStringMessage",
+            "calldata": [
+                "5",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+}, {
+    "name": "withStringMessage",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "withStringMessage",
+            "calldata": [
+                "0",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0"
+    ]
+} ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "Callable": "callable.sol:Callable"
+    }
+}

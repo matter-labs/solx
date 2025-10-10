@@ -1,0 +1,125 @@
+{ "modes": [
+    "Y+ >=0.8.9",
+    "E+", "I+"
+], "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "instance": "Token1",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "Token1.address"
+            ]
+        },
+        {
+            "instance": "Token2",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "Token2.address"
+            ]
+        },
+        {
+            "instance": "MooniswapFactory",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": {
+                "return_data": [
+                    "MooniswapFactory.address"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": []
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "MooniswapFactory",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "deploy",
+            "calldata": [
+                "Token1.address",
+                "Token2.address"
+            ],
+            "expected": {
+                "return_data": [
+                    "*"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "MooniswapFactory.address"
+                        ],
+                        "values": []
+                    },
+                    {
+                        "topics": [
+                            "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+                            "MooniswapFactory.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": []
+                    },
+                    {
+                        "topics": [
+                            "0xc95935a66d15e0da5e412aca0ad27ae891d20b2fb91cf3994b6a3bf2b8178082",
+                            "*",
+                            "*",
+                            "*"
+                        ],
+                        "values": []
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "MooniswapFactory",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "getAllPools",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "0x0000000000000000000000000000000000000000000000000000000000000020",
+        "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "*"
+    ]
+} ],
+    "contracts": {
+        "MooniswapFactory": "MooniFactory.sol:MooniFactory",
+        "Token1": "MooniswapPool/ERC20/ERC20.sol:ERC20",
+        "Token2": "MooniswapPool/ERC20/ERC20.sol:ERC20",
+        "VirtualBalance": "MooniswapPool/Mooniswap.sol:VirtualBalance",
+        "Math": "MooniswapPool/math/Math.sol:Math"
+    },
+    "libraries": {
+        "MooniswapPool/Mooniswap.sol": { "VirtualBalance": "VirtualBalance" },
+        "MooniswapPool/math/Math.sol": { "Math": "Math" }
+    },
+    "group": "Real life"
+}

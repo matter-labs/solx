@@ -1,9 +1,9 @@
 //!
-//! The ZKsync LLVM build type.
+//! The `solx` LLVM build type.
 //!
 
 ///
-/// The ZKsync LLVM build type.
+/// The `solx` LLVM build type.
 ///
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BuildType {
