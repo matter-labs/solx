@@ -1,0 +1,82 @@
+{
+    "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "method": "#deployer",
+            "instance": "Shit",
+            "caller": "0xdeadbeef00000000000000000000000000000002",
+            "calldata": [
+            ],
+            "expected": {
+                "return_data": [
+                    "Shit.address"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0x000000000000000000000000deadbeef00000000000000000000000000000002"
+                        ],
+                        "values": [
+                            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Shit",
+            "caller": "0xdeadbeef00000000000000000000000000000002",
+            "method": "transfer(address,uint256)",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000003",
+                "200"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x000000000000000000000000deadbeef00000000000000000000000000000002",
+                            "0x000000000000000000000000deadbeef00000000000000000000000000000003"
+                        ],
+                        "values": [
+                            "$BLOCK_HASH:185"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x000000000000000000000000deadbeef00000000000000000000000000000002",
+                            "0x000000000000000000000000deadbeef00000000000000000000000000000003"
+                        ],
+                        "values": [
+                            "$BLOCK_HASH:185"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Shit",
+            "method": "balanceof",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000003"
+            ]
+        }
+    ],
+    "expected": [
+        "200"
+    ] } ],
+    "contracts": {
+        "Shit": "SHITv1.sol:SHITv1"
+    },
+    "group": "Real life"
+}

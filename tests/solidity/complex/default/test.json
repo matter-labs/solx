@@ -1,0 +1,20 @@
+{ "cases": [ {
+    "name": "entry",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "10"
+    ]
+} ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "Callable": "callable.sol:Callable"
+    }
+}

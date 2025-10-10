@@ -1,0 +1,70 @@
+{ "cases": [ {
+    "name": "five",
+    "inputs": [
+        {
+            "instance": "First",
+            "method": "fact",
+            "calldata": [
+                "5",
+                "First.address",
+                "Second.address"
+            ]
+        }
+    ],
+    "expected": [
+        "120"
+    ]
+}, {
+    "name": "twelve",
+    "inputs": [
+        {
+            "instance": "Second",
+            "method": "fact",
+            "calldata": [
+                "12",
+                "First.address",
+                "Second.address"
+            ]
+        }
+    ],
+    "expected": [
+        "479001600"
+    ]
+},{
+    "name": "fifteen",
+    "inputs": [
+        {
+            "instance": "First",
+            "method": "fact",
+            "calldata": [
+                "15",
+                "First.address",
+                "Second.address"
+            ]
+        }
+    ],
+    "expected": [
+        "1307674368000"
+    ]
+}, {
+    "name": "twenty",
+    "inputs": [
+        {
+            "instance": "First",
+            "method": "fact",
+            "calldata": [
+                "20",
+                "First.address",
+                "Second.address"
+            ]
+        }
+    ],
+    "expected": [
+        "2432902008176640000"
+    ]
+} ],
+    "contracts": {
+        "First": "first.sol:First",
+        "Second": "second.sol:Second"
+    }
+}

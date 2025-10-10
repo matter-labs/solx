@@ -1,0 +1,24 @@
+{ "cases": [ {
+    "name": "entry",
+    "inputs": [
+        {
+            "instance": "Import",
+            "method": "getFooName",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "32",
+        "3",
+        "0x466F6F0000000000000000000000000000000000000000000000000000000000"
+    ]
+} ],
+    "contracts": {
+        "Import": "Import.sol:Import",
+        "Foo": "Foo.sol:Foo"
+    },
+    "libraries": {
+        "Foo.sol": { "Foo": "Foo" }
+    }
+}

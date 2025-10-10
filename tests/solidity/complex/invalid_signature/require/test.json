@@ -1,0 +1,46 @@
+{ "cases": [ {
+    "name": "entry",
+    "inputs": [
+        {
+            "instance": "Wrapper",
+            "method": "setContract",
+            "calldata": [
+                "SimpleRequire.address"
+            ]
+        },
+        {
+            "instance": "Wrapper",
+            "method": "require_short",
+            "calldata": [
+            ],
+            "expected": {
+                "return_data": [
+                    "0x08C379A000000000000000000000000000000000000000000000000000000000",
+                    "0x0000002000000000000000000000000000000000000000000000000000000000",
+                    "0x0000000573686F72740000000000000000000000000000000000000000000000",
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ],
+                "exception": true
+            }
+        },
+        {
+            "instance": "Wrapper",
+            "method": "wrong_number_of_params",
+            "calldata": [
+            ],
+            "expected": {
+                "return_data": [],
+                "exception": true
+            }
+        }
+    ],
+    "expected": {
+        "return_data": [],
+        "exception": true
+    }
+} ],
+    "contracts": {
+        "Wrapper": "wrapper.sol:Wrapper",
+        "SimpleRequire": "simpleRequire.sol:SimpleRequire"
+    }
+}

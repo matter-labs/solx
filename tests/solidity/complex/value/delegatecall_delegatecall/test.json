@@ -1,0 +1,42 @@
+{
+    "cases": [
+        {
+            "name": "zero",
+            "inputs": [
+                {
+                    "instance": "First",
+                    "method": "main",
+                    "calldata": [
+                        "Second.address",
+                        "Third.address"
+                    ]
+                }
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+        {
+            "name": "non_zero",
+            "inputs": [
+                {
+                    "instance": "First",
+                    "method": "main",
+                    "calldata": [
+                        "Second.address",
+                        "Third.address"
+                    ],
+                    "value": "3735928559 wei"
+                }
+            ],
+            "expected": [
+                "3735928559"
+            ]
+        }
+    ],
+    "contracts": {
+        "First": "First.sol:First",
+        "Second": "Second.sol:Second",
+        "Third": "Third.sol:Third"
+    }
+}

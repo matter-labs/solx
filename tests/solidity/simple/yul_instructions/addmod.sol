@@ -1,0 +1,1132 @@
+//! { "cases": [ {
+//!     "name": "zero_zero_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_one_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "1", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_zero_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_one_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "1", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_ordinar_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "433478394034343", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_zero_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "121563127839120", "0", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_ordinar_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "433478394034343", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_one_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "121563127839120", "1", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "451167890987656789", "3456789009876545678", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_to_max_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xfafffffffffffffffffffffffffffffffffffffffffffffffffffffff4ffffff", "0x050000000000000000000000000000000000000000000000000000000b000000", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_min_overflow_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xab000000000000000000000000000000000000000000000000000000000000a1", "0x54ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5f", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_overflow_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0x2fff1ffffffffff5ffffff0fffffffff2ffffffafffafffcffff1ff234ffffff", "0xef231ffffffffff4f12fff34ffffffff2fffffbbfffafffdffff22f538ffffff", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_max_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_zero_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_max_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_one_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_max_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "7437834752357434334343423343443375834785783474", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_ordinar_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "23784273472384723848213821342323233223", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_max_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_zero_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_one_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "1", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_zero_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_one_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "1", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_ordinar_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "433478394034343", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_zero_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "121563127839120", "0", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_ordinar_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "433478394034343", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_one_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "121563127839120", "1", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "two_zero_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "2", "0", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "451167890987656789", "3456789009876545678", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_to_max_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xfafffffffffffffffffffffffffffffffffffffffffffffffffffffff4ffffff", "0x050000000000000000000000000000000000000000000000000000000b000000", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_min_overflow_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xab000000000000000000000000000000000000000000000000000000000000a1", "0x54ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5f", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_overflow_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0x2fff1ffffffffff5ffffff0fffffffff2ffffffafffafffcffff1ff234ffffff", "0xef231ffffffffff4f12fff34ffffffff2fffffbbfffafffdffff22f538ffffff", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_max_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_zero_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_max_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_one_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_max_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "7437834752357434334343423343443375834785783474", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_ordinar_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "23784273472384723848213821342323233223", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_max_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_zero_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_one_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "1", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "one_zero_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "one_one_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "1", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "2"
+//!     ]
+//! }, {
+//!     "name": "zero_ordinar_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "385347583459430234923842734623542325264782394023482374625423", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "3806109516113667800853767386706858816392394866986028175"
+//!     ]
+//! }, {
+//!     "name": "ordinar_zero_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "43873543534623235553423423423949234923947324723387478233", "0", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "3464170909841972837815004710006741383053238982131669865"
+//!     ]
+//! }, {
+//!     "name": "one_ordinar_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "8939384548956875984554349903434903490994494993020959", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "8939384548956875984554349903434903490994494993020960"
+//!     ]
+//! }, {
+//!     "name": "ordinar_one_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "54367829174652819374654281934765281937468197465281947562815652819", "1", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1122390563298694939482039005289855975809195069546337164"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "8934583485834958423984923948923489238948923232849429834",
+//!                 "5743892143323342342342342342343234234234234233423432423",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1208684754231213194457793386619225626218462219187592801"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_ordinar_to_zero",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "67345763475734785873485834858348958348582848238423848",
+//!                 "47076922298769071715669669331407893506027850516560019248",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_sum_minus_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "2627823478238423324723748234889489238948234823848237723",
+//!                 "4107071959225120461210988217434259684534112799694397006",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_sum",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "78534387453485348583489583489583495834858934985982398",
+//!                 "6656361050010058437351246868834165427647488688556652330",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_sum_plus_one",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "2745764578678457867485678478567845576875845678454554545",
+//!                 "3989130858785085918449057973755903346606501945088080182",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "6734895437463543785934736452323748923482347623542634727"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_ordinar_bigger_sum",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "4567890987654678923042342342342342234534234",
+//!                 "34234234322332342356457567897665235",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "4567891021888913245374684698799910132199469"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_to_max_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xfafffffffffffffffffffffffffffffffffffffffffffffffffffffff4ffffff",
+//!                 "0x050000000000000000000000000000000000000000000000000000000b000000",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "5205817307728658054337357463547686623259643155181961175"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_min_overflow_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xab000000000000000000000000000000000000000000000000000000000000a1",
+//!                 "0x54ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5f",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "5205817307728658054337357463547686623259643155181961176"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_overflow_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0x2fff1ffffffffff5ffffff0fffffffff2ffffffafffafffcffff1ff234ffffff",
+//!                 "0xef231ffffffffff4f12fff34ffffffff2fffffbbfffafffdffff22f538ffffff",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "143268280533798984280626563216701884452898533151473998"
+//!     ]
+//! }, {
+//!     "name": "zero_max_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "5205817307728658054337357463547686623259643155181961175"
+//!     ]
+//! }, {
+//!     "name": "max_zero_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "5205817307728658054337357463547686623259643155181961175"
+//!     ]
+//! }, {
+//!     "name": "one_max_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "5205817307728658054337357463547686623259643155181961176"
+//!     ]
+//! }, {
+//!     "name": "max_one_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1", "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "5205817307728658054337357463547686623259643155181961176"
+//!     ]
+//! }, {
+//!     "name": "ordinar_max_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "7437834752357434334343423342323233245234534443443375834785783474",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "4785420515141501473933080503501442490599789180695732857"
+//!     ]
+//! }, {
+//!     "name": "max_ordinar_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "23784273472384723848213821342323233223",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "5205817307728658078121630935932410471473464497505194398"
+//!     ]
+//! }, {
+//!     "name": "max_max_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "6734895437463543785934736452323748923482347623542634728"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "3676739177993772322739978474771624323036938686821287622"
+//!     ]
+//! }, {
+//!     "name": "zero_zero_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "zero_one_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "one_zero_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "one_one_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "2"
+//!     ]
+//! }, {
+//!     "name": "zero_ordinar_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "385347583459430234923842734623542325264782394023482374625423", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "385347583459430234923842734623542325264782394023482374625423"
+//!     ]
+//! }, {
+//!     "name": "ordinar_zero_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "43873543534623235553423423423949234923947324723387478233", "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "43873543534623235553423423423949234923947324723387478233"
+//!     ]
+//! }, {
+//!     "name": "one_ordinar_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "8939384548956875984554349903434903490994494993020959", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "8939384548956875984554349903434903490994494993020960"
+//!     ]
+//! }, {
+//!     "name": "ordinar_one_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "54367829174652819374654281934765281937468197465281947562815652819", "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "54367829174652819374654281934765281937468197465281947562815652820"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "8934583485834958423984923948923489238948923232849429834",
+//!                 "5743892143323342342342342342343234234234234233423432423",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "14678475629158300766327266291266723473183157466272862257"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_to_max_minus_one_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "67345763475737323342423423423423432232333434485834858348958348582848238423848",
+//!                 "48446325761578872081147561585264475620936550179805705690499235425064891216086",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_to_max_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "2627823478238423324723748234889489238948234823848237723",
+//!                 "115792089237316195423568357185209669429945260917405674550218635773089281402212",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_min_overflow_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xab000000000000000000000000000000000000000000000000000000000000a1",
+//!                 "0x54ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5f",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "ordinar_ordinar_overflow_ordinar",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0x2fff1ffffffffff5ffffff0fffffffff2ffffffafffafffcffff1ff234ffffff",
+//!                 "0xef231ffffffffff4f12fff34ffffffff2fffffbbfffafffdffff22f538ffffff",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "14082212818049917570678938371545509262648545780014710136968537875118318157823"
+//!     ]
+//! }, {
+//!     "name": "zero_max_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "max_zero_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! }, {
+//!     "name": "one_max_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "max_one_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "1", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "1"
+//!     ]
+//! }, {
+//!     "name": "ordinar_max_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "7437834752357434334343423342323233245234534443443375834785783474",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "7437834752357434334343423342323233245234534443443375834785783474"
+//!     ]
+//! }, {
+//!     "name": "max_ordinar_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "23784273472384723848213821342323233223",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "23784273472384723848213821342323233223"
+//!     ]
+//! }, {
+//!     "name": "max_max_max",
+//!     "inputs": [
+//!         {
+//!             "method": "main",
+//!             "calldata": [
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+//!                 "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+//!             ]
+//!         }
+//!     ],
+//!     "expected": [
+//!         "0"
+//!     ]
+//! } ] }
+
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.4.16;
+
+contract Test {
+    function main(uint256 a, uint256 b, uint256 c) external pure returns(uint256 result) {
+        assembly {
+            result := addmod(a, b, c)
+        }
+    }
+}

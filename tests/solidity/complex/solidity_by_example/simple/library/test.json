@@ -1,0 +1,109 @@
+{ "modes": [
+    "Y >=0.8.1",
+    "E",
+    "I >=0.8.16"
+], "cases": [ {
+    "name": "testSafeMath",
+    "inputs": [
+        {
+            "instance": "TestSafeMath",
+            "method": "MAX_UINT",
+            "calldata": [
+            ],
+            "expected": [
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            ]
+        },
+        {
+            "instance": "TestSafeMath",
+            "method": "testAdd",
+            "calldata": [
+                "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+                "1"
+            ],
+            "expected": [
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            ]
+        },
+        {
+            "instance": "TestSafeMath",
+            "method": "testAdd",
+            "calldata": [
+                "115792089237316195423570985008687907853269984665640564039457584007913129639934",
+                "2"
+            ],
+            "expected": [ {
+                "compiler_version": "<0.8",
+                "return_data": [
+                    "0x08C379A000000000000000000000000000000000000000000000000000000000",
+                    "0x0000002000000000000000000000000000000000000000000000000000000000",
+                    "0x0000000D75696E74206F766572666C6F77000000000000000000000000000000",
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ],
+                "exception": true
+            }, {
+                "compiler_version": ">=0.8",
+                "return_data": [
+                    "0x4e487b7100000000000000000000000000000000000000000000000000000000",
+                    "0x0000001100000000000000000000000000000000000000000000000000000000"
+                ],
+                "exception": true
+            } ]
+        },
+        {
+            "instance": "TestSafeMath",
+            "method": "testSquareRoot",
+            "calldata": [
+                "0"
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+        {
+            "instance": "TestSafeMath",
+            "method": "testSquareRoot",
+            "calldata": [
+                "3"
+            ],
+            "expected": [
+                "1"
+            ]
+        },
+        {
+            "instance": "TestSafeMath",
+            "method": "testSquareRoot",
+            "calldata": [
+                "345346456546345234123498123498239402934230203"
+            ]
+        }
+    ],
+    "expected": [
+        "18583499577483925407045"
+    ]
+}, {
+    "name": "testArray",
+    "inputs": [
+        {
+            "instance": "TestArray",
+            "method": "testArrayRemove",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+    ]
+} ],
+    "contracts": {
+        "TestSafeMath": "main.sol:TestSafeMath",
+        "TestArray": "main.sol:TestArray",
+        "Array": "main.sol:Array",
+        "Math": "main.sol:Math"
+    },
+    "libraries": {
+        "main.sol": {
+            "Array": "Array",
+            "Math": "Math"
+        }
+    }
+}

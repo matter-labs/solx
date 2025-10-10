@@ -1,0 +1,319 @@
+{ "modes": [
+    "Y >=0.8.9",
+    "E", "I"
+], "cases": [ {
+    "name": "first",
+    "inputs": [
+        {
+            "instance": "WBTC_1",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x5742544300000000000000000000000000000000000000000000000000000000",
+                "14",
+                "0x5772617070656420425443000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "WBTC_1.address"
+            ]
+        },
+        {
+            "instance": "WBTC_2",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x5742544300000000000000000000000000000000000000000000000000000000",
+                "14",
+                "0x5772617070656420425443000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "WBTC_2.address"
+            ]
+        },
+        {
+            "instance": "Mooniswap",
+            "method": "#deployer",
+            "calldata": [
+                "0x0000000000000000000000000000000000000000000000000000000000000060",
+                "0x00000000000000000000000000000000000000000000000000000000000000c0",
+                "0x0000000000000000000000000000000000000000000000000000000000000100",
+
+                "0x0000000000000000000000000000000000000000000000000000000000000002",
+                "WBTC_1.address",
+                "WBTC_2.address",
+
+                "4",
+                "0x5742544300000000000000000000000000000000000000000000000000000000",
+
+                "14",
+                "0x5772617070656420425443000000000000000000000000000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "Mooniswap.address"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000001"
+                        ],
+                        "values": []
+                    }
+                ],
+                "exception": false
+            }
+        },
+
+        {
+            "instance": "WBTC_1",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1000000000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "1000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "WBTC_2",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "1000000000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "1000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "WBTC_1",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "approve",
+            "calldata": [
+                "Mooniswap.address", "500000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "Mooniswap.address"
+                        ],
+                        "values": [
+                            "500000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "WBTC_2",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "approve",
+            "calldata": [
+                "Mooniswap.address", "500000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000001"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "Mooniswap.address"
+                        ],
+                        "values": [
+                            "500000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Mooniswap",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "deposit",
+            "calldata": [
+                "0x0000000000000000000000000000000000000000000000000000000000000040",
+                "0x00000000000000000000000000000000000000000000000000000000000000a0",
+                "0x0000000000000000000000000000000000000000000000000000000000000002",
+                "10000000",
+                "10000000",
+                "0x0000000000000000000000000000000000000000000000000000000000000002",
+                "1000000",
+                "1000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "10000000"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "Mooniswap.address"
+                        ],
+                        "values": [
+                            "1000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "Mooniswap.address"
+                        ],
+                        "values": [
+                            "10000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "Mooniswap.address"
+                        ],
+                        "values": [
+                            "490000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "Mooniswap.address"
+                        ],
+                        "values": [
+                            "10000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "Mooniswap.address"
+                        ],
+                        "values": [
+                            "490000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "10000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x2da466a7b24304f47e87fa2e1e5a81b9831ce54fec19055ce277ca2f39ba42c4",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "10000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Mooniswap",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "swap",
+            "calldata": [
+                "WBTC_1.address",
+                "WBTC_2.address",
+                "5000",
+                "5000",
+                "0"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [
+            "5000"
+        ],
+        "events": [
+            {
+                "topics": [
+                    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                    "0xdeadbeef00000000000000000000000000000042",
+                    "Mooniswap.address"
+                ],
+                "values": [
+                    "5000"
+                ]
+            },
+            {
+                "topics": [
+                    "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                    "0xdeadbeef00000000000000000000000000000042",
+                    "Mooniswap.address"
+                ],
+                "values": [
+                    "489995000"
+                ]
+            }
+        ],
+        "exception": false
+    }
+} ],
+    "contracts": {
+        "Mooniswap": "Mooniswap.sol:Mooniswap",
+        "WBTC_1": "ERC20/ERC20.sol:ERC20",
+        "WBTC_2": "ERC20/ERC20.sol:ERC20",
+        "VirtualBalance": "Mooniswap.sol:VirtualBalance",
+        "Math": "math/Math.sol:Math"
+    },
+    "libraries": {
+        "Mooniswap.sol": { "VirtualBalance": "VirtualBalance" },
+        "math/Math.sol": { "Math": "Math" }
+    },
+    "group": "Real life"
+}

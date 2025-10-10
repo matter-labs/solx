@@ -1,0 +1,59 @@
+{ "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "instance": "Lib",
+            "method": "#deployer",
+            "caller": "0xdeadbeef00000000000000000000000000000011",
+            "calldata": [
+            ],
+            "expected": [
+                "Lib.address"
+            ]
+        },
+        {
+            "instance": "HackMe",
+            "method": "#deployer",
+            "caller": "0xdeadbeef00000000000000000000000000000011",
+            "calldata": [
+                "Lib.address"
+            ],
+            "expected": [
+                "HackMe.address"
+            ]
+        },
+        {
+            "instance": "Attack",
+            "method": "#deployer",
+            "caller": "0xdeadbeef00000000000000000000000000000012",
+            "calldata": [
+                "HackMe.address"
+            ],
+            "expected": [
+                "Attack.address"
+            ]
+        },
+        {
+            "instance": "Attack",
+            "caller": "0xdeadbeef00000000000000000000000000000012",
+            "method": "attack",
+            "calldata": [
+            ]
+        },
+        {
+            "instance": "HackMe",
+            "method": "owner",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "Attack.address"
+    ]
+} ],
+    "contracts": {
+        "Lib": "default.sol:Lib",
+        "HackMe": "default.sol:HackMe",
+        "Attack": "default.sol:Attack"
+    }
+}

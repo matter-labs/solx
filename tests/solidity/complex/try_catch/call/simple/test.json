@@ -1,0 +1,33 @@
+{ "cases": [ {
+    "name": "first",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "entry",
+            "calldata": [
+                "0"
+            ]
+        }
+    ],
+    "expected": [
+        "1"
+    ]
+}, {
+    "name": "second",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "entry",
+            "calldata": [
+                "1"
+            ]
+        }
+    ],
+    "expected": [
+        "2"
+    ]
+} ],
+    "contracts": {
+        "Main": "main.sol:Main"
+    }
+}

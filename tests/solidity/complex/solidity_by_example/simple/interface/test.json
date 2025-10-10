@@ -1,0 +1,130 @@
+{ "cases": [ {
+    "name": "simple",
+    "inputs": [
+        {
+            "instance": "MyContract",
+            "method": "getCount",
+            "calldata": [
+                "Counter1.address"
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "incrementCounter",
+            "calldata": [
+                "Counter1.address"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "getCount",
+            "calldata": [
+                "Counter1.address"
+            ],
+            "expected": [
+                "1"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "incrementCounter",
+            "calldata": [
+                "Counter1.address"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "incrementCounter",
+            "calldata": [
+                "Counter1.address"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "getCount",
+            "calldata": [
+                "Counter1.address"
+            ],
+            "expected": [
+                "3"
+            ]
+        }
+    ],
+    "expected": [
+        "3"
+    ]
+}, {
+    "name": "two_counters",
+    "inputs": [
+        {
+            "instance": "MyContract",
+            "method": "getCount",
+            "calldata": [
+                "Counter1.address"
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "getCount",
+            "calldata": [
+                "Counter2.address"
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "incrementCounter",
+            "calldata": [
+                "Counter1.address"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "incrementCounter",
+            "calldata": [
+                "Counter2.address"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "incrementCounter",
+            "calldata": [
+                "Counter1.address"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "getCount",
+            "calldata": [
+                "Counter1.address"
+            ],
+            "expected": [
+                "2"
+            ]
+        },
+        {
+            "instance": "MyContract",
+            "method": "getCount",
+            "calldata": [
+                "Counter2.address"
+            ]
+        }
+    ],
+    "expected": [
+        "1"
+    ]
+} ],
+    "contracts": {
+        "MyContract": "main.sol:MyContract",
+        "Counter1": "main.sol:Counter",
+        "Counter2": "main.sol:Counter"
+    }
+}

@@ -1,0 +1,58 @@
+{ "modes": [ "Y+", "E", "I" ], "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "method": "#deployer",
+            "instance": "Main",
+            "calldata": [],
+            "expected": [
+                "Main.address"
+            ]
+        },
+        {
+            "method": "#deployer",
+            "instance": "Wallet",
+            "calldata": [],
+            "expected": [
+                "Wallet.address"
+            ]
+        },
+        {
+            "method": "testValidSignatureNow",
+            "instance": "Main",
+            "calldata": [
+                "Wallet.address"
+            ]
+        },
+        {
+            "method": "testInvalidSignatureNow",
+            "instance": "Main",
+            "calldata": [
+                "Wallet.address"
+            ]
+        },
+        {
+            "method": "testValidERC1271SignatureNow",
+            "instance": "Main",
+            "calldata": [
+                "Wallet.address"
+            ]
+        },
+        {
+            "method": "testInvalidERC1271SignatureNow",
+            "instance": "Main",
+            "calldata": [
+                "Wallet.address"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [],
+        "exception": false
+    }
+} ],
+    "contracts": {
+        "Main": "Main.sol:Main",
+        "Wallet": "Wallet.sol:Wallet"
+    }
+}

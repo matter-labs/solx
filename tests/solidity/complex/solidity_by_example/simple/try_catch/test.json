@@ -1,0 +1,207 @@
+{ "cases": [ {
+    "name": "tryCatchExternalCallFailed",
+    "inputs": [
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "Test.address"
+            ]
+        },
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "tryCatchExternalCall",
+            "calldata": [
+                "0"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [
+        ],
+        "events": [
+            {
+                "topics": [
+                    "0xcf34ef537ac33ee1ac626ca1587a0a7e8e51561e5514f8cb36afa1c5102b3bab"
+                ],
+                "values": [
+                    "0x20",
+                    "20",
+                    "0x65787465726e616c2063616c6c206661696c6564000000000000000000000000"
+                ]
+            }
+        ]
+    }
+}, {
+    "name": "tryCatchExternalCallOk",
+    "inputs": [
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "Test.address"
+            ]
+        },
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "tryCatchExternalCall",
+            "calldata": [
+                "1"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [
+        ],
+        "events": [
+            {
+                "topics": [
+                    "0xcf34ef537ac33ee1ac626ca1587a0a7e8e51561e5514f8cb36afa1c5102b3bab"
+                ],
+                "values": [
+                    "0x20",
+                    "18",
+                    "0x6d792066756e63207761732063616c6c65640000000000000000000000000000"
+                ]
+            }
+        ]
+    }
+}, {
+    "name": "tryCatchNewContractError",
+    "inputs": [
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "Test.address"
+            ]
+        },
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "tryCatchNewContract",
+            "calldata": [
+                "0x0000000000000000000000000000000000000000"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [
+        ],
+        "events": [
+            {
+                "topics": [
+                    "0xcf34ef537ac33ee1ac626ca1587a0a7e8e51561e5514f8cb36afa1c5102b3bab"
+                ],
+                "values": [
+                    "0x20",
+                    "15",
+                    "0x696e76616c696420616464726573730000000000000000000000000000000000"
+                ]
+            }
+        ]
+    }
+}, {
+    "name": "tryCatchNewContractErrorBytes",
+    "inputs": [
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "Test.address"
+            ]
+        },
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "tryCatchNewContract",
+            "calldata": [
+                "0x0000000000000000000000000000000000000001"
+            ]
+        }
+    ],
+    "expected": [ {
+        "compiler_version": "<0.8",
+        "return_data": [],
+        "events": [
+            {
+                "topics": [
+                    "0x532fd6ea96cfb78bb46e09279a26828b8b493de1a2b8b1ee1face527978a15a5"
+                ],
+                "values": [
+                    "0x20",
+                    "0x00"
+                ]
+            }
+        ],
+        "exception": false
+    }, {
+        "compiler_version": ">=0.8",
+        "return_data": [],
+        "events": [
+            {
+                "topics": [
+                    "0x532fd6ea96cfb78bb46e09279a26828b8b493de1a2b8b1ee1face527978a15a5"
+                ],
+                "values": [
+                    "0x20",
+                    "0x24",
+                    "0x4e487b7100000000000000000000000000000000000000000000000000000000",
+                    "0x0000000100000000000000000000000000000000000000000000000000000000"
+                ]
+            }
+        ],
+        "exception": false
+    } ]
+}, {
+    "name": "tryCatchNewContractOk",
+    "inputs": [
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "Test.address"
+            ]
+        },
+        {
+            "instance": "Test",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "tryCatchNewContract",
+            "calldata": [
+                "0x0000000000000000000000000000000000000002"
+            ]
+        }
+    ],
+    "expected": {
+        "return_data": [
+        ],
+        "events": [
+            {
+                "topics": [
+                    "0xcf34ef537ac33ee1ac626ca1587a0a7e8e51561e5514f8cb36afa1c5102b3bab"
+                ],
+                "values": [
+                    "0x20",
+                    "11",
+                    "0x466f6f2063726561746564000000000000000000000000000000000000000000"
+                ]
+            }
+        ]
+    }
+} ],
+    "contracts": {
+        "Test": "try_catch.sol:Test"
+    }
+}

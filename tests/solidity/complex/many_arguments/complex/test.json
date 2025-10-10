@@ -1,0 +1,44 @@
+{ "cases": [ {
+    "name": "first",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "1", "4", "12", "2", "43", "55",
+                "112", "124", "212", "1",
+                "232",
+                "2", "0", "1",
+                "322", "43", "12",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "2356"
+    ]
+}, {
+    "name": "second",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "5354345", "42121", "255", "4334", "412323233", "0",
+                "0", "1251121214", "124", "2",
+                "232322",
+                "0", "2", "1",
+                "10000", "9999", "1000000",
+                "Callable.address"
+            ]
+        }
+    ],
+    "expected": [
+        "3340195904"
+    ]
+} ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "Callable": "callable.sol:Callable"
+    }
+}
