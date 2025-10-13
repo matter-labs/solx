@@ -1,0 +1,54 @@
+name: 'Cargo check'
+description: 'Checks cargo with check, deny, format, clippy, udeps and audit.'
+
+inputs:
+  github_token:
+    description: 'GitHub token for cargo audit.'
+    required: true
+  run_cargo_audit:
+    description: 'Whether to run cargo audit.'
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+
+    - name: Install rustc nightly
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: rustup toolchain install nightly
+
+    - name: Rust cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: "rust-cargo-cache-${{ runner.os }}-${{ runner.arch }}"
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+
+    - name: Cargo deny
+      uses: EmbarkStudios/cargo-deny-action@v2
+      with:
+        command-arguments: "--allow unmaintained --hide-inclusion-graph"
+
+    - name: Cargo check
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: cargo check --verbose
+
+    - name: Cargo format
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: cargo fmt --all -- --check --verbose
+
+    - name: Cargo clippy
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: cargo clippy
+
+    - name: Cargo udeps
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: |
+        cargo install cargo-udeps --locked
+        cargo +nightly udeps --all-targets
+
+    - name: Cargo audit
+      if: ${{ inputs.run_cargo_audit == 'true' }}
+      uses: rustsec/audit-check@v1.4.1
+      with:
+        token: ${{ inputs.github_token }}
