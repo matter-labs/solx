@@ -8,6 +8,10 @@ members = [
     "solx-codegen-evm",
     "solx-utils",
     "solx-llvm-builder",
+    "solx-tester",
+    "solx-benchmark-converter",
+    "solx-solc-test-adapter",
+    "solx-compiler-downloader",
 ]
 resolver = "2"
 

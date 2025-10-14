@@ -1,0 +1,39 @@
+{
+    "cases": [
+        {
+            "name": "zero",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "main",
+                    "calldata": [
+                        "TestContract.address"
+                    ]
+                }
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+        {
+            "name": "non_zero",
+            "inputs": [
+                {
+                    "instance": "Main",
+                    "method": "main",
+                    "calldata": [
+                        "TestContract.address"
+                    ],
+                    "value": "3456728394234236423 ETH"
+                }
+            ],
+            "expected": [
+                "3456728394234236423000000000000000000"
+            ]
+        }
+    ],
+    "contracts": {
+        "Main": "Main.sol:Main",
+        "TestContract": "TestContract.sol:TestContract"
+    }
+}

@@ -1,0 +1,51 @@
+{ "cases": [ {
+    "name": "one",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "1",
+                "Square.address"
+            ]
+        }
+    ],
+    "expected": [
+        "1"
+    ]
+}, {
+    "name": "fifteen",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "15",
+                "Square.address"
+            ]
+        }
+    ],
+    "expected": [
+        "1240"
+    ]
+}, {
+    "name": "hundred",
+    "inputs": [
+        {
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+                "100",
+                "Square.address"
+            ]
+        }
+    ],
+    "expected": [
+        "338350"
+    ]
+} ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "Square": "square.sol:Square"
+    }
+}

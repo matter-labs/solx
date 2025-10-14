@@ -1,0 +1,126 @@
+name: 'Rust Unit Tests'
+description: 'Executes Rust unit tests'
+inputs:
+  target:
+    description: 'Specific target triplet.'
+    required: false
+    default: ''
+  sanitizer:
+    description: 'Sanitizer to use for test.'
+    required: false
+    default: ''
+  results-xml:
+    description: 'Output unit tests results XML filename.'
+    required: false
+    default: 'unit-tests-results.xml'
+  enable-coverage:
+    description: 'Enable code coverage.'
+    required: false
+    default: 'false'
+  coverage-token:
+    description: 'Codecov token.'
+    required: false
+    default: ''
+
+runs:
+  using: "composite"
+  steps:
+    - name: Define build target
+      id: build-target
+      if: inputs.target != ''
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: |
+        rustup target add ${{ inputs.target }}
+        echo "target=--target ${{ inputs.target }}" >> "${GITHUB_OUTPUT}"
+
+    - name: Rust cache
+      if: ${{ !(runner.os == 'macOS' && runner.arch == 'arm64') }}
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: "rust-cargo-cache-${{ runner.os }}-${{ runner.arch }}"
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+
+    - name: Prepare test env
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: |
+        cargo install cargo2junit
+        if [ '${{ inputs.enable-coverage }}' = 'true' ]; then
+          cargo install cargo-llvm-cov
+        fi
+
+    - name: Run unit tests (release)
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash -ex {0}' }}
+      env:
+        RUSTC_BOOTSTRAP: 1
+      if: inputs.sanitizer == ''
+      run: |
+        TEST_COMMAND="test"
+        if [ '${{ inputs.enable-coverage }}' = 'true' ]; then
+          export LLVM_COV=$(which llvm-cov)
+          export LLVM_PROFDATA=$(which llvm-profdata)
+          TEST_COMMAND="llvm-cov --all-features --workspace --lcov --output-path lcov.info"
+        fi
+        # Use LLD on Windows to properly link with libstdc++.
+        if [[ ${RUNNER_OS} = Windows ]] || [[ ${RUNNER_OS} = Linux ]]; then
+          export RUSTFLAGS="${RUSTFLAGS} -C link-arg=-fuse-ld=lld"
+        fi
+        cargo ${TEST_COMMAND} --release ${{ steps.build-target.outputs.target }} -- -Z unstable-options \
+          --format json | tee -a release-results.json | grep 'failed'
+        if [ $? -eq 0 ]; then
+          cargo2junit < release-results.json > "release-${{ inputs.results-xml }}"
+        fi
+
+    - name: Run unit tests (debug)
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash -ex {0}' }}
+      env:
+        RUSTC_BOOTSTRAP: 1
+      run: |
+        if [ '${{ inputs.sanitizer }}' != '' ]; then
+          rustup component add rust-src --toolchain "$(rustc --version | cut -d ' ' -f2)-${TARGET}"
+          export RUSTFLAGS="${RUSTFLAGS} -Z sanitizer=${{ inputs.sanitizer }}"
+          export ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer)
+        fi
+        # Use LLD on Windows to properly link with libstdc++.
+        if [[ ${RUNNER_OS} = Windows ]] || [[ ${RUNNER_OS} = Linux ]]; then
+          export RUSTFLAGS="${RUSTFLAGS} -C link-arg=-fuse-ld=lld"
+        fi
+        cargo test ${{ steps.build-target.outputs.target }} -- -Z unstable-options \
+          --format json | tee -a debug-results.json | grep 'failed'
+        if [ $? -eq 0 ]; then
+          cargo2junit < debug-results.json > "debug-${{ inputs.results-xml }}"
+        fi
+
+    - name: Upload results Linux
+      if: (success() || failure()) && runner.os == 'Linux'
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        check_name: ${{ runner.os }} ${{ runner.arch }} Unit Tests Results
+        files: '*${{ inputs.results-xml }}'
+        action_fail_on_inconclusive: true
+        comment_mode: off
+
+    - name: Upload test results MacOS
+      if: (success() || failure()) && runner.os == 'macOS'
+      uses: EnricoMi/publish-unit-test-result-action/macos@v2
+      with:
+        check_name: ${{ runner.os }} ${{ runner.arch }} Unit Tests Results
+        files: '*${{ inputs.results-xml }}'
+        action_fail_on_inconclusive: true
+        comment_mode: off
+
+    - name: Upload test results Windows
+      if: (success() || failure()) && runner.os == 'Windows'
+      uses: EnricoMi/publish-unit-test-result-action/windows@v2
+      with:
+        check_name: ${{ runner.os }} ${{ runner.arch }} Unit Tests Results
+        files: '*${{ inputs.results-xml }}'
+        action_fail_on_inconclusive: true
+        comment_mode: off
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: (success() || failure()) && inputs.enable-coverage == 'true'
+      with:
+        token: ${{ inputs.coverage-token }}
+        files: lcov.info
+        slug: ${{ github.repository }}

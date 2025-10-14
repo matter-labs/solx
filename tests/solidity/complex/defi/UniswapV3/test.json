@@ -1,0 +1,465 @@
+{ "modes": [ "Y" ], "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "instance": "Token1",
+            "comment": "_mint is public for tests",
+            "method": "#deployer",
+            "caller": "0xdeadbeef00000000000000000000000000000099",
+            "calldata": [
+                "0x40",
+                "0x40",
+                "0"
+            ],
+            "expected": [
+                "0x3a9fc460c833f26413e25ceb8105cd04c5aaee6c"
+            ]
+        },
+        {
+            "instance": "Token2",
+            "comment": "_mint is public for tests",
+            "method": "#deployer",
+            "caller": "0xdeadbeef00000000000000000000000000000099",
+            "calldata": [
+                "0x40",
+                "0x40",
+                "0"
+            ],
+            "expected": [
+                "0xa7d88645ce7c923297a3edd0f59bdda46657bd0a"
+            ]
+        },
+        {
+            "instance": "UniswapV3Factory",
+            "method": "#deployer",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+            ],
+            "expected": {
+                "return_data": ["UniswapV3Factory.address"],
+                "exception": false,
+                "events": [
+                    {
+                        "address": "UniswapV3Factory.address",
+                        "topics": [
+                            "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c",
+                            "0",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": []
+                    },
+                    {
+                        "address": "UniswapV3Factory.address",
+                        "topics": [
+                            "0xc66a3fdf07232cdd185febcc6579d408c241b47ae2f9907d84be655141eeaecc",
+                            "500",
+                            "10"
+                        ],
+                        "values": []
+                    },
+                    {
+                        "address": "UniswapV3Factory.address",
+                        "topics": [
+                            "0xc66a3fdf07232cdd185febcc6579d408c241b47ae2f9907d84be655141eeaecc",
+                            "3000",
+                            "60"
+                        ],
+                        "values": []
+                    },
+                    {
+                        "address": "UniswapV3Factory.address",
+                        "topics": [
+                            "0xc66a3fdf07232cdd185febcc6579d408c241b47ae2f9907d84be655141eeaecc",
+                            "10000",
+                            "200"
+                        ],
+                        "values": []
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "WETH9",
+            "comment": "Some things was changed to compile via 0.7.6",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "WETH9.address"
+            ]
+        },
+        {
+            "instance": "NonfungibleTokenPositionDescriptor",
+            "comment": "The contract was replaced with https://etherscan.io/address/0x91ae842a5ffd8d12023116943e72a606179294f3#code",
+            "method": "#deployer",
+            "calldata": [
+                "WETH9.address"
+            ],
+            "expected": [
+                "NonfungibleTokenPositionDescriptor.address"
+            ]
+        },
+        {
+            "instance": "NonfungiblePositionManager",
+            "comment": "Pool address is hardcoded",
+            "method": "#deployer",
+            "calldata": [
+                "UniswapV3Factory.address",
+                "WETH9.address",
+                "NonfungibleTokenPositionDescriptor.address"
+            ],
+            "expected": [
+                "NonfungiblePositionManager.address"
+            ]
+        },
+        {
+            "instance": "SwapRouter",
+            "comment": "Pool address is hardcoded",
+            "method": "#deployer",
+            "calldata": [
+                "UniswapV3Factory.address",
+                "WETH9.address"
+            ],
+            "expected": [
+                "SwapRouter.address"
+            ]
+        },
+        {
+            "instance": "UniswapV3Factory",
+            "method": "createPool",
+            "calldata": [
+                "Token1.address",
+                "Token2.address",
+                "3000"
+            ],
+            "expected": {
+                "return_data": ["0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f"],
+                "exception": false,
+                "events": [
+                    {
+                        "address": "UniswapV3Factory.address",
+                        "topics": [
+                            "0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118",
+                            "Token1.address",
+                            "Token2.address",
+                            "3000"
+                        ],
+                        "values": [
+                            "60",
+                            "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "_InitWrapper",
+            "method": "initialize",
+            "calldata": [
+                "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f",
+                "0x00000000000000000000000000000000003acb29cd50f2a2f7b103ddae851344"
+            ],
+            "expected": {
+                "return_data": [],
+                "exception": false,
+                "events": [
+                    {
+                        "address": "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f",
+                        "topics": [
+                            "0x98636036cb66a9c19a37435efc1e90142190214e8abeb821bdba3f2990dd4c95"
+                        ],
+                        "values": [
+                            "305273858841511274243026280950076228",
+                            "303302"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "Token2",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000069",
+                "100000000000000000000000000"
+            ],
+            "expected": {
+                "exception": false,
+                "return_data": [],
+                "events": [
+                    {
+                        "address": "Token2.address",
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0",
+                            "0xdeadbeef00000000000000000000000000000069"
+                        ],
+                        "values": [
+                            "100000000000000000000000000"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "Token2",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "method": "increaseAllowance",
+            "calldata": [
+                "NonfungiblePositionManager.address",
+                "100000000000000000000000000"
+            ],
+            "expected": {
+                "exception": false,
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "address": "Token2.address",
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000069",
+                            "NonfungiblePositionManager.address"
+                        ],
+                        "values": [
+                            "100000000000000000000000000"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "NonfungiblePositionManager",
+            "method": "mint",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "calldata": [
+                "Token1.address",
+                "Token2.address",
+                "3000",
+                "276300",
+                "299340",
+                "0",
+                "100000000000000000000000000",
+                "0",
+                "0",
+                "0xdeadbeef00000000000000000000000000000069",
+                "1000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1",
+                    "46259139346298173734",
+                    "0",
+                    "99999999999999999998943496"
+                ],
+                "exception": false,
+                "events": [
+                    {
+                        "address": "Token2.address",
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000069",
+                            "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f"
+                        ],
+                        "values": [
+                            "99999999999999999998943496"
+                        ]
+                    },
+                    {
+                        "address": "Token2.address",
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000069",
+                            "NonfungiblePositionManager.address"
+                        ],
+                        "values": [
+                            "1056504"
+                        ]
+                    },
+                    {
+                        "address": "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f",
+                        "topics": [
+                            "0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde",
+                            "NonfungiblePositionManager.address",
+                            "276300",
+                            "299340"
+                        ],
+                        "values": [
+                            "NonfungiblePositionManager.address",
+                            "46259139346298173734",
+                            "0",
+                            "99999999999999999998943496"
+                        ]
+                    },
+                    {
+                        "address": "NonfungiblePositionManager.address",
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0",
+                            "0xdeadbeef00000000000000000000000000000069",
+                            "1"
+                        ],
+                        "values": []
+                    },
+                    {
+                        "address": "NonfungiblePositionManager.address",
+                        "topics": [
+                            "0x3067048beee31b25b2f1681f88dac838c8bba36af25bfb2b7cf7473a5847e35f",
+                            "1"
+                        ],
+                        "values": [
+                            "46259139346298173734",
+                            "0",
+                            "99999999999999999998943496"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "Token1",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000074",
+                "157064251"
+            ],
+            "expected": {
+                "exception": false,
+                "return_data": [],
+                "events": [
+                    {
+                        "address": "Token1.address",
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0",
+                            "0xdeadbeef00000000000000000000000000000074"
+                        ],
+                        "values": [
+                            "157064251"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "Token1",
+            "caller": "0xdeadbeef00000000000000000000000000000074",
+            "method": "increaseAllowance",
+            "calldata": [
+                "SwapRouter.address",
+                "157064251"
+            ],
+            "expected": {
+                "exception": false,
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "address": "Token1.address",
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000074",
+                            "SwapRouter.address"
+                        ],
+                        "values": [
+                            "157064251"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "instance": "SwapRouter",
+            "method": "exactInput",
+            "comment": "The last argument is: Token1.address + 3 bytes + Token2.address; Token1.address < Token2.address",
+            "caller": "0xdeadbeef00000000000000000000000000000074",
+            "calldata": [
+                "0x20",
+                "0xa0",
+                "0xdeadbeef00000000000000000000000000000074",
+                "1000000000000000000",
+                "157064251",
+                "1556399762425946795663",
+                "43",
+                "0x3a9fc460c833f26413e25ceb8105cd04c5aaee6c000bb8a7d88645ce7c923297",
+                "0xa3edd0f59bdda46657bd0a000000000000000000000000000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1564187874361797953346"
+                ],
+                "exception": false,
+                "events": [
+                    {
+                        "address": "Token2.address",
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f",
+                            "0xdeadbeef00000000000000000000000000000074"
+                        ],
+                        "values": [
+                            "1564187874361797953346"
+                        ]
+                    },
+                    {
+                        "address": "Token1.address",
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000074",
+                            "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f"
+                        ],
+                        "values": [
+                            "157064251"
+                        ]
+                    },
+                    {
+                        "address": "Token1.address",
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000074",
+                            "SwapRouter.address"
+                        ],
+                        "values": [
+                            "0"
+                        ]
+                    },
+                    {
+                        "address": "0x911021afcc4ed882dcbcb76bbd00fcb8d061e12f",
+                        "topics": [
+                            "0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67",
+                            "SwapRouter.address",
+                            "0xdeadbeef00000000000000000000000000000074"
+                        ],
+                        "values": [
+                            "157064251",
+                            "-1564187874361797953346",
+                            "250400657766243794416453619574778756",
+                            "46259139346298173734",
+                            "299339"
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "expected": [
+        "*"
+    ]
+} ],
+    "contracts": {
+        "UniswapV3Factory": "v3-core/UniswapV3Factory.sol:UniswapV3Factory",
+        "Token1": "openzeppelin-contracts/token/ERC20/ERC20.sol:ERC20",
+        "Token2": "openzeppelin-contracts/token/ERC20/ERC20.sol:ERC20",
+        "_InitWrapper": "_init_wrapper.sol:_InitWrapper",
+        "WETH9": "WETH9.sol:WETH9",
+        "NonfungibleTokenPositionDescriptor": "v3-periphery/NonfungibleTokenPositionDescriptor.sol:NonfungibleTokenPositionDescriptor",
+        "NonfungiblePositionManager": "v3-periphery/NonfungiblePositionManager.sol:NonfungiblePositionManager",
+        "NFTDescriptor": "v3-periphery/libraries/NFTDescriptor.sol:NFTDescriptor",
+        "SwapRouter": "v3-periphery/SwapRouter.sol:SwapRouter"
+    },
+    "libraries": {
+        "v3-periphery/libraries/NFTDescriptor.sol": { "NFTDescriptor": "NFTDescriptor" }
+    },
+    "group": "Real life"
+}

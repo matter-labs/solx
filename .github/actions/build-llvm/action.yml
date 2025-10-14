@@ -1,0 +1,181 @@
+# The general action to build ZKsync LLVM framework.
+# It is universal for all platforms: Linux, MacOS and Windows.
+
+name: 'Build LLVM'
+description: 'Builds backend LLVM framework'
+inputs:
+  clone-llvm:
+    description: 'Whether to clone LLVM repository.'
+    required: false
+    default: 'true'
+  enable-tests:
+    description: "Enable tests."
+    required: false
+    default: 'false'
+  enable-assertions:
+    description: "Enable assertions."
+    required: false
+    default: 'true'
+  enable-coverage:
+    description: "Enable coverage."
+    required: false
+    default: 'false'
+  llvm-projects:
+    description: "LLVM projects to build. Sets up LLVM_ENABLE_PROJECTS variable."
+    required: false
+    default: ''
+  sanitizer:
+    description: 'A sanitizer to build LLVM with. Possible values are Address, Memory, MemoryWithOrigins, Undefined, Thread, DataFlow, and Address;Undefined'
+    required: false
+    default: ''
+  enable-valgrind:
+    description: 'Enable Valgrind for LLVM regression tests.'
+    required: false
+    default: 'false'
+  valgrind-options:
+    description: 'Space-separated list of additional valgrind options for LLVM regression tests.'
+    required: false
+    default: ''
+  enable-rtti:
+    description: 'Enable RTTI for LLVM.'
+    required: false
+    default: 'false'
+  default-target-triple:
+    description: 'Default target to triple build LLVM for. Possible values are `eravm`, `evm`, or leave empty for default target.'
+    required: false
+    default: ''
+  extra-args:
+    description: 'Extra CMake arguments to compile LLVM.'
+    required: false
+    default: ''
+  builder-extra-args:
+    description: 'Extra LLVM builder arguments to compile LLVM.'
+    required: false
+    default: ''
+  build-type:
+    description: 'LLVM build type. Possible values are `Debug`, `Release`, `RelWithDebInfo`, or `MinSizeRel`. [default: Release]'
+    required: false
+    default: 'Release'
+  target-env:
+    description: 'Target environment (gnu or musl).'
+    required: false
+    default: 'gnu'
+  llvm-builder-version:
+    description: 'Version of the LLVM builder to use.'
+    required: false
+    default: '1.0.37'
+  ccache-key:
+    description: 'Github Actions cache key for CCache.'
+    required: false
+    default: ''
+  ccache-key-type:
+    description: 'Type of ccache key: `static` - rotate each month, or `dynamic` - rotate with each update of `LLVM.lock`.'
+    required: false
+    default: 'dynamic'
+  save-ccache:
+    description: 'Whether to save ccache after the build.'
+    required: false
+    default: 'false'
+
+
+runs:
+  using: "composite"
+  steps:
+
+    # Ninja build tool is not available on MacOS x64 runners by default. See:
+    # https://github.com/actions/runner-images/issues/514
+    - name: Install Ninja on MacOS x64
+      if: runner.os == 'macOS' && runner.arch == 'X64'
+      shell: 'bash'
+      run: HOMEBREW_NO_AUTO_UPDATE=1 brew install ninja
+
+    - name: Install LLVM builder
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: cargo install compiler-llvm-builder@${{ inputs.llvm-builder-version }}
+
+    - name: Clone LLVM framework
+      if: inputs.clone-llvm == 'true'
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: zksync-llvm clone --target-env ${{ inputs.target-env }}
+
+    - name: Define ccache key
+      if: inputs.ccache-key == ''
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      id: ccache-key
+      run: |
+        if [ ${{ inputs.ccache-key-type}} = static ]; then
+          echo "key=llvm-$(date +'%Y-%m')" | tee -a "${GITHUB_OUTPUT}"
+        else
+          LLVM_BRANCH="$(git -C ./llvm rev-parse --abbrev-ref HEAD)"
+          LLVM_SHORT_SHA="$(git -C ./llvm rev-parse --short HEAD)"
+          if [ '${{ inputs.enable-coverage }}' = 'true' ]; then
+            COVERAGE_SUFFIX="-coverage"
+          fi
+          echo "key=llvm-${LLVM_BRANCH}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.target-env }}${COVERAGE_SUFFIX}" | tee -a "${GITHUB_OUTPUT}"
+        fi
+
+    # CCache action requires `apt update`
+    # to be executed before it for Linux Docker jobs. See:
+    # https://github.com/hendrikmuhs/ccache-action?tab=readme-ov-file#usage
+    - name: Prepare ccache installation
+      if: runner.os == 'Linux'
+      shell: 'bash'
+      run: apt update
+
+    - name: Define ccache save key
+      id: ccache-save
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      run: |
+        if [ '${{ inputs.save-ccache }}' = 'true' ]; then
+          echo "save=true" | tee -a "${GITHUB_OUTPUT}"
+        else
+          echo "save=${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/') }}" | tee -a "${GITHUB_OUTPUT}"
+        fi
+
+    - name: Set up compiler cache
+      uses: hendrikmuhs/ccache-action@a1209f81afb8c005c13b4296c32e363431bffea5
+      env:
+        CCACHE_BASEDIR: ${{ github.workspace }}
+        CCACHE_NOHASHDIR: "true"
+        CCACHE_COMPILERCHECK: "content"
+      with:
+        key: ${{ inputs.ccache-key == '' && steps.ccache-key.outputs.key || inputs.ccache-key }}
+        restore-keys: ${{ inputs.ccache-key == '' && steps.ccache-key.outputs.key || inputs.ccache-key }}
+        append-timestamp: false
+        max-size: "2G"
+        verbose: 2
+        save: ${{ steps.ccache-save.outputs.save }}
+
+    # CCACHE_BASEDIR, CCACHE_NOHASHDIR, and CCACHE_COMPILERCHECK
+    # are allowing to cache compiler output across different
+    # directories and compiler versions. See:
+    # https://ccache.dev/manual/3.7.12.html#_compiling_in_different_directories
+    - name: Build LLVM
+      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
+      env:
+        VERBOSE: 1
+        CCACHE_BASEDIR: ${{ github.workspace }}
+        CCACHE_NOHASHDIR: "true"
+        CCACHE_COMPILERCHECK: "content"
+        LIBSTDCPP_SOURCE_PATH: "C:/a/_temp/msys64/mingw64/lib/libstdc++.a"
+      run: |
+        set -x
+        [ "${{ inputs.enable-tests }}" = "true" ] && ENABLE_TESTS="--enable-tests"
+        [ "${{ inputs.enable-assertions }}" = "true" ] && ENABLE_ASSERTIONS="--enable-assertions"
+        [ "${{ inputs.enable-coverage }}" = "true" ] && ENABLE_COVERAGE="--enable-coverage"
+        [ "${{ inputs.llvm-projects }}" != "" ] && LLVM_PROJECTS="--llvm-projects ${{ inputs.llvm-projects }}"
+        [ "${{ inputs.enable-rtti }}" = "true" ] && ENABLE_RTTI="--enable-rtti"
+        [ "${{ inputs.extra-args }}" != "" ] && EXTRA_ARGS="--extra-args ${{ inputs.extra-args }}"
+        [ "${{ inputs.sanitizer }}" != "" ] && SANITIZER="--sanitizer ${{ inputs.sanitizer }}"
+        if [ "${{ inputs.enable-valgrind }}" = "true" ]; then
+          ENABLE_VALGRIND="--enable-valgrind"
+          if [ "${{ inputs.valgrind-options }}" != "" ]; then
+            VALGRIND_OPTIONS=$(printf -- "--valgrind-options=%s " ${{ inputs.valgrind-options }})
+          fi
+        fi
+        if [[ -n "${{ inputs.default-target-triple }}" && "${{ inputs.default-target-triple }}" != "default" ]]; then
+          DEFAULT_TARGET="--default-target ${{ inputs.default-target-triple }}"
+        fi
+
+        zksync-llvm build --target-env ${{ inputs.target-env }} ${DEFAULT_TARGET} --build-type ${{ inputs.build-type }} \
+          --ccache-variant=ccache ${{ inputs.builder-extra-args }} ${ENABLE_TESTS} ${ENABLE_VALGRIND} ${VALGRIND_OPTIONS} ${ENABLE_ASSERTIONS} ${ENABLE_COVERAGE} ${LLVM_PROJECTS} ${ENABLE_RTTI} ${SANITIZER} ${EXTRA_ARGS}

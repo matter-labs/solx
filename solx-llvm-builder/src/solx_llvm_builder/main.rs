@@ -1,5 +1,5 @@
 //!
-//! The ZKsync LLVM builder.
+//! The `solx` LLVM builder.
 //!
 
 pub(crate) mod arguments;

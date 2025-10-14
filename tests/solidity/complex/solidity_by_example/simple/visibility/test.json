@@ -1,0 +1,99 @@
+{ "modes": [
+    "Y >=0.8.1",
+    "E", "I"
+], "cases": [ {
+    "name": "testPrivateFunc",
+    "inputs": [
+        {
+            "instance": "Base",
+            "method": "testPrivateFunc",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "0x20",
+        "23",
+        "0x707269766174652066756e6374696f6e2063616c6c6564000000000000000000"
+    ]
+}, {
+    "name": "testInternalFunc",
+    "inputs": [
+        {
+            "instance": "Base",
+            "method": "testInternalFunc",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "0x20",
+        "24",
+        "0x696e7465726e616c2066756e6374696f6e2063616c6c65640000000000000000"
+    ]
+}, {
+    "name": "publicFunc",
+    "inputs": [
+        {
+            "instance": "Base",
+            "method": "publicFunc",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "0x20",
+        "22",
+        "0x7075626c69632066756e6374696f6e2063616c6c656400000000000000000000"
+    ]
+}, {
+    "name": "externalFunc",
+    "inputs": [
+        {
+            "instance": "Base",
+            "method": "externalFunc",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "0x20",
+        "24",
+        "0x65787465726e616c2066756e6374696f6e2063616c6c65640000000000000000"
+    ]
+}, {
+    "name": "publicVar",
+    "inputs": [
+        {
+            "instance": "Base",
+            "method": "publicVar",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "0x20",
+        "18",
+        "0x6d79207075626c6963207661726961626c650000000000000000000000000000"
+    ]
+}, {
+    "name": "testInternalFuncChild",
+    "inputs": [
+        {
+            "instance": "Child",
+            "method": "testInternalFunc",
+            "calldata": [
+            ]
+        }
+    ],
+    "expected": [
+        "0x20",
+        "24",
+        "0x696e7465726e616c2066756e6374696f6e2063616c6c65640000000000000000"
+    ]
+} ],
+    "contracts": {
+        "Base": "main.sol:Base",
+        "Child": "main.sol:Child"
+    }
+}

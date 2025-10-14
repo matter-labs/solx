@@ -1,0 +1,51 @@
+{ "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "instance": "TickMathLoop",
+            "method": "getSqrtPriceAtTick",
+            "calldata": [
+                "0x00000000000000000000000000000000000000000000000000000000000d89e8"
+            ],
+            "expected": [
+                "0x000000000000000000000000fffd8963efd1fc6a506488495d951d5263988d26"
+            ]
+        },
+        {
+            "instance": "TickMathLoop",
+            "method": "getTickAtSqrtPrice",
+            "calldata": [
+                "0x000000000000000000000000fffa429fbf7baeed2496f0a9f5ccf2bb4abf52f9"
+            ],
+            "expected": [
+                "0x00000000000000000000000000000000000000000000000000000000000d89e7"
+            ]
+        },
+        {
+            "instance": "TickMathLoop",
+            "method": "getTickAtSqrtPrice_sol_loop",
+            "comment": "Substituted the series of inline assembly instructions with a Solidity loop",
+            "calldata": [
+                "0x000000000000000000000000fffa429fbf7baeed2496f0a9f5ccf2bb4abf52f9"
+            ],
+            "expected": [
+                "0x00000000000000000000000000000000000000000000000000000000000d89e7"
+            ]
+        },
+        {
+            "instance": "TickMathLoop",
+            "method": "getTickAtSqrtPrice_yul_loop",
+            "comment": "Substituted the series of inline assembly instructions with a YUL loop",
+            "calldata": [
+                "0x000000000000000000000000fffa429fbf7baeed2496f0a9f5ccf2bb4abf52f9"
+            ],
+            "expected": [
+                "0x00000000000000000000000000000000000000000000000000000000000d89e7"
+            ]
+        }
+    ] } ],
+    "contracts": {
+        "TickMathLoop": "TickMath_loop.sol:TickMathLoop"
+    },
+    "group": "Real life"
+}

@@ -1,0 +1,82 @@
+{ "cases": [ {
+    "name": "hashFunction",
+    "inputs": [
+        {
+            "instance": "HashFunction",
+            "method": "hash",
+            "calldata": [
+                "0x60",
+                "1",
+                "5",
+                "1",
+                "0x6100000000000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "0x956868bbfa2f61ecbf47027a92ee2b19636b1ac4cbc12f5b17e2fa3e378d4797"
+            ]
+        },
+        {
+            "instance": "HashFunction",
+            "method": "collision",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "1",
+                "0x6100000000000000000000000000000000000000000000000000000000000000",
+                "2",
+                "0x6263000000000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"
+            ]
+        },
+        {
+            "instance": "HashFunction",
+            "method": "collision",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "2",
+                "0x6162000000000000000000000000000000000000000000000000000000000000",
+                "1",
+                "0x6300000000000000000000000000000000000000000000000000000000000000"
+            ]
+        }
+    ],
+    "expected": [
+        "0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"
+    ]
+}, {
+    "name": "guessTheMagicWord",
+    "inputs": [
+        {
+            "instance": "GuessTheMagicWord",
+            "method": "guess",
+            "calldata": [
+                "0x20",
+                "1",
+                "0x6100000000000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+        {
+            "instance": "GuessTheMagicWord",
+            "method": "guess",
+            "calldata": [
+                "0x20",
+                "8",
+                "0x536f6c6964697479000000000000000000000000000000000000000000000000"
+            ]
+        }
+    ],
+    "expected": [
+        "1"
+    ]
+} ],
+    "contracts": {
+        "HashFunction": "main.sol:HashFunction",
+        "GuessTheMagicWord": "main.sol:GuessTheMagicWord"
+    }
+}

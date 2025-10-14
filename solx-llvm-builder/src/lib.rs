@@ -1,5 +1,5 @@
 //!
-//! The ZKsync LLVM builder library.
+//! The `solx` LLVM builder library.
 //!
 
 #![allow(clippy::too_many_arguments)]

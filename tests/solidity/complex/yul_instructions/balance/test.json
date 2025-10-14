@@ -1,0 +1,195 @@
+{
+    "cases": [
+      {
+        "name": "default",
+        "inputs": [
+          {
+            "comment": "zero address (2 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "30 wei",
+            "calldata": [
+              "0"
+            ],
+            "expected": [
+              "1",
+              "30"
+            ]
+          },
+          {
+            "comment": "Below 0xFFFF address (3 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "100 wei",
+            "calldata": [
+              "0x8006"
+            ],
+            "expected": [
+              "1",
+              "100"
+            ]
+          },
+          {
+            "comment": "Below 0xFFFF address (4 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "232243433443 wei",
+            "calldata": [
+              "0xe63a"
+            ],
+            "expected": [
+              "1",
+              "232243433443"
+            ]
+          },
+          {
+            "comment": "this address (5 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "322 wei",
+            "calldata": [
+              "Main.address"
+            ],
+            "expected": [
+              "1",
+              "322"
+            ]
+          },
+          {
+            "comment": "empty address (6 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "4 wei",
+            "calldata": [
+              "0x28389238943f1b124238edffa000094232323232"
+            ],
+            "expected": [
+              "1",
+              "4"
+            ]
+          },
+          {
+            "comment": "max address (7 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "1 wei",
+            "calldata": [
+              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            ],
+            "expected": [
+              "1",
+              "1"
+            ]
+          },
+          {
+            "comment": "max U256 address (8 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "7 wei",
+            "calldata": [
+              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            ],
+            "expected": [
+              "1",
+              "8"
+            ]
+          },
+          {
+            "comment": "dirty address (9 index)",
+            "instance": "Main",
+            "method": "dirty_address_test",
+            "calldata": [
+              "Main.address"
+            ],
+            "expected": [
+              "322"
+            ]
+          },
+          {
+            "comment": "zero balance (10 index)",
+            "instance": "Main",
+            "method": "main",
+            "calldata": [
+              "Other.address"
+            ],
+            "expected": [
+              "1",
+              "0"
+            ]
+          },
+          {
+            "comment": "one balance (11 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "1 wei",
+            "calldata": [
+              "Other.address"
+            ],
+            "expected": [
+              "1",
+              "1"
+            ]
+          },
+          {
+            "comment": "ordinar balance (12 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "34334433434 wei",
+            "calldata": [
+              "Other.address"
+            ],
+            "expected": [
+              "1",
+              "34334433435"
+            ]
+          },
+          {
+            "comment": "2 in 128 minus 1 balance (13 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "340282366920938463463374607397433778020 wei",
+            "calldata": [
+              "Other.address"
+            ],
+            "expected": [
+              "1",
+              "0xffffffffffffffffffffffffffffffff"
+            ]
+          },
+          {
+            "comment": "2 in 128 balance (14 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "1 wei",
+            "calldata": [
+              "Other.address"
+            ],
+            "expected": [
+              "1",
+              "0x100000000000000000000000000000000"
+            ]
+          },
+          {
+            "comment": "ordinar bigger 2 in 128 balance (15 index)",
+            "instance": "Main",
+            "method": "main",
+            "value": "48384899813922913922990329231 wei",
+            "calldata": [
+              "Other.address"
+            ],
+            "expected": [
+              "1",
+              "0x1000000009C570D12AFFBBF971E8DCD8F"
+            ]
+          }
+        ],
+        "expected": [
+          "1",
+          "0x1000000009C570D12AFFBBF971E8DCD8F"
+        ]
+    } ],
+    "contracts": {
+        "Main": "main.sol:Main",
+        "Other": "other.sol:Other"
+    }
+}

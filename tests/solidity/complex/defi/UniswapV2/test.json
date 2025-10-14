@@ -1,0 +1,1044 @@
+{ "cases": [ {
+    "name": "default",
+    "inputs": [
+        {
+            "instance": "Token1",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "Token1.address"
+            ]
+        },
+        {
+            "instance": "Token2",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x6e616d6500000000000000000000000000000000000000000000000000000000",
+                "4",
+                "0x7465787400000000000000000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "Token2.address"
+            ]
+        },
+        {
+            "instance": "UniswapPair",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "method": "#deployer",
+            "calldata": [
+                "Token1.address",
+                "Token2.address"
+            ],
+            "expected": [
+                "UniswapPair.address"
+            ]
+        },
+        {
+            "instance": "UniswapRouter",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "UniswapRouter.address"
+            ]
+        },
+        {
+            "instance": "UniswapRouter",
+            "method": "owner",
+            "calldata": []
+        }
+    ],
+    "expected": [
+        "0xdeadbeef00000000000000000000000000000042"
+    ]
+}, {
+    "name": "complex",
+    "inputs": [
+        {
+            "instance": "Token1",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "3",
+                "0x4441490000000000000000000000000000000000000000000000000000000000",
+                "14",
+                "0x44616920537461626c65636f696e000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "Token1.address"
+            ]
+        },
+        {
+            "instance": "Token2",
+            "method": "#deployer",
+            "calldata": [
+                "0x40",
+                "0x80",
+                "4",
+                "0x5742544300000000000000000000000000000000000000000000000000000000",
+                "14",
+                "0x5772617070656420425443000000000000000000000000000000000000000000"
+            ],
+            "expected": [
+                "Token2.address"
+            ]
+        },
+
+        {
+            "instance": "Token1",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "100000000000000000000000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "100000000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token2",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042",
+                "100000000000000000000000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "100000000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token2",
+            "method": "_mint",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000069",
+                "100000000000000000000000"
+            ],
+            "expected": {
+                "return_data": [],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000069"
+                        ],
+                        "values": [
+                            "100000000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+
+        {
+            "instance": "UniswapPair",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "method": "#deployer",
+            "calldata": [
+                "Token1.address",
+                "Token2.address"
+            ],
+            "expected": [
+                "UniswapPair.address"
+            ]
+        },
+
+        {
+            "instance": "Token1",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "transfer(address,uint256)",
+            "calldata": [
+                "UniswapPair.address", "10000000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "10000000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token2",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "transfer(address,uint256)",
+            "calldata": [
+                "UniswapPair.address", "100000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "100000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "mint",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": {
+                "return_data": [
+                    "999999999999000"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000"
+                        ],
+                        "values": [
+                            "1000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "999999999999000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+                        ],
+                        "values": [
+                            "10000000000000000000000",
+                            "100000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "10000000000000000000000",
+                            "100000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "999999999999000"
+            ]
+        },
+
+        {
+            "instance": "Token1",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "transfer(address,uint256)",
+            "calldata": [
+                "UniswapPair.address", "10000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "10000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token2",
+            "method": "balanceOf",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "99999999999999900000000"
+            ]
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "swap",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0",
+                "9000",
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": {
+                "return_data": [
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "9000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+                        ],
+                        "values": [
+                            "10010000000000000000000",
+                            "99991000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "10000000000000000000",
+                            "0",
+                            "0",
+                            "9000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token2",
+            "method": "balanceOf",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "99999999999999900009000"
+            ]
+        },
+
+        {
+            "instance": "UniswapPair",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "999999999999000"
+            ]
+        },
+        {
+            "instance": "UniswapPair",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "transfer(address,uint256)",
+            "calldata": [
+                "UniswapPair.address", "999999999999000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "999999999999000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "burn",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": {
+                "return_data": [
+                    "10009999999989990000000",
+                    "99990999"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000"
+                        ],
+                        "values": [
+                            "999999999999000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "10009999999989990000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "99990999"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+                        ],
+                        "values": [
+                            "10010000000",
+                            "1"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "10009999999989990000000",
+                            "99990999"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "0"
+            ]
+        },
+
+
+        {
+            "instance": "UniswapRouter",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "method": "#deployer",
+            "calldata": [],
+            "expected": [
+                "UniswapRouter.address"
+            ]
+        },
+        {
+            "instance": "UniswapRouter",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "method": "owner",
+            "calldata": [],
+            "expected": [
+                "0xdeadbeef00000000000000000000000000000069"
+            ]
+        },
+        {
+            "instance": "UniswapRouter",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "method": "addPair",
+            "calldata": [
+                "Token1.address",
+                "Token2.address",
+                "UniswapPair.address"
+            ],
+            "expected": [
+            ]
+        },
+        {
+            "instance": "UniswapRouter",
+            "caller": "0xdeadbeef00000000000000000000000000000069",
+            "method": "pairs",
+            "calldata": [
+                "Token2.address",
+                "Token1.address"
+            ],
+            "expected": [
+                "UniswapPair.address"
+            ]
+        },
+
+        {
+            "instance": "Token1",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "approve",
+            "calldata": [
+                "UniswapRouter.address",
+                "2000000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "2000000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token2",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "approve",
+            "calldata": [
+                "UniswapRouter.address",
+                "20000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "20000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapRouter",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "addLiquidity",
+            "calldata": [
+                "Token1.address",
+                "Token2.address",
+                "2000000000000000000000",
+                "20000000",
+                "0",
+                "0",
+                "0xdeadbeef00000000000000000000000000000042",
+                "17179869183"
+            ],
+            "expected": {
+                "return_data": [
+                    "200200000000000000",
+                    "20000000",
+                    "20000000000"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "200200000000000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "1999799800000000000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "20000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "0"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "20000000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+                        ],
+                        "values": [
+                            "200200010010000000",
+                            "20000001"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "200200000000000000",
+                            "20000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "20000000000"
+            ]
+        },
+
+        {
+            "instance": "Token1",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "approve",
+            "calldata": [
+                "UniswapRouter.address",
+                "50000000000000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "50000000000000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token2",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "method": "approve",
+            "calldata": [
+                "UniswapRouter.address",
+                "450000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "450000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token1",
+            "method": "balanceOf",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "99999799799989990000000"
+            ]
+        },
+        {
+            "instance": "Token2",
+            "method": "balanceOf",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "99999999999999979999999"
+            ]
+        },
+        {
+            "instance": "UniswapRouter",
+            "method": "swapExactTokensForTokens",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "50000000000000000000",
+                "450000",
+                "0xa0",
+                "0xdeadbeef00000000000000000000000000000042",
+                "17179869183",
+                "2",
+                "Token1.address",
+                "Token2.address"
+            ],
+            "expected": {
+                "return_data": [
+                    "0x20",
+                    "2",
+                    "50000000000000000000",
+                    "19920001"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "50000000000000000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "0"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "19920001"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+                        ],
+                        "values": [
+                            "50200200010010000000",
+                            "80000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822",
+                            "UniswapRouter.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "50000000000000000000",
+                            "0",
+                            "0",
+                            "19920001"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "Token1",
+            "method": "balanceOf",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "99949799799989990000000"
+            ]
+        },
+        {
+            "instance": "Token2",
+            "method": "balanceOf",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "99999999999999999920000"
+            ]
+        },
+
+        {
+            "instance": "UniswapPair",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "20000000000"
+            ]
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "approve",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "UniswapRouter.address",
+                "20000000000"
+            ],
+            "expected": {
+                "return_data": [
+                    "1"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapRouter.address"
+                        ],
+                        "values": [
+                            "20000000000"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapRouter",
+            "method": "removeLiquidity",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "Token1.address",
+                "Token2.address",
+                "20000000000",
+                "0",
+                "0",
+                "0xdeadbeef00000000000000000000000000000042",
+                "17179869183"
+            ],
+            "expected": {
+                "return_data": [
+                    "50200197500000124999",
+                    "79999"
+                ],
+                "events": [
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "0xdeadbeef00000000000000000000000000000042",
+                            "UniswapPair.address"
+                        ],
+                        "values": [
+                            "20000000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0x0000000000000000000000000000000000000000000000000000000000000000"
+                        ],
+                        "values": [
+                            "20000000000"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "50200197500000124999"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                            "UniswapPair.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "79999"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1"
+                        ],
+                        "values": [
+                            "2510009875001",
+                            "1"
+                        ]
+                    },
+                    {
+                        "topics": [
+                            "0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496",
+                            "UniswapRouter.address",
+                            "0xdeadbeef00000000000000000000000000000042"
+                        ],
+                        "values": [
+                            "50200197500000124999",
+                            "79999"
+                        ]
+                    }
+                ],
+                "exception": false
+            }
+        },
+        {
+            "instance": "UniswapPair",
+            "method": "balanceOf",
+            "caller": "0xdeadbeef00000000000000000000000000000042",
+            "calldata": [
+                "0xdeadbeef00000000000000000000000000000042"
+            ],
+            "expected": [
+                "0"
+            ]
+        }
+    ],
+    "expected": [
+        "0"
+    ]
+} ],
+    "contracts": {
+        "UniswapPair": "UniswapV2Pair/UniswapV2Pair.sol:UniswapV2Pair",
+        "UQ112x112": "UniswapV2Pair/libraries/UQ112x112.sol:UQ112x112",
+        "Math": "UniswapV2Pair/libraries/Math.sol:Math",
+        "TransferHelper": "libraries/TransferHelper.sol:TransferHelper",
+        "Token1": "UniswapV2Pair/ERC20/ERC20.sol:ERC20",
+        "Token2": "UniswapV2Pair/ERC20/ERC20.sol:ERC20",
+        "UniswapRouter": "UniswapV2Router01.sol:UniswapV2Router01"
+    },
+    "libraries": {
+        "UniswapV2Pair/libraries/UQ112x112.sol": { "UQ112x112": "UQ112x112" },
+        "UniswapV2Pair/libraries/Math.sol": { "Math": "Math" },
+        "libraries/TransferHelper.sol": { "TransferHelper": "TransferHelper" }
+    },
+    "group": "Real life"
+}

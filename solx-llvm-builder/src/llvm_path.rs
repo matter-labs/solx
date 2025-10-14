@@ -1,5 +1,5 @@
 //!
-//! The ZKsync LLVM builder constants.
+//! The `solx` LLVM builder constants.
 //!
 
 use std::path::PathBuf;

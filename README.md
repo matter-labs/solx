@@ -10,28 +10,34 @@
 > The project is in beta state and must be used with caution. Please use it only for testing and experimentation.
 > If you want to use it in production, make sure to test your contracts thoroughly, or [contact us](#contact-us) first.
 
-**solx** passes [our test suite](https://github.com/matter-labs/era-compiler-tester), which includes:
+**solx** passes multiple test suites, including:
 
-- [tests](https://github.com/ethereum/solidity/tree/develop/test/libsolidity/semanticTests) from the **solc** project
-- [real-life projects](https://github.com/matter-labs/era-compiler-tests/tree/main/solidity/complex/defi) such as UniswapV2 and Mooniswap
-- [additional tests](https://github.com/matter-labs/era-compiler-tests/tree/main/solidity) written by the **solx** team
-
-Our pool of tests is updated with every **solc** release. Arbitrary contracts are expected to compile correctly, but some may be temporary affected by stack-too-deep errors. Benchmarks indicate that **solx** generates larger code than **solc**, but reduces the gas consumption on average.
+- [Foundry projects](.github/forge-benchmarks.toml)
+- [Hardhat projects](.github/hardhat-projects.toml)
+- [tests](https://github.com/matter-labs/era-solidity/tree/0.8.30/test/libsolidity/semanticTests) from the **solc** project
+- [real-life projects](solx-tests/solidity/complex/defi) such as UniswapV2 and Mooniswap
+- [additional tests](solx-tests/solidity) written by the **solx** team
 
 Our mid-term goals:
 
-- support EOF
+- emit [ethdebug](https://ethdebug.github.io/format/index.html) for optimized code
+- roll out the MLIR codegen to replace Yul and EVM assembly
 - further reduce gas usage and bytecode size
 - eliminate the need for inline assembly for efficiency
-- emit [ethdebug](https://ethdebug.github.io/format/index.html) for optimized code
+
+## Documentation
+
+**solx** documentation is powered by [GitHub Pages](https://matter-labs.github.io/solx/latest/) and provided as an [mdBook](https://github.com/rust-lang/mdBook), while its Markdown sources can be found in [this directory](./docs/src/).
+To build the book, follow these [instructions](./docs/README.md).
+
+See also:
+
+- [Solidity Documentation](https://docs.soliditylang.org/en/latest/)
+- [LLVM Documentation](https://llvm.org/docs/)
 
 ## Installation
 
-For the detailed installation and usage guide, visit [our comprehensive documentation](https://matter-labs.github.io/solx/latest/#installation).
-
-## Demo
-
-Check out [this repository](https://github.com/popzxc/solx_demo) to see a demo of the current state of the compiler.
+For the detailed installation and usage guide, visit [the respective page of our documentation](https://matter-labs.github.io/solx/latest/#installation).
 
 ## Architecture
 
@@ -44,20 +50,6 @@ Check out [this repository](https://github.com/popzxc/solx_demo) to see a demo o
   with an EVM target developed by the **solx** team.
 
 The most important part of the project is the EVM target in LLVM. You can find its sources [here](https://github.com/matter-labs/era-compiler-llvm/tree/main/llvm/lib/Target/EVM).
-
-## Documentation
-
-The **solx** documentation is powered by [GitHub Pages](https://matter-labs.github.io/solx/latest/).
-
-**solx** documentation is provided as an [mdBook](https://github.com/rust-lang/mdBook), and its sources available in the `docs/` directory.
-To build the book, follow the [instructions](./docs/README.md).
-
-Alternatively, you may check out its Markdown representation in [this repository](./docs/src/).
-
-See also:
-
-- [Solidity Documentation](https://docs.soliditylang.org/en/latest/)
-- [LLVM Documentation](https://llvm.org/docs/)
 
 ## Testing
 
@@ -85,6 +77,18 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
   - MIT license ([LICENSE-MIT](./solx-standard-json/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 - [`era-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.30/LICENSE.txt)
 - [`era-compiler-llvm`](https://github.com/matter-labs/era-compiler-llvm) is licensed under the terms of Apache License, Version 2.0 with LLVM Exceptions, ([LICENSE](https://github.com/matter-labs/era-compiler-llvm/blob/main/LICENSE) or https://llvm.org/LICENSE.txt)
+
+Additionally, this repository vendors tests and test projects that preserve their original licenses:
+
+- [UniswapV2](./tests/solidity/complex/defi/UniswapV2)
+- [UniswapV3](./tests/solidity/complex/defi/UniswapV3)
+- [Mooniswap](./tests/solidity/complex/defi/Mooniswap)
+- [StarkEx Verifier](./tests/solidity/complex/defi/starkex-verifier)
+- [SHIT](./tests/solidity/complex/defi/shitdao)
+
+These projects are modified for the purposes of testing our compiler toolchain and are not used outside of this repository.
+
+Visit the project directories to discover the terms of each license in detail. These and other projects are licensed in either per-file or per-project manner.
 
 ## Contact Us
 

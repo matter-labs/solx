@@ -65,10 +65,10 @@ jobs:
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
-        uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+        uses: ./.github/actions/prepare-msys
 
       - name: Build LLVM for tests
-        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        uses: ./.github/actions/build-llvm
         with:
           clone-llvm: 'false'
           build-type: RelWithDebInfo
@@ -81,7 +81,7 @@ jobs:
         run: rm -f ./target-llvm/target-final/lib/libstdc++.a
 
       - name: Build LLVM for releases
-        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        uses: ./.github/actions/build-llvm
         with:
           enable-assertions: 'false'
           build-type: Release
