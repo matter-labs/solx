@@ -46,13 +46,13 @@ jobs:
           git submodule update --force --depth=1 --recursive --checkout
 
       - name: Building solc
-        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        uses: ./.github/actions/build-solc
         with:
           cmake-build-type: 'Release'
           working-dir: 'era-solidity'
 
       - name: Build LLVM
-        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        uses: ./.github/actions/build-llvm
         with:
           clone-llvm: 'false'
           build-type: Release
@@ -60,7 +60,7 @@ jobs:
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
 
       - name: Build solx
-        uses: matter-labs/era-compiler-ci/.github/actions/build-rust@v1
+        uses: ./.github/actions/build-rust
         env:
           BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
           SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build

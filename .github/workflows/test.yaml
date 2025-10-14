@@ -34,7 +34,7 @@ jobs:
           git submodule update --force --depth=1 --recursive --checkout
 
       - name: Build LLVM
-        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        uses: ./.github/actions/build-llvm
         with:
           clone-llvm: 'false'
           target-env: 'gnu'
@@ -44,7 +44,7 @@ jobs:
           save-ccache: 'false'
 
       - name: Cargo checks
-        uses: matter-labs/era-compiler-ci/.github/actions/cargo-check@v1
+        uses: ./.github/actions/cargo-check
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -89,16 +89,16 @@ jobs:
 
       - name: Prepare Windows env
         if: runner.os == 'Windows'
-        uses: matter-labs/era-compiler-ci/.github/actions/prepare-msys@v1
+        uses: ./.github/actions/prepare-msys
 
       - name: Building solc
-        uses: matter-labs/era-compiler-ci/.github/actions/build-solc@v1
+        uses: ./.github/actions/build-solc
         with:
           cmake-build-type: RelWithDebInfo
           working-dir: 'era-solidity'
 
       - name: Build LLVM
-        uses: matter-labs/era-compiler-ci/.github/actions/build-llvm@v1
+        uses: ./.github/actions/build-llvm
         with:
           clone-llvm: 'false'
           build-type: RelWithDebInfo
@@ -106,7 +106,7 @@ jobs:
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
 
       - name: Run tests
-        uses: matter-labs/era-compiler-ci/.github/actions/rust-unit-tests@v1
+        uses: ./.github/actions/rust-unit-tests
         env:
           BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
           SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
