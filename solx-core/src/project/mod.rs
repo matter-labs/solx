@@ -51,6 +51,7 @@ impl Project {
     ///
     pub fn new(
         language: solx_standard_json::InputLanguage,
+        solc_version: Option<solx_standard_json::Version>,
         contracts: BTreeMap<String, Contract>,
         ast_jsons: Option<BTreeMap<String, Option<serde_json::Value>>>,
         libraries: solx_utils::Libraries,
@@ -62,9 +63,9 @@ impl Project {
 
         let solc_version = match language {
             solx_standard_json::InputLanguage::Solidity
-            | solx_standard_json::InputLanguage::Yul => {
-                Some(solx_solc::Compiler::default().version)
-            }
+            | solx_standard_json::InputLanguage::Yul => Some(
+                solc_version.expect("`solc` version is mandatory for Solidity and Yul projects"),
+            ),
             solx_standard_json::InputLanguage::LLVMIR => None,
         };
 
@@ -82,6 +83,7 @@ impl Project {
     /// Parses the Solidity `sources` and returns a Solidity project.
     ///
     pub fn try_from_solc_output(
+        solc_version: &solx_standard_json::Version,
         libraries: solx_utils::Libraries,
         via_ir: bool,
         solc_output: &mut solx_standard_json::Output,
@@ -201,6 +203,7 @@ impl Project {
         }
         Ok(Project::new(
             solx_standard_json::InputLanguage::Solidity,
+            Some(solc_version.to_owned()),
             contracts,
             Some(ast_jsons),
             libraries,
@@ -211,6 +214,7 @@ impl Project {
     /// Reads the Yul source code `paths` and returns a Yul project.
     ///
     pub fn try_from_yul_paths(
+        solc_version: &solx_standard_json::Version,
         paths: &[PathBuf],
         libraries: solx_utils::Libraries,
         output_selection: &solx_standard_json::InputSelection,
@@ -233,6 +237,7 @@ impl Project {
             .collect::<anyhow::Result<BTreeMap<String, solx_standard_json::InputSource>>>()?;
 
         Self::try_from_yul_sources(
+            solc_version,
             sources,
             libraries,
             output_selection,
@@ -245,6 +250,7 @@ impl Project {
     /// Parses the Yul `sources` and returns a Yul project.
     ///
     pub fn try_from_yul_sources(
+        solc_version: &solx_standard_json::Version,
         sources: BTreeMap<String, solx_standard_json::InputSource>,
         libraries: solx_utils::Libraries,
         output_selection: &solx_standard_json::InputSelection,
@@ -267,7 +273,7 @@ impl Project {
                     let source_hash = solx_utils::Keccak256Hash::from_slice(source_code.as_bytes());
                     let metadata_json = serde_json::json!({
                         "source_hash": source_hash.to_string(),
-                        "solc_version": solx_solc::Compiler::default().version,
+                        "solc_version": solc_version,
                     });
                     Some(serde_json::to_string(&metadata_json).expect("Always valid"))
                 } else {
@@ -319,6 +325,7 @@ impl Project {
         }
         Ok(Self::new(
             solx_standard_json::InputLanguage::Yul,
+            Some(solc_version.to_owned()),
             contracts,
             None,
             libraries,
@@ -423,6 +430,7 @@ impl Project {
         }
         Ok(Self::new(
             solx_standard_json::InputLanguage::LLVMIR,
+            None,
             contracts,
             None,
             libraries,
@@ -517,6 +525,7 @@ impl Project {
                     );
 
                     let mut input = EVMProcessInput::new(
+                        self.solc_version.clone(),
                         contract_name.clone(),
                         runtime_code_ir,
                         solx_utils::CodeSegment::Runtime,
@@ -539,6 +548,7 @@ impl Project {
                     .and_then(|output| output.object.immutables.to_owned());
                 let deploy_object_result: crate::Result<EVMProcessOutput> = {
                     let mut input = EVMProcessInput::new(
+                        self.solc_version.clone(),
                         contract_name.clone(),
                         deploy_code_ir,
                         solx_utils::CodeSegment::Deploy,
@@ -593,7 +603,8 @@ impl Project {
         }
 
         let metadata = metadata.map(|metadata| {
-            ContractMetadata::new(optimizer_settings.clone(), llvm_options).insert_into(metadata)
+            ContractMetadata::new(solc_version, optimizer_settings.clone(), llvm_options)
+                .insert_into(metadata)
         });
         let metadata_hash = metadata
             .as_ref()
@@ -611,7 +622,7 @@ impl Project {
         ));
         if let Some(solc_version) = solc_version {
             cbor_version_parts.push((
-                crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+                crate::r#const::SOLC_METADATA_TAG.to_owned(),
                 solc_version.default.to_owned(),
             ));
             cbor_version_parts.push((
@@ -620,7 +631,7 @@ impl Project {
             ));
         }
         let cbor_data = (
-            crate::r#const::SOLC_PRODUCTION_NAME.to_owned(),
+            crate::r#const::SOLC_METADATA_TAG.to_owned(),
             cbor_version_parts,
         );
 

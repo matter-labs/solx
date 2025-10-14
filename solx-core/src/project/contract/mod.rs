@@ -95,6 +95,7 @@ impl Contract {
     /// Compiles the specified contract to EVM, returning its build artifacts.
     ///
     pub fn compile_to_evm(
+        solc_version: Option<solx_standard_json::Version>,
         contract_name: solx_utils::ContractName,
         contract_ir: IR,
         code_segment: solx_utils::CodeSegment,
@@ -113,7 +114,6 @@ impl Contract {
             optimizer_settings.set_metadata_size(metadata_bytes.len() as u64);
         }
 
-        let solc_version = solx_solc::Compiler::default().version;
         let solidity_data = solx_codegen_evm::ContextSolidityData::new(immutables);
         let optimizer = solx_codegen_evm::Optimizer::new(optimizer_settings.clone());
         let output_bytecode = output_selection.is_bytecode_set_for_any();
@@ -237,7 +237,9 @@ impl Contract {
                 Ok(runtime_object)
             }
             (IR::EVMLegacyAssembly(mut deploy_code), solx_utils::CodeSegment::Deploy) => {
-                let evmla_data = solx_codegen_evm::ContextEVMLAData::new(solc_version.default);
+                let evmla_data = solx_codegen_evm::ContextEVMLAData::new(
+                    solc_version.expect("Always exists").default,
+                );
                 let deploy_code_identifier = contract_name.full_path.to_owned();
                 let mut deploy_code_dependencies =
                     solx_yul::Dependencies::new(deploy_code_identifier.as_str());
@@ -302,7 +304,9 @@ impl Contract {
             }
             (IR::EVMLegacyAssembly(mut runtime_code), solx_utils::CodeSegment::Runtime) => {
                 let runtime_code_identifier = format!("{}.{code_segment}", contract_name.full_path);
-                let evmla_data = solx_codegen_evm::ContextEVMLAData::new(solc_version.default);
+                let evmla_data = solx_codegen_evm::ContextEVMLAData::new(
+                    solc_version.expect("Always exists").default,
+                );
 
                 let runtime_llvm = inkwell::context::Context::create();
                 let runtime_module = runtime_llvm.create_module(runtime_code_identifier.as_str());
