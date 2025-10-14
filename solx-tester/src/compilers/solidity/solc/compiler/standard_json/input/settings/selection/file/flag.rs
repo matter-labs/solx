@@ -13,9 +13,12 @@ use crate::compilers::solidity::codegen::Codegen;
 #[allow(non_camel_case_types)]
 #[allow(clippy::upper_case_acronyms)]
 pub enum Flag {
-    /// The combined bytecode.
+    /// Deploy bytecode.
     #[serde(rename = "evm.bytecode")]
     Bytecode,
+    /// Runtime bytecode.
+    #[serde(rename = "evm.deployedBytecode")]
+    DeployedBytecode,
     /// The function signature hashes JSON.
     #[serde(rename = "evm.methodIdentifiers")]
     MethodIdentifiers,
@@ -43,6 +46,7 @@ impl std::fmt::Display for Flag {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Bytecode => write!(f, "evm.bytecode"),
+            Self::DeployedBytecode => write!(f, "evm.deployedBytecode"),
             Self::MethodIdentifiers => write!(f, "evm.methodIdentifiers"),
             Self::AST => write!(f, "ast"),
             Self::Yul => write!(f, "irOptimized"),

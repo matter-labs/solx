@@ -32,6 +32,7 @@ impl File {
     pub fn new_required(codegen: Option<Codegen>) -> Self {
         let mut per_contract = HashSet::new();
         per_contract.insert(SelectionFlag::Bytecode);
+        per_contract.insert(SelectionFlag::DeployedBytecode);
         per_contract.insert(SelectionFlag::MethodIdentifiers);
         if let Some(codegen) = codegen {
             per_contract.insert(SelectionFlag::from(codegen));
