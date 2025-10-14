@@ -2,13 +2,6 @@
 //! `solc` compiler client.
 //!
 
-#![allow(non_camel_case_types)]
-#![allow(clippy::upper_case_acronyms)]
-#![allow(clippy::enum_variant_names)]
-#![allow(clippy::too_many_arguments)]
-#![allow(clippy::should_implement_trait)]
-#![allow(clippy::result_large_err)]
-
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::path::PathBuf;
@@ -17,9 +10,9 @@ use std::path::PathBuf;
 /// The Solidity compiler.
 ///
 #[derive(Debug)]
-pub struct Compiler {
+pub struct Solc {
     /// The `solc` compiler version.
-    pub version: solx_standard_json::Version,
+    version: solx_standard_json::Version,
 }
 
 #[link(name = "solc", kind = "static")]
@@ -54,7 +47,7 @@ extern "C" {
     fn solidity_version_extended() -> *const std::os::raw::c_char;
 }
 
-impl Default for Compiler {
+impl Default for Solc {
     fn default() -> Self {
         Self {
             version: Self::parse_version(),
@@ -62,14 +55,8 @@ impl Default for Compiler {
     }
 }
 
-impl Compiler {
-    ///
-    /// The Solidity `--standard-json` mirror.
-    ///
-    /// Metadata is always requested in order to calculate the metadata hash even if not requested in the `output_selection`.
-    /// EVM assembly or Yul is always selected in order to compile the Solidity code.
-    ///
-    pub fn standard_json(
+impl solx_core::Solc for Solc {
+    fn standard_json(
         &self,
         input_json: &mut solx_standard_json::Input,
         use_import_callback: bool,
@@ -192,10 +179,7 @@ impl Compiler {
         Ok(solc_output)
     }
 
-    ///
-    /// Validates the Yul project as paths and libraries.
-    ///
-    pub fn validate_yul_paths(
+    fn validate_yul_paths(
         &self,
         paths: &[PathBuf],
         libraries: solx_utils::Libraries,
@@ -211,10 +195,7 @@ impl Compiler {
         self.validate_yul_standard_json(&mut solc_input)
     }
 
-    ///
-    /// Validates the Yul project as standard JSON input.
-    ///
-    pub fn validate_yul_standard_json(
+    fn validate_yul_standard_json(
         &self,
         solc_input: &mut solx_standard_json::Input,
     ) -> anyhow::Result<solx_standard_json::Output> {
@@ -226,6 +207,12 @@ impl Compiler {
         Ok(solc_output)
     }
 
+    fn version(&self) -> &solx_standard_json::Version {
+        &self.version
+    }
+}
+
+impl Solc {
     ///
     /// The `solc` version parser.
     ///

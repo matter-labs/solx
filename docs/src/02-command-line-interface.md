@@ -113,7 +113,9 @@ The **solx** metadata format is compatible with the [Solidity metadata format](h
       "level_middle_end": "Aggressive",
       "level_middle_end_size": "Zero"
     },
+    // Optional: only set for Solidity and Yul contracts.
     "solc_llvm_revision": "1.0.2",
+    // Optional: only set for Solidity and Yul contracts.
     "solc_version": "0.8.30",
     "solx_version": "0.1.0"
   }

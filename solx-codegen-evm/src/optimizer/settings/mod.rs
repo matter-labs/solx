@@ -37,6 +37,9 @@ impl Settings {
     /// The jump table density threshold used with the EVM interpreter.
     pub const JUMP_TABLE_DENSITY_THRESHOLD: u32 = 10;
 
+    /// The list of supported middle-end optimization levels.
+    pub const MIDDLE_END_LEVELS: [&str; 5] = ["1", "2", "3", "s", "z"];
+
     ///
     /// A shortcut constructor.
     ///

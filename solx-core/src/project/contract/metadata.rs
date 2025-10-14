@@ -10,9 +10,9 @@
 #[derive(Debug, serde::Serialize)]
 pub struct Metadata<'a> {
     /// The `solc` version.
-    pub solc_version: semver::Version,
+    pub solc_version: Option<semver::Version>,
     /// The LLVM `solc` revision.
-    pub solc_llvm_revision: semver::Version,
+    pub solc_llvm_revision: Option<semver::Version>,
     /// The `solx` compiler version.
     pub solx_version: semver::Version,
     /// The LLVM compiler optimizer settings.
@@ -26,13 +26,13 @@ impl<'a> Metadata<'a> {
     /// A shortcut constructor.
     ///
     pub fn new(
+        solc_version: Option<&solx_standard_json::Version>,
         optimizer_settings: solx_codegen_evm::OptimizerSettings,
         llvm_options: &'a [String],
     ) -> Self {
-        let solc_version = solx_solc::Compiler::default().version;
         Self {
-            solc_version: solc_version.default,
-            solc_llvm_revision: solc_version.llvm_revision,
+            solc_version: solc_version.map(|version| version.default.to_owned()),
+            solc_llvm_revision: solc_version.map(|version| version.llvm_revision.to_owned()),
             solx_version: crate::version().parse().expect("Always valid"),
             optimizer_settings,
             llvm_options,

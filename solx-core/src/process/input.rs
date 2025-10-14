@@ -14,6 +14,8 @@ use crate::project::contract::ir::IR as ContractIR;
 ///
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Input {
+    /// The `solc` compiler version, used only for Solidity and Yul projects.
+    pub solc_version: Option<solx_standard_json::Version>,
     /// The input contract name.
     pub contract_name: solx_utils::ContractName,
     /// The input contract IR.
@@ -41,6 +43,7 @@ impl Input {
     /// A shortcut constructor.
     ///
     pub fn new(
+        solc_version: Option<solx_standard_json::Version>,
         contract_name: solx_utils::ContractName,
         contract_ir: ContractIR,
         code_segment: solx_utils::CodeSegment,
@@ -53,6 +56,7 @@ impl Input {
         debug_config: Option<solx_codegen_evm::DebugConfig>,
     ) -> Self {
         Self {
+            solc_version,
             contract_name,
             contract_ir,
             code_segment,

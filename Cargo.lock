@@ -1117,27 +1117,19 @@ version = "0.1.3"
 dependencies = [
  "anyhow",
  "assert_cmd",
- "ciborium",
  "clap",
- "hex",
  "inkwell",
- "normpath",
- "num",
- "path-slash",
+ "libc",
  "predicates",
- "rayon",
  "semver",
  "serde",
  "serde_json",
  "solx-codegen-evm",
- "solx-evm-assembly",
- "solx-solc",
+ "solx-core",
  "solx-standard-json",
  "solx-utils",
- "solx-yul",
  "tempfile",
  "test-case",
- "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1152,6 +1144,30 @@ dependencies = [
  "semver",
  "serde",
  "solx-utils",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "solx-core"
+version = "0.1.3"
+dependencies = [
+ "anyhow",
+ "ciborium",
+ "clap",
+ "hex",
+ "inkwell",
+ "normpath",
+ "num",
+ "path-slash",
+ "rayon",
+ "semver",
+ "serde",
+ "serde_json",
+ "solx-codegen-evm",
+ "solx-evm-assembly",
+ "solx-standard-json",
+ "solx-utils",
+ "solx-yul",
  "thiserror 2.0.17",
 ]
 
@@ -1184,19 +1200,6 @@ dependencies = [
  "regex",
  "serde",
  "toml",
-]
-
-[[package]]
-name = "solx-solc"
-version = "0.1.3"
-dependencies = [
- "anyhow",
- "libc",
- "semver",
- "serde",
- "serde_json",
- "solx-standard-json",
- "solx-utils",
 ]
 
 [[package]]

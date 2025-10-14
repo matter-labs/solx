@@ -18,6 +18,7 @@ use std::sync::Once;
 
 use assert_cmd::Command;
 
+use solx_core::Solc;
 use solx_standard_json::CollectableError;
 
 /// Shared lock for unit tests, as `solc` libraries are not thread-safe.
@@ -29,7 +30,7 @@ pub static UNIT_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 pub fn setup() -> anyhow::Result<()> {
     // Set the `solx` binary path
     let solx_bin = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
-    let _ = solx::process::EXECUTABLE.set(PathBuf::from(solx_bin.get_program()));
+    let _ = solx_core::process::EXECUTABLE.set(PathBuf::from(solx_bin.get_program()));
 
     // Enable LLVM pretty stack trace
     inkwell::support::enable_llvm_pretty_stack_trace();
@@ -64,7 +65,7 @@ pub fn build_solidity_standard_json(
 ) -> anyhow::Result<solx_standard_json::Output> {
     self::setup()?;
 
-    let solc_compiler = solx_solc::Compiler::default();
+    let solc_compiler = solx::Solc::default();
 
     solx_codegen_evm::initialize_target();
 
@@ -126,7 +127,13 @@ pub fn build_solidity_standard_json(
 
     let linker_symbols = libraries.as_linker_symbols()?;
 
-    let project = solx::Project::try_from_solc_output(libraries, via_ir, &mut output, None)?;
+    let project = solx_core::Project::try_from_solc_output(
+        solc_compiler.version(),
+        libraries,
+        via_ir,
+        &mut output,
+        None,
+    )?;
     output.check_errors()?;
 
     let build = project.compile_to_evm(
@@ -160,7 +167,7 @@ pub fn build_yul_standard_json(
 ) -> anyhow::Result<solx_standard_json::Output> {
     self::setup()?;
 
-    let solc_compiler = solx_solc::Compiler::default();
+    let solc_compiler = solx::Solc::default();
 
     solx_codegen_evm::initialize_target();
 
@@ -175,7 +182,8 @@ pub fn build_yul_standard_json(
         solc_compiler.validate_yul_standard_json(&mut input)
     }?;
 
-    let project = solx::Project::try_from_yul_sources(
+    let project = solx_core::Project::try_from_yul_sources(
+        solc_compiler.version(),
         input.sources,
         solx_utils::Libraries::default(),
         &input.settings.output_selection,
@@ -226,7 +234,7 @@ pub fn build_llvm_ir_standard_json(
 
     let mut output = solx_standard_json::Output::new(&BTreeMap::new());
 
-    let project = solx::Project::try_from_llvm_ir_sources(
+    let project = solx_core::Project::try_from_llvm_ir_sources(
         input.sources,
         input.settings.libraries,
         &input.settings.output_selection,
