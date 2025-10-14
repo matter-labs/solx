@@ -47,6 +47,7 @@ pub fn run() -> anyhow::Result<()> {
         .stack_size(crate::WORKER_THREAD_STACK_SIZE)
         .spawn(move || {
             Contract::compile_to_evm(
+                input.solc_version,
                 input.contract_name,
                 input.contract_ir,
                 input.code_segment,

@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "solx",
-    "solx-solc",
+    "solx-core",
     "solx-standard-json",
     "solx-evm-assembly",
     "solx-yul",
