@@ -4,10 +4,6 @@
 name: 'Build LLVM'
 description: 'Builds backend LLVM framework'
 inputs:
-  clone-llvm:
-    description: 'Whether to clone LLVM repository.'
-    required: false
-    default: 'true'
   enable-tests:
     description: "Enable tests."
     required: false
@@ -60,10 +56,6 @@ inputs:
     description: 'Target environment (gnu or musl).'
     required: false
     default: 'gnu'
-  llvm-builder-version:
-    description: 'Version of the LLVM builder to use.'
-    required: false
-    default: '1.0.37'
   ccache-key:
     description: 'Github Actions cache key for CCache.'
     required: false
@@ -91,12 +83,7 @@ runs:
 
     - name: Install LLVM builder
       shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
-      run: cargo install compiler-llvm-builder@${{ inputs.llvm-builder-version }}
-
-    - name: Clone LLVM framework
-      if: inputs.clone-llvm == 'true'
-      shell: ${{ runner.os == 'Windows' && 'msys2 {0}' || 'bash' }}
-      run: zksync-llvm clone --target-env ${{ inputs.target-env }}
+      run: cargo build --release --bin solx-llvm
 
     - name: Define ccache key
       if: inputs.ccache-key == ''
@@ -173,9 +160,6 @@ runs:
             VALGRIND_OPTIONS=$(printf -- "--valgrind-options=%s " ${{ inputs.valgrind-options }})
           fi
         fi
-        if [[ -n "${{ inputs.default-target-triple }}" && "${{ inputs.default-target-triple }}" != "default" ]]; then
-          DEFAULT_TARGET="--default-target ${{ inputs.default-target-triple }}"
-        fi
 
-        zksync-llvm build --target-env ${{ inputs.target-env }} ${DEFAULT_TARGET} --build-type ${{ inputs.build-type }} \
+        ./target/release/solx-llvm --build-type ${{ inputs.build-type }} \
           --ccache-variant=ccache ${{ inputs.builder-extra-args }} ${ENABLE_TESTS} ${ENABLE_VALGRIND} ${VALGRIND_OPTIONS} ${ENABLE_ASSERTIONS} ${ENABLE_COVERAGE} ${LLVM_PROJECTS} ${ENABLE_RTTI} ${SANITIZER} ${EXTRA_ARGS}
