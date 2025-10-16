@@ -62,7 +62,6 @@ jobs:
             runner: matterlabs-ci-runner-high-performance
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "x86_64-unknown-linux-gnu"
-            enable-coverage: 'true' # enable coverage on Linux GNU
           - name: "Linux ARM64 gnu"
             runner: matterlabs-ci-runner-arm
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
@@ -112,8 +111,6 @@ jobs:
           SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
         with:
           target: ${{ matrix.target || '' }}
-          enable-coverage: ${{ matrix.enable-coverage || 'false' }}
-          coverage-token: ${{ secrets.CODECOV_TOKEN }}
 
   # Special job that allows some of the jobs to be skipped or failed
   # requiring others to be successful
