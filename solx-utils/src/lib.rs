@@ -15,6 +15,7 @@ pub(crate) mod exit_code;
 pub(crate) mod extension;
 pub(crate) mod hash;
 pub(crate) mod libraries;
+pub(crate) mod llvm_ir;
 pub(crate) mod metadata_hash_type;
 pub(crate) mod target;
 
@@ -33,5 +34,6 @@ pub use self::hash::ipfs::IPFS as IPFSHash;
 pub use self::hash::keccak256::Keccak256 as Keccak256Hash;
 pub use self::hash::Hash;
 pub use self::libraries::Libraries;
+pub use self::llvm_ir::*;
 pub use self::metadata_hash_type::MetadataHashType;
 pub use self::target::Target;
