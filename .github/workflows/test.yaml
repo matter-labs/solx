@@ -36,7 +36,6 @@ jobs:
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
         with:
-          clone-llvm: 'false'
           target-env: 'gnu'
           build-type: 'Release'
           enable-assertions: 'false'
@@ -99,7 +98,6 @@ jobs:
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
         with:
-          clone-llvm: 'false'
           build-type: RelWithDebInfo
           enable-assertions: 'true'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}

@@ -70,7 +70,6 @@ jobs:
       - name: Build LLVM for tests
         uses: ./.github/actions/build-llvm
         with:
-          clone-llvm: 'false'
           build-type: RelWithDebInfo
           enable-assertions: 'true'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
@@ -85,6 +84,5 @@ jobs:
         with:
           enable-assertions: 'false'
           build-type: Release
-          clone-llvm: 'false'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}
           save-ccache: 'true'

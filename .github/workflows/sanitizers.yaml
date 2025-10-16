@@ -55,7 +55,6 @@ jobs:
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
         with:
-          clone-llvm: 'false'
           enable-assertions: 'true'
           build-type: RelWithDebInfo
           sanitizer: ${{ inputs.llvm-sanitizer || 'Address' }}

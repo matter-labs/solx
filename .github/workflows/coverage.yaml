@@ -1,8 +1,6 @@
 name: Code coverage
 
 on:
-  # TODO: remove before merge
-  pull_request:
   push:
     branches:
       - main
