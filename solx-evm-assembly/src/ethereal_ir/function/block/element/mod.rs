@@ -1073,6 +1073,23 @@ impl solx_codegen_evm::WriteLLVM for Element {
             InstructionName::MSIZE => solx_codegen_evm::contract_context::msize(context).map(Some),
 
             InstructionName::UNSAFEASM => {
+                if context
+                    .module()
+                    .get_global_metadata(solx_utils::UNSAFE_ASM_METADATA_KEY)
+                    .is_empty()
+                {
+                    context
+                        .module()
+                        .add_global_metadata(
+                            solx_utils::UNSAFE_ASM_METADATA_KEY,
+                            &context.llvm().metadata_node(&[context
+                                .bool_const(true)
+                                .as_basic_value_enum()
+                                .into()]),
+                        )
+                        .expect("Always valid");
+                }
+
                 if context.optimizer().settings().spill_area_size().is_some()
                     && std::env::var(solx_utils::ENV_DISABLE_UNSAFE_MEMORY_ASM_STACK_TOO_DEEP_CHECK)
                         .is_err()
