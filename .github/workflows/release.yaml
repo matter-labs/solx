@@ -111,7 +111,6 @@ jobs:
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
         with:
-          clone-llvm: 'false'
           build-type: Release
           enable-assertions: 'false'
           ccache-key: ${{ format('llvm-{0}-{1}', runner.os, runner.arch) }}

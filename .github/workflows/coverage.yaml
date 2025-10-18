@@ -1,0 +1,115 @@
+name: Code coverage
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.repository_id }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: "bash -ex {0}"
+
+permissions:
+  contents: read
+
+jobs:
+
+  coverage:
+    runs-on: matterlabs-ci-runner-highdisk
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    env:
+      BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+      SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+      PROFDATA_FILE: solx.profdata
+      LCOV_FILE: codecov.lcov
+      OUTPUT_HTML_DIR: COVERAGE
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --force --depth=1 --recursive --checkout
+
+      - name: Building solc
+        uses: ./.github/actions/build-solc
+        with:
+          cmake-build-type: RelWithDebInfo
+          working-dir: 'era-solidity'
+          upload-testing-binary: false
+          build-type: ${{ matrix.type }}
+
+      - name: Build LLVM
+        uses: ./.github/actions/build-llvm
+        with:
+          build-type: 'RelWithDebInfo'
+          enable-assertions: false
+          ccache-key: 'llvm-Linux-X64-gnu'
+          enable-coverage: 'true'
+
+      - name: Build tester
+        run: cargo build --release --bin solx-tester
+
+      - name: Build solx
+        uses: ./.github/actions/build-rust
+        with:
+          exec_name: 'solx'
+          build-type: 'release'
+          enable-coverage: 'true'
+          target: 'x86_64-unknown-linux-gnu'
+
+      - name: Run integration tests
+        run: |
+          TMP="${PROFDATA_FILE}.tmp"
+          for TEST_PATH in tests/solidity/complex/* tests/solidity/simple/*; do
+          WORKDIR=$(basename ${TEST_PATH})
+          mkdir -p "${GITHUB_WORKSPACE}/${WORKDIR}"
+          ./target/release/solx-tester --solx $(which solx) --path ${TEST_PATH} --workflow build          
+          mv *.profraw "${GITHUB_WORKSPACE}/${WORKDIR}/" || true
+          du -hs "${GITHUB_WORKSPACE}/${WORKDIR}"
+          find ${GITHUB_WORKSPACE}/${WORKDIR} -type f -name '*.profraw' -print > profiles.lst
+          if [[ -f "${PROFDATA_FILE}" ]]; then
+           llvm-profdata merge -sparse -num-threads="$(nproc)" -o "${TMP}" "${PROFDATA_FILE}" @profiles.lst
+          else
+           llvm-profdata merge -sparse -num-threads="$(nproc)" -o "${TMP}" @profiles.lst
+          fi
+          mv -f "${TMP}" "${PROFDATA_FILE}"
+          rm -rf "${GITHUB_WORKSPACE}/${WORKDIR}"
+          done
+
+      - name: Run unit tests
+        uses: ./.github/actions/rust-unit-tests
+        with:
+          target: 'x86_64-unknown-linux-gnu'
+          enable-coverage: 'true'
+          upload-results: 'false'
+
+      - name: Generate coverage reports
+        run: |
+          llvm-cov show --show-directory-coverage \
+            --format=html --output-dir=${OUTPUT_HTML_DIR} \
+            -instr-profile=${PROFDATA_FILE} $(which solx)
+          llvm-cov export --format=lcov -instr-profile=${PROFDATA_FILE} \
+            $(which solx) > ./llvm/${LCOV_FILE}
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'Coverage integration tests HTML'
+          path: ${{ env.OUTPUT_HTML_DIR }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: (success() || failure())
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: 'lcov.info,llvm/codecov.lcov'
+          slug: ${{ github.repository }}

@@ -17,10 +17,11 @@ inputs:
     description: 'Enable code coverage.'
     required: false
     default: 'false'
-  coverage-token:
-    description: 'Codecov token.'
+  upload-results:
+    description: 'Upload unit test results as a GitHub check.'
     required: false
-    default: ''
+    default: 'true'
+
 
 runs:
   using: "composite"
@@ -91,7 +92,7 @@ runs:
         fi
 
     - name: Upload results Linux
-      if: (success() || failure()) && runner.os == 'Linux'
+      if: (success() || failure()) && runner.os == 'Linux' && inputs.upload-results == 'true'
       uses: EnricoMi/publish-unit-test-result-action@v2
       with:
         check_name: ${{ runner.os }} ${{ runner.arch }} Unit Tests Results
@@ -100,7 +101,7 @@ runs:
         comment_mode: off
 
     - name: Upload test results MacOS
-      if: (success() || failure()) && runner.os == 'macOS'
+      if: (success() || failure()) && runner.os == 'macOS' && inputs.upload-results == 'true'
       uses: EnricoMi/publish-unit-test-result-action/macos@v2
       with:
         check_name: ${{ runner.os }} ${{ runner.arch }} Unit Tests Results
@@ -109,18 +110,10 @@ runs:
         comment_mode: off
 
     - name: Upload test results Windows
-      if: (success() || failure()) && runner.os == 'Windows'
+      if: (success() || failure()) && runner.os == 'Windows' && inputs.upload-results == 'true'
       uses: EnricoMi/publish-unit-test-result-action/windows@v2
       with:
         check_name: ${{ runner.os }} ${{ runner.arch }} Unit Tests Results
         files: '*${{ inputs.results-xml }}'
         action_fail_on_inconclusive: true
         comment_mode: off
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      if: (success() || failure()) && inputs.enable-coverage == 'true'
-      with:
-        token: ${{ inputs.coverage-token }}
-        files: lcov.info
-        slug: ${{ github.repository }}

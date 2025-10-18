@@ -1,0 +1,173 @@
+name: Integration
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.repository_id }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: "bash -ex {0}"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+
+  tests:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+      options: -m 110g
+    env:
+      BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+      SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --force --depth=1 --recursive --checkout
+
+      - name: Building solc
+        uses: ./.github/actions/build-solc
+        with:
+          cmake-build-type: RelWithDebInfo
+          working-dir: 'era-solidity'
+          upload-testing-binary: false
+          build-type: ${{ matrix.type }}
+
+      - name: Build LLVM
+        uses: ./.github/actions/build-llvm
+        with:
+          build-type: 'RelWithDebInfo'
+          enable-assertions: false
+          ccache-key: 'llvm-Linux-X64-gnu'
+
+      - name: Build tester
+        run: cargo build --release --bin solx-tester
+
+      - name: Build solx
+        uses: ./.github/actions/build-rust
+        with:
+          exec_name: 'solx'
+          build-type: 'release'
+          target: 'x86_64-unknown-linux-gnu'
+
+      - name: Run tests
+        run: ./target/release/solx-tester --solx $(which solx)
+
+
+  benchmarks:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [ "reference", "candidate" ]
+    env:
+      BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
+      SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          ref: ${{ matrix.type == 'reference' && github.event.pull_request.base.sha || '' }}
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --force --depth=1 --recursive --checkout
+
+      - name: Building solc
+        uses: ./.github/actions/build-solc
+        with:
+          cmake-build-type: Release
+          working-dir: 'era-solidity'
+          upload-testing-binary: false
+          build-type: ${{ matrix.type }}
+
+      - name: Build LLVM
+        uses: ./.github/actions/build-llvm
+        with:
+          build-type: 'Release'
+          enable-assertions: false
+          ccache-key: 'llvm-Linux-X64-gnu'
+
+      - name: Build tester
+        run: cargo build --release --bin solx-tester
+
+      - name: Build solx
+        run: cargo build --release --bin solx
+
+      - name: Run benchmarks
+        run: |          
+          ./target/release/solx-tester \
+            --solx ./target/release/solx \
+            --benchmark=${{ matrix.type }}-benchmark.json || true
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.type }}-benchmark
+          path: ${{ matrix.type }}-benchmark.json
+
+
+  comparison:
+    runs-on: matterlabs-ci-runner-high-performance
+    container:
+      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
+    needs: benchmarks
+    if: ${{ (failure() || success()) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*-benchmark'
+          merge-multiple: true
+
+      - name: Build converter
+        run: cargo build --release --bin solx-benchmark-converter
+
+      - name: Run benchmark converter
+        run: |
+          cat reference-benchmark.json \
+            | jq '{data: ., project: "compiler-tester", toolchain: "reference"}' > reference.json
+          cat candidate-benchmark.json \
+            | jq '{data: ., project: "compiler-tester", toolchain: "candidate"}' > candidate.json
+          ./target/release/solx-benchmark-converter --input-source compiler-tester \
+            --output-path benchmarks.xlsx reference.json candidate.json
+
+      - name: Upload Excel reports
+        id: compiler-tester-excel-reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: excel-reports
+          path: benchmarks.xlsx
+
+      - name: Add PR comment with excel reports link
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: 'excel-reports'
+          message: |
+            📊 **Benchmarks Excel report**
+            
+            Benchmarks measured for:
+            * candidate commit: ${{ github.sha }}
+            * reference commit: ${{ github.event.pull_request.base.sha }}
+            
+            ➡️ [**Download Excel Report**](${{ steps.compiler-tester-excel-reports.outputs.artifact-url }})
