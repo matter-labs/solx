@@ -38,10 +38,9 @@ assert_cmd = "2.0"
 
 revm = "29.0"
 
-solx-standard-json = { git = "https://github.com/matter-labs/solx", branch = "main" }
-solx-codegen-evm = { git = "https://github.com/matter-labs/solx", branch = "main" }
-solx-utils = { git = "https://github.com/matter-labs/solx", branch = "main" }
-
+solx-standard-json = { path = "../solx-standard-json" }
+solx-codegen-evm = { path = "../solx-codegen-evm" }
+solx-utils = { path = "../solx-utils" }
 solx-benchmark-converter = { path = "../solx-benchmark-converter" }
 solx-solc-test-adapter = { path = "../solx-solc-test-adapter" }
 solx-compiler-downloader = { path = "../solx-compiler-downloader" }
