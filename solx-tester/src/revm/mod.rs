@@ -17,6 +17,7 @@ use revm::{
     context::Evm,
     database::{states::plain_account::PlainStorage, CacheState, Database},
     handler::{instructions::EthInstructions, EthFrame, EthPrecompiles},
+    inspector::inspectors::TracerEip3155,
     interpreter::interpreter::EthInterpreter,
     primitives::{Address, FixedBytes, U256},
     state::AccountInfo,
@@ -44,7 +45,13 @@ type Context = revm::context::Context<
 #[derive(Debug)]
 pub struct REVM {
     /// REVM internal state.
-    pub evm: Evm<Context, (), EthInstructions<EthInterpreter, Context>, EthPrecompiles, EthFrame>,
+    pub evm: Evm<
+        Context,
+        TracerEip3155,
+        EthInstructions<EthInterpreter, Context>,
+        EthPrecompiles,
+        EthFrame,
+    >,
 }
 
 impl Default for REVM {
@@ -144,8 +151,9 @@ impl REVM {
 
         let context = Context::new(state, revm::primitives::hardfork::PRAGUE);
 
-        let mut evm = revm::context::Evm::new(
+        let mut evm = revm::context::Evm::new_with_inspector(
             context,
+            TracerEip3155::new_stdout(),
             revm::handler::instructions::EthInstructions::new_mainnet(),
             revm::handler::EthPrecompiles::default(),
         );

@@ -6,7 +6,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use revm::context::result::ExecutionResult;
-use revm::ExecuteCommitEvm;
+use revm::inspector::inspectors::TracerEip3155;
+use revm::InspectCommitEvm;
 
 use crate::summary::Summary;
 use crate::test::case::input::calldata::Calldata;
@@ -92,7 +93,8 @@ impl Deploy {
         vm.evm.block.timestamp =
             revm::primitives::U256::from(((input_index + 1) as u128) * REVM::BLOCK_TIMESTAMP_STEP);
 
-        let result = match vm.evm.transact_commit(tx) {
+        let insp = TracerEip3155::new_stdout();
+        let result = match vm.evm.inspect_commit(tx, insp) {
             Ok(result) => result,
             Err(error) => {
                 Summary::invalid(summary.clone(), test, error);
