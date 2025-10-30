@@ -105,7 +105,7 @@ impl REVM {
         let mut evm = if enable_trace {
             REVM::Tracing(Evm::new_with_inspector(
                 Self::context(),
-                TracerEip3155::new_stdout().with_memory(),
+                TracerEip3155::new_stdout(),
                 EthInstructions::new_mainnet(),
                 EthPrecompiles::default(),
             ))
