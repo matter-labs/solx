@@ -24,6 +24,10 @@ pub struct Arguments {
     #[arg(short = 'D', long)]
     pub debug: bool,
 
+    /// Prints the REVM trace to standard output.
+    #[arg(long)]
+    pub trace: bool,
+
     /// Runs tests only in modes that contain any string from the specified ones.
     #[arg(short, long)]
     pub mode: Vec<String>,

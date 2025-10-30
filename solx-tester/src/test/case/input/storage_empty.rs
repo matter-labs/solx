@@ -5,8 +5,6 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use revm::context::ContextTr;
-
 use crate::revm::REVM;
 use crate::summary::Summary;
 use crate::test::case::input::identifier::InputIdentifier;
@@ -40,7 +38,7 @@ impl StorageEmpty {
         let test =
             TestDescription::from_context(context, InputIdentifier::StorageEmpty { input_index });
         let mut is_empty = true;
-        for cache_account in vm.evm.ctx.db().cache.accounts.values() {
+        for cache_account in vm.ctx_db().cache.accounts.values() {
             let plain_account = cache_account.clone().account;
             if let Some(plain_account) = plain_account {
                 for (_, value) in plain_account.storage.iter() {

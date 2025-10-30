@@ -5,7 +5,6 @@
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use revm::context::ContextTr;
 use revm::DatabaseRef;
 
 use crate::revm::revm_type_conversions::web3_address_to_revm_address;
@@ -43,7 +42,6 @@ impl Balance {
         let input_index = context.selector;
         let test = TestDescription::from_context(context, InputIdentifier::Balance { input_index });
         let balance = vm
-            .evm
             .db()
             .basic_ref(web3_address_to_revm_address(&self.address))
             .map(|account_info| account_info.map(|info| info.balance).unwrap_or_default())

@@ -6,6 +6,7 @@ pub mod input;
 pub mod revm_type_conversions;
 
 use std::collections::HashMap;
+use std::convert::Infallible;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::time::Duration;
@@ -21,6 +22,7 @@ use revm::{
     interpreter::interpreter::EthInterpreter,
     primitives::{Address, FixedBytes, U256},
     state::AccountInfo,
+    ExecuteCommitEvm, InspectCommitEvm,
 };
 
 use crate::revm::revm_type_conversions::web3_u256_to_revm_u256;
@@ -43,21 +45,19 @@ type Context = revm::context::Context<
 /// REVM instance with its internal state.
 ///
 #[derive(Debug)]
-pub struct REVM {
-    /// REVM internal state.
-    pub evm: Evm<
-        Context,
-        TracerEip3155,
-        EthInstructions<EthInterpreter, Context>,
-        EthPrecompiles,
-        EthFrame,
-    >,
-}
-
-impl Default for REVM {
-    fn default() -> Self {
-        Self::new()
-    }
+pub enum REVM {
+    /// REVM without tracing.
+    Default(Evm<Context, (), EthInstructions<EthInterpreter, Context>, EthPrecompiles, EthFrame>),
+    /// REVM with EIP-3155 tracer.
+    Tracing(
+        Evm<
+            Context,
+            TracerEip3155,
+            EthInstructions<EthInterpreter, Context>,
+            EthPrecompiles,
+            EthFrame,
+        >,
+    ),
 }
 
 impl REVM {
@@ -101,74 +101,40 @@ impl REVM {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new() -> Self {
-        let mut cache = CacheState::new(false);
-        // Account 0x00 needs to have its code hash on 0.
-        cache.insert_account_with_storage(
-            Address::from_word(FixedBytes::from(U256::ZERO)),
-            AccountInfo {
-                balance: U256::from(0_u64),
-                code_hash: FixedBytes::from(U256::ZERO),
-                code: None,
-                nonce: 1,
-            },
-            PlainStorage::default(),
-        );
-        // Precompile 0x01 needs to have its code hash.
-        cache.insert_account_with_storage(
-            Address::from_word(FixedBytes::from(U256::from(1_u64))),
-            AccountInfo {
-                balance: U256::from(1_u64),
-                code_hash: FixedBytes::from_str(
-                    "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-                )
-                .expect("Always valid"),
-                code: None,
-                nonce: 1,
-            },
-            PlainStorage::default(),
-        );
+    pub fn new(enable_trace: bool) -> Self {
+        let mut evm = if enable_trace {
+            REVM::Tracing(Evm::new_with_inspector(
+                Self::context(),
+                TracerEip3155::new_stdout().with_memory(),
+                EthInstructions::new_mainnet(),
+                EthPrecompiles::default(),
+            ))
+        } else {
+            REVM::Default(Evm::new(
+                Self::context(),
+                EthInstructions::new_mainnet(),
+                EthPrecompiles::default(),
+            ))
+        };
+        match evm {
+            REVM::Default(ref mut evm) => Self::set_data(evm),
+            REVM::Tracing(ref mut evm) => Self::set_data(evm),
+        }
+        evm
+    }
 
-        let block_hashes = (0..0xffff - 0x3737)
-            .enumerate()
-            .map(|(index, value)| {
-                let hash = format!(
-                    "0x373737373737373737373737373737373737373737373737373737373737{:04x}",
-                    0x3737 + value
-                );
-                (
-                    index as u64,
-                    revm::primitives::B256::from_str(hash.as_str()).expect("Always valid"),
-                )
-            })
-            .collect();
-
-        let state = revm::database::State::builder()
-            .with_cached_prestate(cache)
-            .with_block_hashes(block_hashes)
-            .with_bundle_update()
-            .build();
-
-        let context = Context::new(state, revm::primitives::hardfork::PRAGUE);
-
-        let mut evm = revm::context::Evm::new_with_inspector(
-            context,
-            TracerEip3155::new_stdout(),
-            revm::handler::instructions::EthInstructions::new_mainnet(),
-            revm::handler::EthPrecompiles::default(),
-        );
-        evm.block.beneficiary =
-            revm::primitives::Address::from_str(Self::COIN_BASE).expect("Always valid");
-        evm.block.basefee = Self::BASE_FEE;
-        evm.block.difficulty =
-            revm::primitives::U256::from_str(Self::BLOCK_PREVRANDAO).expect("Always valid");
-        evm.block.prevrandao =
-            Some(revm::primitives::B256::from_str(Self::BLOCK_PREVRANDAO).expect("Always valid"));
-        evm.block.gas_limit = Self::BLOCK_GAS_LIMIT;
-        evm.block.timestamp = revm::primitives::U256::from(Self::BLOCK_TIMESTAMP);
-        evm.tx.chain_id = Some(Self::CHAIND_ID);
-        evm.cfg.disable_nonce_check = true;
-        Self { evm }
+    ///
+    /// Executes the transaction.
+    ///
+    pub fn execute_transaction(
+        &mut self,
+        tx: revm::context::TxEnv,
+    ) -> Result<revm::context::result::ExecutionResult, revm::context::result::EVMError<Infallible>>
+    {
+        match self {
+            REVM::Default(vm) => vm.transact_commit(tx),
+            REVM::Tracing(vm) => vm.inspect_tx_commit(tx),
+        }
     }
 
     ///
@@ -245,7 +211,6 @@ impl REVM {
         let balance = web3_u256_to_revm_u256(balance);
 
         let nonce = self
-            .evm
             .db_mut()
             .basic(address)
             .map(|info| info.map(|info| info.nonce).unwrap_or(1))
@@ -257,7 +222,7 @@ impl REVM {
             nonce,
         };
 
-        self.evm.db_mut().insert_account(address, account_info);
+        self.db_mut().insert_account(address, account_info);
     }
 
     ///
@@ -290,13 +255,11 @@ impl REVM {
             .collect();
 
         let account_info = self
-            .evm
             .db_mut()
             .basic(address)
             .expect("Always exists")
             .expect("Always exists");
         let mut existing_storage = self
-            .evm
             .db_mut()
             .cache
             .accounts
@@ -306,9 +269,24 @@ impl REVM {
             .unwrap_or_default();
         existing_storage.extend(storage);
 
-        self.evm
-            .db_mut()
+        self.db_mut()
             .insert_account_with_storage(address, account_info, existing_storage);
+    }
+
+    ///
+    /// Sets the block data.
+    ///
+    pub fn set_block_data(
+        &mut self,
+        number: revm::primitives::U256,
+        timestamp: revm::primitives::U256,
+    ) {
+        let block = match self {
+            REVM::Default(evm) => &mut evm.block,
+            REVM::Tracing(evm) => &mut evm.block,
+        };
+        block.number = number;
+        block.timestamp = timestamp;
     }
 
     ///
@@ -353,5 +331,114 @@ impl REVM {
     ///
     pub fn runtime_bytecode_execution_gas(total_gas_used: u64, calldata_cost: u64) -> u64 {
         total_gas_used.saturating_sub(Self::GAS_COST_TRANSACTION_FEE + calldata_cost)
+    }
+
+    ///
+    /// Immutable reference to the database.
+    ///
+    pub fn db(&self) -> &revm::database::State<revm::database::EmptyDB> {
+        match self {
+            REVM::Default(evm) => evm.db(),
+            REVM::Tracing(evm) => evm.db(),
+        }
+    }
+
+    ///
+    /// Mutable reference to the database.
+    ///
+    pub fn db_mut(&mut self) -> &mut revm::database::State<revm::database::EmptyDB> {
+        match self {
+            REVM::Default(evm) => evm.db_mut(),
+            REVM::Tracing(evm) => evm.db_mut(),
+        }
+    }
+
+    ///
+    /// Immutable reference to the context database.
+    ///
+    pub fn ctx_db(&self) -> &revm::database::State<revm::database::EmptyDB> {
+        match self {
+            REVM::Default(evm) => evm.ctx.db(),
+            REVM::Tracing(evm) => evm.ctx.db(),
+        }
+    }
+
+    ///
+    /// Builds the default context for REVM.
+    ///
+    fn context() -> Context {
+        let mut cache = CacheState::new(false);
+        // Account 0x00 needs to have its code hash on 0.
+        cache.insert_account_with_storage(
+            Address::from_word(FixedBytes::from(U256::ZERO)),
+            AccountInfo {
+                balance: U256::from(0_u64),
+                code_hash: FixedBytes::from(U256::ZERO),
+                code: None,
+                nonce: 1,
+            },
+            PlainStorage::default(),
+        );
+        // Precompile 0x01 needs to have its code hash.
+        cache.insert_account_with_storage(
+            Address::from_word(FixedBytes::from(U256::from(1_u64))),
+            AccountInfo {
+                balance: U256::from(1_u64),
+                code_hash: FixedBytes::from_str(
+                    "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                )
+                .expect("Always valid"),
+                code: None,
+                nonce: 1,
+            },
+            PlainStorage::default(),
+        );
+
+        let block_hashes = (0..0xffff - 0x3737)
+            .enumerate()
+            .map(|(index, value)| {
+                let hash = format!(
+                    "0x373737373737373737373737373737373737373737373737373737373737{:04x}",
+                    0x3737 + value
+                );
+                (
+                    index as u64,
+                    revm::primitives::B256::from_str(hash.as_str()).expect("Always valid"),
+                )
+            })
+            .collect();
+
+        let state = revm::database::State::builder()
+            .with_cached_prestate(cache)
+            .with_block_hashes(block_hashes)
+            .with_bundle_update()
+            .build();
+
+        Context::new(state, revm::primitives::hardfork::PRAGUE)
+    }
+
+    ///
+    /// Sets the initial REVM data.
+    ///
+    fn set_data<INSP>(
+        evm: &mut Evm<
+            Context,
+            INSP,
+            EthInstructions<EthInterpreter, Context>,
+            EthPrecompiles,
+            EthFrame,
+        >,
+    ) {
+        evm.block.beneficiary =
+            revm::primitives::Address::from_str(Self::COIN_BASE).expect("Always valid");
+        evm.block.basefee = Self::BASE_FEE;
+        evm.block.difficulty =
+            revm::primitives::U256::from_str(Self::BLOCK_PREVRANDAO).expect("Always valid");
+        evm.block.prevrandao =
+            Some(revm::primitives::B256::from_str(Self::BLOCK_PREVRANDAO).expect("Always valid"));
+        evm.block.gas_limit = Self::BLOCK_GAS_LIMIT;
+        evm.block.timestamp = revm::primitives::U256::from(Self::BLOCK_TIMESTAMP);
+        evm.tx.chain_id = Some(Self::CHAIND_ID);
+        evm.cfg.disable_nonce_check = true;
     }
 }

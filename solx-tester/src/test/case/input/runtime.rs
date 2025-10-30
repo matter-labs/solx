@@ -7,8 +7,6 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use revm::context::result::ExecutionResult;
-use revm::inspector::inspectors::TracerEip3155;
-use revm::InspectCommitEvm;
 
 use crate::revm::revm_type_conversions::revm_bytes_to_vec_value;
 use crate::revm::REVM;
@@ -107,13 +105,12 @@ impl Runtime {
             .cloned()
             .unwrap_or_default();
         vm.extend_account_storage(&self.address, storage);
+        vm.set_block_data(
+            revm::primitives::U256::from(input_index + 1),
+            revm::primitives::U256::from(((input_index + 1) as u128) * REVM::BLOCK_TIMESTAMP_STEP),
+        );
 
-        vm.evm.block.number = revm::primitives::U256::from(input_index + 1);
-        vm.evm.block.timestamp =
-            revm::primitives::U256::from(((input_index + 1) as u128) * REVM::BLOCK_TIMESTAMP_STEP);
-
-        let insp = TracerEip3155::new_stdout();
-        let result = match vm.evm.inspect_commit(tx, insp) {
+        let result = match vm.execute_transaction(tx) {
             Ok(result) => result,
             Err(error) => {
                 Summary::invalid(summary.clone(), test, error);
