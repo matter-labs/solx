@@ -124,7 +124,7 @@ impl<'ctx> Context<'ctx> {
         is_size_fallback: bool,
         profiler: &mut Profiler,
     ) -> anyhow::Result<EVMBuild> {
-        let module_clone = self.module.clone();
+        let module_size_fallback = self.module.clone();
         let contract_path = self.module.get_name().to_str().expect("Always valid");
 
         let run_init_verify = profiler.start_evm_translation_unit(
@@ -192,8 +192,12 @@ impl<'ctx> Context<'ctx> {
                 "EmitLLVMAssembly",
                 self.optimizer.settings(),
             );
+            let module_assembly_emitter = self.module.clone();
             let assembly_buffer = target_machine
-                .write_to_memory_buffer(self.module(), inkwell::targets::FileType::Assembly)
+                .write_to_memory_buffer(
+                    &module_assembly_emitter,
+                    inkwell::targets::FileType::Assembly,
+                )
                 .map_err(|error| anyhow::anyhow!("assembly emitting: {error}"))?;
 
             if let Some(ref debug_config) = self.debug_config {
@@ -253,7 +257,7 @@ impl<'ctx> Context<'ctx> {
                         )
                         .expect("Failed to set the global size fallback flag");
                     self.optimizer = Optimizer::new(OptimizerSettings::size());
-                    self.module = module_clone;
+                    self.module = module_size_fallback;
                     for function in self.module.get_functions() {
                         Function::set_size_attributes(self.llvm, function);
                     }
