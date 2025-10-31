@@ -30,7 +30,7 @@ library Address {
 
         uint256 size;
         // solhint-disable-next-line no-inline-assembly
-        assembly { size := extcodesize(account) }
+        assembly ("memory-safe") { size := extcodesize(account) }
         return size > 0;
     }
 
@@ -177,7 +177,7 @@ library Address {
                 // The easiest way to bubble the revert reason is using memory via assembly
 
                 // solhint-disable-next-line no-inline-assembly
-                assembly {
+                assembly ("memory-safe") {
                     let returndata_size := mload(returndata)
                     revert(add(32, returndata), returndata_size)
                 }
