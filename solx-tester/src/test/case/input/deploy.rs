@@ -6,7 +6,6 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use revm::context::result::ExecutionResult;
-use revm::ExecuteCommitEvm;
 
 use crate::summary::Summary;
 use crate::test::case::input::calldata::Calldata;
@@ -87,12 +86,12 @@ impl Deploy {
         let initial_balance = (web3::types::U256::from(1) << 100)
             + web3::types::U256::from(self.value.unwrap_or_default());
         vm.set_account(&self.caller, initial_balance);
+        vm.set_block_data(
+            revm::primitives::U256::from(input_index + 1),
+            revm::primitives::U256::from(((input_index + 1) as u128) * REVM::BLOCK_TIMESTAMP_STEP),
+        );
 
-        vm.evm.block.number = revm::primitives::U256::from(input_index + 1);
-        vm.evm.block.timestamp =
-            revm::primitives::U256::from(((input_index + 1) as u128) * REVM::BLOCK_TIMESTAMP_STEP);
-
-        let result = match vm.evm.transact_commit(tx) {
+        let result = match vm.execute_transaction(tx) {
             Ok(result) => result,
             Err(error) => {
                 Summary::invalid(summary.clone(), test, error);

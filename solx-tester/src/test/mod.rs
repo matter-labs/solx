@@ -12,6 +12,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use crate::compilers::mode::Mode;
+use crate::revm::REVM;
 use crate::summary::Summary;
 use crate::test::case::Case;
 use crate::test::context::case::CaseContext;
@@ -48,14 +49,14 @@ impl Test {
     ///
     /// Runs the test on REVM.
     ///
-    pub fn run_revm(self, summary: Arc<Mutex<Summary>>) {
+    pub fn run_revm(self, summary: Arc<Mutex<Summary>>, enable_trace: bool) {
         for case in self.cases {
             let context = CaseContext {
                 name: &self.name,
                 mode: &self.mode,
                 group: &self.group,
             };
-            case.run_revm(summary.clone(), &context);
+            case.run_revm(summary.clone(), &context, REVM::new(enable_trace));
         }
     }
 }

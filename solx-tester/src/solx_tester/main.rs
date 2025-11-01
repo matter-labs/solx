@@ -102,7 +102,7 @@ fn main_inner(arguments: Arguments) -> anyhow::Result<()> {
     );
 
     solx_tester::REVM::download(executable_download_config_paths)?;
-    compiler_tester.run_revm(toolchain, arguments.solx)?;
+    compiler_tester.run_revm(toolchain, arguments.solx, arguments.trace)?;
 
     let summary = solx_tester::Summary::unwrap_arc(summary);
     print!("{summary}");
@@ -145,6 +145,7 @@ mod tests {
             verbose: false,
             quiet: false,
             debug: false,
+            trace: false,
             mode: vec!["Y+M3B3 0.8.30".to_owned()],
             path: vec!["tests/solidity/simple/default.sol".to_owned()],
             group: vec![],

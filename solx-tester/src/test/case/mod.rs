@@ -93,8 +93,7 @@ impl Case {
     ///
     /// Runs the case on REVM.
     ///
-    pub fn run_revm(self, summary: Arc<Mutex<Summary>>, context: &CaseContext) {
-        let mut vm = REVM::default();
+    pub fn run_revm(self, summary: Arc<Mutex<Summary>>, context: &CaseContext, mut vm: REVM) {
         for (index, input) in self.inputs.into_iter().enumerate() {
             let context = InputContext {
                 case_context: context,

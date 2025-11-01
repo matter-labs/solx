@@ -102,7 +102,12 @@ impl SolxTester {
     ///
     /// Runs all tests on REVM.
     ///
-    pub fn run_revm(self, toolchain: Toolchain, solx: Option<PathBuf>) -> anyhow::Result<()> {
+    pub fn run_revm(
+        self,
+        toolchain: Toolchain,
+        solx: Option<PathBuf>,
+        enable_trace: bool,
+    ) -> anyhow::Result<()> {
         let tests = self.all_tests(toolchain, solx)?;
 
         let _: Vec<()> = tests
@@ -121,7 +126,7 @@ impl SolxTester {
                     specialized_debug_config,
                 ) {
                     if let Workflow::BuildAndRun = self.workflow {
-                        test.run_revm(self.summary.clone())
+                        test.run_revm(self.summary.clone(), enable_trace)
                     };
                 }
             })
