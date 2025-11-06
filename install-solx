@@ -13,7 +13,7 @@ oo     .d8P 888   888  888   .o8"'88b
 EOF
 
 # Default values
-REPO="matter-labs/solx"
+REPO="NomicFoundation/solx"
 DEFAULT_INSTALL_DIR="${HOME}/.local/bin"
 BINARY_NAME="solx"
 
