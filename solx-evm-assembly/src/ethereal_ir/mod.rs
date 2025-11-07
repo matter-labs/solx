@@ -2,7 +2,6 @@
 //! The Ethereal IR of the EVM bytecode.
 //!
 
-pub mod entry_link;
 pub mod function;
 
 use std::collections::BTreeMap;
@@ -32,16 +31,13 @@ use self::function::Function;
 ///
 #[derive(Debug)]
 pub struct EtherealIR {
-    /// The all-inlined function.
+    /// Entry function.
     pub entry_function: Function,
-    /// The recursive functions.
-    pub recursive_functions: BTreeMap<solx_codegen_evm::BlockKey, Function>,
+    /// Defined functions.
+    pub defined_functions: BTreeMap<solx_codegen_evm::BlockKey, Function>,
 }
 
 impl EtherealIR {
-    /// The default entry function name.
-    pub const DEFAULT_ENTRY_FUNCTION_NAME: &'static str = "main";
-
     /// The blocks hashmap initial capacity.
     pub const BLOCKS_HASHMAP_DEFAULT_CAPACITY: usize = 64;
 
@@ -55,19 +51,19 @@ impl EtherealIR {
         blocks: HashMap<solx_codegen_evm::BlockKey, Block>,
     ) -> anyhow::Result<Self> {
         let mut entry_function =
-            Function::new(solc_version, code_segment, FunctionType::new_initial());
-        let mut recursive_functions = BTreeMap::new();
+            Function::new(solc_version, code_segment, FunctionType::new_entry());
+        let mut defined_functions = BTreeMap::new();
         let mut visited_functions = BTreeSet::new();
         entry_function.traverse(
             &blocks,
-            &mut recursive_functions,
+            &mut defined_functions,
             &extra_metadata,
             &mut visited_functions,
         )?;
 
         Ok(Self {
             entry_function,
-            recursive_functions,
+            defined_functions,
         })
     }
 
@@ -103,7 +99,7 @@ impl solx_codegen_evm::WriteLLVM for EtherealIR {
     fn declare(&mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
         self.entry_function.declare(context)?;
 
-        for (_key, function) in self.recursive_functions.iter_mut() {
+        for (_key, function) in self.defined_functions.iter_mut() {
             function.declare(context)?;
         }
 
@@ -115,7 +111,7 @@ impl solx_codegen_evm::WriteLLVM for EtherealIR {
 
         self.entry_function.into_llvm(context)?;
 
-        for (_key, function) in self.recursive_functions.into_iter() {
+        for (_key, function) in self.defined_functions.into_iter() {
             function.into_llvm(context)?;
         }
 
@@ -127,7 +123,7 @@ impl std::fmt::Display for EtherealIR {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}", self.entry_function)?;
 
-        for (_key, function) in self.recursive_functions.iter() {
+        for (_key, function) in self.defined_functions.iter() {
             writeln!(f, "{function}")?;
         }
 

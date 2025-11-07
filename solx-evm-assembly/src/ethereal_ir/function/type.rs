@@ -7,10 +7,10 @@
 ///
 #[derive(Debug)]
 pub enum Type {
-    /// The initial function, combining deploy and runtime code.
-    Initial,
-    /// The recursive function with a specific block starting its recursive context.
-    Recursive {
+    /// Entry function at the beginning of the contract.
+    Entry,
+    /// Defined function called from entry function or another defined function.
+    Defined {
         /// The function name.
         name: String,
         /// The function initial block key.
@@ -26,20 +26,20 @@ impl Type {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new_initial() -> Self {
-        Self::Initial
+    pub fn new_entry() -> Self {
+        Self::Entry
     }
 
     ///
     /// A shortcut constructor.
     ///
-    pub fn new_recursive(
+    pub fn new_defined(
         name: String,
         block_key: solx_codegen_evm::BlockKey,
         input_size: usize,
         output_size: usize,
     ) -> Self {
-        Self::Recursive {
+        Self::Defined {
             name,
             block_key,
             input_size,
