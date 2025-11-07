@@ -336,9 +336,9 @@ impl Instruction {
     }
 
     ///
-    /// Initializes a recursive function `Call` instruction.
+    /// Initializes a function `Call` instruction.
     ///
-    pub fn recursive_call(
+    pub fn call(
         name: String,
         entry_key: solx_codegen_evm::BlockKey,
         stack_hash: u64,
@@ -365,9 +365,9 @@ impl Instruction {
     }
 
     ///
-    /// Initializes a recursive function `Return` instruction.
+    /// Initializes a `Return` instruction.
     ///
-    pub fn recursive_return(input_size: usize, previous: &Self) -> Self {
+    pub fn r#return(input_size: usize, previous: &Self) -> Self {
         Self {
             name: Name::RecursiveReturn { input_size },
             value: None,

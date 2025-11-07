@@ -103,15 +103,9 @@ impl solx_codegen_evm::WriteLLVM for FunctionDefinition {
         }
 
         self.0.body.wrap().into_llvm(context)?;
-        match context
-            .basic_block()
-            .get_last_instruction()
-            .map(|instruction| instruction.get_opcode())
-        {
-            Some(inkwell::values::InstructionOpcode::Br) => {}
-            Some(inkwell::values::InstructionOpcode::Switch) => {}
-            _ => context
-                .build_unconditional_branch(context.current_function().borrow().return_block())?,
+        if !context.is_basic_block_terminated() {
+            context
+                .build_unconditional_branch(context.current_function().borrow().return_block())?;
         }
 
         context.set_basic_block(context.current_function().borrow().return_block());

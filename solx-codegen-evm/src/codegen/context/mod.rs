@@ -124,7 +124,6 @@ impl<'ctx> Context<'ctx> {
         is_size_fallback: bool,
         profiler: &mut Profiler,
     ) -> anyhow::Result<EVMBuild> {
-        let module_size_fallback = self.module.clone();
         let contract_path = self.module.get_name().to_str().expect("Always valid");
 
         let run_init_verify = profiler.start_evm_translation_unit(
@@ -142,7 +141,7 @@ impl<'ctx> Context<'ctx> {
             .optimizer
             .settings()
             .spill_area_size()
-            .map(|spill_area_size| (crate::r#const::SOLC_GENERAL_MEMORY_OFFSET, spill_area_size));
+            .map(|spill_area_size| (crate::r#const::SOLC_USER_MEMORY_OFFSET, spill_area_size));
 
         if let Some(ref debug_config) = self.debug_config {
             debug_config.dump_llvm_ir_unoptimized(
@@ -160,6 +159,7 @@ impl<'ctx> Context<'ctx> {
         })?;
         run_init_verify.borrow_mut().finish();
 
+        let module_size_fallback = self.module.clone();
         let run_optimize_verify = profiler.start_evm_translation_unit(
             contract_path,
             self.code_segment,
@@ -495,6 +495,13 @@ impl<'ctx> IContext<'ctx> for Context<'ctx> {
 
     fn basic_block(&self) -> inkwell::basic_block::BasicBlock<'ctx> {
         self.builder().get_insert_block().expect("Always exists")
+    }
+
+    fn is_basic_block_terminated(&self) -> bool {
+        self.basic_block()
+            .get_last_instruction()
+            .map(|instruction| instruction.is_terminator())
+            .unwrap_or_default()
     }
 
     fn push_loop(

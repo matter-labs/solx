@@ -113,6 +113,11 @@ pub trait IContext<'ctx> {
     fn basic_block(&self) -> inkwell::basic_block::BasicBlock<'ctx>;
 
     ///
+    /// Checks if the current basic block is terminated.
+    ///
+    fn is_basic_block_terminated(&self) -> bool;
+
+    ///
     /// Pushes a new loop context to the stack.
     ///
     fn push_loop(

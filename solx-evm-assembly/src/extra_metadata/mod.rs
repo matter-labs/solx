@@ -2,31 +2,30 @@
 //! The `solc --standard-json` output contract EVM extra metadata.
 //!
 
-pub mod recursive_function;
+pub mod defined_function;
 
-use self::recursive_function::RecursiveFunction;
+use self::defined_function::DefinedFunction;
 
 ///
 /// The `solc --standard-json` output contract EVM extra metadata.
 ///
 #[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ExtraMetadata {
-    /// The list of recursive functions.
-    #[serde(default)]
-    pub recursive_functions: Vec<RecursiveFunction>,
+    /// The list of defined functions.
+    #[serde(default, rename = "recursiveFunctions")]
+    pub defined_functions: Vec<DefinedFunction>,
 }
 
 impl ExtraMetadata {
     ///
-    /// Returns the recursive function reference for the specified tag.
+    /// Returns the function reference for the specified tag.
     ///
     pub fn get(
         &self,
         code_segment: solx_utils::CodeSegment,
         tag: &num::BigUint,
-    ) -> Option<&RecursiveFunction> {
-        for function in self.recursive_functions.iter() {
+    ) -> Option<&DefinedFunction> {
+        for function in self.defined_functions.iter() {
             match code_segment {
                 solx_utils::CodeSegment::Deploy => {
                     if function

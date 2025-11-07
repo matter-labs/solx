@@ -365,7 +365,7 @@ pub enum Name {
     /// Special solx-specific instruction that detects unsafe assembly blocks.
     UNSAFEASM,
 
-    /// The recursive function call instruction.
+    /// The defined function call instruction.
     #[serde(skip)]
     RecursiveCall {
         /// The called function name.
@@ -381,7 +381,7 @@ pub enum Name {
         /// The return address.
         return_address: solx_codegen_evm::BlockKey,
     },
-    /// The recursive function return instruction.
+    /// The defined function return instruction.
     #[serde(skip)]
     RecursiveReturn {
         /// The output size.
