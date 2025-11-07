@@ -17,7 +17,7 @@ pub enum Element {
     Path(String),
     /// The compile-time hexadecimal data chunk.
     Data(String),
-    /// The recursive function return address.
+    /// The defined function return address.
     ReturnAddress(usize),
 }
 

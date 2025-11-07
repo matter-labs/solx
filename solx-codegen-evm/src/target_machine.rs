@@ -37,7 +37,7 @@ impl TargetMachine {
         if let Some(size) = optimizer_settings.spill_area_size {
             arguments.push(format!(
                 "-evm-stack-region-offset={}",
-                crate::r#const::SOLC_GENERAL_MEMORY_OFFSET
+                crate::r#const::SOLC_USER_MEMORY_OFFSET
             ));
             arguments.push(format!("-evm-stack-region-size={size}"));
         }
