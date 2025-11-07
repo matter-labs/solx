@@ -62,7 +62,7 @@ where
         self.inner.into_llvm(context)?;
         if !context.is_basic_block_terminated() {
             context
-                .build_unconditional_branch(context.current_function().borrow().return_block())?
+                .build_unconditional_branch(context.current_function().borrow().return_block())?;
         }
 
         context.set_basic_block(context.current_function().borrow().return_block());
