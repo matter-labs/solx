@@ -22,7 +22,7 @@ on:
 
 jobs:
   run-with-sanitizers:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
       options: -m 110g

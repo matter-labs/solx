@@ -68,7 +68,7 @@ env:
 jobs:
 
   build-solx:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     strategy:
@@ -167,7 +167,7 @@ jobs:
 
   test:
     needs: [build-solx, prepare-projects]
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     env:
       DEFAULT_ITERATIONS: 1
       FOUNDRY_INVARIANT_RUNS: 0
@@ -737,7 +737,7 @@ jobs:
 
   excel-reports:
     if: ${{ inputs.excel-reports == 'true' }}
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: test
@@ -788,7 +788,7 @@ jobs:
 
    # TODO: temporary switch off LNT output, can be returned if required in the future
 #  analyze-results:
-#    runs-on: matterlabs-ci-runner-high-performance
+#    runs-on: self-hosted
 #    container:
 #      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
 #    needs: test

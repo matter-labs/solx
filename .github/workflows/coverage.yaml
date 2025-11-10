@@ -19,7 +19,7 @@ permissions:
 jobs:
 
   coverage:
-    runs-on: matterlabs-ci-runner-highdisk
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     env:

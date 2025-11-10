@@ -17,7 +17,7 @@ jobs:
 
   # Check for cargo issues
   cargo-checks:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     steps:
@@ -58,7 +58,7 @@ jobs:
           - name: "MacOS arm64"
             runner: macos-latest-xlarge
           - name: "Linux x86 gnu"
-            runner: matterlabs-ci-runner-high-performance
+            runner: self-hosted
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "x86_64-unknown-linux-gnu"
           - name: "Linux ARM64 gnu"
