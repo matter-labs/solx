@@ -21,7 +21,7 @@ on:
       solx-repo:
         type: string
         required: false
-        default: 'matter-labs/solx'
+        default: 'NomicFoundation/solx'
         description: 'Solx repository to use. Required for forks testing.'
       compiler_llvm_candidate_branch:
         description: 'Specific LLVM candidate ref to use for building `solx`.'
@@ -68,7 +68,7 @@ env:
 jobs:
 
   build-solx:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     strategy:
@@ -139,7 +139,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: matter-labs/solx
+          repository: NomicFoundation/solx
           ref: ${{ inputs.solx_candidate_branch || 'main' }}
           sparse-checkout: |
             ${{ env.BENCHMARKS_TOML }}
@@ -167,7 +167,7 @@ jobs:
 
   test:
     needs: [build-solx, prepare-projects]
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     env:
       DEFAULT_ITERATIONS: 1
       FOUNDRY_INVARIANT_RUNS: 0
@@ -189,7 +189,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: matter-labs/solx
+          repository: NomicFoundation/solx
           ref: ${{ inputs.solx_candidate_branch || 'main' }}
           sparse-checkout: |
             ${{ env.BENCHMARKS_TOML }}
@@ -204,7 +204,7 @@ jobs:
       - name: Setup solx
         id: solx
         env:
-          SOLX_DOWNLOAD_URL: 'https://github.com/matter-labs/solx/releases/download'
+          SOLX_DOWNLOAD_URL: 'https://github.com/NomicFoundation/solx/releases/download'
         run: |
           mkdir -p compilers
           cd compilers
@@ -216,7 +216,7 @@ jobs:
           LATEST_RELEASE=$(curl -s \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/matter-labs/solx/releases/latest \
+            https://api.github.com/repos/NomicFoundation/solx/releases/latest \
             | jq -r .tag_name)
           wget "${SOLX_DOWNLOAD_URL}/${LATEST_RELEASE}/solx-linux-amd64-gnu-v${LATEST_RELEASE}"
           mv ./solx-linux-amd64-gnu-v${LATEST_RELEASE} ./solx-${LATEST_RELEASE}
@@ -479,7 +479,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: matter-labs/solx
+          repository: NomicFoundation/solx
           ref: ${{ inputs.solx_candidate_branch || 'main' }}
           sparse-checkout: |
             ${{ env.BENCHMARKS_TOML }}
@@ -737,7 +737,7 @@ jobs:
 
   excel-reports:
     if: ${{ inputs.excel-reports == 'true' }}
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: test
@@ -788,7 +788,7 @@ jobs:
 
    # TODO: temporary switch off LNT output, can be returned if required in the future
 #  analyze-results:
-#    runs-on: matterlabs-ci-runner-high-performance
+#    runs-on: self-hosted
 #    container:
 #      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
 #    needs: test
