@@ -30,4 +30,4 @@ jobs:
       upload-reports: ${{ github.event_name == 'pull_request' }}
       solx_candidate_branch: ${{ inputs.solx_candidate_branch || github.event.pull_request.head.sha }}
       solx_reference_branch: ${{ inputs.solx_reference_branch || 'main' }}
-      solx-repo: ${{ github.event.pull_request.head.repo.full_name || 'matter-labs/solx' }} # required to properly test forks
+      solx-repo: ${{ github.event.pull_request.head.repo.full_name || 'NomicFoundation/solx' }} # required to properly test forks

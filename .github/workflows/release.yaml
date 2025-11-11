@@ -300,4 +300,4 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Run installation script
-        run: curl -L https://raw.githubusercontent.com/matter-labs/solx/${{ github.ref_name }}/install-solx | bash
+        run: curl -L https://raw.githubusercontent.com/NomicFoundation/solx/${{ github.ref_name }}/install-solx | bash

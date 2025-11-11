@@ -138,7 +138,7 @@ jobs:
       - name: Setup solx
         id: solx
         env:
-          SOLX_DOWNLOAD_URL: 'https://github.com/matter-labs/solx/releases/download'
+          SOLX_DOWNLOAD_URL: 'https://github.com/NomicFoundation/solx/releases/download'
         run: |
           mkdir -p compilers
           cd compilers
