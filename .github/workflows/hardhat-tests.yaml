@@ -119,6 +119,12 @@ jobs:
       matrix:
         project: ${{ fromJSON(needs.prepare-projects.outputs.projects) }}
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+    
       - name: Checkout
         uses: actions/checkout@v4
         with:
