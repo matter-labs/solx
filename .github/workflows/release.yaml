@@ -291,9 +291,9 @@ jobs:
           - name: "MacOS arm64"
             runner: macos-latest-xlarge
           - name: "Linux x86 gnu"
-            runner: ubuntu-latest
+            runner: solx-linux-amd64
           - name: "Linux ARM64 gnu"
-            runner: matterlabs-ci-runner-arm
+            runner: solx-linux-arm64
     runs-on: ${{ matrix.runner }}
     name: ${{ matrix.name }}
     env:
