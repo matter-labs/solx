@@ -141,8 +141,6 @@ jobs:
         with:
           repository: NomicFoundation/solx
           ref: ${{ inputs.solx_candidate_branch || 'main' }}
-          sparse-checkout: |
-            ${{ env.BENCHMARKS_TOML }}
 
       - name: Prepare projects
         id: projects
@@ -191,8 +189,6 @@ jobs:
         with:
           repository: NomicFoundation/solx
           ref: ${{ inputs.solx_candidate_branch || 'main' }}
-          sparse-checkout: |
-            ${{ env.BENCHMARKS_TOML }}
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -476,13 +472,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           repository: NomicFoundation/solx
           ref: ${{ inputs.solx_candidate_branch || 'main' }}
-          sparse-checkout: |
-            ${{ env.BENCHMARKS_TOML }}
 
       - name: Download reports
         uses: actions/download-artifact@v4
