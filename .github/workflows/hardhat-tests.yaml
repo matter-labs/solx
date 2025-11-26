@@ -75,7 +75,7 @@ jobs:
     outputs:
       projects: ${{ steps.projects.outputs.projects }}
     env:
-      MAX_RUNNERS: 6 # how many max runners we can occupy in parallel
+      MAX_RUNNERS: 1 # how many max runners we can occupy in parallel
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -125,7 +125,7 @@ jobs:
           rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
           sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
           mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
-    
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -223,7 +223,7 @@ jobs:
 
                 # Install dependencies
                 ${BUILD_BIN} install
-          
+
                 if [[ ${PROJECT} != "hardhat-v3" ]]; then
                   # Downgrade hardhat
                   ${BUILD_BIN} add -D hardhat@2.20.1
@@ -231,7 +231,7 @@ jobs:
 
                 # Clean project
                 ${BUILD_BIN} run clean
-          
+
                 # Replace all pragmas
                 find . -name "*.sol" -type f -exec \
                   sed -i -E 's/pragma solidity[[:space:]]*[^\s]*[0-9]+\.[0-9]+\.[0-9]+/pragma solidity ${{ steps.solx.outputs.solc-base-version }}/g' {} +
@@ -245,14 +245,14 @@ jobs:
                 start_ms=$(date +%s%3N)
                 set +e
                 USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run compile > ${BUILD_LOG} 2>&1
-          
+
                 if [[ ${PROJECT} == "zksafe" ]]; then
                   # Run compilation one more time replacing generated pragmas
                   find . -name "circuits.sol" -type f -exec \
                     sed -i -E '/^[[:space:]]*pragma[[:space:]]+solidity\b/d' {} +
                   USE_SOLX=${USE_SOLX} VIA_IR=${VIA_IR} ${BUILD_BIN} run compile > ${BUILD_LOG} 2>&1
                 fi
-          
+
                 COMPILE_STATUS="$?"
                 set -e
                 end_ms=$(date +%s%3N)
@@ -319,9 +319,9 @@ jobs:
         run: |
           echo "| Project     | Mode     | Compilation, solc / solx | Passed (solc / solx / Total) |" > report.md
           echo "|-------------|----------|--------------------------|------------------------------|" >> report.md
-          
+
           PROJECTS=$(yq '. as $root | keys[]' .github/hardhat-projects.toml | tr '\n' ' ')
-          
+
           # --- Single-bar generator (10 slots, filled by solx vs solc reference) ---
           gen_bar() {
             local passed=$1   # numerator (solx)
@@ -332,11 +332,11 @@ jobs:
             fi
             (( percent < 0 )) && percent=0
             (( percent > 100 )) && percent=100
-          
+
             local filled=$(( percent / 10 ))
             local fill_char="🟥"
             (( percent == 100 )) && fill_char="🟩"
-          
+
             local empty_char="⬜"
             local bar=""
             for (( i=1; i<=10; i++ )); do
@@ -348,7 +348,7 @@ jobs:
             done
             echo "$bar"
           }
-          
+
           for PROJECT in ${PROJECTS}; do
             DISABLED=$(yq ".${PROJECT}.disabled" .github/hardhat-projects.toml)
             if [[ "${DISABLED}" == "true" ]]; then
@@ -385,7 +385,7 @@ jobs:
               REF_TEST_PASSED=0
               HAS_SOLC_NUM=0
               SOLC_PART_TXT="0"
-          
+
               if [ -s "$SOLC_TEST_JSON" ]; then
                 REF_TEST_TOTAL=$(jq -r '.stats.tests' "$SOLC_TEST_JSON" 2>/dev/null)
                 REF_TEST_PASSED=$(jq -r '.stats.passes' "$SOLC_TEST_JSON" 2>/dev/null)
@@ -403,12 +403,12 @@ jobs:
                   fi
                 fi
               fi
-          
+
               # solx passes
               SOLX_TEST_PASSED=0
               HAS_SOLX_NUM=0
               SOLX_PART_TXT="0"
-          
+
               if [ -s "$SOLX_TEST_JSON" ]; then
                 SOLX_TEST_PASSED=$(jq -r '.stats.passes' "$SOLX_TEST_JSON" 2>/dev/null)
                 [[ -z "$SOLX_TEST_PASSED" || "$SOLX_TEST_PASSED" == "null" ]] && SOLX_TEST_PASSED=0
@@ -430,7 +430,7 @@ jobs:
               if [ "$REF_TEST_PASSED" -eq 0 ]; then
                 TEST_BAR="🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩"
               fi
-          
+
               TOTAL_PART_TXT=$([ "$HAS_SOLC_NUM" -eq 1 ] && echo "$REF_TEST_TOTAL" || echo "0")
               PASSED_COLUMN="${TEST_BAR} ${SOLC_PART_TXT} / ${SOLX_PART_TXT} / ${TOTAL_PART_TXT}"
 
