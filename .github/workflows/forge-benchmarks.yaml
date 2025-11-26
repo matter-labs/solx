@@ -291,7 +291,8 @@ jobs:
               yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" |
                 jq -r 'select(.key != null) | .key + "=" + (.value | tostring)'
             )
-            for COMPILER in solc solx-llvm.${{ steps.solx.outputs.short-sha }} solx-ToT solx-${{ steps.solx.outputs.latest-release }}; do
+            # for COMPILER in solc solx-llvm.${{ steps.solx.outputs.short-sha }} solx-ToT solx-${{ steps.solx.outputs.latest-release }}; do
+            for COMPILER in solx-llvm.${{ steps.solx.outputs.short-sha }} solx-ToT; do
               for VIA_IR in true false; do
                 REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
                 if [ -d "${GITHUB_WORKSPACE}/projects/${PROJECT}" ]; then

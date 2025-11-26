@@ -209,7 +209,8 @@ jobs:
               yq -oj ".${PROJECT}.env // {} | to_entries[]" "${TOML_CONFIG}" |
                 jq -r 'select(.key != null) | .key + "=" + (.value | tostring)'
             )
-            for COMPILER in solc solx; do
+            # for COMPILER in solc solx; do
+            for COMPILER in solx; do
               for VIA_IR in false true; do
                 REPO=$(yq ".${PROJECT}.repo" "${TOML_CONFIG}")
                 BUILD_BIN=$(yq eval ".${PROJECT}.build_system // \"npm\"" "$TOML_CONFIG")
