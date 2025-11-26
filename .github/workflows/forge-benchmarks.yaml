@@ -740,7 +740,7 @@ jobs:
 
   excel-reports:
     if: ${{ inputs.excel-reports == 'true' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: test
