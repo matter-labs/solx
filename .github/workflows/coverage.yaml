@@ -37,7 +37,7 @@ jobs:
           mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
