@@ -32,14 +32,14 @@ jobs:
 
       - name: Tmp cleanup
         run: |
-          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+          rm -rf /__w/solx || true
+          sudo rm -rf /__w/solx || true
+          mkdir -p /__w/solx/solx
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: true
 
       # This step is required to checkout submodules
       # that are disabled in .gitmodules config
