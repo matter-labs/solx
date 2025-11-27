@@ -44,7 +44,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --force --depth=1 --recursive --checkout
+          git submodule update --init --force --recursive --checkout
 
       - name: Building solc
         uses: ./.github/actions/build-solc
