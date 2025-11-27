@@ -95,7 +95,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --force --recursive --checkout
+          git submodule update --init --force --depth=1 --recursive --checkout
 
       - name: Remove llvm submodule
         if: ${{ contains(github.repository, 'era-compiler-llvm') }}

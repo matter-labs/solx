@@ -50,6 +50,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
+          git submodule sync --recursive
           git submodule update --force --depth=1 --recursive --checkout
 
       - name: Building solc
