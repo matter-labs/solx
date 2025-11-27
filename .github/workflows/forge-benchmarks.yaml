@@ -130,7 +130,7 @@ jobs:
   # Special job to separate projects by chunks
   # and execute chunks in parallel later.
   prepare-projects:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       projects: ${{ steps.projects.outputs.projects }}
     env:
@@ -477,7 +477,7 @@ jobs:
 
   # prepare-md-tables:
   #   if: ${{ inputs.print-markdown-tables == 'true' }}
-  #   runs-on: ubuntu-latest
+  #   runs-on: self-hosted
   #   needs: test
   #   steps:
 
@@ -740,7 +740,7 @@ jobs:
 
   excel-reports:
     if: ${{ inputs.excel-reports == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: test
@@ -759,13 +759,13 @@ jobs:
           find . -type f -name 'test_*.json' -delete
           find .
 
-      - name: Install benchmark-converter
+      - name: Install solx-benchmark-converter
         run: |
-          cargo install benchmark-converter \
-            --git https://github.com/matter-labs/era-compiler-tester
+          cargo install solx-benchmark-converter \
+            --git https://github.com/matter-labs/solx
 
       - name: Run benchmark converter
-        run: benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
+        run: solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
 
       - name: Upload Excel reports
         id: excel-reports
@@ -779,127 +779,4 @@ jobs:
         with:
           message-id: 'excel-reports'
           message: |
-            📊 **Excel Report Available**
-
-            Benchmarks measured for:
-            * solx candidate version: `${{ needs.test.outputs.solx-version }}`
-            * solx ToT version: `${{ needs.test.outputs.solx-tot-version }}`
-            * solx latest release version: `${{ needs.test.outputs.solx-latest-release-version }}`
-            * solc version: `${{ needs.test.outputs.solc-base-version }}`
-
-            ➡️ [**Download Excel Report**](${{ steps.excel-reports.outputs.artifact-url }})
-
-   # TODO: temporary switch off LNT output, can be returned if required in the future
-#  analyze-results:
-#    runs-on: self-hosted
-#    container:
-#      image: ghcr.io/matter-labs/zksync-llvm-runner:latest
-#    needs: test
-#    env:
-#      LNT_SERVER_URL: http://llvm-lnt.infra.matterlabs.corp
-#      LNT_TEST_SUITE: zksync
-#      CONFIG_FILE: lntadmin.yaml
-#      DEV_PREFIX: DEV__
-#      LNT_RESULTS_FILE: lnt_results.txt
-#      CONTEXT_FILE: context.json
-#      COMPARISON_FILE: comparison_links.txt
-#    steps:
-#
-#      - name: Checkout LNT
-#        uses: actions/checkout@v4
-#        with:
-#          repository: llvm/llvm-lnt
-#          path: lnt
-#
-#      - name: Setup Python
-#        uses: actions/setup-python@v5
-#        with:
-#          python-version: '3.9'
-#
-#      - name: Install LNT
-#        run: cd lnt && pip install .
-#
-#      - name: Download reports
-#        uses: actions/download-artifact@v4
-#        with:
-#          path: data
-#          merge-multiple: 'true'
-#
-#      - name: Install LNT benchmark-converter
-#        run: |
-#          cargo install benchmark-analyzer --bin benchmark-converter \
-#            --git https://github.com/matter-labs/era-compiler-tester
-#
-#      - name: Check data directory
-#        run: |
-#          ls -la ./data
-#          find ./data
-#
-#      - name: Generate context.json
-#        run: |
-#          if [[ "${{ github.event_name }}" != "push" ]]; then
-#            DEV_MACHINE_PREFIX="${DEV_PREFIX}"
-#          fi
-#          for COMPILER in solx solx-via-ir solc solc-via-ir; do
-#            [[ ${COMPILER} == "solx"* ]] && TOOLCHAIN="ir-llvm" || TOOLCHAIN="evm"
-#            [[ ${COMPILER} == "solx"* ]] && VERSION="${{ needs.test.outputs.solx-version }}" || VERSION="${{ needs.test.outputs.solc-base-version }}"
-#            [[ ${COMPILER} == *"via-ir" ]] && CODEGEN="via-ir" || CODEGEN="evmla"
-#            echo "{
-#              \"machine\": \"${DEV_MACHINE_PREFIX}forge-benchmarks-${COMPILER}\",
-#              \"target\": \"evm\",
-#              \"toolchain\": \"${TOOLCHAIN}\",
-#              \"compiler_version\": \"${VERSION}\",
-#              \"llvm_version\": \"${{ needs.test.outputs.solx-llvm-version }}\",
-#              \"codegen\": \"${CODEGEN}\",
-#              \"optimization\": \"Default\"
-#            }" > ${CONTEXT_FILE}
-#            INPUTS=""
-#            rm -f ./data/${COMPILER}/build*.json
-#            rm -f ./data/${COMPILER}/test*.json
-#            JSONS=$(ls ./data/${COMPILER}/*.json 2>/dev/null)
-#            for JSON in ${JSONS}; do
-#              if jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]; then
-#                INPUTS+=" --input-paths ${JSON}"
-#              fi
-#            done
-#            benchmark-converter ${INPUTS} \
-#              --benchmark-format json-lnt \
-#              --benchmark-context ${CONTEXT_FILE} \
-#              --output-path ./${COMPILER}
-#            mv ./${COMPILER}/* ./lnt-report-${COMPILER}.json
-#          done
-#
-#      - name: Upload results
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: lnt-reports
-#          path: lnt-report*.json
-#
-#      - name: Submit LNT results
-#        shell: bash -ex {0}
-#        run: |
-#          SUBMIT_URL="${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/submitRun"
-#          echo SOLX_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx.json) | tee -a ${GITHUB_ENV}
-#          echo SOLX_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solx-via-ir.json) | tee -a ${GITHUB_ENV}
-#          echo SOLC_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc.json) | tee -a ${GITHUB_ENV}
-#          echo SOLC_VIA_IR_LINK=$(lnt submit --ignore-regressions --select-machine=update ${SUBMIT_URL} lnt-report-solc-via-ir.json) | tee -a ${GITHUB_ENV}
-#
-#      - name: Publish comparison links
-#        if: ${{ github.event_name == 'pull_request' }}
-#        shell: bash -ex {0}
-#        run: |
-#          # Initialize the Markdown table
-#          echo '|  Mode   | Link |' > "${COMPARISON_FILE}"
-#          echo '|---------|------|' >> "${COMPARISON_FILE}"
-#          COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_LINK##*/}?compare_to=${SOLC_LINK##*/})"
-#          VIA_IR_COMPARISON="[Results](${LNT_SERVER_URL}/db_default/v4/${LNT_TEST_SUITE}/${SOLX_VIA_IR_LINK##*/}?compare_to=${SOLC_VIA_IR_LINK##*/})"
-#          echo "| default | ${COMPARISON} |" >> "${COMPARISON_FILE}"
-#          echo "| via-ir | ${VIA_IR_COMPARISON} |" >> "${COMPARISON_FILE}"
-#          cat "${COMPARISON_FILE}"
-#
-#      - name: Posting LNT comparison
-#        if: ${{ github.event_name == 'pull_request' }}
-#        uses: mshick/add-pr-comment@v2
-#        with:
-#          message-path: ${{ env.COMPARISON_FILE }}
-#          message-id: comparison_links
+            📊 [**Download Excel Report**](${{ steps.excel-reports.outputs.artifact-url }})
