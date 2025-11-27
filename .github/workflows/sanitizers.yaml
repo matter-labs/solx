@@ -22,7 +22,7 @@ on:
 
 jobs:
   run-with-sanitizers:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
       options: -m 110g
@@ -30,10 +30,16 @@ jobs:
       TARGET: x86_64-unknown-linux-gnu
     steps:
 
+      # - name: Tmp cleanup
+      #   run: |
+      #     rm -rf /__w/solx || true
+      #     sudo rm -rf /__w/solx || true
+      #     mkdir -p /__w/solx/solx
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: true
 
       # This step is required to checkout submodules
       # that are disabled in .gitmodules config

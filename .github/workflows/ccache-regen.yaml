@@ -36,15 +36,15 @@ jobs:
           - name: "MacOS arm64"
             runner: macos-latest-xlarge
           - name: "Linux x86 gnu"
-            runner: matterlabs-ci-runner-high-performance
+            runner: solx-linux-amd64
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "x86_64-unknown-linux-gnu"
           - name: "Linux ARM64 gnu"
-            runner: matterlabs-ci-runner-arm
+            runner: solx-linux-arm64
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "aarch64-unknown-linux-gnu"
           - name: "Windows"
-            runner: windows-2022-github-hosted-16core
+            runner: solx-windows-amd64
             target: "x86_64-pc-windows-gnu"
     runs-on: ${{ matrix.runner }}
     container:

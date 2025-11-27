@@ -8,6 +8,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 # Cancel the workflow if any new changes pushed to a feature branch or the trunk
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -17,14 +22,15 @@ jobs:
 
   # Check for cargo issues
   cargo-checks:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     steps:
+
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: true
 
       # This step is required to checkout submodules
       # that are disabled in .gitmodules config
@@ -58,25 +64,26 @@ jobs:
           - name: "MacOS arm64"
             runner: macos-latest-xlarge
           - name: "Linux x86 gnu"
-            runner: matterlabs-ci-runner-high-performance
+            runner: solx-linux-amd64
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "x86_64-unknown-linux-gnu"
           - name: "Linux ARM64 gnu"
-            runner: matterlabs-ci-runner-arm
+            runner: solx-linux-arm64
             image: ghcr.io/matter-labs/zksync-llvm-runner:latest
             target: "aarch64-unknown-linux-gnu"
           - name: "Windows"
-            runner: windows-2022-github-hosted-16core
+            runner: solx-windows-amd64
             target: "x86_64-pc-windows-gnu"
     runs-on: ${{ matrix.runner }}
     container:
       image: ${{ matrix.image || '' }} # Special workaround to allow matrix builds with optional container
     name: ${{ matrix.name }}
     steps:
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          submodules: 'recursive'
+          submodules: true
 
       # This step is required to checkout submodules
       # that are disabled in .gitmodules config

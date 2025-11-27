@@ -19,7 +19,7 @@ permissions:
 jobs:
 
   coverage:
-    runs-on: matterlabs-ci-runner-highdisk
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     env:
@@ -29,10 +29,17 @@ jobs:
       LCOV_FILE: codecov.lcov
       OUTPUT_HTML_DIR: COVERAGE
     steps:
+
+      # - name: Tmp cleanup
+      #   run: |
+      #     rm -rf /__w/solx || true
+      #     sudo rm -rf /__w/solx || true
+      #     mkdir -p /__w/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          submodules: recursive
+          submodules: true
 
       - name: Checkout submodules
         run: |
@@ -72,7 +79,7 @@ jobs:
           for TEST_PATH in tests/solidity/complex/* tests/solidity/simple/*; do
           WORKDIR=$(basename ${TEST_PATH})
           mkdir -p "${GITHUB_WORKSPACE}/${WORKDIR}"
-          ./target/release/solx-tester --solx $(which solx) --path ${TEST_PATH} --workflow build          
+          ./target/release/solx-tester --solx $(which solx) --path ${TEST_PATH} --workflow build
           mv *.profraw "${GITHUB_WORKSPACE}/${WORKDIR}/" || true
           du -hs "${GITHUB_WORKSPACE}/${WORKDIR}"
           find ${GITHUB_WORKSPACE}/${WORKDIR} -type f -name '*.profraw' -print > profiles.lst

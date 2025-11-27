@@ -18,7 +18,7 @@ permissions:
 jobs:
 
   tests:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
       options: -m 110g
@@ -26,15 +26,22 @@ jobs:
       BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
       SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
     steps:
+
+      # - name: Tmp cleanup
+      #   run: |
+      #     rm -rf /__w/solx || true
+      #     sudo rm -rf /__w/solx || true
+      #     mkdir -p /__w/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          submodules: recursive
+          submodules: true
 
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --force --depth=1 --recursive --checkout
+          git submodule update --init --force --recursive --depth 1 --checkout
 
       - name: Building solc
         uses: ./.github/actions/build-solc
@@ -42,7 +49,6 @@ jobs:
           cmake-build-type: RelWithDebInfo
           working-dir: 'era-solidity'
           upload-testing-binary: false
-          build-type: ${{ matrix.type }}
 
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
@@ -66,7 +72,7 @@ jobs:
 
 
   benchmarks:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     strategy:
@@ -77,16 +83,23 @@ jobs:
       BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
       SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
     steps:
+
+      # - name: Tmp cleanup
+      #   run: |
+      #     rm -rf /__w/solx || true
+      #     sudo rm -rf /__w/solx || true
+      #     mkdir -p /__w/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          submodules: recursive
+          submodules: true
           ref: ${{ matrix.type == 'reference' && github.event.pull_request.base.sha || '' }}
 
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --force --depth=1 --recursive --checkout
+          git submodule update --init --force --recursive --depth 1 --checkout
 
       - name: Building solc
         uses: ./.github/actions/build-solc
@@ -110,7 +123,7 @@ jobs:
         run: cargo build --release --bin solx
 
       - name: Run benchmarks
-        run: |          
+        run: |
           ./target/release/solx-tester \
             --solx ./target/release/solx \
             --benchmark=${{ matrix.type }}-benchmark.json || true
@@ -124,12 +137,13 @@ jobs:
 
 
   comparison:
-    runs-on: matterlabs-ci-runner-high-performance
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: benchmarks
     if: ${{ (failure() || success()) }}
     steps:
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -165,9 +179,9 @@ jobs:
           message-id: 'excel-reports'
           message: |
             📊 **Benchmarks Excel report**
-            
+
             Benchmarks measured for:
             * candidate commit: ${{ github.sha }}
             * reference commit: ${{ github.event.pull_request.base.sha }}
-            
+
             ➡️ [**Download Excel Report**](${{ steps.compiler-tester-excel-reports.outputs.artifact-url }})
