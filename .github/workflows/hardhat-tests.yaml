@@ -29,16 +29,16 @@ jobs:
 
   build-solx:
     if: ${{ inputs.solx-version == '' }}
-    runs-on: self-hosted
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     steps:
 
-      - name: Tmp cleanup
-        run: |
-          rm -rf /__w/solx || true
-          sudo rm -rf /__w/solx || true
-          mkdir -p /__w/solx/solx
+      # - name: Tmp cleanup
+      #   run: |
+      #     rm -rf /__w/solx || true
+      #     sudo rm -rf /__w/solx || true
+      #     mkdir -p /__w/solx/solx
 
       - name: Checkout source
         uses: actions/checkout@v5
@@ -114,7 +114,7 @@ jobs:
     if: |
       always() &&
       (needs.build-solx.result == 'skipped' || needs.build-solx.result == 'success')
-    runs-on: self-hosted
+    runs-on: solx-linux-amd64
     env:
       DEFAULT_ITERATIONS: 20
     outputs:
@@ -128,11 +128,11 @@ jobs:
         project: ${{ fromJSON(needs.prepare-projects.outputs.projects) }}
     steps:
 
-      - name: Tmp cleanup
-        run: |
-          rm -rf /__w/solx || true
-          sudo rm -rf /__w/solx || true
-          mkdir -p /__w/solx/solx
+      # - name: Tmp cleanup
+      #   run: |
+      #     rm -rf /__w/solx || true
+      #     sudo rm -rf /__w/solx || true
+      #     mkdir -p /__w/solx/solx
 
       - name: Checkout
         uses: actions/checkout@v5
