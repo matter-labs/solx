@@ -29,6 +29,9 @@ jobs:
 
       - name: Tmp cleanup
         run: |
+          pwd
+          ls -la
+          rm -rf * || true
           rm -rf /home/ubuntu/actions-runner/_work/solx || true
           sudo rm -rf /home/ubuntu/actions-runner/_work/solx || true
 
