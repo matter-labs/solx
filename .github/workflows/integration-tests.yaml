@@ -37,18 +37,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --force --recursive --checkout
-
       - name: Building solc
         uses: ./.github/actions/build-solc
         with:
           cmake-build-type: RelWithDebInfo
           working-dir: 'era-solidity'
           upload-testing-binary: false
-          build-type: ${{ matrix.type }}
 
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
