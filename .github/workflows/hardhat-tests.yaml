@@ -78,18 +78,12 @@ jobs:
   # Special job to separate projects by chunks
   # and execute chunks in parallel later.
   prepare-projects:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       projects: ${{ steps.projects.outputs.projects }}
     env:
       MAX_RUNNERS: 1 # how many max runners we can occupy in parallel
     steps:
-
-      - name: Tmp cleanup
-        run: |
-          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
 
       - name: Checkout
         uses: actions/checkout@v4
