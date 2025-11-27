@@ -154,7 +154,7 @@ jobs:
       attestations: write
       contents: write
     name: Prepare release
-    runs-on: self-hosted
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: [build, get-previous-release]

@@ -196,12 +196,12 @@ jobs:
 
       - name: Tmp cleanup
         run: |
-          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+          rm -rf /__w/solx || true
+          sudo rm -rf /__w/solx || true
+          mkdir -p /__w/solx/solx
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: NomicFoundation/solx
           ref: ${{ inputs.solx_candidate_branch || 'main' }}
@@ -751,7 +751,7 @@ jobs:
 
   excel-reports:
     if: ${{ inputs.excel-reports == 'true' }}
-    runs-on: self-hosted
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: test

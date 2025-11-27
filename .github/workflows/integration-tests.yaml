@@ -137,21 +137,15 @@ jobs:
 
 
   comparison:
-    runs-on: self-hosted
+    runs-on: solx-linux-amd64
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: benchmarks
     if: ${{ (failure() || success()) }}
     steps:
 
-      - name: Tmp cleanup
-        run: |
-          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
-
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
