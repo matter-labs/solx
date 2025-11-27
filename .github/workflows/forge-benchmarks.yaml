@@ -250,12 +250,8 @@ jobs:
           echo "solc-base-version=${SOLX_SOLC_VERSION}" >> ${GITHUB_OUTPUT}
           echo "latest-release=${LATEST_RELEASE}" >> ${GITHUB_OUTPUT}
 
-      - name: Install foundry
-        run: |
-          curl -L https://foundry.paradigm.xyz | bash
-          export PATH="$PATH:${HOME}/.foundry/bin"
-          echo ${HOME}/.foundry/bin >> "${GITHUB_PATH}"
-          foundryup
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
 
       - name: Install yq
         env:
