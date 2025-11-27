@@ -762,7 +762,7 @@ jobs:
       - name: Install solx-benchmark-converter
         run: |
           cargo install solx-benchmark-converter \
-            --git https://github.com/matter-labs/solx
+            --git https://github.com/NomicFoundation/solx
 
       - name: Run benchmark converter
         run: solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
