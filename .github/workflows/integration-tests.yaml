@@ -29,19 +29,17 @@ jobs:
 
       - name: Tmp cleanup
         run: |
-          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+          rm -rf /home/ubuntu/actions-runner/_work/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx || true
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule sync --recursive
           git submodule update --init --force --depth=1 --recursive --checkout
 
       - name: Building solc
