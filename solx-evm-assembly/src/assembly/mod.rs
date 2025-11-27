@@ -14,7 +14,6 @@ use twox_hash::XxHash3_64;
 
 use solx_codegen_evm::IContext;
 
-use crate::ethereal_ir::entry_link::EntryLink;
 use crate::ethereal_ir::EtherealIR;
 use crate::extra_metadata::ExtraMetadata;
 
@@ -388,10 +387,7 @@ impl solx_codegen_evm::WriteLLVM for Assembly {
             (solx_utils::CodeSegment::Runtime, blocks)
         };
 
-        let mut entry = solx_codegen_evm::EntryFunction::new(EntryLink::new(code_segment));
-        entry.declare(context)?;
-
-        let mut ethereal_ir = EtherealIR::new(
+        let ethereal_ir = EtherealIR::new(
             context.evmla().expect("Always exists").version.to_owned(),
             self.extra_metadata.unwrap_or_default(),
             Some(code_segment),
@@ -404,9 +400,9 @@ impl solx_codegen_evm::WriteLLVM for Assembly {
             }
             debug_config.dump_ethir(path.as_str(), ethereal_ir.to_string().as_str())?;
         }
-        ethereal_ir.declare(context)?;
-        ethereal_ir.into_llvm(context)?;
 
+        let mut entry = solx_codegen_evm::EntryFunction::new(ethereal_ir);
+        entry.declare(context)?;
         entry.into_llvm(context)?;
 
         Ok(())

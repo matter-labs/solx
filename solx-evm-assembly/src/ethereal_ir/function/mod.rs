@@ -29,8 +29,7 @@ use crate::assembly::instruction::name::Name as InstructionName;
 use crate::assembly::instruction::Instruction;
 use crate::ethereal_ir::function::block::element::stack::element::Element;
 use crate::ethereal_ir::function::block::element::stack::Stack;
-use crate::ethereal_ir::EtherealIR;
-use crate::extra_metadata::recursive_function::RecursiveFunction as ExtraMetadataRecursiveFunction;
+use crate::extra_metadata::defined_function::DefinedFunction as ExtraMetadataDefinedFunction;
 use crate::extra_metadata::ExtraMetadata;
 
 use self::block::element::stack::element::Element as StackElement;
@@ -69,8 +68,8 @@ impl Function {
         r#type: Type,
     ) -> Self {
         let name = match r#type {
-            Type::Initial => EtherealIR::DEFAULT_ENTRY_FUNCTION_NAME.to_string(),
-            Type::Recursive {
+            Type::Entry => solx_codegen_evm::ENTRY_FUNCTION_NAME.to_string(),
+            Type::Defined {
                 ref name,
                 ref block_key,
                 ..
@@ -108,7 +107,7 @@ impl Function {
         };
 
         match self.r#type {
-            Type::Initial => {
+            Type::Entry => {
                 for code_segment in code_segments {
                     self.consume_block(
                         blocks,
@@ -124,7 +123,7 @@ impl Function {
                     )?;
                 }
             }
-            Type::Recursive {
+            Type::Defined {
                 ref block_key,
                 input_size,
                 output_size,
@@ -281,7 +280,7 @@ impl Function {
                     }
                     Element::ReturnAddress(output_size) => {
                         block_element.instruction =
-                            Instruction::recursive_return(1 + output_size, instruction);
+                            Instruction::r#return(1 + output_size, instruction);
                         Self::update_io_data(block_stack, block_element, 1 + output_size, vec![])?;
                         return Ok(());
                     }
@@ -294,11 +293,11 @@ impl Function {
                     }
                 };
 
-                let (next_block_key, stack_output) = if let Some(recursive_function) =
+                let (next_block_key, stack_output) = if let Some(function) =
                     extra_metadata.get(block_key.code_segment, &block_key.tag)
                 {
-                    Self::handle_recursive_function_call(
-                        recursive_function,
+                    Self::handle_function_call(
+                        function,
                         blocks,
                         functions,
                         extra_metadata,
@@ -1022,10 +1021,10 @@ impl Function {
     }
 
     ///
-    /// Handles the recursive function call.
+    /// Handles a defined function call.
     ///
-    fn handle_recursive_function_call(
-        recursive_function: &ExtraMetadataRecursiveFunction,
+    fn handle_function_call(
+        function: &ExtraMetadataDefinedFunction,
         blocks: &HashMap<solx_codegen_evm::BlockKey, Block>,
         functions: &mut BTreeMap<solx_codegen_evm::BlockKey, Self>,
         extra_metadata: &ExtraMetadata,
@@ -1035,9 +1034,9 @@ impl Function {
         block_element: &mut BlockElement,
         version: &semver::Version,
     ) -> anyhow::Result<(solx_codegen_evm::BlockKey, Vec<Element>)> {
-        let return_address_offset = block_stack.elements.len() - 2 - recursive_function.input_size;
+        let return_address_offset = block_stack.elements.len() - 2 - function.input_size;
         let input_arguments_offset = return_address_offset + 1;
-        let callee_tag_offset = input_arguments_offset + recursive_function.input_size;
+        let callee_tag_offset = input_arguments_offset + function.input_size;
 
         let return_address = match block_stack.elements[return_address_offset] {
             Element::Tag(ref return_address) => {
@@ -1045,10 +1044,8 @@ impl Function {
             }
             ref element => anyhow::bail!("Expected the function return address, found {element}"),
         };
-        let mut stack = Stack::with_capacity(1 + recursive_function.input_size);
-        stack.push(StackElement::ReturnAddress(
-            1 + recursive_function.output_size,
-        ));
+        let mut stack = Stack::with_capacity(1 + function.input_size);
+        stack.push(StackElement::ReturnAddress(1 + function.output_size));
         stack.append(&mut Stack::new_with_elements(
             block_stack.elements[input_arguments_offset..callee_tag_offset].to_owned(),
         ));
@@ -1059,11 +1056,11 @@ impl Function {
             let mut function = Self::new(
                 version.to_owned(),
                 Some(block_key.code_segment),
-                Type::new_recursive(
-                    recursive_function.name.to_owned(),
+                Type::new_defined(
+                    function.name.to_owned(),
                     block_key.clone(),
-                    recursive_function.input_size,
-                    recursive_function.output_size,
+                    function.input_size,
+                    function.output_size,
                 ),
             );
             visited_functions.insert(visited_element);
@@ -1071,21 +1068,19 @@ impl Function {
             functions.insert(block_key.clone(), function);
         }
 
-        let stack_output =
-            vec![Element::value("RETURN_VALUE".to_owned()); recursive_function.output_size];
+        let stack_output = vec![Element::value("RETURN_VALUE".to_owned()); function.output_size];
         let mut return_stack = Stack::new_with_elements(
-            block_stack.elements[..block_stack.len() - recursive_function.input_size - 2]
-                .to_owned(),
+            block_stack.elements[..block_stack.len() - function.input_size - 2].to_owned(),
         );
         return_stack.append(&mut Stack::new_with_elements(stack_output.clone()));
         let return_stack_hash = return_stack.hash();
 
-        block_element.instruction = Instruction::recursive_call(
-            recursive_function.name.to_owned(),
+        block_element.instruction = Instruction::call(
+            function.name.to_owned(),
             block_key,
             return_stack_hash,
-            recursive_function.input_size + 2,
-            recursive_function.output_size,
+            function.input_size + 2,
+            function.output_size,
             return_address.clone(),
             &block_element.instruction,
         );
@@ -1157,14 +1152,11 @@ impl Function {
 
 impl solx_codegen_evm::WriteLLVM for Function {
     fn declare(&mut self, context: &mut solx_codegen_evm::Context) -> anyhow::Result<()> {
-        let (function_type, output_size) = match self.r#type {
-            Type::Initial => {
-                let output_size = 0;
-                let r#type =
-                    context.function_type::<inkwell::types::BasicTypeEnum<'_>>(vec![], output_size);
-                (r#type, output_size)
-            }
-            Type::Recursive {
+        let function = match self.r#type {
+            Type::Entry => context
+                .get_function(self.name.as_str())
+                .expect("Declared in EntryFunction"),
+            Type::Defined {
                 input_size,
                 output_size,
                 ..
@@ -1178,15 +1170,14 @@ impl solx_codegen_evm::WriteLLVM for Function {
                     ],
                     output_size,
                 );
-                (r#type, output_size)
+                context.add_function(
+                    self.name.as_str(),
+                    r#type,
+                    output_size,
+                    Some(inkwell::module::Linkage::Private),
+                )?
             }
         };
-        let function = context.add_function(
-            self.name.as_str(),
-            function_type,
-            output_size,
-            Some(inkwell::module::Linkage::Private),
-        )?;
         function
             .borrow_mut()
             .set_evmla_data(solx_codegen_evm::FunctionEVMLAData::new(self.stack_size));
@@ -1221,7 +1212,7 @@ impl solx_codegen_evm::WriteLLVM for Function {
                 format!("stack_var_{stack_index:03}").as_str(),
             )?;
             let value = match self.r#type {
-                Type::Recursive { input_size, .. }
+                Type::Defined { input_size, .. }
                     if stack_index >= 1 && stack_index <= input_size =>
                 {
                     context
@@ -1242,7 +1233,7 @@ impl solx_codegen_evm::WriteLLVM for Function {
         context.evmla_mut().expect("Always exists").stack = stack_variables;
 
         match self.r#type {
-            Type::Initial => {
+            Type::Entry => {
                 let initial_block = context.current_function().borrow().find_block(
                     &solx_codegen_evm::BlockKey::new(
                         context.code_segment().expect("Must be set at this point"),
@@ -1252,7 +1243,7 @@ impl solx_codegen_evm::WriteLLVM for Function {
                 )?;
                 context.build_unconditional_branch(initial_block.inner())?;
             }
-            Type::Recursive { ref block_key, .. } => {
+            Type::Defined { ref block_key, .. } => {
                 let initial_block = context
                     .current_function()
                     .borrow()
@@ -1286,18 +1277,25 @@ impl solx_codegen_evm::WriteLLVM for Function {
         }
 
         context.set_basic_block(context.current_function().borrow().return_block());
-        match context.current_function().borrow().r#return() {
-            solx_codegen_evm::FunctionReturn::None => {
-                context.build_return(None)?;
+        match self.r#type {
+            Type::Entry => {
+                if !context.is_basic_block_terminated() {
+                    solx_codegen_evm::r#return::stop(context)?;
+                }
             }
-            solx_codegen_evm::FunctionReturn::Primitive { pointer } => {
-                let return_value = context.build_load(pointer, "return_value")?;
-                context.build_return(Some(&return_value))?;
-            }
-            solx_codegen_evm::FunctionReturn::Compound { pointer, .. } => {
-                let return_value = context.build_load(pointer, "return_value")?;
-                context.build_return(Some(&return_value))?;
-            }
+            Type::Defined { .. } => match context.current_function().borrow().r#return() {
+                solx_codegen_evm::FunctionReturn::None => {
+                    context.build_return(None)?;
+                }
+                solx_codegen_evm::FunctionReturn::Primitive { pointer } => {
+                    let return_value = context.build_load(pointer, "return_value")?;
+                    context.build_return(Some(&return_value))?;
+                }
+                solx_codegen_evm::FunctionReturn::Compound { pointer, .. } => {
+                    let return_value = context.build_load(pointer, "return_value")?;
+                    context.build_return(Some(&return_value))?;
+                }
+            },
         }
 
         Ok(())
@@ -1307,8 +1305,8 @@ impl solx_codegen_evm::WriteLLVM for Function {
 impl std::fmt::Display for Function {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.r#type {
-            Type::Initial => writeln!(f, "function {} {{", self.name),
-            Type::Recursive {
+            Type::Entry => writeln!(f, "function {} {{", self.name),
+            Type::Defined {
                 input_size,
                 output_size,
                 ..
