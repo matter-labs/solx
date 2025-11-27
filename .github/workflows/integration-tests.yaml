@@ -27,15 +27,20 @@ jobs:
       SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
     steps:
 
-      # - name: Tmp cleanup
-      #   run: |
-      #     rm -rf /home/ubuntu/actions-runner/_work/solx || true
-      #     sudo rm -rf /home/ubuntu/actions-runner/_work/solx || true
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx || true
 
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          submodules: recursive
+          submodules: true
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --force --recursive --depth 1 --checkout
 
       - name: Building solc
         uses: ./.github/actions/build-solc
