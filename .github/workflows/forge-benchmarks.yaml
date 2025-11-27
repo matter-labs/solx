@@ -77,6 +77,12 @@ jobs:
         type: ["reference", "candidate"]
     steps:
 
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout source
         uses: actions/checkout@v4
         with:
@@ -136,6 +142,13 @@ jobs:
     env:
       MAX_RUNNERS: 1 # how many max runners we can occupy in parallel
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -745,6 +758,13 @@ jobs:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     needs: test
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Download reports
         uses: actions/download-artifact@v4
         with:

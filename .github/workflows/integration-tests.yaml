@@ -26,6 +26,13 @@ jobs:
       BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
       SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -77,6 +84,13 @@ jobs:
       BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
       SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -110,7 +124,7 @@ jobs:
         run: cargo build --release --bin solx
 
       - name: Run benchmarks
-        run: |          
+        run: |
           ./target/release/solx-tester \
             --solx ./target/release/solx \
             --benchmark=${{ matrix.type }}-benchmark.json || true
@@ -130,6 +144,13 @@ jobs:
     needs: benchmarks
     if: ${{ (failure() || success()) }}
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -165,9 +186,9 @@ jobs:
           message-id: 'excel-reports'
           message: |
             📊 **Benchmarks Excel report**
-            
+
             Benchmarks measured for:
             * candidate commit: ${{ github.sha }}
             * reference commit: ${{ github.event.pull_request.base.sha }}
-            
+
             ➡️ [**Download Excel Report**](${{ steps.compiler-tester-excel-reports.outputs.artifact-url }})

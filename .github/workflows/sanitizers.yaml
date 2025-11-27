@@ -30,6 +30,12 @@ jobs:
       TARGET: x86_64-unknown-linux-gnu
     steps:
 
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v4
         with:

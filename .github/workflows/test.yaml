@@ -26,6 +26,13 @@ jobs:
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout source
         uses: actions/checkout@v4
         with:
@@ -78,6 +85,13 @@ jobs:
       image: ${{ matrix.image || '' }} # Special workaround to allow matrix builds with optional container
     name: ${{ matrix.name }}
     steps:
+
+      - name: Tmp cleanup
+        run: |
+          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
+          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
