@@ -121,6 +121,17 @@ impl<'ctx> Function<'ctx> {
         declaration: FunctionDeclaration<'ctx>,
         optimizer: &Optimizer,
     ) {
+        if optimizer.settings().level_middle_end == inkwell::OptimizationLevel::None {
+            declaration.value.add_attribute(
+                inkwell::attributes::AttributeLoc::Function,
+                llvm.create_enum_attribute(Attribute::OptimizeNone as u32, 0),
+            );
+            declaration.value.add_attribute(
+                inkwell::attributes::AttributeLoc::Function,
+                llvm.create_enum_attribute(Attribute::NoInline as u32, 0),
+            );
+        }
+
         if optimizer.settings().level_middle_end_size == SizeLevel::Z {
             declaration.value.add_attribute(
                 inkwell::attributes::AttributeLoc::Function,
