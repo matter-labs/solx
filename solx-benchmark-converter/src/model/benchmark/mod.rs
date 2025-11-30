@@ -57,7 +57,7 @@ impl Benchmark {
         mut report: Benchmark,
     ) {
         report.tests.retain(|name, _| {
-            name.starts_with("era-solidity") || name.starts_with("tests/solidity")
+            name.starts_with("solx-solidity") || name.starts_with("tests/solidity")
         });
 
         for (name, test) in report.tests.into_iter() {

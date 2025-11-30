@@ -27,4 +27,4 @@ strip = true
 [env]
 BOOST_PREFIX = { value = "/opt/homebrew/lib/", relative = false, force = false }
 LLVM_SYS_191_PREFIX = { value = "./target-llvm/target-final/", relative = true, force = false }
-SOLC_PREFIX = { value = "./era-solidity/build/", relative = true, force = false }
+SOLC_PREFIX = { value = "./solx-solidity/build/", relative = true, force = false }

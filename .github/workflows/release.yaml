@@ -106,7 +106,7 @@ jobs:
         uses: ./.github/actions/build-solc
         with:
           cmake-build-type: 'Release'
-          working-dir: 'era-solidity'
+          working-dir: 'solx-solidity'
 
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
@@ -118,8 +118,8 @@ jobs:
       - name: Build solx
         uses: ./.github/actions/build-rust
         env:
-          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+          BOOST_PREFIX: ${{ github.workspace }}/solx-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/solx-solidity/build
         with:
           exec_name: 'solx'
           target: ${{ matrix.target }}

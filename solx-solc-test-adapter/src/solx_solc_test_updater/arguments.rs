@@ -16,7 +16,7 @@ pub struct Arguments {
     #[arg(
         short,
         long,
-        default_value = "era-solidity/test/libsolidity/semanticTests"
+        default_value = "solx-solidity/test/libsolidity/semanticTests"
     )]
     pub source: PathBuf,
 
