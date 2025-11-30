@@ -113,7 +113,7 @@ jobs:
         uses: ./.github/actions/build-solc
         with:
           cmake-build-type: 'Release'
-          working-dir: 'era-solidity'
+          working-dir: 'solx-solidity'
           upload-testing-binary: false
 
       - name: Build LLVM
@@ -126,8 +126,8 @@ jobs:
       - name: Build solx
         uses: ./.github/actions/build-rust
         env:
-          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+          BOOST_PREFIX: ${{ github.workspace }}/solx-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/solx-solidity/build
         with:
           exec_name: 'solx'
           target: 'x86_64-unknown-linux-gnu'
@@ -773,13 +773,17 @@ jobs:
           find . -type f -name 'test_*.json' -delete
           find .
 
-      - name: Install solx-benchmark-converter
-        run: |
-          cargo install solx-benchmark-converter \
-            --git https://github.com/NomicFoundation/solx
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Build converter
+        run: cargo build --release --bin solx-benchmark-converter
 
       - name: Run benchmark converter
-        run: solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
+        run: ./target/release/solx-benchmark-converter --input-source tooling \
+          --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
 
       - name: Upload Excel reports
         id: excel-reports

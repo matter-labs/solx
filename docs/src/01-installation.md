@@ -168,7 +168,7 @@ This repository maintains intuitive and stable naming for the executables and pr
 6. Build the **solc** libraries.
 
    ```shell
-   cd era-solidity
+   cd solx-solidity
    mkdir -pv build
    cd build
    cmake .. \

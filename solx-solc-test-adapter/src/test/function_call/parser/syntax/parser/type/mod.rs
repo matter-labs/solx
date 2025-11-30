@@ -24,9 +24,10 @@ use crate::test::function_call::parser::syntax::tree::r#type::Type;
 ///
 /// The parser state.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum State {
     /// The initial state.
+    #[default]
     Start,
     /// The `{type}` has been parsed so far.
     BracketSquareLeftOrEnd,
@@ -34,12 +35,6 @@ pub enum State {
     SizeOrBracketSquareRight,
     /// The `{type}[{size}` has been parsed so far.
     BracketSquareRight,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::Start
-    }
 }
 
 ///

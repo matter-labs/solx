@@ -5,20 +5,15 @@
 ///
 /// The alignment option.
 ///
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub enum Alignment {
+    /// `{literal}` in the source code.
+    #[default]
+    Default,
     /// `left({literal})` in the source code.
     Left,
     /// `right({literal})` in the source code.
     Right,
-    /// `{literal}` in the source code.
-    Default,
-}
-
-impl Default for Alignment {
-    fn default() -> Self {
-        Self::Default
-    }
 }
 
 impl Alignment {

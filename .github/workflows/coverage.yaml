@@ -23,8 +23,8 @@ jobs:
     container:
       image: ghcr.io/matter-labs/zksync-llvm-runner:latest
     env:
-      BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-      SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+      BOOST_PREFIX: ${{ github.workspace }}/solx-solidity/boost/lib
+      SOLC_PREFIX: ${{ github.workspace }}/solx-solidity/build
       PROFDATA_FILE: solx.profdata
       LCOV_FILE: codecov.lcov
       OUTPUT_HTML_DIR: COVERAGE
@@ -50,7 +50,7 @@ jobs:
         uses: ./.github/actions/build-solc
         with:
           cmake-build-type: RelWithDebInfo
-          working-dir: 'era-solidity'
+          working-dir: 'solx-solidity'
           upload-testing-binary: false
           build-type: ${{ matrix.type }}
 

@@ -19,9 +19,10 @@ use crate::test::function_call::parser::syntax::tree::r#type::Type;
 ///
 /// The parser state.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum State {
     /// The initial state.
+    #[default]
     ParenthesisLeft,
     /// The `(` has been parsed so far.
     TypeOrParenthesisRight,
@@ -29,12 +30,6 @@ pub enum State {
     CommaOrParenthesisRight,
     /// The `( {type},` has been parsed so far.
     Type,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::ParenthesisLeft
-    }
 }
 
 ///

@@ -25,9 +25,10 @@ use crate::test::function_call::parser::syntax::tree::identifier::Identifier;
 ///
 /// The parser state.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum State {
     /// The initial state.
+    #[default]
     Start,
     /// The `~` has been parsed so far.
     Emit,
@@ -59,12 +60,6 @@ pub enum State {
     CommaOrEnd,
     /// The `...:{literal},` has been parsed so far.
     Literal,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::Start
-    }
 }
 
 ///
