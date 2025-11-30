@@ -20,9 +20,10 @@ use crate::test::function_call::parser::syntax::tree::literal::Literal;
 ///
 /// The parser state.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum State {
     /// The initial state.
+    #[default]
     Start,
     /// The `{alignment}` has been parsed so far.
     Alignment,
@@ -30,12 +31,6 @@ pub enum State {
     ParenthesisLeft,
     /// The `{alignment}([-]{literal}` has been parsed so far.
     Literal,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::Start
-    }
 }
 
 ///

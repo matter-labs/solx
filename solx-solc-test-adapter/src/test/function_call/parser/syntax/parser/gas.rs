@@ -21,9 +21,10 @@ use crate::test::function_call::parser::syntax::tree::gas::Gas;
 ///
 /// The parser state.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum State {
     /// The initial state.
+    #[default]
     Start,
     /// The `gas` has been parsed so far.
     Variant,
@@ -33,12 +34,6 @@ pub enum State {
     Colon,
     /// The `gas {variant}:` has been parsed so far.
     Value,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::Start
-    }
 }
 
 ///

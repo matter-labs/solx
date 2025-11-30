@@ -26,9 +26,10 @@ use crate::test::function_call::parser::syntax::tree::identifier::Identifier;
 ///
 /// The parser state.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum State {
     /// The initial state.
+    #[default]
     Start,
     /// The `library` has been parsed so far.
     Library,
@@ -66,12 +67,6 @@ pub enum State {
     Event,
     /// The `...{gas option}` has been parsed so far.
     Gas,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::Start
-    }
 }
 
 ///
