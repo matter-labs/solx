@@ -773,13 +773,17 @@ jobs:
           find . -type f -name 'test_*.json' -delete
           find .
 
-      - name: Install solx-benchmark-converter
-        run: |
-          cargo install solx-benchmark-converter \
-            --git https://github.com/NomicFoundation/solx
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Build converter
+        run: cargo build --release --bin solx-benchmark-converter
 
       - name: Run benchmark converter
-        run: solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
+        run: ./target/release/solx-benchmark-converter --input-source tooling \
+          --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
 
       - name: Upload Excel reports
         id: excel-reports
