@@ -100,7 +100,7 @@ jobs:
         uses: ./.github/actions/build-solc
         with:
           cmake-build-type: RelWithDebInfo
-          working-dir: 'era-solidity'
+          working-dir: 'solx-solidity'
 
       - name: Build LLVM
         uses: ./.github/actions/build-llvm
@@ -112,8 +112,8 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/rust-unit-tests
         env:
-          BOOST_PREFIX: ${{ github.workspace }}/era-solidity/boost/lib
-          SOLC_PREFIX: ${{ github.workspace }}/era-solidity/build
+          BOOST_PREFIX: ${{ github.workspace }}/solx-solidity/boost/lib
+          SOLC_PREFIX: ${{ github.workspace }}/solx-solidity/build
         with:
           target: ${{ matrix.target || '' }}
 

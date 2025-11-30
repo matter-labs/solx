@@ -284,7 +284,7 @@ impl Summary {
                 usize::pow(10, 5)
             };
 
-            if (self.passed + self.failed + self.invalid) % milestone == 0 {
+            if (self.passed + self.failed + self.invalid).is_multiple_of(milestone) {
                 println!("{self}");
             }
         }

@@ -20,18 +20,13 @@ use crate::test::function_call::parser::syntax::tree::value::Value;
 ///
 /// The parser state.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum State {
     /// The initial state.
+    #[default]
     Start,
     /// The `{integer literal}` has been parsed so far.
     Unit,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self::Start
-    }
 }
 
 ///

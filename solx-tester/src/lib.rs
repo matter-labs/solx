@@ -72,7 +72,7 @@ impl SolxTester {
     /// The Solidity complex tests directory.
     const SOLIDITY_COMPLEX: &'static str = "tests/solidity/complex";
     /// The Solidity upstream tests directory.
-    const SOLIDITY_UPSTREAM: &'static str = "era-solidity/test/libsolidity/semanticTests";
+    const SOLIDITY_UPSTREAM: &'static str = "solx-solidity/test/libsolidity/semanticTests";
 
     /// The Yul simple tests directory.
     const YUL_SIMPLE: &'static str = "tests/yul";

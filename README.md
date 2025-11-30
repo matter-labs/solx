@@ -14,7 +14,7 @@
 
 - [Foundry projects](.github/forge-benchmarks.toml)
 - [Hardhat projects](.github/hardhat-projects.toml)
-- [tests](https://github.com/matter-labs/era-solidity/tree/0.8.30/test/libsolidity/semanticTests) from the **solc** project
+- [tests](https://github.com/matter-labs/solx-solidity/tree/0.8.30/test/libsolidity/semanticTests) from the **solc** project
 - [real-life projects](solx-tests/solidity/complex/defi) such as UniswapV2 and Mooniswap
 - [additional tests](solx-tests/solidity) written by the **solx** team
 
@@ -44,7 +44,7 @@ For the detailed installation and usage guide, visit [the respective page of our
 **solx** consists of three main parts:
 
 1. **solx** executable from this repository. The repository also contains parts of the compiler front end: Yul and EVM assembly translators.
-2. [era-solidity](https://github.com/matter-labs/era-solidity/), an LLVM-friendly fork of [the Solidity compiler](https://github.com/ethereum/solidity),
+2. [solx-solidity](https://github.com/matter-labs/solx-solidity/), an LLVM-friendly fork of [the Solidity compiler](https://github.com/ethereum/solidity),
   that emits Yul and EVM assembly for **solx**. Despite the repository name, it is not directly related to either ZKsync or ZKsync Era.
 3. [era-compiler-llvm](https://github.com/matter-labs/era-compiler-llvm), a fork of [the LLVM project](https://github.com/llvm/llvm-project)
   with an EVM target developed by the **solx** team.
@@ -75,7 +75,7 @@ For reference, see [llvm-sys](https://crates.io/crates/llvm-sys) and [Local LLVM
 - All other crates are licensed under the terms of either
   - Apache License, Version 2.0 ([LICENSE-APACHE](./solx-standard-json/LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
   - MIT license ([LICENSE-MIT](./solx-standard-json/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
-- [`era-solidity`](https://github.com/matter-labs/era-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/era-solidity/blob/0.8.30/LICENSE.txt)
+- [`solx-solidity`](https://github.com/matter-labs/solx-solidity/) is licensed under [GNU General Public License v3.0](https://github.com/matter-labs/solx-solidity/blob/0.8.30/LICENSE.txt)
 - [`era-compiler-llvm`](https://github.com/matter-labs/era-compiler-llvm) is licensed under the terms of Apache License, Version 2.0 with LLVM Exceptions, ([LICENSE](https://github.com/matter-labs/era-compiler-llvm/blob/main/LICENSE) or https://llvm.org/LICENSE.txt)
 
 Additionally, this repository vendors tests and test projects that preserve their original licenses:

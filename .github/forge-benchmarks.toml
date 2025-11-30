@@ -148,3 +148,7 @@ description = "A non-custodial liquidity protocol on Ethereum."
 requires_yarn = true
 [aave-v3.env]
 EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
+
+[wtf-gas]
+repo = "https://github.com/hedgar2017/WTF-gas-optimization"
+description = "WTF Solidity gas optimization techniques"
