@@ -150,5 +150,5 @@ requires_yarn = true
 EVM_DISABLE_MEMORY_SAFE_ASM_CHECK = "true"
 
 [wtf-gas]
-repo = "https://github.com/WTFAcademy/WTF-gas-optimization"
+repo = "https://github.com/hedgar2017/WTF-gas-optimization"
 description = "WTF Solidity gas optimization techniques"
