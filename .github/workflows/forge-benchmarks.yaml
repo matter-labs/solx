@@ -782,8 +782,7 @@ jobs:
         run: cargo build --release --bin solx-benchmark-converter
 
       - name: Run benchmark converter
-        run: ./target/release/solx-benchmark-converter --input-source tooling \
-          --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
+        run: ./target/release/solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
 
       - name: Upload Excel reports
         id: excel-reports
