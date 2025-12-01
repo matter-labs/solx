@@ -14,7 +14,6 @@ use self::worksheet::Worksheet;
 ///
 /// XLSX output format for benchmark data.
 ///
-#[derive(Default)]
 pub struct Xlsx {
     /// Worksheet for runtime fee measurements.
     pub runtime_fee_worksheet: Worksheet,
@@ -94,7 +93,7 @@ impl TryFrom<(Benchmark, Source)> for Xlsx {
     type Error = anyhow::Error;
 
     fn try_from((benchmark, source): (Benchmark, Source)) -> Result<Self, Self::Error> {
-        let mut xlsx = Self::default();
+        let mut xlsx = Self::new()?;
 
         'outer: for test in benchmark.tests.into_values() {
             let is_deployer = test
@@ -213,9 +212,8 @@ impl TryFrom<(Benchmark, Source)> for Xlsx {
 
         let comparison_mapping = match source {
             // Source::Tooling => vec![(6, 4), (7, 5), (6, 2), (7, 3), (6, 0), (7, 1)],
-            // Source::SolxTester => vec![(2, 6), (3, 7), (0, 4), (1, 5)],
             Source::Tooling => vec![(2, 0), (3, 1)],
-            Source::SolxTester => vec![(0, 2), (1, 3)],
+            Source::SolxTester => vec![(2, 6), (3, 7), (0, 4), (1, 5)],
         };
 
         for (index, (toolchain_id_1, toolchain_id_2)) in comparison_mapping.into_iter().enumerate()
