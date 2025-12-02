@@ -753,21 +753,14 @@ jobs:
     needs: test
     steps:
 
-      - name: Tmp cleanup
-        run: |
-          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
-
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
-          path: data
-          pattern: 'results*'
+          pattern: 'results'
           merge-multiple: 'false'
 
       - name: Clean-up files
-        working-directory: data
+        working-directory: results
         run: |
           find . -type f -name 'build_*.json' ! -name 'build_sizes*.json' -delete
           find . -type f -name 'test_*.json' -delete
@@ -782,7 +775,7 @@ jobs:
         run: cargo build --release --bin solx-benchmark-converter
 
       - name: Run benchmark converter
-        run: ./target/release/solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
+        run: ./target/release/solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./results
 
       - name: Upload Excel reports
         id: excel-reports
