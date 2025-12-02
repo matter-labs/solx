@@ -754,12 +754,6 @@ jobs:
     needs: test
     steps:
 
-      - name: Download reports
-        uses: actions/download-artifact@v4
-        with:
-          pattern: 'results'
-          merge-multiple: 'false'
-
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -767,6 +761,12 @@ jobs:
 
       - name: Build converter
         run: cargo build --release --bin solx-benchmark-converter
+
+      - name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'results'
+          merge-multiple: 'false'
 
       - name: Run benchmark converter
         run: |
