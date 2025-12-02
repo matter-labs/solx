@@ -770,8 +770,8 @@ jobs:
 
       - name: Run benchmark converter
         run: |
-          ls -lR ./results
-          ./target/release/solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./results
+          ls -lR ./benchmark
+          ./target/release/solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./benchmark
 
       - name: Upload Excel reports
         id: excel-reports
