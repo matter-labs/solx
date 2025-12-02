@@ -176,7 +176,6 @@ jobs:
     needs: [build-solx, prepare-projects]
     runs-on: solx-linux-amd64
     env:
-      DEFAULT_ITERATIONS: 1
       FOUNDRY_INVARIANT_RUNS: 0
       FOUNDRY_INVARIANT_DEPTH: 0
     outputs:
@@ -429,35 +428,25 @@ jobs:
                     ' "${TEST_JSON}"
                 fi
 
-                GAS_REPORTS="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}-gas-reports"
-                mkdir -p "${GAS_REPORTS}"
-
-                ITERATIONS=$(yq ".${PROJECT}.run_iterations // ${DEFAULT_ITERATIONS}" "${TOML_CONFIG}")
-                for ITER in $(seq "${ITERATIONS}"); do
-                  GAS_JSON_ITER="${GAS_REPORTS}/${PROJECT}_${ITER}.json"
-                  forge test --optimize --no-metadata --fuzz-runs=0 --fuzz-seed=0xdeadbeef --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON_ITER}" 2>/dev/null || true
-                done
-
-                # Strip all errors in stdout
-                sed -i '/ERROR/d' "${GAS_JSON_ITER}"
+                # Run the error-free gas report
+                forge test --optimize --no-metadata --fuzz-runs=0 --fuzz-seed=0xdeadbeef --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON}" 2>/dev/null || true
+                sed -i '/ERROR/d' "${GAS_JSON}"
 
                 # Convert gas JSON reports to benchmark converter format
-                for JSON in ${GAS_REPORTS}/*.json; do
-                  if [[ ${COMPILER} == *solx* ]]; then
-                    TOOLCHAIN="${COMPILER}${VIA_IR_SUFFIX}"
-                  else
-                    TOOLCHAIN="${COMPILER}-${{ steps.solx.outputs.solc-base-version }}${VIA_IR_SUFFIX}"
-                  fi
-                  if jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]; then
-                    jq --arg project "${PROJECT}" --arg toolchain "${TOOLCHAIN}" \
-                      '{data: ., project: $project, toolchain: $toolchain}' \
-                      "${JSON}" > tmp.json
-                    mv tmp.json "${JSON}"
-                  else
-                    echo "Invalid gas JSON: ${JSON}"
-                    cat "${JSON}"
-                  fi
-                done
+                if [[ ${COMPILER} == *solx* ]]; then
+                  TOOLCHAIN="${COMPILER}${VIA_IR_SUFFIX}"
+                else
+                  TOOLCHAIN="${COMPILER}-${{ steps.solx.outputs.solc-base-version }}${VIA_IR_SUFFIX}"
+                fi
+                if jq empty "${GAS_JSON}" > /dev/null 2>&1 && [ -s "${GAS_JSON}" ]; then
+                  jq --arg project "${PROJECT}" --arg toolchain "${TOOLCHAIN}" \
+                    '{data: ., project: $project, toolchain: $toolchain}' \
+                    "${GAS_JSON}" > tmp.json
+                  mv tmp.json "${GAS_JSON}"
+                else
+                  echo "Invalid gas GAS_JSON: ${GAS_JSON}"
+                  cat "${GAS_JSON}"
+                fi
 
               done
             done
