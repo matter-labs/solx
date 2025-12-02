@@ -331,8 +331,8 @@ jobs:
                 [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-viaIR" || VIA_IR_SUFFIX=""
                 [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir" || VIA_IR_OPTION=""
                 mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
-                BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
-                BUILD_SIZES_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_sizes_${PROJECT}.json"
+                BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test/sizes-${PROJECT}.json"
+                BUILD_SIZES_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/benchmark/sizes-${PROJECT}.json"
 
                 start_ms=$(date +%s%3N)
                 forge build --optimize --no-metadata --force ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>/dev/null || true
@@ -404,8 +404,8 @@ jobs:
                   continue
                 fi
 
-                TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_${PROJECT}.json"
-                GAS_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
+                TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test/${PROJECT}.json"
+                GAS_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/benchmark/${PROJECT}.json"
                 start_ms=$(date +%s%3N)
                 forge test --optimize --no-metadata --fuzz-runs=0 --fuzz-seed=0xdeadbeef ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${TEST_JSON}" 2>/dev/null || true
                 end_ms=$(date +%s%3N)
@@ -758,13 +758,6 @@ jobs:
         with:
           pattern: 'results'
           merge-multiple: 'false'
-
-      - name: Clean-up files
-        working-directory: results
-        run: |
-          find . -type f -name 'build_*.json' ! -name 'build_sizes*.json' -delete
-          find . -type f -name 'test_*.json' -delete
-          find .
 
       - name: Checkout
         uses: actions/checkout@v5
