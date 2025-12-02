@@ -12,6 +12,9 @@
 /.idea/
 /.vscode/
 
+# MacOS artifacts
+.DS_Store
+
 # Test artifacts
 /**/tests/data/temp/*
 
