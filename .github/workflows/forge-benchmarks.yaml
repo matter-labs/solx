@@ -766,6 +766,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: 'results'
+          path: 'benchmark'
           merge-multiple: 'false'
 
       - name: Run benchmark converter
