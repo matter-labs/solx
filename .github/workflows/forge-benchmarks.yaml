@@ -176,7 +176,6 @@ jobs:
     needs: [build-solx, prepare-projects]
     runs-on: solx-linux-amd64
     env:
-      DEFAULT_ITERATIONS: 1
       FOUNDRY_INVARIANT_RUNS: 0
       FOUNDRY_INVARIANT_DEPTH: 0
     outputs:
@@ -330,9 +329,10 @@ jobs:
                 [[ ${COMPILER} == *solx* ]] && USE_SOLX="--use ${GITHUB_WORKSPACE}/compilers/${COMPILER}" || USE_SOLX=""
                 [ ${VIA_IR} == 'true' ] && VIA_IR_SUFFIX="-viaIR" || VIA_IR_SUFFIX=""
                 [ ${VIA_IR} == 'true' ] && VIA_IR_OPTION="--via-ir" || VIA_IR_OPTION=""
-                mkdir -p ${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}
-                BUILD_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_${PROJECT}.json"
-                BUILD_SIZES_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/build_sizes_${PROJECT}.json"
+                mkdir -p ${GITHUB_WORKSPACE}/test/${COMPILER}${VIA_IR_SUFFIX}
+                mkdir -p ${GITHUB_WORKSPACE}/benchmark/${COMPILER}${VIA_IR_SUFFIX}
+                BUILD_JSON="${GITHUB_WORKSPACE}/test/${COMPILER}${VIA_IR_SUFFIX}/sizes-${PROJECT}.json"
+                BUILD_SIZES_JSON="${GITHUB_WORKSPACE}/benchmark/${COMPILER}${VIA_IR_SUFFIX}/sizes-${PROJECT}.json"
 
                 start_ms=$(date +%s%3N)
                 forge build --optimize --no-metadata --force ${USE_SOLX} ${VIA_IR_OPTION} --json > ${BUILD_JSON} 2>/dev/null || true
@@ -404,8 +404,8 @@ jobs:
                   continue
                 fi
 
-                TEST_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/test_${PROJECT}.json"
-                GAS_JSON="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
+                TEST_JSON="${GITHUB_WORKSPACE}/test/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
+                GAS_JSON="${GITHUB_WORKSPACE}/benchmark/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}.json"
                 start_ms=$(date +%s%3N)
                 forge test --optimize --no-metadata --fuzz-runs=0 --fuzz-seed=0xdeadbeef ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${TEST_JSON}" 2>/dev/null || true
                 end_ms=$(date +%s%3N)
@@ -428,35 +428,25 @@ jobs:
                     ' "${TEST_JSON}"
                 fi
 
-                GAS_REPORTS="${GITHUB_WORKSPACE}/${COMPILER}${VIA_IR_SUFFIX}/${PROJECT}-gas-reports"
-                mkdir -p "${GAS_REPORTS}"
-
-                ITERATIONS=$(yq ".${PROJECT}.run_iterations // ${DEFAULT_ITERATIONS}" "${TOML_CONFIG}")
-                for ITER in $(seq "${ITERATIONS}"); do
-                  GAS_JSON_ITER="${GAS_REPORTS}/${PROJECT}_${ITER}.json"
-                  forge test --optimize --no-metadata --fuzz-runs=0 --fuzz-seed=0xdeadbeef --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON_ITER}" 2>/dev/null || true
-                done
-
-                # Strip all errors in stdout
-                sed -i '/ERROR/d' "${GAS_JSON_ITER}"
+                # Run the error-free gas report
+                forge test --optimize --no-metadata --fuzz-runs=0 --fuzz-seed=0xdeadbeef --gas-report ${VIA_IR_OPTION} --json ${USE_SOLX} ${DEFAULT_SKIP_TESTS} ${SKIP_TESTS} >"${GAS_JSON}" 2>/dev/null || true
+                sed -i '/ERROR/d' "${GAS_JSON}"
 
                 # Convert gas JSON reports to benchmark converter format
-                for JSON in ${GAS_REPORTS}/*.json; do
-                  if [[ ${COMPILER} == *solx* ]]; then
-                    TOOLCHAIN="${COMPILER}${VIA_IR_SUFFIX}"
-                  else
-                    TOOLCHAIN="${COMPILER}-${{ steps.solx.outputs.solc-base-version }}${VIA_IR_SUFFIX}"
-                  fi
-                  if jq empty "${JSON}" > /dev/null 2>&1 && [ -s "${JSON}" ]; then
-                    jq --arg project "${PROJECT}" --arg toolchain "${TOOLCHAIN}" \
-                      '{data: ., project: $project, toolchain: $toolchain}' \
-                      "${JSON}" > tmp.json
-                    mv tmp.json "${JSON}"
-                  else
-                    echo "Invalid gas JSON: ${JSON}"
-                    cat "${JSON}"
-                  fi
-                done
+                if [[ ${COMPILER} == *solx* ]]; then
+                  TOOLCHAIN="${COMPILER}${VIA_IR_SUFFIX}"
+                else
+                  TOOLCHAIN="${COMPILER}-${{ steps.solx.outputs.solc-base-version }}${VIA_IR_SUFFIX}"
+                fi
+                if jq empty "${GAS_JSON}" > /dev/null 2>&1 && [ -s "${GAS_JSON}" ]; then
+                  jq --arg project "${PROJECT}" --arg toolchain "${TOOLCHAIN}" \
+                    '{data: ., project: $project, toolchain: $toolchain}' \
+                    "${GAS_JSON}" > tmp.json
+                  mv tmp.json "${GAS_JSON}"
+                else
+                  echo "Invalid gas GAS_JSON: ${GAS_JSON}"
+                  cat "${GAS_JSON}"
+                fi
 
               done
             done
@@ -479,7 +469,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: results
-          path: 'sol*/'
+          path: 'benchmark/'
 
 
   # prepare-md-tables:
@@ -753,26 +743,6 @@ jobs:
     needs: test
     steps:
 
-      - name: Tmp cleanup
-        run: |
-          rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          sudo rm -rf /home/ubuntu/actions-runner/_work/solx/solx || true
-          mkdir -p /home/ubuntu/actions-runner/_work/solx/solx
-
-      - name: Download reports
-        uses: actions/download-artifact@v4
-        with:
-          path: data
-          pattern: 'results*'
-          merge-multiple: 'false'
-
-      - name: Clean-up files
-        working-directory: data
-        run: |
-          find . -type f -name 'build_*.json' ! -name 'build_sizes*.json' -delete
-          find . -type f -name 'test_*.json' -delete
-          find .
-
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -781,9 +751,17 @@ jobs:
       - name: Build converter
         run: cargo build --release --bin solx-benchmark-converter
 
+      - name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'results'
+          path: 'benchmark'
+          merge-multiple: 'false'
+
       - name: Run benchmark converter
-        run: ./target/release/solx-benchmark-converter --input-source tooling \
-          --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./data
+        run: |
+          ls -lR
+          ./target/release/solx-benchmark-converter --input-source tooling --output-path benchmarks-llvm.${{ needs.test.outputs.short-sha }}.xlsx ./benchmark
 
       - name: Upload Excel reports
         id: excel-reports

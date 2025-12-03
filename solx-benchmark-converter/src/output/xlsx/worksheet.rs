@@ -7,7 +7,6 @@ use std::collections::HashMap;
 ///
 /// XLSX worksheet for benchmark data.
 ///
-#[derive(Default)]
 pub struct Worksheet {
     /// The inner worksheet.
     pub worksheet: rust_xlsxwriter::Worksheet,
